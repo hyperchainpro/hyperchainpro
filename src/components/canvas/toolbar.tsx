@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useCallback, useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
   MousePointer2,
   Hand,
@@ -17,13 +16,19 @@ import {
   ZoomIn,
   ZoomOut,
   Maximize,
+  Sparkles,
+  Loader2,
+  LayoutGrid,
+  AlignHorizontalSpaceAround,
+  FileText,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCanvasStore } from '@/store/canvas-store';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
-import { STICKY_COLORS, type StickyColor, type CanvasTool } from '@/lib/types';
+import { STICKY_COLORS, type StickyColor, type CanvasTool, type ElementType } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
 
 interface ToolItem {
   id: CanvasTool;
@@ -58,8 +63,11 @@ const STICKY_COLOR_OPTIONS: { color: StickyColor; bg: string; label: string }[] 
 
 export default function Toolbar() {
   const store = useCanvasStore();
+  const { toast } = useToast();
   const [stickyOpen, setStickyOpen] = useState(false);
   const [connectorOpen, setConnectorOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiLoading, setAiLoading] = useState<string | null>(null);
   const popoverRefs = useRef<Map<string, HTMLButtonElement | null>>(new Map());
 
   const {
@@ -107,8 +115,97 @@ export default function Toolbar() {
     [store],
   );
 
+  const handleGenerateLayout = useCallback(async () => {
+    setAiLoading('generate');
+    setAiOpen(false);
+    try {
+      const res = await fetch('/api/ai/generate-layout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ boardName: 'Board' }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        toast({ title: 'AI Error', description: data.error || 'Failed to generate layout', variant: 'destructive' });
+        return;
+      }
+      const generatedElements = data.elements as Array<{
+        type: string;
+        x: number;
+        y: number;
+        width?: number;
+        height?: number;
+        content: string;
+        color: string;
+      }>;
+      // Add each generated element to the canvas
+      for (const el of generatedElements) {
+        const validTypes: ElementType[] = ['STICKY_NOTE', 'RECTANGLE', 'CIRCLE', 'LINE', 'TEXT', 'CONNECTOR'];
+        const elType = validTypes.includes(el.type as ElementType) ? (el.type as ElementType) : 'TEXT';
+        store.addElement(elType, el.x, el.y, {
+          content: el.content,
+          color: el.color,
+          width: el.width,
+          height: el.height,
+        });
+      }
+      toast({ title: 'Layout Generated', description: `Added ${generatedElements.length} elements to the canvas.` });
+    } catch {
+      toast({ title: 'Error', description: 'Failed to connect to AI service.', variant: 'destructive' });
+    } finally {
+      setAiLoading(null);
+    }
+  }, [store, toast]);
+
+  const handleAutoArrange = useCallback(() => {
+    setAiOpen(false);
+    if (elements.length === 0) {
+      toast({ title: 'Nothing to arrange', description: 'Add some elements first.' });
+      return;
+    }
+    // Grid-based auto-arrange
+    const sorted = [...elements].sort((a, b) => a.zIndex - b.zIndex);
+    const cols = Math.ceil(Math.sqrt(sorted.length));
+    const cellW = 260;
+    const cellH = 220;
+    const startX = 100;
+    const startY = 100;
+    const updates = sorted.map((el, i) => ({
+      id: el.id,
+      x: startX + (i % cols) * cellW,
+      y: startY + Math.floor(i / cols) * cellH,
+    }));
+    for (const u of updates) {
+      store.moveElement(u.id, u.x, u.y);
+    }
+    store.pushHistory();
+    toast({ title: 'Auto-arranged', description: `Arranged ${sorted.length} elements in a grid.` });
+  }, [elements, store, toast]);
+
+  const handleSummarizeBoard = useCallback(async () => {
+    setAiLoading('summarize');
+    setAiOpen(false);
+    try {
+      const res = await fetch('/api/ai/summarize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ elements, boardName: 'Board' }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        toast({ title: 'AI Error', description: data.error || 'Failed to summarize board', variant: 'destructive' });
+        return;
+      }
+      toast({ title: 'Board Summary', description: data.summary });
+    } catch {
+      toast({ title: 'Error', description: 'Failed to connect to AI service.', variant: 'destructive' });
+    } finally {
+      setAiLoading(null);
+    }
+  }, [elements, toast]);
+
   return (
-    <div className="relative z-50 flex h-full w-14 flex-col items-center border-r bg-card/95 py-3 shadow-sm backdrop-blur-sm">
+    <div className="relative z-50 flex h-full w-12 sm:w-14 flex-col items-center border-r bg-card/95 py-2 sm:py-3 shadow-sm backdrop-blur-sm">
       {/* Basic Tools */}
       <div className="flex flex-col items-center gap-1">
         {TOOLS.map((tool) => (
@@ -357,6 +454,63 @@ export default function Toolbar() {
 
       {/* Spacer */}
       <div className="flex-1" />
+
+      {/* AI Assist Button */}
+      <div className="flex flex-col items-center gap-1 mb-1 sm:mb-2">
+        <Popover open={aiOpen} onOpenChange={setAiOpen}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <PopoverTrigger asChild>
+                <button
+                  className={cn(
+                    'relative flex h-9 w-9 items-center justify-center rounded-lg transition-colors',
+                    'hover:bg-accent hover:text-accent-foreground',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                    aiLoading && 'opacity-70 pointer-events-none',
+                  )}
+                  disabled={!!aiLoading}
+                >
+                  {aiLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-4 w-4" />
+                  )}
+                </button>
+              </PopoverTrigger>
+            </TooltipTrigger>
+            <TooltipContent side="right" sideOffset={8}>
+              <span className="font-medium">AI Assist</span>
+            </TooltipContent>
+          </Tooltip>
+          <PopoverContent side="right" sideOffset={8} className="w-52 p-1" align="start">
+            <p className="mb-1.5 px-2 text-xs font-medium text-muted-foreground">AI Assist</p>
+            <button
+              className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors hover:bg-accent text-left"
+              onClick={handleGenerateLayout}
+              disabled={!!aiLoading}
+            >
+              <LayoutGrid className="h-4 w-4 shrink-0 text-amber-500" />
+              <span>Generate Layout</span>
+            </button>
+            <button
+              className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors hover:bg-accent text-left"
+              onClick={handleAutoArrange}
+              disabled={!!aiLoading}
+            >
+              <AlignHorizontalSpaceAround className="h-4 w-4 shrink-0 text-emerald-500" />
+              <span>Auto-arrange</span>
+            </button>
+            <button
+              className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors hover:bg-accent text-left"
+              onClick={handleSummarizeBoard}
+              disabled={!!aiLoading || elements.length === 0}
+            >
+              <FileText className="h-4 w-4 shrink-0 text-sky-500" />
+              <span className={cn(elements.length === 0 && 'opacity-40')}>Summarize Board</span>
+            </button>
+          </PopoverContent>
+        </Popover>
+      </div>
 
       {/* Bottom: Zoom Controls */}
       <div className="flex flex-col items-center gap-1">

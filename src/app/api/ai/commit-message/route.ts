@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { LLM } from 'z-ai-web-dev-sdk';
+import ZAI from 'z-ai-web-dev-sdk';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,11 +19,12 @@ export async function POST(request: NextRequest) {
     }));
 
     try {
-      const result = await LLM.chat({
-        model: 'glm-4-flash',
+      const zai = await ZAI.create();
+
+      const completion = await zai.chat.completions.create({
         messages: [
           {
-            role: 'system',
+            role: 'assistant',
             content:
               'You are a helpful assistant that generates concise Git commit messages. Respond with only the commit message, no explanation.',
           },
@@ -32,9 +33,10 @@ export async function POST(request: NextRequest) {
             content: `Generate a concise commit message (max 72 chars) for changes to board "${boardName}". Elements changed: ${JSON.stringify(elementSummaries)}`,
           },
         ],
+        thinking: { type: 'disabled' },
       });
 
-      const message = result.choices[0].message.content?.trim() || 'Update board elements';
+      const message = completion.choices[0]?.message?.content?.trim() || 'Update board elements';
 
       // Truncate to 72 characters if needed
       const truncated = message.length > 72 ? message.substring(0, 69) + '...' : message;

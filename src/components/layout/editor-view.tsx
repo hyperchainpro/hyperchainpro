@@ -23,9 +23,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 import { useAppStore } from '@/store/app-store';
 import { useVersionStore } from '@/store/version-store';
 import { useCanvasStore } from '@/store/canvas-store';
+import { usePresenceStore } from '@/store/presence-store';
+import { useCollaboration } from '@/hooks/use-collaboration';
 import CanvasArea from '@/components/canvas/canvas-area';
 import { RightPanel } from '@/components/version-control/right-panel';
 import { CommitDialog } from '@/components/version-control/commit-dialog';
@@ -105,6 +108,8 @@ function EditorTopBar({ boardName }: { boardName?: string }) {
   const rightPanelOpen = useAppStore((s) => s.rightPanelOpen);
   const setRightPanelOpen = useAppStore((s) => s.setRightPanelOpen);
   const setRightPanelTab = useAppStore((s) => s.setRightPanelTab);
+  const presenceUsers = usePresenceStore((s) => s.users);
+  const connected = usePresenceStore((s) => s.connected);
 
   const currentBranch = branches.find((b) => b.id === currentBranchId);
 
@@ -142,6 +147,40 @@ function EditorTopBar({ boardName }: { boardName?: string }) {
         </TooltipTrigger>
         <TooltipContent side="bottom">Current branch: {currentBranch?.name ?? 'main'}</TooltipContent>
       </Tooltip>
+
+      {/* Presence avatars */}
+      {presenceUsers.length > 0 && (
+        <div className="flex items-center -space-x-1.5 ml-1">
+          {presenceUsers.slice(0, 4).map((user) => (
+            <Tooltip key={user.id}>
+              <TooltipTrigger asChild>
+                <div
+                  className="h-6 w-6 rounded-full border-2 border-background flex items-center justify-center text-[9px] font-bold text-white"
+                  style={{ backgroundColor: user.color }}
+                >
+                  {user.name.slice(0, 1).toUpperCase()}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">{user.name}</TooltipContent>
+            </Tooltip>
+          ))}
+          {presenceUsers.length > 4 && (
+            <span className="text-xs text-muted-foreground ml-1.5">
+              +{presenceUsers.length - 4}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Connection status indicator */}
+      <div className="ml-1 flex items-center gap-1">
+        <div
+          className={cn(
+            'h-1.5 w-1.5 rounded-full',
+            connected ? 'bg-emerald-500' : 'bg-muted-foreground/30',
+          )}
+        />
+      </div>
 
       <div className="flex-1" />
 
@@ -231,6 +270,9 @@ export default function EditorView() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Real-time collaboration
+  const { sendCursorMove, presenceUsers } = useCollaboration(currentBoardId);
+
   useEffect(() => {
     if (!currentBoardId) return;
     let cancelled = false;
@@ -297,7 +339,7 @@ export default function EditorView() {
         <div className="flex-1 flex overflow-hidden">
           {/* Canvas area (self-contained with toolbar, canvas, and minimap) */}
           <div className="flex-1 overflow-hidden">
-            <CanvasArea />
+            <CanvasArea onCursorMove={sendCursorMove} />
           </div>
 
           {/* Right panel (collapsible) */}

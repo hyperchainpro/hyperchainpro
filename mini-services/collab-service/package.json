@@ -1,0 +1,6 @@
+{
+  "name": "collab-service",
+  "dependencies": {
+    "socket.io": "^4.7.0"
+  }
+}

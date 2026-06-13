@@ -99,7 +99,7 @@ interface CanvasState {
 export const useCanvasStore = create<CanvasState>((set, get) => ({
   elements: [],
   selectedIds: [],
-  activeTool: 'select',
+  activeTool: 'SELECT',
   snapToGrid: true,
 
   panX: 0,
@@ -133,7 +133,7 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
     set((s) => ({
       elements: [...s.elements, element],
       selectedIds: [element.id],
-      activeTool: 'select',
+      activeTool: 'SELECT',
     }));
     get().pushHistory();
     return element;

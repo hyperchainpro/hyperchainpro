@@ -18,15 +18,15 @@ export type ViewMode = 'dashboard' | 'editor';
 export type RightPanelTab = 'history' | 'branches' | 'merges' | 'comments' | 'members';
 
 export type CanvasTool =
-  | 'select'
-  | 'hand'
-  | 'sticky'
-  | 'rectangle'
-  | 'circle'
-  | 'line'
-  | 'text'
-  | 'connector'
-  | 'image';
+  | 'SELECT'
+  | 'HAND'
+  | 'STICKY_NOTE'
+  | 'RECTANGLE'
+  | 'CIRCLE'
+  | 'LINE'
+  | 'TEXT'
+  | 'CONNECTOR'
+  | 'IMAGE';
 
 export type ConnectorStyle = 'curve' | 'straight';
 

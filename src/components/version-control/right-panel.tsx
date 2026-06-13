@@ -22,8 +22,8 @@ import { cn } from '@/lib/utils';
 import { useAppStore } from '@/store/app-store';
 import type { RightPanelTab, BoardMember, BoardRole } from '@/lib/types';
 import { HistoryTimeline } from './history-timeline';
-import { BranchDialog as BranchPanel } from './branch-panel';
-import { MergeRequestDialog as MergeRequestPanel } from './merge-request-panel';
+import { useVersionStore } from '@/store/version-store';
+import type { MergeStatus } from '@/lib/types';
 
 // ─── Role badge config ──────────────────────────────────────────────────────
 
@@ -59,6 +59,159 @@ function getInitials(name: string): string {
     .slice(0, 2)
     .join('')
     .toUpperCase();
+}
+
+// ─── Branches Tab (inline panel) ─────────────────────────────────────────────
+
+const STATUS_BADGE: Record<MergeStatus, { label: string; className: string }> = {
+  OPEN: { label: 'Open', className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' },
+  APPROVED: { label: 'Approved', className: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400' },
+  REJECTED: { label: 'Rejected', className: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400' },
+  MERGED: { label: 'Merged', className: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400' },
+  CONFLICT: { label: 'Conflict', className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
+};
+
+function BranchesTab() {
+  const branches = useVersionStore((s) => s.branches);
+  const currentBranchId = useVersionStore((s) => s.currentBranchId);
+  const switchBranch = useVersionStore((s) => s.switchBranch);
+  const setBranchDialogOpen = useVersionStore((s) => s.setBranchDialogOpen);
+
+  return (
+    <div className="flex h-full flex-col">
+      <div className="flex items-center justify-between border-b px-4 py-3">
+        <div className="flex items-center gap-2">
+          <h3 className="text-sm font-semibold">Branches</h3>
+          <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
+            {branches.length}
+          </Badge>
+        </div>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => setBranchDialogOpen(true)}
+          className="h-7 gap-1 px-2 text-xs"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          New
+        </Button>
+      </div>
+      <ScrollArea className="flex-1">
+        <div className="p-3 space-y-1">
+          {branches.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-10 text-center">
+              <GitBranch className="mb-2 h-8 w-8 text-muted-foreground/50" />
+              <p className="text-sm text-muted-foreground">No branches yet</p>
+              <p className="text-xs text-muted-foreground">
+                Create a branch to start working
+              </p>
+            </div>
+          ) : (
+            branches.map((branch) => (
+              <div
+                key={branch.id}
+                className={cn(
+                  'flex items-center justify-between rounded-md px-3 py-2.5 transition-colors hover:bg-muted/50',
+                  branch.id === currentBranchId && 'bg-primary/5 border border-primary/20',
+                )}
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <GitBranch className={cn('h-3.5 w-3.5 shrink-0', branch.id === currentBranchId ? 'text-primary' : 'text-muted-foreground')} />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium">{branch.name}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {branch.isDefault ? 'Default branch' : `Created ${new Date(branch.createdAt).toLocaleDateString()}`}
+                    </p>
+                  </div>
+                </div>
+                {branch.id !== currentBranchId && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-6 px-2 text-[10px]"
+                    onClick={() => switchBranch(branch.id)}
+                  >
+                    Switch
+                  </Button>
+                )}
+                {branch.id === currentBranchId && (
+                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5">
+                    Active
+                  </Badge>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      </ScrollArea>
+    </div>
+  );
+}
+
+// ─── Merges Tab (inline panel) ───────────────────────────────────────────────
+
+function MergesTab() {
+  const mergeRequests = useVersionStore((s) => s.mergeRequests);
+
+  return (
+    <div className="flex h-full flex-col">
+      <div className="flex items-center justify-between border-b px-4 py-3">
+        <div className="flex items-center gap-2">
+          <h3 className="text-sm font-semibold">Merge Requests</h3>
+          <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
+            {mergeRequests.length}
+          </Badge>
+        </div>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => useVersionStore.getState().setMergeDialogOpen(true)}
+          className="h-7 gap-1 px-2 text-xs"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          New
+        </Button>
+      </div>
+      <ScrollArea className="flex-1">
+        <div className="p-3 space-y-1">
+          {mergeRequests.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-10 text-center">
+              <GitMerge className="mb-2 h-8 w-8 text-muted-foreground/50" />
+              <p className="text-sm text-muted-foreground">No merge requests</p>
+              <p className="text-xs text-muted-foreground">
+                Create a merge request to propose changes
+              </p>
+            </div>
+          ) : (
+            mergeRequests.map((mr) => {
+              const status = STATUS_BADGE[mr.status];
+              return (
+                <div
+                  key={mr.id}
+                  className="rounded-md px-3 py-2.5 hover:bg-muted/50 transition-colors"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="truncate text-sm font-medium">{mr.title}</p>
+                    <Badge className={cn('shrink-0 text-[10px] px-1.5 py-0 h-5', status.className)}>
+                      {status.label}
+                    </Badge>
+                  </div>
+                  <div className="mt-1 flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                    <span className="font-mono">{mr.sourceBranch?.name ?? '?'}</span>
+                    <span>&rarr;</span>
+                    <span className="font-mono">{mr.targetBranch?.name ?? '?'}</span>
+                  </div>
+                  <div className="mt-1 text-[10px] text-muted-foreground">
+                    {new Date(mr.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </ScrollArea>
+    </div>
+  );
 }
 
 // ─── Comments Tab ────────────────────────────────────────────────────────────
@@ -296,7 +449,7 @@ export function RightPanel() {
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: 320, opacity: 0.8 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="absolute right-0 top-0 z-30 flex h-full w-[320px] flex-col border-l bg-background shadow-xl"
+          className="absolute right-0 top-0 z-30 flex h-full w-full sm:w-[320px] flex-col border-l bg-background shadow-xl"
         >
           {/* Close button */}
           <div className="absolute right-2 top-2 z-10">
@@ -334,10 +487,10 @@ export function RightPanel() {
                 <HistoryTimeline />
               </TabsContent>
               <TabsContent value="branches" className="m-0 h-full">
-                <BranchPanel />
+                <BranchesTab />
               </TabsContent>
               <TabsContent value="merges" className="m-0 h-full">
-                <MergeRequestPanel />
+                <MergesTab />
               </TabsContent>
               <TabsContent value="comments" className="m-0 h-full">
                 <CommentsTab />

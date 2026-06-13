@@ -594,15 +594,49 @@ export function DashboardView() {
             )}
           </main>
         </ScrollArea>
+
+        {/* Footer */}
+        <footer className="flex shrink-0 items-center justify-center border-t border-border bg-card/50 px-4 py-2">
+          <p className="text-xs text-muted-foreground">
+            © 2024 BranchBoard. Collaborative whiteboard with version control.
+          </p>
+        </footer>
       </div>
 
       {/* Create Board Dialog */}
       <CreateBoardDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
-        onCreateBoard={(data) => {
-          // In a real app, this would call an API
-          console.log('Creating board:', data)
+        onCreateBoard={async (data) => {
+          try {
+            const res = await fetch('/api/boards', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                name: data.name,
+                description: data.description || undefined,
+                isPublic: data.isPublic,
+              }),
+            });
+            if (!res.ok) throw new Error('Failed to create board');
+            // Refresh the board list
+            const listRes = await fetch('/api/boards');
+            const listData = await listRes.json();
+            const apiBoards: BoardCardData[] = (listData.boards || []).map((b: Record<string, unknown>) => ({
+              id: b.id as string,
+              name: b.name as string,
+              description: b.description as string | undefined,
+              members: [{ id: 'u1', name: 'Demo User' }],
+              branchCount: (b.branchCount as number) || 0,
+              commitCount: (b.commitCount as number) || 0,
+              isStarred: false,
+              updatedAt: b.updatedAt as string,
+              isPublic: b.isPublic as boolean,
+            }));
+            setBoards(apiBoards);
+          } catch (err) {
+            console.error('Failed to create board:', err);
+          }
         }}
       />
     </div>

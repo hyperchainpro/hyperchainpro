@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { LLM } from 'z-ai-web-dev-sdk';
+import ZAI from 'z-ai-web-dev-sdk';
 
 interface BoardElement {
   id: string;
@@ -61,11 +61,12 @@ export async function POST(request: NextRequest) {
         boardName,
       });
 
-      const result = await LLM.chat({
-        model: 'glm-4-flash',
+      const zai = await ZAI.create();
+
+      const completion = await zai.chat.completions.create({
         messages: [
           {
-            role: 'system',
+            role: 'assistant',
             content: `You are a helpful assistant that resolves merge conflicts in a collaborative whiteboard application.
 You will receive two snapshots: a source branch snapshot and a target branch snapshot.
 Some elements may have the same ID but different content/position in each snapshot.
@@ -88,9 +89,10 @@ Respond ONLY with valid JSON, no markdown formatting.`,
             content: conflictInfo,
           },
         ],
+        thinking: { type: 'disabled' },
       });
 
-      const aiResponse = result.choices[0].message.content?.trim() || '';
+      const aiResponse = completion.choices[0]?.message?.content?.trim() || '';
 
       // Parse the AI response, handling potential markdown code blocks
       let jsonStr = aiResponse;

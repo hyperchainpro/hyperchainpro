@@ -4,12 +4,17 @@ import React, { useCallback, useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useCanvasStore } from '@/store/canvas-store';
+import { usePresenceStore } from '@/store/presence-store';
 import { GRID_SIZE, type BoardElement as BoardElementType } from '@/lib/types';
 import BoardElementComponent from './board-element';
 import Toolbar from './toolbar';
 import Minimap from './minimap';
 
-export default function CanvasArea() {
+interface CanvasAreaProps {
+  onCursorMove?: (x: number, y: number) => void;
+}
+
+export default function CanvasArea({ onCursorMove }: CanvasAreaProps) {
   const store = useCanvasStore();
   const containerRef = useRef<HTMLDivElement>(null);
   const isPanningRef = useRef(false);
@@ -18,6 +23,7 @@ export default function CanvasArea() {
   const selectionStartRef = useRef<{ startX: number; startY: number } | null>(null);
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [isDragOver, setIsDragOver] = useState(false);
+  const cursorThrottleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const {
     elements,
@@ -111,6 +117,14 @@ export default function CanvasArea() {
       const canvasPos = screenToCanvas(e.clientX, e.clientY);
       setCursorPos(canvasPos);
 
+      // Throttled cursor broadcasting for collaboration
+      if (onCursorMove && !cursorThrottleRef.current) {
+        onCursorMove(canvasPos.x, canvasPos.y);
+        cursorThrottleRef.current = setTimeout(() => {
+          cursorThrottleRef.current = null;
+        }, 50); // ~20 updates per second
+      }
+
       // Panning
       if (isPanningRef.current) {
         const dx = e.clientX - panStartRef.current.x;
@@ -148,7 +162,7 @@ export default function CanvasArea() {
         );
       }
     },
-    [isDrawingSelection, screenToCanvas, zoom, store],
+    [isDrawingSelection, screenToCanvas, zoom, store, onCursorMove],
   );
 
   // ── Pointer up ──
@@ -470,6 +484,9 @@ export default function CanvasArea() {
   // Connectors SVG layer
   const connectorElements = sortedElements.filter((el) => el.type === 'CONNECTOR');
 
+  // Presence users for collaboration cursors
+  const presenceUsers = usePresenceStore((s) => s.users);
+
   return (
     <div className="relative flex h-screen w-screen flex-1 overflow-hidden bg-background">
       {/* Toolbar */}
@@ -570,6 +587,47 @@ export default function CanvasArea() {
                 />
               </div>
             ))}
+
+          {/* Remote User Cursors (collaboration) */}
+          {presenceUsers
+            .filter((u) => u.cursor)
+            .map((user) => {
+              const cursor = user.cursor!;
+              return (
+                <div
+                  key={user.id}
+                  className="pointer-events-none absolute z-[9990] transition-transform duration-75"
+                  style={{
+                    left: cursor.x,
+                    top: cursor.y,
+                  }}
+                >
+                  {/* Cursor SVG */}
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    style={{ transform: 'translate(-2px, -2px)' }}
+                  >
+                    <path
+                      d="M3 1L7 18L10 10L18 7L3 1Z"
+                      fill={user.color}
+                      stroke="white"
+                      strokeWidth="1.5"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  {/* Name label */}
+                  <div
+                    className="mt-0.5 rounded px-1.5 py-0.5 text-[10px] font-medium leading-none text-white whitespace-nowrap shadow-sm"
+                    style={{ backgroundColor: user.color }}
+                  >
+                    {user.name}
+                  </div>
+                </div>
+              );
+            })}
         </div>
 
         {/* Selection Box (screen coordinates) */}

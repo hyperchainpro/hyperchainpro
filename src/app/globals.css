@@ -119,4 +119,8 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Hide Radix ScrollArea injected style text nodes */
+  [data-radix-scroll-area-corner] {
+    display: none;
+  }
 }
