@@ -1,0 +1,173 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String           @id @default(cuid())
+  email         String           @unique
+  name          String?
+  avatar        String?
+  role          String           @default("USER")
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  boardMembers  BoardMember[]
+  commits       Commit[]
+  authoredMRs   MergeRequest[]   @relation("AuthoredMergeRequest")
+  mergeComments MergeComment[]
+  auditLogs     AuditLog[]
+}
+
+model Board {
+  id                String           @id @default(cuid())
+  name              String
+  description       String?
+  ownerId           String
+  isPublic          Boolean          @default(false)
+  thumbnail         String?
+  defaultBranch     String           @default("main")
+  branchProtection  Boolean          @default(false)
+  minReviewers      Int              @default(1)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  members           BoardMember[]
+  branches          Branch[]
+  commits           Commit[]
+  mergeRequests     MergeRequest[]
+  comments          BoardComment[]
+  elements          BoardElement[]
+}
+
+model BoardMember {
+  id        String   @id @default(cuid())
+  boardId   String
+  userId    String
+  role      String   @default("VIEWER")
+  joinedAt  DateTime @default(now())
+
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([boardId, userId])
+}
+
+model Branch {
+  id              String           @id @default(cuid())
+  boardId         String
+  name            String
+  isDefault       Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+
+  board           Board            @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  commits         Commit[]
+  sourceMRs       MergeRequest[]   @relation("MRSourceBranch")
+  targetMRs       MergeRequest[]   @relation("MRTargetBranch")
+
+  @@unique([boardId, name])
+}
+
+model Commit {
+  id        String    @id @default(cuid())
+  boardId   String
+  branchId  String
+  authorId  String
+  message   String
+  tag       String?
+  snapshot  String
+  parentId  String?
+  createdAt DateTime  @default(now())
+
+  board     Board     @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  branch    Branch    @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  author    User      @relation(fields: [authorId], references: [id])
+  parent    Commit?   @relation("CommitParent", fields: [parentId], references: [id])
+  children  Commit[]  @relation("CommitParent")
+
+  @@index([boardId, createdAt])
+  @@index([branchId])
+}
+
+model MergeRequest {
+  id              String        @id @default(cuid())
+  boardId         String
+  sourceBranchId  String
+  targetBranchId  String
+  title           String
+  description     String?
+  authorId        String
+  status          String        @default("OPEN")
+  conflictData    String?
+  createdAt       DateTime      @default(now())
+  resolvedAt      DateTime?
+
+  board           Board         @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  sourceBranch    Branch        @relation("MRSourceBranch", fields: [sourceBranchId], references: [id])
+  targetBranch    Branch        @relation("MRTargetBranch", fields: [targetBranchId], references: [id])
+  author          User          @relation("AuthoredMergeRequest", fields: [authorId], references: [id])
+  comments        MergeComment[]
+}
+
+model MergeComment {
+  id             String       @id @default(cuid())
+  mergeRequestId String
+  userId         String
+  content        String
+  createdAt      DateTime     @default(now())
+
+  mergeRequest   MergeRequest @relation(fields: [mergeRequestId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id])
+}
+
+model BoardComment {
+  id        String   @id @default(cuid())
+  boardId   String
+  userId    String
+  elementId String?
+  content   String
+  createdAt DateTime @default(now())
+
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  boardId   String?
+  userId    String
+  action    String
+  ip        String?
+  userAgent String?
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([boardId, createdAt])
+  @@index([userId, createdAt])
+}
+
+model BoardElement {
+  id        String   @id @default(cuid())
+  boardId   String
+  type      String
+  x         Float
+  y         Float
+  width     Float
+  height    Float
+  rotation  Float    @default(0)
+  content   String?
+  color     String?
+  styles    String?
+  zIndex    Int      @default(0)
+  locked    Boolean  @default(false)
+  groupId   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+
+  @@index([boardId])
+}
