@@ -1,16 +1,74 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useAppStore } from '@/store/app-store';
+import { useAuthStore } from '@/store/auth-store';
 import { DashboardView } from '@/components/dashboard/dashboard-view';
 import EditorView from '@/components/layout/editor-view';
 import { ErrorBoundary } from '@/components/error-boundary';
+import AuthView from '@/components/auth/auth-view';
+import { SettingsDialog } from '@/components/settings/settings-dialog';
+import { ShareDialog } from '@/components/stitch/share-dialog';
 import { AnimatePresence, motion } from 'framer-motion';
 
 export default function HomePage() {
   const { viewMode } = useAppStore();
+  const { isAuthenticated, isLoading, initialize } = useAuthStore();
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Initialize auth from localStorage on mount
+  useEffect(() => {
+    initialize();
+    setMounted(true);
+  }, [initialize]);
+
+  // Show nothing until hydrated (prevents flash)
+  if (!mounted || isLoading) {
+    return (
+      <div className="flex min-h-screen w-full items-center justify-center bg-background">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center gap-4"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="6" x2="6" y1="3" y2="15" /><circle cx="18" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><path d="M18 9a9 9 0 0 1-9 9" />
+              </svg>
+            </div>
+            <span className="text-lg font-semibold tracking-tight">BranchBoard</span>
+          </div>
+          <div className="flex gap-1">
+            <div className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0ms' }} />
+            <div className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms' }} />
+            <div className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '300ms' }} />
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Not authenticated → show auth view
+  if (!isAuthenticated) {
+    return <AuthView />;
+  }
 
   return (
     <ErrorBoundary>
+      {/* Settings Dialog (accessible from dashboard) */}
+      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
+
+      {/* Share Dialog (accessible from editor) */}
+      <ShareDialog
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+        boardId={useAppStore.getState().currentBoardId ?? ''}
+        boardName=""
+      />
+
       <AnimatePresence mode="wait">
         {viewMode === 'dashboard' && (
           <motion.div
@@ -20,7 +78,10 @@ export default function HomePage() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
-            <DashboardView />
+            <DashboardView
+              onOpenSettings={() => setSettingsOpen(true)}
+              onOpenShare={() => setShareOpen(true)}
+            />
           </motion.div>
         )}
         {viewMode === 'editor' && (

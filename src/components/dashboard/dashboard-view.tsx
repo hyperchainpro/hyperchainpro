@@ -18,6 +18,12 @@ import {
   ChevronRight,
   Sparkles,
   FilePlus,
+  Settings,
+  Moon,
+  Sun,
+  Monitor,
+  LogOut,
+  Share2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -44,6 +50,9 @@ import {
 } from '@/components/dashboard/create-board-dialog'
 import { cn } from '@/lib/utils'
 import { useAppStore } from '@/store/app-store'
+import { useAuthStore } from '@/store/auth-store'
+import { t, LOCALES, type Locale } from '@/lib/i18n'
+import { useTheme } from 'next-themes'
 
 type FilterTab = 'all' | 'recent' | 'starred'
 type SortOption = 'lastModified' | 'name' | 'created'
@@ -198,9 +207,71 @@ const boardItemVariants = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } },
 }
 
+// ── Small helper components ──────────────────────────────────────────────
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme()
+  const user = useAuthStore((s) => s.user)
+  const locale = (user?.language as Locale) ?? 'en'
+
+  const cycleTheme = () => {
+    const next = theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light'
+    setTheme(next)
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button variant="ghost" size="icon" onClick={cycleTheme}>
+          {theme === 'dark' ? <Moon className="size-4" /> : theme === 'light' ? <Sun className="size-4" /> : <Monitor className="size-4" />}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>{t('settings.theme.mode', locale)}: {theme === 'light' ? t('settings.light', locale) : theme === 'dark' ? t('settings.dark', locale) : t('settings.system', locale)}</TooltipContent>
+    </Tooltip>
+  )
+}
+
+function LanguageSwitcher() {
+  const user = useAuthStore((s) => s.user)
+  const setUser = useAuthStore((s) => s.setUser)
+  const currentLocale = (user?.language as Locale) ?? 'en'
+  const current = LOCALES.find(l => l.code === currentLocale)
+
+  const handleCycle = () => {
+    const idx = LOCALES.findIndex(l => l.code === currentLocale)
+    const next = LOCALES[(idx + 1) % LOCALES.length]
+    if (user) {
+      setUser({ ...user, language: next.code })
+      // Persist to API
+      fetch('/api/user/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id, language: next.code }),
+      }).catch(() => {})
+    }
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-8 px-2" onClick={handleCycle}>
+          <span className="text-base leading-none">{current?.flag ?? '🌐'}</span>
+          <span className="hidden sm:inline">{current?.name ?? 'English'}</span>
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>{t('settings.tabs.language', currentLocale)}</TooltipContent>
+    </Tooltip>
+  )
+}
+
 // ── Component ──────────────────────────────────────────────────────────────
 
-export function DashboardView() {
+interface DashboardViewProps {
+  onOpenSettings?: () => void
+  onOpenShare?: () => void
+}
+
+export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all')
   const [sortOption, setSortOption] = useState<SortOption>('lastModified')
@@ -208,6 +279,11 @@ export function DashboardView() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [boards, setBoards] = useState<BoardCardData[]>([])
   const [loading, setLoading] = useState(true)
+
+  const user = useAuthStore((s) => s.user)
+  const logout = useAuthStore((s) => s.logout)
+  const locale = (user?.language as Locale) ?? 'en'
+  const handleLogout = () => { logout() }
 
   useEffect(() => {
     fetch('/api/boards')
@@ -456,6 +532,22 @@ export function DashboardView() {
               New
             </Button>
 
+            {/* Theme toggle */}
+            <ThemeToggle />
+
+            {/* Language switcher */}
+            <LanguageSwitcher />
+
+            {/* Settings */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={() => onOpenSettings?.()}>
+                  <Settings className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('settings.title', locale)}</TooltipContent>
+            </Tooltip>
+
             {/* Notification bell */}
             <Tooltip>
               <TooltipTrigger asChild>
@@ -467,12 +559,22 @@ export function DashboardView() {
               <TooltipContent>Notifications</TooltipContent>
             </Tooltip>
 
-            {/* User avatar */}
-            <Avatar className="size-8 ring-2 ring-border cursor-pointer transition-ring hover:ring-primary/30">
-              <AvatarFallback className="bg-violet-500 text-xs text-white font-medium">
-                AC
-              </AvatarFallback>
-            </Avatar>
+            {/* User avatar / Logout */}
+            <div className="flex items-center gap-1">
+              <Avatar className="size-8 ring-2 ring-border cursor-pointer transition-ring hover:ring-primary/30" onClick={() => onOpenSettings?.()}>
+                <AvatarFallback className="bg-violet-500 text-xs text-white font-medium">
+                  {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="size-8" onClick={handleLogout}>
+                    <LogOut className="size-3.5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{t('settings.account.logout', locale)}</TooltipContent>
+              </Tooltip>
+            </div>
           </div>
         </header>
 

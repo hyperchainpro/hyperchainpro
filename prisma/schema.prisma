@@ -8,18 +8,25 @@ datasource db {
 }
 
 model User {
-  id            String           @id @default(cuid())
-  email         String           @unique
-  name          String?
-  avatar        String?
-  role          String           @default("USER")
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-  boardMembers  BoardMember[]
-  commits       Commit[]
-  authoredMRs   MergeRequest[]   @relation("AuthoredMergeRequest")
-  mergeComments MergeComment[]
-  auditLogs     AuditLog[]
+  id              String           @id @default(cuid())
+  email           String           @unique
+  name            String?
+  avatar          String?
+  passwordHash    String?
+  role            String           @default("USER")
+  resetToken      String?
+  resetTokenExpiry DateTime?
+  language        String           @default("en")
+  theme           String           @default("system")
+  accentColor     String           @default("#6366f1")
+  aiSettings      String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  boardMembers    BoardMember[]
+  commits         Commit[]
+  authoredMRs     MergeRequest[]   @relation("AuthoredMergeRequest")
+  mergeComments   MergeComment[]
+  auditLogs       AuditLog[]
 }
 
 model Board {
