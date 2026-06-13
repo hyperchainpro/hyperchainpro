@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BranchBoard Test</title>
+    <style>
+        body { margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #f8fafc; font-family: system-ui; }
+        .box { padding: 40px; background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); text-align: center; }
+        h1 { color: #1a1a2e; margin: 0 0 8px; font-size: 24px; }
+        p { color: #64748b; margin: 0; }
+        .dot { width: 12px; height: 12px; background: #8b5cf6; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div class="dot"></div>
+        <h1>BranchBoard is Running</h1>
+        <p>If you see this, the server works!</p>
+    </div>
+</body>
+</html>
