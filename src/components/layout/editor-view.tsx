@@ -35,6 +35,10 @@ import { CommitDialog } from '@/components/version-control/commit-dialog';
 import { BranchDialog } from '@/components/version-control/branch-panel';
 import { MergeRequestDialog } from '@/components/version-control/merge-request-panel';
 
+// ── Neumorphism helpers ──────────────────────────────────────────────────────
+
+const neuBtn = 'shadow-[4px_4px_8px_rgba(0,0,0,0.06),-4px_-4px_8px_rgba(255,255,255,0.8)] dark:shadow-[4px_4px_8px_rgba(0,0,0,0.35),-4px_-4px_8px_rgba(30,30,30,0.08)]'
+
 // ─── Loading skeleton ────────────────────────────────────────────────────────
 
 function EditorLoadingSkeleton() {
@@ -251,7 +255,7 @@ function EditorTopBar({ boardName }: { boardName?: string }) {
         {/* Commit button */}
         <Button
           size="sm"
-          className="gap-2 h-8"
+          className={cn('gap-2 h-8 rounded-xl', neuBtn)}
           onClick={() => setCommitDialogOpen(true)}
         >
           <GitCommitHorizontal className="h-3.5 w-3.5" />

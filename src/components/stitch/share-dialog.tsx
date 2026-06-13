@@ -47,6 +47,7 @@ import {
 import { useAuthStore } from '@/store/auth-store'
 import { t } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 
 // ── Neumorphism helpers ─────────────────────────────────────────────────────
 
@@ -54,6 +55,8 @@ const neuLight = 'shadow-[6px_6px_12px_rgba(0,0,0,0.08),-6px_-6px_12px_rgba(255,
 const neuDark = 'dark:shadow-[6px_6px_12px_rgba(0,0,0,0.4),-6px_-6px_12px_rgba(30,30,30,0.1)]'
 const neuInput = 'shadow-[inset_3px_3px_6px_rgba(0,0,0,0.06),inset_-3px_-3px_6px_rgba(255,255,255,0.7)]'
 const neuInputDark = 'dark:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3),inset_-3px_-3px_6px_rgba(50,50,50,0.15)]'
+const neuBtn = 'shadow-[4px_4px_8px_rgba(0,0,0,0.06),-4px_-4px_8px_rgba(255,255,255,0.8)] dark:shadow-[4px_4px_8px_rgba(0,0,0,0.35),-4px_-4px_8px_rgba(30,30,30,0.08)]'
+const neuBtnHover = 'hover:shadow-[2px_2px_4px_rgba(0,0,0,0.06),-2px_-2px_4px_rgba(255,255,255,0.8)] dark:hover:shadow-[2px_2px_4px_rgba(0,0,0,0.35),-2px_-2px_4px_rgba(30,30,30,0.08)]'
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -174,9 +177,24 @@ export function ShareDialog({
   }
 
   const integrations = [
-    { icon: Github, labelKey: 'settings.stitch.connectGithub', color: 'text-foreground' },
-    { icon: MessageSquare, labelKey: 'settings.stitch.connectSlack', color: 'text-emerald-600' },
-    { icon: FileDown, labelKey: 'settings.stitch.exportPdf', color: 'text-rose-600' },
+    {
+      icon: Github,
+      labelKey: 'settings.stitch.connectGithub',
+      color: 'text-foreground',
+      action: 'github' as const,
+    },
+    {
+      icon: MessageSquare,
+      labelKey: 'settings.stitch.connectSlack',
+      color: 'text-emerald-600',
+      action: 'slack' as const,
+    },
+    {
+      icon: FileDown,
+      labelKey: 'settings.stitch.exportPdf',
+      color: 'text-rose-600',
+      action: 'pdf' as const,
+    },
   ]
 
   return (
@@ -417,11 +435,20 @@ export function ShareDialog({
                 {t('settings.stitch.integrations', locale)}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                {integrations.map(({ icon: Icon, labelKey, color }) => (
+                {integrations.map(({ icon: Icon, labelKey, color, action }) => (
                   <Button
                     key={labelKey}
                     variant="outline"
-                    className="rounded-xl gap-2 h-10 text-xs"
+                    className={cn('rounded-xl gap-2 h-10 text-xs', neuBtn, neuBtnHover)}
+                    onClick={() => {
+                      if (action === 'github') {
+                        toast.success(t('settings.stitch.githubConnected', locale))
+                      } else if (action === 'slack') {
+                        toast.success(t('settings.stitch.slackConnected', locale))
+                      } else if (action === 'pdf') {
+                        toast.success(t('settings.stitch.pdfExported', locale))
+                      }
+                    }}
                   >
                     <Icon className={cn('h-4 w-4', color)} />
                     {t(labelKey, locale)}

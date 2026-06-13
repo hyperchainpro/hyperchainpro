@@ -22,10 +22,10 @@ interface LocaleInfo {
 
 const LOCALE_LIST: LocaleInfo[] = [
   { code: 'en', flag: '🇺🇸', name: 'English', native: 'English' },
-  { code: 'zh', flag: '🇨🇳', name: 'Chinese', native: '简体中文' },
+  { code: 'id', flag: '🇮🇩', name: 'Indonesian', native: 'Bahasa Indonesia' },
   { code: 'ja', flag: '🇯🇵', name: 'Japanese', native: '日本語' },
-  { code: 'es', flag: '🇪🇸', name: 'Spanish', native: 'Español' },
-  { code: 'de', flag: '🇩🇪', name: 'German', native: 'Deutsch' },
+  { code: 'ko', flag: '🇰🇷', name: 'Korean', native: '한국어' },
+  { code: 'zh', flag: '🇨🇳', name: 'Chinese', native: '简体中文' },
 ]
 
 // ── Component ───────────────────────────────────────────────────────────────

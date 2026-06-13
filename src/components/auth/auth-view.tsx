@@ -32,6 +32,10 @@ declare global {
   }
 }
 
+// ─── Neumorphism helpers ──────────────────────────────────────────────────────────
+
+const neuLight = 'shadow-[6px_6px_12px_rgba(0,0,0,0.08),-6px_-6px_12px_rgba(255,255,255,0.9)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.4),-6px_-6px_12px_rgba(30,30,30,0.1)]'
+
 // ─── Slide variants ───────────────────────────────────────────────────────────
 
 const slideVariants = {
@@ -408,7 +412,7 @@ export default function AuthView() {
             exit="exit"
             transition={slideTransition}
           >
-            <Card className="border-0 shadow-xl shadow-black/5 dark:shadow-black/20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl relative">
+            <Card className={cn('border-0 shadow-xl shadow-black/5 dark:shadow-black/20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl relative', neuLight)}>
               <CardHeader className="text-center pb-2">
                 {/* Back button */}
                 {authView !== 'login' && (

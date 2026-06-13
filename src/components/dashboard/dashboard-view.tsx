@@ -58,6 +58,11 @@ type FilterTab = 'all' | 'recent' | 'starred'
 type SortOption = 'lastModified' | 'name' | 'created'
 type SidebarSection = 'my-boards' | 'shared' | 'starred' | 'recent'
 
+// ── Neumorphism helpers ────────────────────────────────────────────────────
+
+const neuBtn = 'shadow-[4px_4px_8px_rgba(0,0,0,0.06),-4px_-4px_8px_rgba(255,255,255,0.8)] dark:shadow-[4px_4px_8px_rgba(0,0,0,0.35),-4px_-4px_8px_rgba(30,30,30,0.08)]'
+const neuBtnHover = 'hover:shadow-[2px_2px_4px_rgba(0,0,0,0.06),-2px_-2px_4px_rgba(255,255,255,0.8)] dark:hover:shadow-[2px_2px_4px_rgba(0,0,0,0.35),-2px_-2px_4px_rgba(30,30,30,0.08)]'
+
 // ── Demo data ──────────────────────────────────────────────────────────────
 
 const demoBoards: BoardCardData[] = [
@@ -378,7 +383,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
         <div className="p-3">
           <Button
             onClick={() => setCreateDialogOpen(true)}
-            className="w-full gap-2 shadow-sm"
+            className={cn('w-full gap-2 rounded-xl border-0 bg-background text-foreground font-medium', neuBtn, neuBtnHover, 'active:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.06),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] dark:active:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.35),inset_-2px_-2px_4px_rgba(30,30,30,0.08)]')}
           >
             <Plus className="size-4" />
             New Board
@@ -800,7 +805,7 @@ function EmptyState({ onCreateBoard }: { onCreateBoard: () => void }) {
           ? `No boards match "${searchQuery}". Try a different search or create a new board.`
           : "You haven't created any boards yet. Start by creating your first collaborative whiteboard."}
       </p>
-      <Button onClick={onCreateBoard} className="gap-2 shadow-sm">
+      <Button onClick={onCreateBoard} className={cn('gap-2 rounded-xl border-0 bg-background text-foreground font-medium', neuBtn, neuBtnHover, 'active:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.06),inset_-2px_-2px_4px_rgba(255,255,255,0.8)]')}>
         <FilePlus className="size-4" />
         Create your first board
       </Button>

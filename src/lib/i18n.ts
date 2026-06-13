@@ -1467,6 +1467,48 @@ const translations: TranslationMap = {
     ko: '통합',
     zh: '集成',
   },
+  'settings.stitch.connectGithub': {
+    en: 'Connect GitHub',
+    id: 'Hubungkan GitHub',
+    ja: 'GitHub連携',
+    ko: 'GitHub 연결',
+    zh: '连接 GitHub',
+  },
+  'settings.stitch.connectSlack': {
+    en: 'Connect Slack',
+    id: 'Hubungkan Slack',
+    ja: 'Slack連携',
+    ko: 'Slack 연결',
+    zh: '连接 Slack',
+  },
+  'settings.stitch.exportPdf': {
+    en: 'Export PDF',
+    id: 'Ekspor PDF',
+    ja: 'PDFエクスポート',
+    ko: 'PDF 내보내기',
+    zh: '导出 PDF',
+  },
+  'settings.stitch.githubConnected': {
+    en: 'GitHub integration connected!',
+    id: 'Integrasi GitHub terhubung!',
+    ja: 'GitHub連携が完了しました！',
+    ko: 'GitHub 연결이 완료되었습니다!',
+    zh: 'GitHub 集成已连接！',
+  },
+  'settings.stitch.slackConnected': {
+    en: 'Slack integration connected!',
+    id: 'Integrasi Slack terhubung!',
+    ja: 'Slack連携が完了しました！',
+    ko: 'Slack 연결이 완료되었습니다!',
+    zh: 'Slack 集成已连接！',
+  },
+  'settings.stitch.pdfExported': {
+    en: 'Board exported as PDF!',
+    id: 'Board diekspor sebagai PDF!',
+    ja: 'PDFエクスポートが完了しました！',
+    ko: 'PDF 내보내기가 완료되었습니다!',
+    zh: '白板已导出为 PDF！',
+  },
 };
 
 // ─── Translation Function ─────────────────────────────────────────────────────
