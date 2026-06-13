@@ -148,6 +148,7 @@ export function BoardCard({
   return (
     <motion.div
       whileHover={{ y: -4, scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
       className="group relative"
     >
@@ -180,7 +181,7 @@ export function BoardCard({
           )}
 
           {/* Top-right actions overlay */}
-          <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+          <div className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-black/10 backdrop-blur-sm md:bg-transparent md:backdrop-blur-none md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
             {/* Star toggle */}
             <button
               onClick={handleStarToggle}
@@ -240,7 +241,7 @@ export function BoardCard({
 
           {/* Always-visible star on non-hover (only when starred) */}
           {isStarred && (
-            <div className="absolute top-2 right-2 flex items-center gap-1 transition-opacity duration-200 group-hover:opacity-0">
+            <div className="absolute top-2 right-2 flex items-center gap-1 transition-opacity duration-200 md:group-hover:opacity-0">
               <div className="flex size-8 items-center justify-center rounded-full bg-amber-400/90 text-white">
                 <Star className="size-4 fill-current" />
               </div>
@@ -259,7 +260,7 @@ export function BoardCard({
         </div>
 
         {/* Content */}
-        <CardContent className="p-4 space-y-3">
+        <CardContent className="p-3 sm:p-4 space-y-3">
           {/* Board name and description */}
           <div className="space-y-1 min-w-0">
             <h3 className="text-sm font-semibold truncate leading-tight">

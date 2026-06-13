@@ -24,6 +24,9 @@ import {
   Monitor,
   LogOut,
   Share2,
+  Menu,
+  Home,
+  User,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -41,6 +44,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 import {
   BoardCard,
   type BoardCardData,
@@ -53,6 +57,8 @@ import { useAppStore } from '@/store/app-store'
 import { useAuthStore } from '@/store/auth-store'
 import { t, LOCALES, type Locale } from '@/lib/i18n'
 import { useTheme } from 'next-themes'
+import { toast } from 'sonner'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 type FilterTab = 'all' | 'recent' | 'starred'
 type SortOption = 'lastModified' | 'name' | 'created'
@@ -269,6 +275,163 @@ function LanguageSwitcher() {
   )
 }
 
+// ── Sidebar content (shared between desktop aside & mobile Sheet) ──────────
+
+function SidebarContent({
+  sidebarSections,
+  activeSidebar,
+  setActiveSidebar,
+  setActiveFilter,
+  onCreateBoard,
+  userName,
+  userInitials,
+}: {
+  sidebarSections: { id: SidebarSection; label: string; icon: React.ElementType; count: number }[]
+  activeSidebar: SidebarSection | null
+  setActiveSidebar: (v: SidebarSection | null) => void
+  setActiveFilter: (v: FilterTab) => void
+  onCreateBoard: () => void
+  userName: string
+  userInitials: string
+}) {
+  return (
+    <>
+      {/* Logo */}
+      <div className="flex items-center gap-2.5 px-4 py-4">
+        <div className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white shadow-sm">
+          <GitBranch className="size-4" />
+        </div>
+        <span className="text-base font-bold tracking-tight">BranchBoard</span>
+      </div>
+
+      <Separator />
+
+      {/* New Board button */}
+      <div className="p-3">
+        <Button
+          onClick={onCreateBoard}
+          className={cn('w-full gap-2 rounded-xl border-0 bg-background text-foreground font-medium', neuBtn, neuBtnHover, 'active:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.06),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] dark:active:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.35),inset_-2px_-2px_4px_rgba(30,30,30,0.08)]')}
+        >
+          <Plus className="size-4" />
+          New Board
+        </Button>
+      </div>
+
+      <Separator />
+
+      {/* Navigation sections */}
+      <ScrollArea className="flex-1 px-2 py-1">
+        <nav className="flex flex-col gap-0.5" aria-label="Board navigation">
+          {sidebarSections.map((section) => {
+            const Icon = section.icon
+            const isActive = activeSidebar === section.id
+
+            return (
+              <Collapsible
+                key={section.id}
+                open={isActive}
+                onOpenChange={(open) => {
+                  if (open) {
+                    setActiveSidebar(section.id)
+                    setActiveFilter('all')
+                  } else {
+                    setActiveSidebar(null)
+                  }
+                }}
+              >
+                <CollapsibleTrigger asChild>
+                  <button
+                    className={cn(
+                      'flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                      isActive
+                        ? 'bg-accent text-accent-foreground'
+                        : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+                    )}
+                  >
+                    <Icon className="size-4 shrink-0" />
+                    <span className="flex-1 text-left">{section.label}</span>
+                    <Badge
+                      variant="secondary"
+                      className="text-[10px] px-1.5 py-0 h-5 font-normal"
+                    >
+                      {section.count}
+                    </Badge>
+                    <ChevronDown
+                      className={cn(
+                        'size-3.5 shrink-0 transition-transform duration-200',
+                        isActive && 'rotate-180'
+                      )}
+                    />
+                  </button>
+                </CollapsibleTrigger>
+                <AnimatePresence>
+                  {isActive && (
+                    <CollapsibleContent forceMount>
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="ml-4 mt-0.5 flex flex-col gap-0.5 pb-1">
+                          {section.id === 'my-boards' && (
+                            <>
+                              <SidebarItem name="Product Roadmap Q4" active />
+                              <SidebarItem name="Sprint Planning" />
+                              <SidebarItem name="Design System" />
+                              <SidebarItem name="API Workshop" />
+                            </>
+                          )}
+                          {section.id === 'shared' && (
+                            <>
+                              <SidebarItem name="User Research" />
+                              <SidebarItem name="Brand Identity" />
+                              <SidebarItem name="Journey Map" />
+                            </>
+                          )}
+                          {section.id === 'starred' && (
+                            <>
+                              <SidebarItem name="Product Roadmap Q4" />
+                              <SidebarItem name="Architecture ADRs" />
+                              <SidebarItem name="Design System" />
+                              <SidebarItem name="Brand Identity" />
+                            </>
+                          )}
+                          {section.id === 'recent' && (
+                            <>
+                              <SidebarItem name="Product Roadmap Q4" />
+                              <SidebarItem name="Sprint Planning" />
+                              <SidebarItem name="API Workshop" />
+                            </>
+                          )}
+                        </div>
+                      </motion.div>
+                    </CollapsibleContent>
+                  )}
+                </AnimatePresence>
+              </Collapsible>
+            )
+          })}
+        </nav>
+      </ScrollArea>
+
+      {/* Sidebar footer */}
+      <Separator />
+      <div className="p-3">
+        <div className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm text-muted-foreground">
+          <Avatar className="size-6">
+            <AvatarFallback className="bg-violet-500 text-[10px] text-white font-medium">
+              {userInitials}
+            </AvatarFallback>
+          </Avatar>
+          <span className="text-xs font-medium truncate">{userName}</span>
+        </div>
+      </div>
+    </>
+  )
+}
+
 // ── Component ──────────────────────────────────────────────────────────────
 
 interface DashboardViewProps {
@@ -282,13 +445,20 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
   const [sortOption, setSortOption] = useState<SortOption>('lastModified')
   const [activeSidebar, setActiveSidebar] = useState<SidebarSection | null>('my-boards')
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [boards, setBoards] = useState<BoardCardData[]>([])
   const [loading, setLoading] = useState(true)
 
+  const isMobile = useIsMobile()
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
   const locale = (user?.language as Locale) ?? 'en'
   const handleLogout = () => { logout() }
+
+  const userInitials = user?.name
+    ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    : 'U'
+  const userName = user?.name ?? 'Alex Chen'
 
   useEffect(() => {
     fetch('/api/boards')
@@ -365,149 +535,99 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
     return items
   }, [searchQuery, activeFilter, sortOption, activeSidebar, boards])
 
+  const handleCreateBoard = async (data: { name: string; description?: string; isPublic: boolean }) => {
+    try {
+      const res = await fetch('/api/boards', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: data.name,
+          description: data.description || undefined,
+          isPublic: data.isPublic,
+        }),
+      });
+      if (!res.ok) throw new Error('Failed to create board');
+      // Refresh the board list
+      const listRes = await fetch('/api/boards');
+      const listData = await listRes.json();
+      const apiBoards: BoardCardData[] = (listData.boards || []).map((b: Record<string, unknown>) => ({
+        id: b.id as string,
+        name: b.name as string,
+        description: b.description as string | undefined,
+        members: [{ id: 'u1', name: 'Demo User' }],
+        branchCount: (b.branchCount as number) || 0,
+        commitCount: (b.commitCount as number) || 0,
+        isStarred: false,
+        updatedAt: b.updatedAt as string,
+        isPublic: b.isPublic as boolean,
+      }));
+      setBoards(apiBoards);
+      toast.success('Board created successfully!')
+      setMobileSidebarOpen(false)
+    } catch (err) {
+      console.error('Failed to create board:', err)
+      toast.error('Failed to create board. Please try again.')
+    }
+  }
+
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      {/* ─── Sidebar ──────────────────────────────────────────────────── */}
+      {/* ─── Desktop Sidebar ────────────────────────────────────────────── */}
       <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card">
-        {/* Logo */}
-        <div className="flex items-center gap-2.5 px-4 py-4">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white shadow-sm">
-            <GitBranch className="size-4" />
-          </div>
-          <span className="text-base font-bold tracking-tight">BranchBoard</span>
-        </div>
-
-        <Separator />
-
-        {/* New Board button */}
-        <div className="p-3">
-          <Button
-            onClick={() => setCreateDialogOpen(true)}
-            className={cn('w-full gap-2 rounded-xl border-0 bg-background text-foreground font-medium', neuBtn, neuBtnHover, 'active:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.06),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] dark:active:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.35),inset_-2px_-2px_4px_rgba(30,30,30,0.08)]')}
-          >
-            <Plus className="size-4" />
-            New Board
-          </Button>
-        </div>
-
-        <Separator />
-
-        {/* Navigation sections */}
-        <ScrollArea className="flex-1 px-2 py-1">
-          <nav className="flex flex-col gap-0.5" aria-label="Board navigation">
-            {sidebarSections.map((section) => {
-              const Icon = section.icon
-              const isActive = activeSidebar === section.id
-
-              return (
-                <Collapsible
-                  key={section.id}
-                  open={isActive}
-                  onOpenChange={(open) => {
-                    if (open) {
-                      setActiveSidebar(section.id)
-                      setActiveFilter('all')
-                    } else {
-                      setActiveSidebar(null)
-                    }
-                  }}
-                >
-                  <CollapsibleTrigger asChild>
-                    <button
-                      className={cn(
-                        'flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                        isActive
-                          ? 'bg-accent text-accent-foreground'
-                          : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
-                      )}
-                    >
-                      <Icon className="size-4 shrink-0" />
-                      <span className="flex-1 text-left">{section.label}</span>
-                      <Badge
-                        variant="secondary"
-                        className="text-[10px] px-1.5 py-0 h-5 font-normal"
-                      >
-                        {section.count}
-                      </Badge>
-                      <ChevronDown
-                        className={cn(
-                          'size-3.5 shrink-0 transition-transform duration-200',
-                          isActive && 'rotate-180'
-                        )}
-                      />
-                    </button>
-                  </CollapsibleTrigger>
-                  <AnimatePresence>
-                    {isActive && (
-                      <CollapsibleContent forceMount>
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="overflow-hidden"
-                        >
-                          <div className="ml-4 mt-0.5 flex flex-col gap-0.5 pb-1">
-                            {section.id === 'my-boards' && (
-                              <>
-                                <SidebarItem name="Product Roadmap Q4" active />
-                                <SidebarItem name="Sprint Planning" />
-                                <SidebarItem name="Design System" />
-                                <SidebarItem name="API Workshop" />
-                              </>
-                            )}
-                            {section.id === 'shared' && (
-                              <>
-                                <SidebarItem name="User Research" />
-                                <SidebarItem name="Brand Identity" />
-                                <SidebarItem name="Journey Map" />
-                              </>
-                            )}
-                            {section.id === 'starred' && (
-                              <>
-                                <SidebarItem name="Product Roadmap Q4" />
-                                <SidebarItem name="Architecture ADRs" />
-                                <SidebarItem name="Design System" />
-                                <SidebarItem name="Brand Identity" />
-                              </>
-                            )}
-                            {section.id === 'recent' && (
-                              <>
-                                <SidebarItem name="Product Roadmap Q4" />
-                                <SidebarItem name="Sprint Planning" />
-                                <SidebarItem name="API Workshop" />
-                              </>
-                            )}
-                          </div>
-                        </motion.div>
-                      </CollapsibleContent>
-                    )}
-                  </AnimatePresence>
-                </Collapsible>
-              )
-            })}
-          </nav>
-        </ScrollArea>
-
-        {/* Sidebar footer */}
-        <Separator />
-        <div className="p-3">
-          <div className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm text-muted-foreground">
-            <Avatar className="size-6">
-              <AvatarFallback className="bg-violet-500 text-[10px] text-white font-medium">
-                AC
-              </AvatarFallback>
-            </Avatar>
-            <span className="text-xs font-medium truncate">Alex Chen</span>
-          </div>
-        </div>
+        <SidebarContent
+          sidebarSections={sidebarSections}
+          activeSidebar={activeSidebar}
+          setActiveSidebar={setActiveSidebar}
+          setActiveFilter={setActiveFilter}
+          onCreateBoard={() => setCreateDialogOpen(true)}
+          userName={userName}
+          userInitials={userInitials}
+        />
       </aside>
+
+      {/* ─── Mobile Sidebar (Sheet) ─────────────────────────────────────── */}
+      {isMobile && (
+        <Sheet open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen}>
+          <SheetContent side="left" className="w-72 p-0">
+            <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+            <div className="flex h-full flex-col">
+              <SidebarContent
+                sidebarSections={sidebarSections}
+                activeSidebar={activeSidebar}
+                setActiveSidebar={(v) => {
+                  setActiveSidebar(v)
+                  setMobileSidebarOpen(false)
+                }}
+                setActiveFilter={setActiveFilter}
+                onCreateBoard={() => {
+                  setCreateDialogOpen(true)
+                  setMobileSidebarOpen(false)
+                }}
+                userName={userName}
+                userInitials={userInitials}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
+      )}
 
       {/* ─── Main content ──────────────────────────────────────────────── */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Header */}
         <header className="flex items-center justify-between gap-4 border-b border-border bg-card px-4 py-3 lg:px-6">
-          <div className="flex items-center gap-3 md:hidden">
+          {/* Hamburger menu (mobile) */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden shrink-0"
+            onClick={() => setMobileSidebarOpen(true)}
+            aria-label="Open menu"
+          >
+            <Menu className="size-5" />
+          </Button>
+
+          {/* Mobile logo */}
+          <div className="flex items-center gap-2.5 md:hidden">
             <div className="flex size-7 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white">
               <GitBranch className="size-3.5" />
             </div>
@@ -515,7 +635,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
           </div>
 
           {/* Search bar */}
-          <div className="relative flex-1 max-w-md">
+          <div className="relative flex-1 max-w-md hidden md:block">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search boards..."
@@ -540,23 +660,23 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
             {/* Theme toggle */}
             <ThemeToggle />
 
-            {/* Language switcher */}
+            {/* Language switcher (flag only on mobile) */}
             <LanguageSwitcher />
 
-            {/* Settings */}
+            {/* Settings - hidden on mobile */}
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" onClick={() => onOpenSettings?.()}>
+                <Button variant="ghost" size="icon" onClick={() => onOpenSettings?.()} className="hidden md:flex">
                   <Settings className="size-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>{t('settings.title', locale)}</TooltipContent>
             </Tooltip>
 
-            {/* Notification bell */}
+            {/* Notification bell - hidden on mobile */}
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative">
+                <Button variant="ghost" size="icon" className="relative hidden md:flex">
                   <Bell className="size-4" />
                   <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-rose-500 ring-2 ring-background" />
                 </Button>
@@ -568,12 +688,13 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
             <div className="flex items-center gap-1">
               <Avatar className="size-8 ring-2 ring-border cursor-pointer transition-ring hover:ring-primary/30" onClick={() => onOpenSettings?.()}>
                 <AvatarFallback className="bg-violet-500 text-xs text-white font-medium">
-                  {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'U'}
+                  {userInitials}
                 </AvatarFallback>
               </Avatar>
+              {/* Logout - hidden on mobile */}
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="size-8" onClick={handleLogout}>
+                  <Button variant="ghost" size="icon" className="size-8 hidden md:flex" onClick={handleLogout}>
                     <LogOut className="size-3.5" />
                   </Button>
                 </TooltipTrigger>
@@ -583,9 +704,22 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
           </div>
         </header>
 
+        {/* Mobile search bar (below header, above filter bar) */}
+        <div className="md:hidden border-b border-border bg-card px-4 py-2">
+          <div className="relative w-full">
+            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search boards..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 h-9 bg-muted/50 border-0 focus-visible:ring-1"
+            />
+          </div>
+        </div>
+
         {/* Filter / Sort bar */}
         <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5 lg:px-6 bg-muted/30">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-1 md:flex-none justify-center md:justify-start">
             {(
               [
                 { key: 'all', label: 'All' },
@@ -614,8 +748,8 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
             ))}
           </div>
 
-          {/* Sort controls */}
-          <div className="flex items-center gap-2">
+          {/* Sort controls - hidden on mobile */}
+          <div className="hidden md:flex items-center gap-2">
             <span className="text-xs text-muted-foreground hidden sm:inline">
               Sort by:
             </span>
@@ -672,7 +806,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
 
         {/* Board grid */}
         <ScrollArea className="flex-1">
-          <main className="p-4 lg:p-6">
+          <main className="p-3 sm:p-4 lg:p-6 pb-16 md:pb-0">
             {loading ? (
               <div className="flex items-center justify-center py-24">
                 <div className="flex flex-col items-center gap-3 text-muted-foreground">
@@ -697,54 +831,92 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                 </AnimatePresence>
               </motion.div>
             ) : (
-              <EmptyState onCreateBoard={() => setCreateDialogOpen(true)} />
+              <EmptyState onCreateBoard={() => setCreateDialogOpen(true)} searchQuery={searchQuery} />
             )}
           </main>
         </ScrollArea>
 
         {/* Footer */}
-        <footer className="flex shrink-0 items-center justify-center border-t border-border bg-card/50 px-4 py-2">
+        <footer className="mt-auto shrink-0 flex items-center justify-center border-t border-border bg-card/50 px-4 py-2 pb-safe">
           <p className="text-xs text-muted-foreground">
             © 2024 BranchBoard. Collaborative whiteboard with version control.
           </p>
         </footer>
       </div>
 
+      {/* ─── Mobile Bottom Navigation Bar ───────────────────────────────── */}
+      {isMobile && (
+        <nav
+          className="fixed bottom-0 left-0 right-0 z-40 bg-background border-t border-border"
+          style={{ height: 'calc(60px + env(safe-area-inset-bottom, 0px))', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+          aria-label="Mobile navigation"
+        >
+          <div className="flex items-center justify-around h-[60px]">
+            {/* Boards tab */}
+            <button
+              onClick={() => {
+                setActiveFilter('all')
+                setActiveSidebar('my-boards')
+                setMobileSidebarOpen(false)
+              }}
+              className={cn(
+                'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-colors min-w-[56px]',
+                activeFilter === 'all' && activeSidebar !== 'starred'
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <LayoutDashboard className="size-5" />
+              <span className="text-[10px] font-medium">Boards</span>
+            </button>
+
+            {/* Starred tab */}
+            <button
+              onClick={() => {
+                setActiveFilter('starred')
+                setActiveSidebar(null)
+              }}
+              className={cn(
+                'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-colors min-w-[56px]',
+                activeFilter === 'starred'
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <Star className={cn('size-5', activeFilter === 'starred' && 'fill-current')} />
+              <span className="text-[10px] font-medium">Starred</span>
+            </button>
+
+            {/* New board FAB */}
+            <button
+              onClick={() => setCreateDialogOpen(true)}
+              className="flex flex-col items-center justify-center gap-0.5 px-3 py-1 min-w-[56px]"
+            >
+              <div className="flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg">
+                <Plus className="size-5" />
+              </div>
+            </button>
+
+            {/* Profile tab */}
+            <button
+              onClick={() => setMobileSidebarOpen(true)}
+              className={cn(
+                'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-colors min-w-[56px]',
+                'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <User className="size-5" />
+              <span className="text-[10px] font-medium">Profile</span>
+            </button>
+          </div>
+        </nav>
+      )}
+
       {/* Create Board Dialog */}
       <CreateBoardDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
-        onCreateBoard={async (data) => {
-          try {
-            const res = await fetch('/api/boards', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                name: data.name,
-                description: data.description || undefined,
-                isPublic: data.isPublic,
-              }),
-            });
-            if (!res.ok) throw new Error('Failed to create board');
-            // Refresh the board list
-            const listRes = await fetch('/api/boards');
-            const listData = await listRes.json();
-            const apiBoards: BoardCardData[] = (listData.boards || []).map((b: Record<string, unknown>) => ({
-              id: b.id as string,
-              name: b.name as string,
-              description: b.description as string | undefined,
-              members: [{ id: 'u1', name: 'Demo User' }],
-              branchCount: (b.branchCount as number) || 0,
-              commitCount: (b.commitCount as number) || 0,
-              isStarred: false,
-              updatedAt: b.updatedAt as string,
-              isPublic: b.isPublic as boolean,
-            }));
-            setBoards(apiBoards);
-          } catch (err) {
-            console.error('Failed to create board:', err);
-          }
-        }}
+        onCreateBoard={handleCreateBoard}
       />
     </div>
   )
@@ -775,7 +947,7 @@ function SidebarItem({ name, active }: { name: string; active?: boolean }) {
 
 // ─── Empty state ─────────────────────────────────────────────────────────────
 
-function EmptyState({ onCreateBoard }: { onCreateBoard: () => void }) {
+function EmptyState({ onCreateBoard, searchQuery = '' }: { onCreateBoard: () => void; searchQuery?: string }) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}

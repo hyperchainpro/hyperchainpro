@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useAuthStore } from '@/store/auth-store';
 import { t, LOCALES, type Locale } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 
 // ─── Turnstile Types ──────────────────────────────────────────────────────────
 

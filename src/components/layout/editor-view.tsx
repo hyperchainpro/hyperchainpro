@@ -33,6 +33,7 @@ import { usePrototypeStore } from '@/store/prototype-store';
 import { useComponentStore } from '@/store/component-store';
 import { usePresenceStore } from '@/store/presence-store';
 import { useCollaboration } from '@/hooks/use-collaboration';
+import { useIsMobile } from '@/hooks/use-mobile';
 import EnhancedCanvasArea from '@/components/editor/canvas/enhanced-canvas-area';
 import EnhancedToolbar from '@/components/editor/toolbar/enhanced-toolbar';
 import { LeftPanel } from '@/components/editor/left-panel';
@@ -128,7 +129,7 @@ function EditorTopBar({ boardName }: { boardName?: string }) {
   const currentBranch = branches.find((b) => b.id === currentBranchId);
 
   return (
-    <header className="h-12 border-b bg-background flex items-center px-3 gap-2 shrink-0">
+    <header className="h-12 border-b bg-background flex items-center px-2 md:px-3 gap-2 shrink-0">
       {/* Back button */}
       <Tooltip>
         <TooltipTrigger asChild>
@@ -159,7 +160,7 @@ function EditorTopBar({ boardName }: { boardName?: string }) {
       <Separator orientation="vertical" className="h-6" />
 
       {/* Board name */}
-      <span className="text-sm font-semibold truncate max-w-[200px] hidden sm:block">
+      <span className="text-sm font-semibold truncate max-w-[120px] md:max-w-[200px]">
         {boardName ?? 'Board'}
       </span>
 
@@ -173,14 +174,14 @@ function EditorTopBar({ boardName }: { boardName?: string }) {
             onClick={() => setRightPanelTab('branches')}
           >
             <GitBranch className="h-3 w-3" />
-            <span className="hidden sm:inline">{currentBranch?.name ?? 'main'}</span>
+            <span className="hidden md:inline">{currentBranch?.name ?? 'main'}</span>
           </Button>
         </TooltipTrigger>
         <TooltipContent side="bottom">Current branch: {currentBranch?.name ?? 'main'}</TooltipContent>
       </Tooltip>
 
       {/* Design / Prototype mode toggle */}
-      <div className="hidden sm:flex items-center bg-muted rounded-lg p-0.5 ml-1">
+      <div className="hidden md:flex items-center bg-muted rounded-lg p-0.5 ml-1">
         <Button
           variant="ghost"
           size="sm"
@@ -208,7 +209,7 @@ function EditorTopBar({ boardName }: { boardName?: string }) {
 
       {/* Presence avatars */}
       {presenceUsers.length > 0 && (
-        <div className="flex items-center -space-x-1.5 ml-1">
+        <div className="hidden md:flex items-center -space-x-1.5 ml-1">
           {presenceUsers.slice(0, 4).map((user) => (
             <Tooltip key={user.id}>
               <TooltipTrigger asChild>
@@ -231,7 +232,7 @@ function EditorTopBar({ boardName }: { boardName?: string }) {
       )}
 
       {/* Connection status */}
-      <div className="ml-1 flex items-center gap-1">
+      <div className="hidden md:flex ml-1 items-center gap-1">
         <div
           className={cn(
             'h-1.5 w-1.5 rounded-full',
@@ -275,7 +276,7 @@ function EditorTopBar({ boardName }: { boardName?: string }) {
         {/* Merge request */}
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMergeDialogOpen(true)}>
+            <Button variant="ghost" size="icon" className="hidden md:flex h-8 w-8" onClick={() => setMergeDialogOpen(true)}>
               <GitMerge className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
@@ -288,7 +289,7 @@ function EditorTopBar({ boardName }: { boardName?: string }) {
             <Button
               variant={rightPanelOpen ? 'secondary' : 'ghost'}
               size="icon"
-              className="h-8 w-8"
+              className="hidden md:flex h-8 w-8"
               onClick={() => setRightPanelTab('history')}
             >
               <History className="h-4 w-4" />
@@ -316,7 +317,7 @@ function EditorTopBar({ boardName }: { boardName?: string }) {
           onClick={() => setCommitDialogOpen(true)}
         >
           <GitCommitHorizontal className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Commit</span>
+          <span className="hidden md:inline">Commit</span>
         </Button>
       </div>
     </header>
@@ -330,9 +331,17 @@ export default function EditorView() {
   const [boardName, setBoardName] = useState<string | undefined>();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const isMobile = useIsMobile();
 
   // Real-time collaboration
   const { sendCursorMove } = useCollaboration(currentBoardId);
+
+  // On mobile, close the right panel by default when entering editor
+  useEffect(() => {
+    if (isMobile && currentBoardId) {
+      useAppStore.getState().setRightPanelOpen(false);
+    }
+  }, [isMobile, currentBoardId]);
 
   useEffect(() => {
     if (!currentBoardId) return;

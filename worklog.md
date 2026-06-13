@@ -366,3 +366,162 @@ Stage Summary:
 - Full Figma-like editor with: layers panel, assets panel, design properties, prototype panel, enhanced toolbar, drag-to-draw, alignment guides, rulers, component system, plugin system, wireframe kit, device frame templates
 - All code passes lint, compiles without TypeScript errors
 - Production-quality Next.js 16 + TypeScript + Tailwind CSS 4 + shadcn/ui
+
+---
+Task ID: 2b
+Agent: Main
+Task: Update board-card.tsx to be mobile touch-friendly
+
+Work Log:
+- Added `whileTap={{ scale: 0.98 }}` to motion.div for tactile feedback on touch devices
+- Changed top-right actions overlay from `opacity-0 group-hover:opacity-100` to `md:opacity-0 md:group-hover:opacity-100` — buttons always visible on mobile with `bg-black/10 backdrop-blur-sm rounded-full` (removed at md+)
+- Changed always-visible starred indicator from `group-hover:opacity-0` to `md:group-hover:opacity-0` so it stays visible on mobile
+- Changed CardContent padding from `p-4` to `p-3 sm:p-4` for tighter mobile layout
+- Verified stats row already has `flex-wrap` for graceful wrapping on small screens
+- All existing functionality preserved (dropdown, star toggle, avatars, tooltips, etc.)
+- Lint passes clean, dev server serving normally
+
+Stage Summary:
+- 4 targeted className changes in board-card.tsx
+- Mobile users can now always see star/menu buttons with a subtle backdrop
+- Touch tap feedback via framer-motion whileTap
+- Slightly reduced padding on mobile for better space usage
+
+---
+Task ID: 2
+Agent: Main
+Task: Rewrite dashboard-view.tsx to be fully mobile-friendly with responsive design
+
+Work Log:
+- Extracted shared sidebar content into `SidebarContent` component, reused by both desktop `<aside>` and mobile `<Sheet>`
+- Added `useIsMobile` hook and `mobileSidebarOpen` state for mobile sidebar control
+- Added hamburger menu button (Menu icon) in header, visible only on mobile (md:hidden)
+- Added mobile `<Sheet>` sidebar (from shadcn/ui) with same content as desktop sidebar; closes on section tap
+- Added fixed bottom navigation bar (md:hidden) with 4 tabs: Boards, Starred, New (FAB circle), Profile
+- Bottom nav has safe area padding via `env(safe-area-inset-bottom)`
+- Main content area uses `pb-16 md:pb-0` to account for bottom nav
+- Mobile search bar moved to its own row below header for full-width usage
+- Sort controls hidden on mobile (`hidden md:flex`), filter tabs centered on mobile
+- Header hides Settings, Notification bell, and Logout on mobile; keeps ThemeToggle, LanguageSwitcher (flag only), avatar, New button
+- Footer uses `mt-auto` for sticky behavior, stays above bottom nav on mobile
+- Board grid uses `p-3 sm:p-4 lg:p-6` for responsive padding
+- Board creation handler now uses `toast.success`/`toast.error` from sonner, closes mobile sidebar on success
+- Added new imports: `toast` from sonner, `useIsMobile`, `Menu/Home/Star/User` from lucide, `Sheet/SheetContent/SheetTitle` from ui
+- All existing functionality preserved: neumorphism, i18n, theme toggle, language switcher, search, filter, sort, sidebar navigation, board cards, create board dialog
+- ESLint passes with zero errors
+
+Stage Summary:
+- Dashboard is now fully responsive with mobile-first considerations
+- Mobile users get: hamburger menu, bottom nav bar, sheet-based sidebar, mobile search row, simplified header
+- Desktop layout unchanged
+- Toast notifications added for board creation success/failure
+
+---
+Task ID: 3
+Agent: Main
+Task: Make the editor view and right panel mobile-friendly
+
+Work Log:
+- Refactored right-panel/index.tsx into separate DesktopRightPanel and MobileRightPanel components (matching LeftPanel pattern)
+- Mobile RightPanel uses Sheet with `w-[85vw] max-w-[300px]` and `h-[calc(100vh-56px)]` for proper mobile sizing
+- Optimized editor top bar for mobile: tighter padding `px-2 md:px-3`, board name always visible with `max-w-[120px] md:max-w-[200px]`
+- Hidden non-essential top bar elements on mobile with `hidden md:flex`: branch text, Design/Prototype toggle, presence avatars, connection dot, merge request button, history button
+- Commit button shows icon-only on mobile (`hidden md:inline` for text)
+- Kept essential buttons visible on mobile: back, left panel toggle, board name, commit, right panel toggle, new branch
+- Made toolbar buttons smaller on mobile: `h-9 w-9 md:h-10 md:w-10`
+- Narrowed toolbar width on mobile: `w-11 md:w-12`
+- ESLint passes clean, dev server compiles without errors
+
+Stage Summary:
+- Right panel now properly uses Sheet overlay on mobile (same pattern as left panel)
+- Editor top bar decluttered on mobile: only essential controls visible
+- Vertical toolbar is 1px narrower with smaller touch targets on mobile
+- All existing desktop functionality preserved
+---
+Task ID: 1
+Agent: Main Agent
+Task: Fix board creation error handling and auth-view missing import
+
+Work Log:
+- Added missing `import { cn } from '@/lib/utils'` to auth-view.tsx which caused a ReferenceError crash
+- Added `toast.success()` and `toast.error()` notifications for board creation feedback in dashboard
+- Fixed EmptyState component to accept `searchQuery` prop (was referencing undefined variable)
+
+Stage Summary:
+- Auth view no longer crashes on load
+- Board creation shows user-friendly toast notifications instead of silent console.error
+- Empty state properly handles search query display
+
+---
+Task ID: 2
+Agent: full-stack-developer (subagent)
+Task: Make dashboard mobile-friendly with responsive layout
+
+Work Log:
+- Extracted SidebarContent as shared component for desktop aside and mobile Sheet
+- Added mobile sidebar as Sheet (slides from left) triggered by hamburger menu
+- Added mobile bottom navigation bar with 4 tabs: Boards, Starred, New (+), Profile
+- Hamburger menu button in header (visible only on mobile)
+- Hidden sort controls on mobile, centered filter tabs
+- Added pb-16 on mobile to account for bottom nav height
+- Made footer sticky with mt-auto
+- Responsive board grid padding: p-3 sm:p-4 lg:p-6
+- Mobile header optimization: hidden Settings, Bell, Logout on mobile
+
+Stage Summary:
+- Full mobile-responsive dashboard with bottom navigation
+- Mobile sidebar accessible via hamburger menu or Profile tab
+- Board creation works from mobile bottom nav (+) button
+- /home/z/my-project/src/components/dashboard/dashboard-view.tsx rewritten (~980 lines)
+
+---
+Task ID: 2b
+Agent: full-stack-developer (subagent)
+Task: Make board cards mobile touch-friendly
+
+Work Log:
+- Added whileTap={{ scale: 0.98 }} for touch feedback on cards
+- Made action overlay always visible on mobile (opacity-0 only on md+)
+- Used md:group-hover:opacity-0 instead of group-hover:opacity-0 for starred indicator
+- Reduced card content padding: p-3 sm:p-4
+
+Stage Summary:
+- Board cards are fully interactive on touch devices
+- Star and menu buttons always visible on mobile
+- /home/z/my-project/src/components/dashboard/board-card.tsx updated
+
+---
+Task ID: 3
+Agent: full-stack-developer (subagent)
+Task: Make editor view mobile-friendly
+
+Work Log:
+- Refactored RightPanel into DesktopRightPanel and MobileRightPanel components
+- MobileRightPanel uses Sheet (w-[85vw] max-w-[300px])
+- Editor top bar: hidden branch text, mode toggle, presence avatars, merge/history on mobile
+- Board name always visible with max-w-[120px] md:max-w-[200px]
+- Toolbar buttons: h-9 w-9 md:h-10 md:w-10, toolbar w-11 md:w-12
+- Added isMobile detection in EditorView to close right panel by default on mobile
+- Imported useIsMobile hook in editor-view.tsx
+
+Stage Summary:
+- Editor fully functional on mobile with optimized top bar and toolbar
+- Right panel opens as Sheet overlay on mobile (not blocking by default)
+- Left panel already had mobile Sheet support
+- /home/z/my-project/src/components/layout/editor-view.tsx updated
+- /home/z/my-project/src/components/editor/right-panel/index.tsx updated
+- /home/z/my-project/src/components/editor/toolbar/enhanced-toolbar.tsx updated
+
+---
+Task ID: Fix
+Agent: Main Agent
+Task: Fix bottom nav filter bugs
+
+Work Log:
+- Fixed "Boards" bottom nav to also reset activeSidebar to 'my-boards'
+- Fixed "Starred" bottom nav to set activeSidebar to null (avoiding double filter)
+- Fixed EmptyState searchQuery reference error
+
+Stage Summary:
+- Bottom navigation filters work correctly
+- Switching between Boards/Starred properly shows/hides boards

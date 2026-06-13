@@ -292,26 +292,12 @@ function PanelContent() {
   );
 }
 
-// ─── Main Right Panel ─────────────────────────────────────────────────────────
+// ─── Desktop Right Panel ──────────────────────────────────────────────────────
 
-export function RightPanel() {
+function DesktopRightPanel() {
   const rightPanelOpen = useAppStore((s) => s.rightPanelOpen);
   const setRightPanelOpen = useAppStore((s) => s.setRightPanelOpen);
-  const isMobile = useIsMobile();
 
-  // ── Mobile: Sheet overlay ──
-  if (isMobile) {
-    return (
-      <Sheet open={rightPanelOpen} onOpenChange={setRightPanelOpen}>
-        <SheetContent side="right" className="w-[280px] p-0">
-          <SheetTitle className="sr-only">Properties Panel</SheetTitle>
-          <PanelContent />
-        </SheetContent>
-      </Sheet>
-    );
-  }
-
-  // ── Desktop: animated sidebar ──
   return (
     <AnimatePresence>
       {rightPanelOpen && (
@@ -340,4 +326,34 @@ export function RightPanel() {
       )}
     </AnimatePresence>
   );
+}
+
+// ─── Mobile Right Panel (Sheet overlay) ───────────────────────────────────────
+
+function MobileRightPanel() {
+  const rightPanelOpen = useAppStore((s) => s.rightPanelOpen);
+  const setRightPanelOpen = useAppStore((s) => s.setRightPanelOpen);
+
+  return (
+    <Sheet open={rightPanelOpen} onOpenChange={setRightPanelOpen}>
+      <SheetContent side="right" className="w-[85vw] max-w-[300px] p-0">
+        <SheetTitle className="sr-only">Properties Panel</SheetTitle>
+        <div className="h-[calc(100vh-56px)]">
+          <PanelContent />
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+// ─── Main Right Panel ─────────────────────────────────────────────────────────
+
+export function RightPanel() {
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return <MobileRightPanel />;
+  }
+
+  return <DesktopRightPanel />;
 }

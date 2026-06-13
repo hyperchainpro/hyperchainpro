@@ -134,7 +134,7 @@ function ToolButton({
       <TooltipTrigger asChild>
         <button
           className={cn(
-            'flex h-10 w-10 items-center justify-center rounded-lg transition-colors',
+            'flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-lg transition-colors',
             'hover:bg-accent/50',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
             isActive && 'bg-accent text-accent-foreground',
@@ -265,7 +265,7 @@ function ActionButton({
       <TooltipTrigger asChild>
         <button
           className={cn(
-            'flex h-10 w-10 items-center justify-center rounded-lg transition-colors',
+            'flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-lg transition-colors',
             'hover:bg-accent/50',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
             disabled && 'opacity-30 pointer-events-none',
@@ -341,7 +341,7 @@ function PopoverToolButton({
           <PopoverTrigger asChild>
             <button
               className={cn(
-                'flex h-10 w-10 items-center justify-center rounded-lg transition-colors',
+                'flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-lg transition-colors',
                 'hover:bg-accent/50',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                 isActive && 'bg-accent text-accent-foreground',
@@ -443,7 +443,7 @@ export default function EnhancedToolbar() {
     <TooltipProvider delayDuration={200}>
       <div
         className={cn(
-          'relative z-50 flex h-full w-12 flex-col items-center',
+          'relative z-50 flex h-full w-11 md:w-12 flex-col items-center',
           'bg-background/80 backdrop-blur-sm',
           'border-r',
           'shadow-[3px_0px_12px_rgba(0,0,0,0.06),_-1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_0px_0px_rgba(255,255,255,0.08)_inset]',
@@ -456,7 +456,7 @@ export default function EnhancedToolbar() {
             <TooltipTrigger asChild>
               <button
                 className={cn(
-                  'flex h-10 w-10 items-center justify-center rounded-lg transition-colors',
+                  'flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-lg transition-colors',
                   'hover:bg-accent/50',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                   editorMode === 'design' && 'bg-accent text-accent-foreground',
@@ -475,7 +475,7 @@ export default function EnhancedToolbar() {
             <TooltipTrigger asChild>
               <button
                 className={cn(
-                  'flex h-10 w-10 items-center justify-center rounded-lg transition-colors',
+                  'flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-lg transition-colors',
                   'hover:bg-accent/50',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                   editorMode === 'prototype' && 'bg-accent text-accent-foreground',
