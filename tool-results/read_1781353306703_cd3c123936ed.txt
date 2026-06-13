@@ -1,0 +1,810 @@
+     1→'use client'
+     2→
+     3→import { useState, useMemo, useEffect } from 'react'
+     4→import { motion, AnimatePresence } from 'framer-motion'
+     5→import {
+     6→  Search,
+     7→  Plus,
+     8→  LayoutDashboard,
+     9→  Star,
+    10→  Clock,
+    11→  Users,
+    12→  Bell,
+    13→  ChevronDown,
+    14→  Grid,
+    15→  List,
+    16→  SlidersHorizontal,
+    17→  GitBranch,
+    18→  ChevronRight,
+    19→  Sparkles,
+    20→  FilePlus,
+    21→  Settings,
+    22→  Moon,
+    23→  Sun,
+    24→  Monitor,
+    25→  LogOut,
+    26→  Share2,
+    27→} from 'lucide-react'
+    28→import { Button } from '@/components/ui/button'
+    29→import { Input } from '@/components/ui/input'
+    30→import { Badge } from '@/components/ui/badge'
+    31→import { ScrollArea } from '@/components/ui/scroll-area'
+    32→import { Separator } from '@/components/ui/separator'
+    33→import {
+    34→  Tooltip,
+    35→  TooltipContent,
+    36→  TooltipTrigger,
+    37→} from '@/components/ui/tooltip'
+    38→import {
+    39→  Collapsible,
+    40→  CollapsibleContent,
+    41→  CollapsibleTrigger,
+    42→} from '@/components/ui/collapsible'
+    43→import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+    44→import {
+    45→  BoardCard,
+    46→  type BoardCardData,
+    47→} from '@/components/dashboard/board-card'
+    48→import {
+    49→  CreateBoardDialog,
+    50→} from '@/components/dashboard/create-board-dialog'
+    51→import { cn } from '@/lib/utils'
+    52→import { useAppStore } from '@/store/app-store'
+    53→import { useAuthStore } from '@/store/auth-store'
+    54→import { t, LOCALES, type Locale } from '@/lib/i18n'
+    55→import { useTheme } from 'next-themes'
+    56→
+    57→type FilterTab = 'all' | 'recent' | 'starred'
+    58→type SortOption = 'lastModified' | 'name' | 'created'
+    59→type SidebarSection = 'my-boards' | 'shared' | 'starred' | 'recent'
+    60→
+    61→// ── Demo data ──────────────────────────────────────────────────────────────
+    62→
+    63→const demoBoards: BoardCardData[] = [
+    64→  {
+    65→    id: 'b1',
+    66→    name: 'Product Roadmap Q4',
+    67→    description: 'High-level product roadmap for Q4 with key milestones and deliverables.',
+    68→    members: [
+    69→      { id: 'u1', name: 'Alex Chen' },
+    70→      { id: 'u2', name: 'Sarah Kim' },
+    71→      { id: 'u3', name: 'Jordan Lee' },
+    72→      { id: 'u4', name: 'Mike Wu' },
+    73→      { id: 'u5', name: 'Nora Patel' },
+    74→    ],
+    75→    branchCount: 5,
+    76→    commitCount: 42,
+    77→    isStarred: true,
+    78→    updatedAt: new Date(Date.now() - 1000 * 60 * 30),
+    79→    isPublic: false,
+    80→  },
+    81→  {
+    82→    id: 'b2',
+    83→    name: 'User Research Synthesis',
+    84→    description: 'Mapping user interview findings and insights from Q3 research.',
+    85→    members: [
+    86→      { id: 'u6', name: 'Emily Zhang' },
+    87→      { id: 'u2', name: 'Sarah Kim' },
+    88→    ],
+    89→    branchCount: 3,
+    90→    commitCount: 18,
+    91→    isStarred: false,
+    92→    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 3),
+    93→    isPublic: true,
+    94→  },
+    95→  {
+    96→    id: 'b3',
+    97→    name: 'Architecture Decision Records',
+    98→    description: 'ADR board for tracking technical architecture decisions.',
+    99→    members: [
+   100→      { id: 'u1', name: 'Alex Chen' },
+   101→      { id: 'u7', name: 'Dev Sharma' },
+   102→      { id: 'u8', name: 'Chris Park' },
+   103→    ],
+   104→    branchCount: 8,
+   105→    commitCount: 67,
+   106→    isStarred: true,
+   107→    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
+   108→    isPublic: false,
+   109→  },
+   110→  {
+   111→    id: 'b4',
+   112→    name: 'Sprint Planning Board',
+   113→    description: 'Weekly sprint planning with tasks, stories, and blockers.',
+   114→    members: [
+   115→      { id: 'u3', name: 'Jordan Lee' },
+   116→      { id: 'u4', name: 'Mike Wu' },
+   117→      { id: 'u9', name: 'Rina Takahashi' },
+   118→      { id: 'u10', name: 'Luis Garcia' },
+   119→    ],
+   120→    branchCount: 12,
+   121→    commitCount: 156,
+   122→    isStarred: false,
+   123→    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 6),
+   124→    isPublic: false,
+   125→  },
+   126→  {
+   127→    id: 'b5',
+   128→    name: 'Brand Identity Exploration',
+   129→    description: 'Visual mood boards and brand exploration for the new identity.',
+   130→    members: [
+   131→      { id: 'u5', name: 'Nora Patel' },
+   132→    ],
+   133→    branchCount: 2,
+   134→    commitCount: 9,
+   135→    isStarred: true,
+   136→    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5),
+   137→    isPublic: true,
+   138→  },
+   139→  {
+   140→    id: 'b6',
+   141→    name: 'API Design Workshop',
+   142→    description: 'Collaborative API endpoint design and data model diagrams.',
+   143→    members: [
+   144→      { id: 'u1', name: 'Alex Chen' },
+   145→      { id: 'u7', name: 'Dev Sharma' },
+   146→      { id: 'u2', name: 'Sarah Kim' },
+   147→      { id: 'u6', name: 'Emily Zhang' },
+   148→      { id: 'u3', name: 'Jordan Lee' },
+   149→      { id: 'u4', name: 'Mike Wu' },
+   150→    ],
+   151→    branchCount: 6,
+   152→    commitCount: 34,
+   153→    isStarred: false,
+   154→    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
+   155→    isPublic: false,
+   156→  },
+   157→  {
+   158→    id: 'b7',
+   159→    name: 'Customer Journey Map',
+   160→    description: 'End-to-end customer experience mapping for the onboarding flow.',
+   161→    members: [
+   162→      { id: 'u8', name: 'Chris Park' },
+   163→      { id: 'u9', name: 'Rina Takahashi' },
+   164→    ],
+   165→    branchCount: 1,
+   166→    commitCount: 5,
+   167→    isStarred: false,
+   168→    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7),
+   169→    isPublic: true,
+   170→  },
+   171→  {
+   172→    id: 'b8',
+   173→    name: 'Design System Components',
+   174→    description: 'Shared component library documentation and usage guidelines.',
+   175→    members: [
+   176→      { id: 'u5', name: 'Nora Patel' },
+   177→      { id: 'u10', name: 'Luis Garcia' },
+   178→      { id: 'u6', name: 'Emily Zhang' },
+   179→    ],
+   180→    branchCount: 15,
+   181→    commitCount: 203,
+   182→    isStarred: true,
+   183→    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 12),
+   184→    isPublic: true,
+   185→  },
+   186→]
+   187→
+   188→const sidebarSectionsTemplate = [
+   189→  { id: 'my-boards' as SidebarSection, label: 'My Boards', icon: LayoutDashboard },
+   190→  { id: 'shared' as SidebarSection, label: 'Shared with me', icon: Users },
+   191→  { id: 'starred' as SidebarSection, label: 'Starred', icon: Star },
+   192→  { id: 'recent' as SidebarSection, label: 'Recent', icon: Clock },
+   193→]
+   194→
+   195→// ── Animation variants ──────────────────────────────────────────────────────
+   196→
+   197→const boardContainerVariants = {
+   198→  hidden: { opacity: 0 },
+   199→  show: {
+   200→    opacity: 1,
+   201→    transition: { staggerChildren: 0.06 },
+   202→  },
+   203→}
+   204→
+   205→const boardItemVariants = {
+   206→  hidden: { opacity: 0, y: 20 },
+   207→  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } },
+   208→}
+   209→
+   210→// ── Small helper components ──────────────────────────────────────────────
+   211→
+   212→function ThemeToggle() {
+   213→  const { theme, setTheme } = useTheme()
+   214→  const user = useAuthStore((s) => s.user)
+   215→  const locale = (user?.language as Locale) ?? 'en'
+   216→
+   217→  const cycleTheme = () => {
+   218→    const next = theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light'
+   219→    setTheme(next)
+   220→  }
+   221→
+   222→  return (
+   223→    <Tooltip>
+   224→      <TooltipTrigger asChild>
+   225→        <Button variant="ghost" size="icon" onClick={cycleTheme}>
+   226→          {theme === 'dark' ? <Moon className="size-4" /> : theme === 'light' ? <Sun className="size-4" /> : <Monitor className="size-4" />}
+   227→        </Button>
+   228→      </TooltipTrigger>
+   229→      <TooltipContent>{t('settings.theme.mode', locale)}: {theme === 'light' ? t('settings.light', locale) : theme === 'dark' ? t('settings.dark', locale) : t('settings.system', locale)}</TooltipContent>
+   230→    </Tooltip>
+   231→  )
+   232→}
+   233→
+   234→function LanguageSwitcher() {
+   235→  const user = useAuthStore((s) => s.user)
+   236→  const setUser = useAuthStore((s) => s.setUser)
+   237→  const currentLocale = (user?.language as Locale) ?? 'en'
+   238→  const current = LOCALES.find(l => l.code === currentLocale)
+   239→
+   240→  const handleCycle = () => {
+   241→    const idx = LOCALES.findIndex(l => l.code === currentLocale)
+   242→    const next = LOCALES[(idx + 1) % LOCALES.length]
+   243→    if (user) {
+   244→      setUser({ ...user, language: next.code })
+   245→      // Persist to API
+   246→      fetch('/api/user/settings', {
+   247→        method: 'POST',
+   248→        headers: { 'Content-Type': 'application/json' },
+   249→        body: JSON.stringify({ userId: user.id, language: next.code }),
+   250→      }).catch(() => {})
+   251→    }
+   252→  }
+   253→
+   254→  return (
+   255→    <Tooltip>
+   256→      <TooltipTrigger asChild>
+   257→        <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-8 px-2" onClick={handleCycle}>
+   258→          <span className="text-base leading-none">{current?.flag ?? '🌐'}</span>
+   259→          <span className="hidden sm:inline">{current?.name ?? 'English'}</span>
+   260→        </Button>
+   261→      </TooltipTrigger>
+   262→      <TooltipContent>{t('settings.tabs.language', currentLocale)}</TooltipContent>
+   263→    </Tooltip>
+   264→  )
+   265→}
+   266→
+   267→// ── Component ──────────────────────────────────────────────────────────────
+   268→
+   269→interface DashboardViewProps {
+   270→  onOpenSettings?: () => void
+   271→  onOpenShare?: () => void
+   272→}
+   273→
+   274→export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProps) {
+   275→  const [searchQuery, setSearchQuery] = useState('')
+   276→  const [activeFilter, setActiveFilter] = useState<FilterTab>('all')
+   277→  const [sortOption, setSortOption] = useState<SortOption>('lastModified')
+   278→  const [activeSidebar, setActiveSidebar] = useState<SidebarSection | null>('my-boards')
+   279→  const [createDialogOpen, setCreateDialogOpen] = useState(false)
+   280→  const [boards, setBoards] = useState<BoardCardData[]>([])
+   281→  const [loading, setLoading] = useState(true)
+   282→
+   283→  const user = useAuthStore((s) => s.user)
+   284→  const logout = useAuthStore((s) => s.logout)
+   285→  const locale = (user?.language as Locale) ?? 'en'
+   286→  const handleLogout = () => { logout() }
+   287→
+   288→  useEffect(() => {
+   289→    fetch('/api/boards')
+   290→      .then(r => r.json())
+   291→      .then(data => {
+   292→        const apiBoards: BoardCardData[] = (data.boards || []).map((b: Record<string, unknown>) => ({
+   293→          id: b.id as string,
+   294→          name: b.name as string,
+   295→          description: b.description as string | undefined,
+   296→          members: [{ id: 'u1', name: 'Demo User' }],
+   297→          branchCount: (b.branchCount as number) || 0,
+   298→          commitCount: (b.commitCount as number) || 0,
+   299→          isStarred: false,
+   300→          updatedAt: b.updatedAt as string,
+   301→          isPublic: b.isPublic as boolean,
+   302→        }))
+   303→        setBoards(apiBoards)
+   304→      })
+   305→      .catch(() => { /* keep empty */ })
+   306→      .finally(() => setLoading(false))
+   307→  }, [])
+   308→
+   309→  const sidebarSections = useMemo(() => [
+   310→    { ...sidebarSectionsTemplate[0], count: boards.length },
+   311→    { ...sidebarSectionsTemplate[1], count: boards.filter(b => b.isPublic).length },
+   312→    { ...sidebarSectionsTemplate[2], count: boards.filter(b => b.isStarred).length },
+   313→    { ...sidebarSectionsTemplate[3], count: boards.length },
+   314→  ], [boards])
+   315→
+   316→  const filteredBoards = useMemo(() => {
+   317→    let items = [...boards]
+   318→
+   319→    // Search
+   320→    if (searchQuery.trim()) {
+   321→      const q = searchQuery.toLowerCase()
+   322→      items = items.filter(
+   323→        (b) =>
+   324→          b.name.toLowerCase().includes(q) ||
+   325→          b.description?.toLowerCase().includes(q)
+   326→      )
+   327→    }
+   328→
+   329→    // Filter
+   330→    if (activeFilter === 'starred') {
+   331→      items = items.filter((b) => b.isStarred)
+   332→    } else if (activeFilter === 'recent') {
+   333→      const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
+   334→      items = items.filter((b) => new Date(b.updatedAt).getTime() > oneWeekAgo)
+   335→    }
+   336→
+   337→    // Sidebar filter
+   338→    if (activeSidebar === 'starred') {
+   339→      items = items.filter((b) => b.isStarred)
+   340→    } else if (activeSidebar === 'shared') {
+   341→      items = items.filter((b) => b.isPublic)
+   342→    } else if (activeSidebar === 'recent') {
+   343→      const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
+   344→      items = items.filter((b) => new Date(b.updatedAt).getTime() > oneWeekAgo)
+   345→    }
+   346→
+   347→    // Sort
+   348→    items.sort((a, b) => {
+   349→      switch (sortOption) {
+   350→        case 'name':
+   351→          return a.name.localeCompare(b.name)
+   352→        case 'created':
+   353→          return 0
+   354→        case 'lastModified':
+   355→        default:
+   356→          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+   357→      }
+   358→    })
+   359→
+   360→    return items
+   361→  }, [searchQuery, activeFilter, sortOption, activeSidebar, boards])
+   362→
+   363→  return (
+   364→    <div className="flex h-screen overflow-hidden bg-background">
+   365→      {/* ─── Sidebar ──────────────────────────────────────────────────── */}
+   366→      <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card">
+   367→        {/* Logo */}
+   368→        <div className="flex items-center gap-2.5 px-4 py-4">
+   369→          <div className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white shadow-sm">
+   370→            <GitBranch className="size-4" />
+   371→          </div>
+   372→          <span className="text-base font-bold tracking-tight">BranchBoard</span>
+   373→        </div>
+   374→
+   375→        <Separator />
+   376→
+   377→        {/* New Board button */}
+   378→        <div className="p-3">
+   379→          <Button
+   380→            onClick={() => setCreateDialogOpen(true)}
+   381→            className="w-full gap-2 shadow-sm"
+   382→          >
+   383→            <Plus className="size-4" />
+   384→            New Board
+   385→          </Button>
+   386→        </div>
+   387→
+   388→        <Separator />
+   389→
+   390→        {/* Navigation sections */}
+   391→        <ScrollArea className="flex-1 px-2 py-1">
+   392→          <nav className="flex flex-col gap-0.5" aria-label="Board navigation">
+   393→            {sidebarSections.map((section) => {
+   394→              const Icon = section.icon
+   395→              const isActive = activeSidebar === section.id
+   396→
+   397→              return (
+   398→                <Collapsible
+   399→                  key={section.id}
+   400→                  open={isActive}
+   401→                  onOpenChange={(open) => {
+   402→                    if (open) {
+   403→                      setActiveSidebar(section.id)
+   404→                      setActiveFilter('all')
+   405→                    } else {
+   406→                      setActiveSidebar(null)
+   407→                    }
+   408→                  }}
+   409→                >
+   410→                  <CollapsibleTrigger asChild>
+   411→                    <button
+   412→                      className={cn(
+   413→                        'flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+   414→                        isActive
+   415→                          ? 'bg-accent text-accent-foreground'
+   416→                          : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+   417→                      )}
+   418→                    >
+   419→                      <Icon className="size-4 shrink-0" />
+   420→                      <span className="flex-1 text-left">{section.label}</span>
+   421→                      <Badge
+   422→                        variant="secondary"
+   423→                        className="text-[10px] px-1.5 py-0 h-5 font-normal"
+   424→                      >
+   425→                        {section.count}
+   426→                      </Badge>
+   427→                      <ChevronDown
+   428→                        className={cn(
+   429→                          'size-3.5 shrink-0 transition-transform duration-200',
+   430→                          isActive && 'rotate-180'
+   431→                        )}
+   432→                      />
+   433→                    </button>
+   434→                  </CollapsibleTrigger>
+   435→                  <AnimatePresence>
+   436→                    {isActive && (
+   437→                      <CollapsibleContent forceMount>
+   438→                        <motion.div
+   439→                          initial={{ height: 0, opacity: 0 }}
+   440→                          animate={{ height: 'auto', opacity: 1 }}
+   441→                          exit={{ height: 0, opacity: 0 }}
+   442→                          transition={{ duration: 0.2 }}
+   443→                          className="overflow-hidden"
+   444→                        >
+   445→                          <div className="ml-4 mt-0.5 flex flex-col gap-0.5 pb-1">
+   446→                            {section.id === 'my-boards' && (
+   447→                              <>
+   448→                                <SidebarItem name="Product Roadmap Q4" active />
+   449→                                <SidebarItem name="Sprint Planning" />
+   450→                                <SidebarItem name="Design System" />
+   451→                                <SidebarItem name="API Workshop" />
+   452→                              </>
+   453→                            )}
+   454→                            {section.id === 'shared' && (
+   455→                              <>
+   456→                                <SidebarItem name="User Research" />
+   457→                                <SidebarItem name="Brand Identity" />
+   458→                                <SidebarItem name="Journey Map" />
+   459→                              </>
+   460→                            )}
+   461→                            {section.id === 'starred' && (
+   462→                              <>
+   463→                                <SidebarItem name="Product Roadmap Q4" />
+   464→                                <SidebarItem name="Architecture ADRs" />
+   465→                                <SidebarItem name="Design System" />
+   466→                                <SidebarItem name="Brand Identity" />
+   467→                              </>
+   468→                            )}
+   469→                            {section.id === 'recent' && (
+   470→                              <>
+   471→                                <SidebarItem name="Product Roadmap Q4" />
+   472→                                <SidebarItem name="Sprint Planning" />
+   473→                                <SidebarItem name="API Workshop" />
+   474→                              </>
+   475→                            )}
+   476→                          </div>
+   477→                        </motion.div>
+   478→                      </CollapsibleContent>
+   479→                    )}
+   480→                  </AnimatePresence>
+   481→                </Collapsible>
+   482→              )
+   483→            })}
+   484→          </nav>
+   485→        </ScrollArea>
+   486→
+   487→        {/* Sidebar footer */}
+   488→        <Separator />
+   489→        <div className="p-3">
+   490→          <div className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm text-muted-foreground">
+   491→            <Avatar className="size-6">
+   492→              <AvatarFallback className="bg-violet-500 text-[10px] text-white font-medium">
+   493→                AC
+   494→              </AvatarFallback>
+   495→            </Avatar>
+   496→            <span className="text-xs font-medium truncate">Alex Chen</span>
+   497→          </div>
+   498→        </div>
+   499→      </aside>
+   500→
+   501→      {/* ─── Main content ──────────────────────────────────────────────── */}
+   502→      <div className="flex flex-1 flex-col overflow-hidden">
+   503→        {/* Header */}
+   504→        <header className="flex items-center justify-between gap-4 border-b border-border bg-card px-4 py-3 lg:px-6">
+   505→          <div className="flex items-center gap-3 md:hidden">
+   506→            <div className="flex size-7 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white">
+   507→              <GitBranch className="size-3.5" />
+   508→            </div>
+   509→            <span className="text-sm font-bold tracking-tight">BranchBoard</span>
+   510→          </div>
+   511→
+   512→          {/* Search bar */}
+   513→          <div className="relative flex-1 max-w-md">
+   514→            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+   515→            <Input
+   516→              placeholder="Search boards..."
+   517→              value={searchQuery}
+   518→              onChange={(e) => setSearchQuery(e.target.value)}
+   519→              className="pl-9 h-9 bg-muted/50 border-0 focus-visible:ring-1"
+   520→            />
+   521→          </div>
+   522→
+   523→          <div className="flex items-center gap-2">
+   524→            {/* Mobile new board button */}
+   525→            <Button
+   526→              variant="default"
+   527→              size="sm"
+   528→              className="md:hidden gap-1.5"
+   529→              onClick={() => setCreateDialogOpen(true)}
+   530→            >
+   531→              <Plus className="size-4" />
+   532→              New
+   533→            </Button>
+   534→
+   535→            {/* Theme toggle */}
+   536→            <ThemeToggle />
+   537→
+   538→            {/* Language switcher */}
+   539→            <LanguageSwitcher />
+   540→
+   541→            {/* Settings */}
+   542→            <Tooltip>
+   543→              <TooltipTrigger asChild>
+   544→                <Button variant="ghost" size="icon" onClick={() => onOpenSettings?.()}>
+   545→                  <Settings className="size-4" />
+   546→                </Button>
+   547→              </TooltipTrigger>
+   548→              <TooltipContent>{t('settings.title', locale)}</TooltipContent>
+   549→            </Tooltip>
+   550→
+   551→            {/* Notification bell */}
+   552→            <Tooltip>
+   553→              <TooltipTrigger asChild>
+   554→                <Button variant="ghost" size="icon" className="relative">
+   555→                  <Bell className="size-4" />
+   556→                  <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-rose-500 ring-2 ring-background" />
+   557→                </Button>
+   558→              </TooltipTrigger>
+   559→              <TooltipContent>Notifications</TooltipContent>
+   560→            </Tooltip>
+   561→
+   562→            {/* User avatar / Logout */}
+   563→            <div className="flex items-center gap-1">
+   564→              <Avatar className="size-8 ring-2 ring-border cursor-pointer transition-ring hover:ring-primary/30" onClick={() => onOpenSettings?.()}>
+   565→                <AvatarFallback className="bg-violet-500 text-xs text-white font-medium">
+   566→                  {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'U'}
+   567→                </AvatarFallback>
+   568→              </Avatar>
+   569→              <Tooltip>
+   570→                <TooltipTrigger asChild>
+   571→                  <Button variant="ghost" size="icon" className="size-8" onClick={handleLogout}>
+   572→                    <LogOut className="size-3.5" />
+   573→                  </Button>
+   574→                </TooltipTrigger>
+   575→                <TooltipContent>{t('settings.account.logout', locale)}</TooltipContent>
+   576→              </Tooltip>
+   577→            </div>
+   578→          </div>
+   579→        </header>
+   580→
+   581→        {/* Filter / Sort bar */}
+   582→        <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5 lg:px-6 bg-muted/30">
+   583→          <div className="flex items-center gap-1">
+   584→            {(
+   585→              [
+   586→                { key: 'all', label: 'All' },
+   587→                { key: 'recent', label: 'Recent' },
+   588→                { key: 'starred', label: 'Starred' },
+   589→              ] as const
+   590→            ).map((tab) => (
+   591→              <Button
+   592→                key={tab.key}
+   593→                variant={activeFilter === tab.key ? 'secondary' : 'ghost'}
+   594→                size="sm"
+   595→                onClick={() => setActiveFilter(tab.key)}
+   596→                className={cn(
+   597→                  'text-xs h-8 px-3 rounded-full',
+   598→                  activeFilter === tab.key && 'font-semibold'
+   599→                )}
+   600→              >
+   601→                {tab.key === 'starred' && (
+   602→                  <Star className={cn('size-3 mr-1', activeFilter === tab.key && 'fill-current')} />
+   603→                )}
+   604→                {tab.key === 'recent' && (
+   605→                  <Clock className="size-3 mr-1" />
+   606→                )}
+   607→                {tab.label}
+   608→              </Button>
+   609→            ))}
+   610→          </div>
+   611→
+   612→          {/* Sort controls */}
+   613→          <div className="flex items-center gap-2">
+   614→            <span className="text-xs text-muted-foreground hidden sm:inline">
+   615→              Sort by:
+   616→            </span>
+   617→            <div className="flex items-center bg-muted rounded-lg p-0.5">
+   618→              <Button
+   619→                variant={sortOption === 'lastModified' ? 'secondary' : 'ghost'}
+   620→                size="sm"
+   621→                onClick={() => setSortOption('lastModified')}
+   622→                className="text-xs h-7 px-2.5 rounded-md"
+   623→              >
+   624→                Last modified
+   625→              </Button>
+   626→              <Button
+   627→                variant={sortOption === 'name' ? 'secondary' : 'ghost'}
+   628→                size="sm"
+   629→                onClick={() => setSortOption('name')}
+   630→                className="text-xs h-7 px-2.5 rounded-md"
+   631→              >
+   632→                Name
+   633→              </Button>
+   634→              <Button
+   635→                variant={sortOption === 'created' ? 'secondary' : 'ghost'}
+   636→                size="sm"
+   637→                onClick={() => setSortOption('created')}
+   638→                className="text-xs h-7 px-2.5 rounded-md"
+   639→              >
+   640→                Created
+   641→              </Button>
+   642→            </div>
+   643→
+   644→            <Separator orientation="vertical" className="h-5 hidden sm:block" />
+   645→
+   646→            {/* Grid/List toggle */}
+   647→            <div className="hidden sm:flex items-center bg-muted rounded-lg p-0.5">
+   648→              <Tooltip>
+   649→                <TooltipTrigger asChild>
+   650→                  <Button variant="secondary" size="sm" className="text-xs h-7 px-2 rounded-md">
+   651→                    <Grid className="size-3.5" />
+   652→                  </Button>
+   653→                </TooltipTrigger>
+   654→                <TooltipContent>Grid view</TooltipContent>
+   655→              </Tooltip>
+   656→              <Tooltip>
+   657→                <TooltipTrigger asChild>
+   658→                  <Button variant="ghost" size="sm" className="text-xs h-7 px-2 rounded-md">
+   659→                    <List className="size-3.5" />
+   660→                  </Button>
+   661→                </TooltipTrigger>
+   662→                <TooltipContent>List view</TooltipContent>
+   663→              </Tooltip>
+   664→            </div>
+   665→          </div>
+   666→        </div>
+   667→
+   668→        {/* Board grid */}
+   669→        <ScrollArea className="flex-1">
+   670→          <main className="p-4 lg:p-6">
+   671→            {loading ? (
+   672→              <div className="flex items-center justify-center py-24">
+   673→                <div className="flex flex-col items-center gap-3 text-muted-foreground">
+   674→                  <div className="size-8 animate-spin rounded-full border-2 border-current border-t-transparent" />
+   675→                  <p className="text-sm">Loading boards...</p>
+   676→                </div>
+   677→              </div>
+   678→            ) : filteredBoards.length > 0 ? (
+   679→              <motion.div
+   680→                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5"
+   681→                variants={boardContainerVariants}
+   682→                initial="hidden"
+   683→                animate="show"
+   684→                key={`${activeFilter}-${sortOption}-${searchQuery}`}
+   685→              >
+   686→                <AnimatePresence mode="popLayout">
+   687→                  {filteredBoards.map((board) => (
+   688→                    <motion.div key={board.id} variants={boardItemVariants} layout>
+   689→                      <BoardCard board={board} onOpen={(id) => useAppStore.getState().openBoard(id)} />
+   690→                    </motion.div>
+   691→                  ))}
+   692→                </AnimatePresence>
+   693→              </motion.div>
+   694→            ) : (
+   695→              <EmptyState onCreateBoard={() => setCreateDialogOpen(true)} />
+   696→            )}
+   697→          </main>
+   698→        </ScrollArea>
+   699→
+   700→        {/* Footer */}
+   701→        <footer className="flex shrink-0 items-center justify-center border-t border-border bg-card/50 px-4 py-2">
+   702→          <p className="text-xs text-muted-foreground">
+   703→            © 2024 BranchBoard. Collaborative whiteboard with version control.
+   704→          </p>
+   705→        </footer>
+   706→      </div>
+   707→
+   708→      {/* Create Board Dialog */}
+   709→      <CreateBoardDialog
+   710→        open={createDialogOpen}
+   711→        onOpenChange={setCreateDialogOpen}
+   712→        onCreateBoard={async (data) => {
+   713→          try {
+   714→            const res = await fetch('/api/boards', {
+   715→              method: 'POST',
+   716→              headers: { 'Content-Type': 'application/json' },
+   717→              body: JSON.stringify({
+   718→                name: data.name,
+   719→                description: data.description || undefined,
+   720→                isPublic: data.isPublic,
+   721→              }),
+   722→            });
+   723→            if (!res.ok) throw new Error('Failed to create board');
+   724→            // Refresh the board list
+   725→            const listRes = await fetch('/api/boards');
+   726→            const listData = await listRes.json();
+   727→            const apiBoards: BoardCardData[] = (listData.boards || []).map((b: Record<string, unknown>) => ({
+   728→              id: b.id as string,
+   729→              name: b.name as string,
+   730→              description: b.description as string | undefined,
+   731→              members: [{ id: 'u1', name: 'Demo User' }],
+   732→              branchCount: (b.branchCount as number) || 0,
+   733→              commitCount: (b.commitCount as number) || 0,
+   734→              isStarred: false,
+   735→              updatedAt: b.updatedAt as string,
+   736→              isPublic: b.isPublic as boolean,
+   737→            }));
+   738→            setBoards(apiBoards);
+   739→          } catch (err) {
+   740→            console.error('Failed to create board:', err);
+   741→          }
+   742→        }}
+   743→      />
+   744→    </div>
+   745→  )
+   746→}
+   747→
+   748→// ─── Sidebar item ────────────────────────────────────────────────────────────
+   749→
+   750→function SidebarItem({ name, active }: { name: string; active?: boolean }) {
+   751→  return (
+   752→    <button
+   753→      className={cn(
+   754→        'flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors truncate w-full text-left',
+   755→        active
+   756→          ? 'bg-primary/10 text-primary font-medium'
+   757→          : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+   758→      )}
+   759→    >
+   760→      <ChevronRight
+   761→        className={cn(
+   762→          'size-3 shrink-0 transition-transform',
+   763→          active && 'rotate-90'
+   764→        )}
+   765→      />
+   766→      <span className="truncate">{name}</span>
+   767→    </button>
+   768→  )
+   769→}
+   770→
+   771→// ─── Empty state ─────────────────────────────────────────────────────────────
+   772→
+   773→function EmptyState({ onCreateBoard }: { onCreateBoard: () => void }) {
+   774→  return (
+   775→    <motion.div
+   776→      initial={{ opacity: 0, scale: 0.95 }}
+   777→      animate={{ opacity: 1, scale: 1 }}
+   778→      transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+   779→      className="flex flex-col items-center justify-center py-24 text-center"
+   780→    >
+   781→      {/* Illustration */}
+   782→      <div className="relative mb-6">
+   783→        <div className="flex size-24 items-center justify-center rounded-3xl bg-gradient-to-br from-violet-100 to-fuchsia-100 dark:from-violet-950/40 dark:to-fuchsia-950/40">
+   784→          <div className="flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-lg">
+   785→            <GitBranch className="size-7" />
+   786→          </div>
+   787→        </div>
+   788→        <motion.div
+   789→          className="absolute -top-1 -right-1 flex size-7 items-center justify-center rounded-full bg-amber-400 text-white shadow-md"
+   790→          animate={{ rotate: [0, 15, -15, 0] }}
+   791→          transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
+   792→        >
+   793→          <Sparkles className="size-3.5" />
+   794→        </motion.div>
+   795→      </div>
+   796→
+   797→      <h2 className="text-lg font-semibold mb-2">No boards found</h2>
+   798→      <p className="text-sm text-muted-foreground max-w-sm mb-6 leading-relaxed">
+   799→        {searchQuery
+   800→          ? `No boards match "${searchQuery}". Try a different search or create a new board.`
+   801→          : "You haven't created any boards yet. Start by creating your first collaborative whiteboard."}
+   802→      </p>
+   803→      <Button onClick={onCreateBoard} className="gap-2 shadow-sm">
+   804→        <FilePlus className="size-4" />
+   805→        Create your first board
+   806→      </Button>
+   807→    </motion.div>
+   808→  )
+   809→}
+   810→
