@@ -13,6 +13,9 @@ interface AppState {
   leftPanelOpen: boolean;
   leftPanelTab: LeftPanelTab;
   editorMode: EditorMode;
+  pendingAIDesign: boolean;
+  aiDesignDialogOpen: boolean;
+  importDialogOpen: boolean;
 }
 
 // ─── Actions ─────────────────────────────────────────────────────────────────
@@ -31,6 +34,9 @@ interface AppActions {
   setLeftPanelOpen: (open: boolean) => void;
   setLeftPanelTab: (tab: LeftPanelTab) => void;
   setEditorMode: (mode: EditorMode) => void;
+  setPendingAIDesign: (v: boolean) => void;
+  setAIDesignDialogOpen: (v: boolean) => void;
+  setImportDialogOpen: (v: boolean) => void;
   reset: () => void;
 }
 
@@ -46,6 +52,9 @@ const initialState: AppState = {
   leftPanelOpen: false,
   leftPanelTab: 'layers',
   editorMode: 'design',
+  pendingAIDesign: false,
+  aiDesignDialogOpen: false,
+  importDialogOpen: false,
 };
 
 // ─── Store ───────────────────────────────────────────────────────────────────
@@ -94,6 +103,12 @@ export const useAppStore = create<AppStore>((set) => ({
   setLeftPanelTab: (tab) => set({ leftPanelTab: tab, leftPanelOpen: true }),
 
   setEditorMode: (mode) => set({ editorMode: mode }),
+
+  setPendingAIDesign: (v) => set({ pendingAIDesign: v }),
+
+  setAIDesignDialogOpen: (v) => set({ aiDesignDialogOpen: v }),
+
+  setImportDialogOpen: (v) => set({ importDialogOpen: v }),
 
   reset: () => set(initialState),
 }));

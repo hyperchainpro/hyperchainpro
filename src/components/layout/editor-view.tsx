@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   ArrowLeft,
   GitBranch,
@@ -15,6 +15,9 @@ import {
   RotateCcw,
   Play,
   Square,
+  Sparkles,
+  Upload,
+  Download,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -41,6 +44,9 @@ import { RightPanel } from '@/components/editor/right-panel';
 import { CommitDialog } from '@/components/version-control/commit-dialog';
 import { BranchDialog } from '@/components/version-control/branch-panel';
 import { MergeRequestDialog } from '@/components/version-control/merge-request-panel';
+import { ImportDialog } from '@/components/editor/import/import-dialog';
+import { AIDesignDialog } from '@/components/editor/ai';
+import type { BoardElement } from '@/lib/types';
 
 // ── Neumorphism helpers ──────────────────────────────────────────────────────
 
@@ -125,8 +131,53 @@ function EditorTopBar({ boardName }: { boardName?: string }) {
   const stopPlayback = usePrototypeStore((s) => s.stopPlayback);
   const editorMode = useAppStore((s) => s.editorMode);
   const setEditorMode = useAppStore((s) => s.setEditorMode);
+  const setAIDesignDialogOpen = useAppStore((s) => s.setAIDesignDialogOpen);
+  const setImportDialogOpen = useAppStore((s) => s.setImportDialogOpen);
 
   const currentBranch = branches.find((b) => b.id === currentBranchId);
+
+  const handleExport = useCallback(() => {
+    const els = useCanvasStore.getState().elements;
+    const padding = 40;
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const el of els) {
+      if (el.x < minX) minX = el.x;
+      if (el.y < minY) minY = el.y;
+      if (el.x + (el.width || 0) > maxX) maxX = el.x + (el.width || 0);
+      if (el.y + (el.height || 0) > maxY) maxY = el.y + (el.height || 0);
+    }
+    if (!isFinite(minX)) { minX = 0; minY = 0; maxX = 800; maxY = 600; }
+    const w = maxX - minX + padding * 2;
+    const h = maxY - minY + padding * 2;
+    const svgParts = [`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="${minX - padding} ${minY - padding} ${w} ${h}">`];
+    svgParts.push(`<rect width="${w}" height="${h}" fill="#ffffff"/>`);
+    for (const el of els) {
+      if (el.visible === false) continue;
+      const rx = el.styles?.cornerRadius?.topLeft || el.styles?.borderRadius || 0;
+      if (el.type === 'RECTANGLE') {
+        const fill = el.styles?.fills?.[0]?.color || el.color || '#e5e7eb';
+        const sw = el.styles?.strokes?.[0]?.width || 0;
+        const sc = el.styles?.strokes?.[0]?.color || '';
+        svgParts.push(`<rect x="${el.x}" y="${el.y}" width="${el.width}" height="${el.height}" rx="${rx}" fill="${fill}"${sw ? ` stroke="${sc}" stroke-width="${sw}"` : ''}/>`);
+      } else if (el.type === 'FRAME') {
+        const sw = el.styles?.strokes?.[0]?.width || 1;
+        const sc = el.styles?.strokes?.[0]?.color || '#d1d5db';
+        svgParts.push(`<rect x="${el.x}" y="${el.y}" width="${el.width}" height="${el.height}" rx="${rx}" fill="none" stroke="${sc}" stroke-width="${sw}"/>`);
+      } else if (el.type === 'TEXT') {
+        const typo = el.styles?.typography;
+        const fs = typo?.fontSize || 16;
+        const fw = typo?.fontWeight || 400;
+        const fc = typo?.color || '#1f2937';
+        svgParts.push(`<text x="${el.x}" y="${el.y + fs}" font-size="${fs}" font-weight="${fw}" fill="${fc}">${el.content || ''}</text>`);
+      }
+    }
+    svgParts.push('</svg>');
+    const blob = new Blob([svgParts.join('\n')], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'branchboard-export.svg'; a.click();
+    URL.revokeObjectURL(url);
+  }, []);
 
   return (
     <header className="h-12 border-b bg-background flex items-center px-2 md:px-3 gap-2 shrink-0">
@@ -243,6 +294,35 @@ function EditorTopBar({ boardName }: { boardName?: string }) {
 
       <div className="flex-1" />
 
+      {/* AI & Import actions (desktop) */}
+      <div className="hidden md:flex items-center gap-1">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-amber-500 hover:text-amber-600" onClick={() => setAIDesignDialogOpen(true)}>
+              <Sparkles className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">AI Design</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setImportDialogOpen(true)}>
+              <Upload className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Import File</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleExport}>
+              <Download className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Export SVG</TooltipContent>
+        </Tooltip>
+        <Separator orientation="vertical" className="h-6" />
+      </div>
+
       {/* Right actions */}
       <div className="flex items-center gap-1">
         {/* Prototype play/stop */}
@@ -332,6 +412,24 @@ export default function EditorView() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const isMobile = useIsMobile();
+  const aiDesignOpen = useAppStore((s) => s.aiDesignDialogOpen);
+  const importOpen = useAppStore((s) => s.importDialogOpen);
+  const setAIDesignOpen = useAppStore((s) => s.setAIDesignDialogOpen);
+  const setImportOpen = useAppStore((s) => s.setImportDialogOpen);
+
+  const handleImportElements = useCallback((elements: BoardElement[]) => {
+    const cur = useCanvasStore.getState().elements;
+    useCanvasStore.getState().setElements([...cur, ...elements]);
+    useCanvasStore.getState().pushHistory();
+    setImportOpen(false);
+  }, [setImportOpen]);
+
+  const handleAIGenerated = useCallback((elements: BoardElement[]) => {
+    const cur = useCanvasStore.getState().elements;
+    useCanvasStore.getState().setElements([...cur, ...elements]);
+    useCanvasStore.getState().pushHistory();
+    setAIDesignOpen(false);
+  }, [setAIDesignOpen]);
 
   // Real-time collaboration
   const { sendCursorMove } = useCollaboration(currentBoardId);
@@ -430,6 +528,8 @@ export default function EditorView() {
         <CommitDialog />
         <BranchDialog />
         <MergeRequestDialog />
+        <ImportDialog open={importOpen} onOpenChange={setImportOpen} onImport={handleImportElements} />
+        <AIDesignDialog open={aiDesignOpen} onOpenChange={setAIDesignOpen} onGenerated={handleAIGenerated} />
       </div>
     </TooltipProvider>
   );

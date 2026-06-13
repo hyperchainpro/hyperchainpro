@@ -10,6 +10,7 @@ import AuthView from '@/components/auth/auth-view';
 import { SettingsDialog } from '@/components/settings/settings-dialog';
 import { ShareDialog } from '@/components/stitch/share-dialog';
 import { AnimatePresence, motion } from 'framer-motion';
+import { CommunityBrowse } from '@/components/community';
 
 export default function HomePage() {
   const { viewMode } = useAppStore();
@@ -93,6 +94,19 @@ export default function HomePage() {
             transition={{ duration: 0.2 }}
           >
             <EditorView />
+          </motion.div>
+        )}
+        {viewMode === 'community' && (
+          <motion.div
+            key="community"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <CommunityBrowse
+              onBack={() => useAppStore.getState().setViewMode('dashboard')}
+            />
           </motion.div>
         )}
       </AnimatePresence>

@@ -6,7 +6,7 @@ export type ElementType =
 
 export type BoardRole = 'OWNER' | 'ADMIN' | 'EDITOR' | 'REVIEWER' | 'VIEWER';
 export type MergeStatus = 'OPEN' | 'APPROVED' | 'REJECTED' | 'MERGED' | 'CONFLICT';
-export type ViewMode = 'dashboard' | 'editor';
+export type ViewMode = 'dashboard' | 'editor' | 'community';
 export type EditorMode = 'design' | 'prototype';
 export type LeftPanelTab = 'layers' | 'assets';
 

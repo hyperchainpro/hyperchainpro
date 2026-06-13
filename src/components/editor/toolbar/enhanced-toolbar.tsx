@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   MousePointer2,
   Hand,
@@ -380,6 +380,17 @@ function PopoverToolButton({
 export default function EnhancedToolbar() {
   const { activeTool, snapToGrid, showMinimap, history, historyIndex, setTool, undo, redo, zoomIn, zoomOut, setSnapToGrid, toggleMinimap } = useCanvasStore();
   const { editorMode, setEditorMode } = useAppStore();
+  const pendingAIDesign = useAppStore((s) => s.pendingAIDesign);
+  const prevPendingRef = useRef(pendingAIDesign);
+
+  // Auto-open AI dialog when flagged from dashboard (triggered outside effect)
+  if (pendingAIDesign && !prevPendingRef.current) {
+    prevPendingRef.current = pendingAIDesign;
+    useAppStore.getState().setPendingAIDesign(false);
+    useAppStore.getState().setAIDesignDialogOpen(true);
+  } else if (!pendingAIDesign) {
+    prevPendingRef.current = false;
+  }
 
   const canUndo = historyIndex > 0;
   const canRedo = historyIndex < history.length - 1;
@@ -443,11 +454,12 @@ export default function EnhancedToolbar() {
     <TooltipProvider delayDuration={200}>
       <div
         className={cn(
-          'relative z-50 flex h-full w-11 md:w-12 flex-col items-center',
+          'relative z-50 flex h-full w-11 md:w-12 flex-col items-center overflow-y-auto',
           'bg-background/80 backdrop-blur-sm',
           'border-r',
           'shadow-[3px_0px_12px_rgba(0,0,0,0.06),_-1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_0px_0px_rgba(255,255,255,0.08)_inset]',
           'py-2',
+          '[&::-webkit-scrollbar]:w-0',
         )}
       >
         {/* ── Top: Design / Prototype Mode Toggle ─────────────────────────── */}
@@ -586,6 +598,7 @@ export default function EnhancedToolbar() {
           />
         </div>
       </div>
+
     </TooltipProvider>
   );
 }

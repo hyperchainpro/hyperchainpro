@@ -22,11 +22,13 @@ model User {
   aiSettings      String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
-  boardMembers    BoardMember[]
-  commits         Commit[]
-  authoredMRs     MergeRequest[]   @relation("AuthoredMergeRequest")
-  mergeComments   MergeComment[]
-  auditLogs       AuditLog[]
+  boardMembers      BoardMember[]
+  commits           Commit[]
+  authoredMRs       MergeRequest[]   @relation("AuthoredMergeRequest")
+  mergeComments     MergeComment[]
+  auditLogs         AuditLog[]
+  communityDesigns  CommunityDesign[]
+  aiAgents          AIAgent[]
 }
 
 model Board {
@@ -176,5 +178,65 @@ model BoardElement {
 
   board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
 
+  @@index([boardId])
+}
+
+model CommunityDesign {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  userId      String
+  boardId     String?
+  thumbnail   String?
+  tags        String?
+  category    String   @default("general")
+  downloadCount Int    @default(0)
+  likeCount   Int      @default(0)
+  isFeatured  Boolean  @default(false)
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([category])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model AIAgent {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  userId      String
+  systemPrompt String
+  model       String   @default("default")
+  icon        String?
+  color       String   @default("#8b5cf6")
+  isPublic    Boolean  @default(false)
+  isBuiltIn   Boolean  @default(false)
+  config      String?
+  usageCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model ImportJob {
+  id          String   @id @default(cuid())
+  userId      String
+  boardId     String
+  fileName    String
+  fileType    String
+  fileSize    Int
+  status      String   @default("pending")
+  result      String?
+  error       String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
   @@index([boardId])
 }

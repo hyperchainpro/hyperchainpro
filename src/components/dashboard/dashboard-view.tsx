@@ -27,6 +27,8 @@ import {
   Menu,
   Home,
   User,
+  Upload,
+  Wand2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -59,6 +61,7 @@ import { t, LOCALES, type Locale } from '@/lib/i18n'
 import { useTheme } from 'next-themes'
 import { toast } from 'sonner'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { UploadDesignDialog } from '@/components/community/upload-design-dialog'
 
 type FilterTab = 'all' | 'recent' | 'starred'
 type SortOption = 'lastModified' | 'name' | 'created'
@@ -445,6 +448,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
   const [sortOption, setSortOption] = useState<SortOption>('lastModified')
   const [activeSidebar, setActiveSidebar] = useState<SidebarSection | null>('my-boards')
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [boards, setBoards] = useState<BoardCardData[]>([])
   const [loading, setLoading] = useState(true)
@@ -656,6 +660,68 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
               <Plus className="size-4" />
               New
             </Button>
+
+            {/* AI Design button */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    try {
+                      const res = await fetch('/api/boards', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: 'AI Generated Design', description: 'Created with AI' }),
+                      });
+                      if (!res.ok) throw new Error();
+                      const data = await res.json();
+                      useAppStore.getState().setPendingAIDesign(true);
+                      useAppStore.getState().openBoard(data.board.id);
+                    } catch {
+                      toast.error('Failed to create AI design board');
+                    }
+                  }}
+                  className="hidden md:flex gap-1.5 rounded-lg"
+                >
+                  <Wand2 className="size-3.5" />
+                  AI Design
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Generate with AI</TooltipContent>
+            </Tooltip>
+
+            {/* Community button */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => useAppStore.getState().setViewMode('community')}
+                  className="hidden md:flex gap-1.5 rounded-lg"
+                >
+                  <Users className="size-3.5" />
+                  Community
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Explore Community</TooltipContent>
+            </Tooltip>
+
+            {/* Upload Design button */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setUploadDialogOpen(true)}
+                  className="hidden md:flex gap-1.5 rounded-lg"
+                >
+                  <Upload className="size-3.5" />
+                  Upload
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Share your design</TooltipContent>
+            </Tooltip>
 
             {/* Theme toggle */}
             <ThemeToggle />
@@ -897,6 +963,47 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
               </div>
             </button>
 
+            {/* Community tab */}
+            <button
+              onClick={() => {
+                useAppStore.getState().setViewMode('community')
+                setMobileSidebarOpen(false)
+              }}
+              className={cn(
+                'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-colors min-w-[56px]',
+                'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <Users className="size-5" />
+              <span className="text-[10px] font-medium">Community</span>
+            </button>
+
+            {/* AI Design tab (mobile) */}
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch('/api/boards', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: 'AI Generated Design', description: 'Created with AI' }),
+                  });
+                  if (!res.ok) throw new Error();
+                  const data = await res.json();
+                  useAppStore.getState().setPendingAIDesign(true);
+                  useAppStore.getState().openBoard(data.board.id);
+                } catch {
+                  toast.error('Failed to create AI design board');
+                }
+              }}
+              className={cn(
+                'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-colors min-w-[56px]',
+                'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <Wand2 className="size-5" />
+              <span className="text-[10px] font-medium">AI</span>
+            </button>
+
             {/* Profile tab */}
             <button
               onClick={() => setMobileSidebarOpen(true)}
@@ -917,6 +1024,12 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
         onCreateBoard={handleCreateBoard}
+      />
+
+      {/* Upload Design Dialog */}
+      <UploadDesignDialog
+        open={uploadDialogOpen}
+        onOpenChange={setUploadDialogOpen}
       />
     </div>
   )
