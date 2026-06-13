@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { ViewMode, RightPanelTab } from '@/lib/types';
+import type { ViewMode, RightPanelTab, EditorMode, LeftPanelTab } from '@/lib/types';
 
 // ─── State ───────────────────────────────────────────────────────────────────
 
@@ -10,6 +10,9 @@ interface AppState {
   rightPanelTab: RightPanelTab;
   sidebarOpen: boolean;
   searchQuery: string;
+  leftPanelOpen: boolean;
+  leftPanelTab: LeftPanelTab;
+  editorMode: EditorMode;
 }
 
 // ─── Actions ─────────────────────────────────────────────────────────────────
@@ -24,6 +27,10 @@ interface AppActions {
   toggleSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;
   setSearchQuery: (query: string) => void;
+  toggleLeftPanel: () => void;
+  setLeftPanelOpen: (open: boolean) => void;
+  setLeftPanelTab: (tab: LeftPanelTab) => void;
+  setEditorMode: (mode: EditorMode) => void;
   reset: () => void;
 }
 
@@ -36,6 +43,9 @@ const initialState: AppState = {
   rightPanelTab: 'history',
   sidebarOpen: true,
   searchQuery: '',
+  leftPanelOpen: false,
+  leftPanelTab: 'layers',
+  editorMode: 'design',
 };
 
 // ─── Store ───────────────────────────────────────────────────────────────────
@@ -51,7 +61,7 @@ export const useAppStore = create<AppStore>((set) => ({
     set({
       currentBoardId: boardId,
       viewMode: 'editor',
-      rightPanelOpen: false,
+      rightPanelOpen: true,
     }),
 
   closeBoard: () =>
@@ -75,6 +85,15 @@ export const useAppStore = create<AppStore>((set) => ({
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
 
   setSearchQuery: (query) => set({ searchQuery: query }),
+
+  toggleLeftPanel: () =>
+    set((state) => ({ leftPanelOpen: !state.leftPanelOpen })),
+
+  setLeftPanelOpen: (open) => set({ leftPanelOpen: open }),
+
+  setLeftPanelTab: (tab) => set({ leftPanelTab: tab, leftPanelOpen: true }),
+
+  setEditorMode: (mode) => set({ editorMode: mode }),
 
   reset: () => set(initialState),
 }));
