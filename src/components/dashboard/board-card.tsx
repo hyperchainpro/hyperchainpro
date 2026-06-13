@@ -30,6 +30,8 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/store/auth-store'
+import { t, type Locale } from '@/lib/i18n'
 
 export interface BoardMember {
   id: string
@@ -79,7 +81,7 @@ function getGradient(id: string) {
   return gradients[Math.abs(hash) % gradients.length]
 }
 
-function formatRelativeTime(date: Date | string): string {
+function formatRelativeTime(date: Date | string, locale: Locale): string {
   const now = new Date()
   const d = new Date(date)
   const diffMs = now.getTime() - d.getTime()
@@ -88,12 +90,12 @@ function formatRelativeTime(date: Date | string): string {
   const diffHour = Math.floor(diffMin / 60)
   const diffDay = Math.floor(diffHour / 24)
 
-  if (diffSec < 60) return 'just now'
-  if (diffMin < 60) return `${diffMin}m ago`
-  if (diffHour < 24) return `${diffHour}h ago`
-  if (diffDay < 7) return `${diffDay}d ago`
-  if (diffDay < 30) return `${Math.floor(diffDay / 7)}w ago`
-  return `${Math.floor(diffDay / 30)}mo ago`
+  if (diffSec < 60) return t('board.justNow', locale)
+  if (diffMin < 60) return t('board.minutesAgo', locale, { n: diffMin })
+  if (diffHour < 24) return t('board.hoursAgo', locale, { n: diffHour })
+  if (diffDay < 7) return t('board.daysAgo', locale, { n: diffDay })
+  if (diffDay < 30) return t('board.weeksAgo', locale, { n: Math.floor(diffDay / 7) })
+  return t('board.monthsAgo', locale, { n: Math.floor(diffDay / 30) })
 }
 
 function getInitials(name: string): string {
@@ -134,6 +136,7 @@ export function BoardCard({
 }: BoardCardProps) {
   const [isStarred, setIsStarred] = useState(board.isStarred)
   const gradient = board.gradient || getGradient(board.id)
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en'
 
   const handleStarToggle = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -217,15 +220,15 @@ export function BoardCard({
               >
                 <DropdownMenuItem onClick={() => onOpen?.(board.id)}>
                   <ExternalLink className="size-4" />
-                  <span>Open</span>
+                  <span>{t('board.open', locale)}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onDuplicate?.(board.id)}>
                   <Copy className="size-4" />
-                  <span>Duplicate</span>
+                  <span>{t('board.duplicate', locale)}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onShare?.(board.id)}>
                   <Share2 className="size-4" />
-                  <span>Share</span>
+                  <span>{t('board.share', locale)}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -233,7 +236,7 @@ export function BoardCard({
                   onClick={() => onDelete?.(board.id)}
                 >
                   <Trash2 className="size-4" />
-                  <span>Delete</span>
+                  <span>{t('board.delete', locale)}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -254,7 +257,7 @@ export function BoardCard({
               variant="secondary"
               className="text-[10px] font-medium backdrop-blur-sm bg-white/80 dark:bg-black/50 border-0"
             >
-              {board.isPublic ? 'Public' : 'Private'}
+              {board.isPublic ? t('board.public', locale) : t('board.private', locale)}
             </Badge>
           </div>
         </div>
@@ -285,7 +288,7 @@ export function BoardCard({
                 </div>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{board.branchCount} {board.branchCount === 1 ? 'branch' : 'branches'}</p>
+                <p>{board.branchCount} {board.branchCount === 1 ? t('board.branchSingular', locale) : t('board.branchPlural', locale)}</p>
               </TooltipContent>
             </Tooltip>
 
@@ -299,7 +302,7 @@ export function BoardCard({
                 </div>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{board.commitCount} {board.commitCount === 1 ? 'commit' : 'commits'}</p>
+                <p>{board.commitCount} {board.commitCount === 1 ? t('board.commitSingular', locale) : t('board.commitPlural', locale)}</p>
               </TooltipContent>
             </Tooltip>
           </div>
@@ -341,7 +344,7 @@ export function BoardCard({
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>
-                          {remainingCount} more {remainingCount === 1 ? 'member' : 'members'}
+                          {t('board.moreMembers', locale, { n: remainingCount })}
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -350,7 +353,7 @@ export function BoardCard({
               ) : (
                 <div className="flex items-center gap-1 text-muted-foreground">
                   <Users className="size-3" />
-                  <span className="text-[10px]">No members</span>
+                  <span className="text-[10px]">{t('board.noMembers', locale)}</span>
                 </div>
               )}
             </div>
@@ -358,7 +361,7 @@ export function BoardCard({
             {/* Last updated */}
             <div className="flex items-center gap-1 text-muted-foreground">
               <Clock className="size-3" />
-              <span className="text-[10px]">{formatRelativeTime(board.updatedAt)}</span>
+              <span className="text-[10px]">{formatRelativeTime(board.updatedAt, locale)}</span>
             </div>
           </div>
         </CardContent>

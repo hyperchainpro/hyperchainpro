@@ -200,10 +200,10 @@ const demoBoards: BoardCardData[] = [
 ]
 
 const sidebarSectionsTemplate = [
-  { id: 'my-boards' as SidebarSection, label: 'My Boards', icon: LayoutDashboard },
-  { id: 'shared' as SidebarSection, label: 'Shared with me', icon: Users },
-  { id: 'starred' as SidebarSection, label: 'Starred', icon: Star },
-  { id: 'recent' as SidebarSection, label: 'Recent', icon: Clock },
+  { id: 'my-boards' as SidebarSection, labelKey: 'dashboard.myBoards', icon: LayoutDashboard },
+  { id: 'shared' as SidebarSection, labelKey: 'dashboard.sharedWithMe', icon: Users },
+  { id: 'starred' as SidebarSection, labelKey: 'dashboard.starred', icon: Star },
+  { id: 'recent' as SidebarSection, labelKey: 'dashboard.recent', icon: Clock },
 ]
 
 // ── Animation variants ──────────────────────────────────────────────────────
@@ -289,13 +289,14 @@ function SidebarContent({
   userName,
   userInitials,
 }: {
-  sidebarSections: { id: SidebarSection; label: string; icon: React.ElementType; count: number }[]
+  sidebarSections: { id: SidebarSection; labelKey: string; icon: React.ElementType; count: number }[]
   activeSidebar: SidebarSection | null
   setActiveSidebar: (v: SidebarSection | null) => void
   setActiveFilter: (v: FilterTab) => void
   onCreateBoard: () => void
   userName: string
   userInitials: string
+  locale: Locale
 }) {
   return (
     <>
@@ -316,7 +317,7 @@ function SidebarContent({
           className={cn('w-full gap-2 rounded-xl border-0 bg-background text-foreground font-medium', neuBtn, neuBtnHover, 'active:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.06),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] dark:active:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.35),inset_-2px_-2px_4px_rgba(30,30,30,0.08)]')}
         >
           <Plus className="size-4" />
-          New Board
+          {t('dashboard.newBoard', locale)}
         </Button>
       </div>
 
@@ -352,7 +353,7 @@ function SidebarContent({
                     )}
                   >
                     <Icon className="size-4 shrink-0" />
-                    <span className="flex-1 text-left">{section.label}</span>
+                    <span className="flex-1 text-left">{t(section.labelKey, locale)}</span>
                     <Badge
                       variant="secondary"
                       className="text-[10px] px-1.5 py-0 h-5 font-normal"
@@ -539,7 +540,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
     return items
   }, [searchQuery, activeFilter, sortOption, activeSidebar, boards])
 
-  const handleCreateBoard = async (data: { name: string; description?: string; isPublic: boolean }) => {
+  const handleCreateBoard = async (data: { name: string; description?: string; isPublic: boolean; templateId?: string }) => {
     try {
       const res = await fetch('/api/boards', {
         method: 'POST',
@@ -548,6 +549,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
           name: data.name,
           description: data.description || undefined,
           isPublic: data.isPublic,
+          templateId: data.templateId,
         }),
       });
       if (!res.ok) throw new Error('Failed to create board');
@@ -566,11 +568,11 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
         isPublic: b.isPublic as boolean,
       }));
       setBoards(apiBoards);
-      toast.success('Board created successfully!')
+      toast.success(t('dashboard.boardCreated', locale))
       setMobileSidebarOpen(false)
     } catch (err) {
       console.error('Failed to create board:', err)
-      toast.error('Failed to create board. Please try again.')
+      toast.error(t('dashboard.boardCreatedFailed', locale))
     }
   }
 
@@ -586,6 +588,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
           onCreateBoard={() => setCreateDialogOpen(true)}
           userName={userName}
           userInitials={userInitials}
+          locale={locale}
         />
       </aside>
 
@@ -593,7 +596,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
       {isMobile && (
         <Sheet open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen}>
           <SheetContent side="left" className="w-72 p-0">
-            <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+            <SheetTitle className="sr-only">{t('dashboard.navMenu', locale)}</SheetTitle>
             <div className="flex h-full flex-col">
               <SidebarContent
                 sidebarSections={sidebarSections}
@@ -609,6 +612,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                 }}
                 userName={userName}
                 userInitials={userInitials}
+                locale={locale}
               />
             </div>
           </SheetContent>
@@ -642,7 +646,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
           <div className="relative flex-1 max-w-md hidden md:block">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search boards..."
+              placeholder={t('dashboard.search', locale)}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 h-9 bg-muted/50 border-0 focus-visible:ring-1"
@@ -658,7 +662,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
               onClick={() => setCreateDialogOpen(true)}
             >
               <Plus className="size-4" />
-              New
+              {t('dashboard.newBoard', locale).split(' ').pop()}
             </Button>
 
             {/* AI Design button */}
@@ -667,28 +671,14 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={async () => {
-                    try {
-                      const res = await fetch('/api/boards', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name: 'AI Generated Design', description: 'Created with AI' }),
-                      });
-                      if (!res.ok) throw new Error();
-                      const data = await res.json();
-                      useAppStore.getState().setPendingAIDesign(true);
-                      useAppStore.getState().openBoard(data.board.id);
-                    } catch {
-                      toast.error('Failed to create AI design board');
-                    }
-                  }}
+                  onClick={() => useAppStore.getState().setViewMode('ai-design')}
                   className="hidden md:flex gap-1.5 rounded-lg"
                 >
                   <Wand2 className="size-3.5" />
-                  AI Design
+                  {t('dashboard.aiDesign', locale)}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Generate with AI</TooltipContent>
+              <TooltipContent>{t('dashboard.aiDesign', locale)}</TooltipContent>
             </Tooltip>
 
             {/* Community button */}
@@ -701,10 +691,10 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                   className="hidden md:flex gap-1.5 rounded-lg"
                 >
                   <Users className="size-3.5" />
-                  Community
+                  {t('dashboard.community', locale)}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Explore Community</TooltipContent>
+              <TooltipContent>{t('dashboard.exploreCommunity', locale)}</TooltipContent>
             </Tooltip>
 
             {/* Upload Design button */}
@@ -717,10 +707,10 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                   className="hidden md:flex gap-1.5 rounded-lg"
                 >
                   <Upload className="size-3.5" />
-                  Upload
+                  {t('dashboard.upload', locale)}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Share your design</TooltipContent>
+              <TooltipContent>{t('dashboard.shareYourDesign', locale)}</TooltipContent>
             </Tooltip>
 
             {/* Theme toggle */}
@@ -747,7 +737,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                   <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-rose-500 ring-2 ring-background" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Notifications</TooltipContent>
+              <TooltipContent>{t('dashboard.notifications', locale)}</TooltipContent>
             </Tooltip>
 
             {/* User avatar / Logout */}
@@ -775,7 +765,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search boards..."
+              placeholder={t('dashboard.search', locale)}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 h-9 bg-muted/50 border-0 focus-visible:ring-1"
@@ -788,9 +778,9 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
           <div className="flex items-center gap-1 flex-1 md:flex-none justify-center md:justify-start">
             {(
               [
-                { key: 'all', label: 'All' },
-                { key: 'recent', label: 'Recent' },
-                { key: 'starred', label: 'Starred' },
+                { key: 'all', label: t('dashboard.all', locale) },
+                { key: 'recent', label: t('dashboard.recent', locale) },
+                { key: 'starred', label: t('dashboard.starred', locale) },
               ] as const
             ).map((tab) => (
               <Button
@@ -817,7 +807,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
           {/* Sort controls - hidden on mobile */}
           <div className="hidden md:flex items-center gap-2">
             <span className="text-xs text-muted-foreground hidden sm:inline">
-              Sort by:
+              {t('dashboard.sortBy', locale)}
             </span>
             <div className="flex items-center bg-muted rounded-lg p-0.5">
               <Button
@@ -826,7 +816,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                 onClick={() => setSortOption('lastModified')}
                 className="text-xs h-7 px-2.5 rounded-md"
               >
-                Last modified
+                {t('dashboard.lastModified', locale)}
               </Button>
               <Button
                 variant={sortOption === 'name' ? 'secondary' : 'ghost'}
@@ -834,7 +824,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                 onClick={() => setSortOption('name')}
                 className="text-xs h-7 px-2.5 rounded-md"
               >
-                Name
+                {t('dashboard.nameSort', locale)}
               </Button>
               <Button
                 variant={sortOption === 'created' ? 'secondary' : 'ghost'}
@@ -842,7 +832,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                 onClick={() => setSortOption('created')}
                 className="text-xs h-7 px-2.5 rounded-md"
               >
-                Created
+                {t('dashboard.createdSort', locale)}
               </Button>
             </div>
 
@@ -856,7 +846,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                     <Grid className="size-3.5" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Grid view</TooltipContent>
+                <TooltipContent>{t('dashboard.gridView', locale)}</TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -864,7 +854,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                     <List className="size-3.5" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>List view</TooltipContent>
+                <TooltipContent>{t('dashboard.listView', locale)}</TooltipContent>
               </Tooltip>
             </div>
           </div>
@@ -877,7 +867,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
               <div className="flex items-center justify-center py-24">
                 <div className="flex flex-col items-center gap-3 text-muted-foreground">
                   <div className="size-8 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  <p className="text-sm">Loading boards...</p>
+                  <p className="text-sm">{t('dashboard.loadingBoards', locale)}</p>
                 </div>
               </div>
             ) : filteredBoards.length > 0 ? (
@@ -904,9 +894,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
 
         {/* Footer */}
         <footer className="mt-auto shrink-0 flex items-center justify-center border-t border-border bg-card/50 px-4 py-2 pb-safe">
-          <p className="text-xs text-muted-foreground">
-            © 2024 BranchBoard. Collaborative whiteboard with version control.
-          </p>
+          <p className="text-xs text-muted-foreground">{t('dashboard.footer', locale)}</p>
         </footer>
       </div>
 
@@ -933,7 +921,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
               )}
             >
               <LayoutDashboard className="size-5" />
-              <span className="text-[10px] font-medium">Boards</span>
+              <span className="text-[10px] font-medium">{t('dashboard.boards', locale)}</span>
             </button>
 
             {/* Starred tab */}
@@ -950,7 +938,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
               )}
             >
               <Star className={cn('size-5', activeFilter === 'starred' && 'fill-current')} />
-              <span className="text-[10px] font-medium">Starred</span>
+              <span className="text-[10px] font-medium">{t('dashboard.starred', locale)}</span>
             </button>
 
             {/* New board FAB */}
@@ -975,25 +963,14 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
               )}
             >
               <Users className="size-5" />
-              <span className="text-[10px] font-medium">Community</span>
+              <span className="text-[10px] font-medium">{t('dashboard.community', locale)}</span>
             </button>
 
             {/* AI Design tab (mobile) */}
             <button
-              onClick={async () => {
-                try {
-                  const res = await fetch('/api/boards', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: 'AI Generated Design', description: 'Created with AI' }),
-                  });
-                  if (!res.ok) throw new Error();
-                  const data = await res.json();
-                  useAppStore.getState().setPendingAIDesign(true);
-                  useAppStore.getState().openBoard(data.board.id);
-                } catch {
-                  toast.error('Failed to create AI design board');
-                }
+              onClick={() => {
+                useAppStore.getState().setViewMode('ai-design')
+                setMobileSidebarOpen(false)
               }}
               className={cn(
                 'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-colors min-w-[56px]',
@@ -1013,7 +990,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
               )}
             >
               <User className="size-5" />
-              <span className="text-[10px] font-medium">Profile</span>
+              <span className="text-[10px] font-medium">{t('dashboard.profile', locale)}</span>
             </button>
           </div>
         </nav>
@@ -1024,6 +1001,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
         onCreateBoard={handleCreateBoard}
+        locale={locale}
       />
 
       {/* Upload Design Dialog */}
@@ -1084,15 +1062,15 @@ function EmptyState({ onCreateBoard, searchQuery = '' }: { onCreateBoard: () => 
         </motion.div>
       </div>
 
-      <h2 className="text-lg font-semibold mb-2">No boards found</h2>
+      <h2 className="text-lg font-semibold mb-2">{t('dashboard.noBoardsFound', locale)}</h2>
       <p className="text-sm text-muted-foreground max-w-sm mb-6 leading-relaxed">
         {searchQuery
-          ? `No boards match "${searchQuery}". Try a different search or create a new board.`
-          : "You haven't created any boards yet. Start by creating your first collaborative whiteboard."}
+          ? t('dashboard.noBoardsFoundSearch', locale, { query: searchQuery })
+          : t('dashboard.noBoardsYet', locale)}
       </p>
       <Button onClick={onCreateBoard} className={cn('gap-2 rounded-xl border-0 bg-background text-foreground font-medium', neuBtn, neuBtnHover, 'active:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.06),inset_-2px_-2px_4px_rgba(255,255,255,0.8)]')}>
         <FilePlus className="size-4" />
-        Create your first board
+        {t('dashboard.createFirstBoard', locale)}
       </Button>
     </motion.div>
   )

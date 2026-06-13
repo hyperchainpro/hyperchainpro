@@ -1,5 +1,8 @@
 {
   "name": "collab-service",
+  "scripts": {
+    "dev": "bun --hot index.ts"
+  },
   "dependencies": {
     "socket.io": "^4.7.0"
   }

@@ -62,7 +62,7 @@ export function useCollaboration(boardId: string | null) {
     }
 
     // Connect to the collab service via gateway
-    const socket = io('/?XTransformPort=3003', {
+    const socket = io('/?XTransformPort=3004', {
       transports: ['websocket', 'polling'],
     });
 

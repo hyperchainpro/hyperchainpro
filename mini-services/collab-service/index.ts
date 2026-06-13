@@ -224,7 +224,7 @@ io.on('connection', (socket) => {
 
 // ─── Start Server ─────────────────────────────────────────────────────────────
 
-const PORT = 3003;
+const PORT = 3004;
 httpServer.listen(PORT, () => {
   console.log(`Collaboration WebSocket server running on port ${PORT}`);
 });

@@ -1,0 +1,429 @@
+     1→'use client';
+     2→
+     3→import React, { useCallback, useState } from 'react';
+     4→import { Input } from '@/components/ui/input';
+     5→import { ScrollArea } from '@/components/ui/scroll-area';
+     6→import { Search, Smartphone, CreditCard, List, Type, Layout, MessageSquare, Navigation } from 'lucide-react';
+     7→import { useCanvasStore } from '@/store/canvas-store';
+     8→import type { BoardElement } from '@/lib/types';
+     9→
+    10→const NEU_CARD =
+    11→  'shadow-[3px_3px_6px_rgba(0,0,0,0.06),-3px_-3px_6px_rgba(255,255,255,0.7)] dark:shadow-[3px_3px_6px_rgba(0,0,0,0.3),-3px_-3px_6px_rgba(30,30,30,0.06)]';
+    12→
+    13→const NEU_INSET =
+    14→  'shadow-[inset_1px_1px_3px_rgba(0,0,0,0.06),inset_-1px_-1px_3px_rgba(255,255,255,0.7)] dark:shadow-[inset_1px_1px_3px_rgba(0,0,0,0.3),inset_-1px_-1px_3px_rgba(30,30,30,0.05)]';
+    15→
+    16→interface WireframeTemplate {
+    17→  id: string;
+    18→  name: string;
+    19→  description: string;
+    20→  icon: React.ElementType;
+    21→  color: string;
+    22→  buildElements: (cx: number, cy: number) => Partial<BoardElement>[];
+    23→}
+    24→
+    25→const WIREFRAME_TEMPLATES: WireframeTemplate[] = [
+    26→  // 1. Login Screen
+    27→  {
+    28→    id: 'login-screen',
+    29→    name: 'Login Screen',
+    30→    description: 'Email input, password input, login button',
+    31→    icon: Smartphone,
+    32→    color: '#6366F1',
+    33→    buildElements: (cx, cy) => {
+    34→      const frameW = 375;
+    35→      const frameH = 600;
+    36→      const fx = cx - frameW / 2;
+    37→      const fy = cy - frameH / 2;
+    38→      return [
+    39→        // Frame background
+    40→        { type: 'FRAME' as const, x: fx, y: fy, width: frameW, height: frameH, name: 'Login Screen', styles: { fills: [{ id: 'f1', type: 'solid', color: '#FFFFFF', opacity: 1 }], cornerRadius: { topLeft: 12, topRight: 12, bottomRight: 12, bottomLeft: 12 } } },
+    41→        // Title
+    42→        { type: 'TEXT' as const, x: fx + 100, y: fy + 60, width: 175, height: 32, content: 'Welcome Back', name: 'Title', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 24, fontWeight: 700, lineHeight: 1.4, letterSpacing: 0, textDecoration: 'none', color: '#1F2937', textAlign: 'center', fontStyle: 'normal', textCase: 'none' } } },
+    43→        // Subtitle
+    44→        { type: 'TEXT' as const, x: fx + 120, y: fy + 100, width: 135, height: 20, content: 'Sign in to continue', name: 'Subtitle', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, fontWeight: 400, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#9CA3AF', textAlign: 'center', fontStyle: 'normal', textCase: 'none' } } },
+    45→        // Email label
+    46→        { type: 'TEXT' as const, x: fx + 40, y: fy + 170, width: 60, height: 18, content: 'Email', name: 'Email Label', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, fontWeight: 500, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#6B7280', textAlign: 'left', fontStyle: 'normal', textCase: 'none' } } },
+    47→        // Email input
+    48→        { type: 'RECTANGLE' as const, x: fx + 40, y: fy + 192, width: 295, height: 44, name: 'Email Input', styles: { fills: [{ id: 'f2', type: 'solid', color: '#F9FAFB', opacity: 1 }], strokes: [{ id: 's1', color: '#E5E7EB', width: 1, style: 'solid', align: 'center' as const, cap: 'butt' as const, join: 'miter' as const }], cornerRadius: { topLeft: 8, topRight: 8, bottomRight: 8, bottomLeft: 8 } } },
+    49→        // Password label
+    50→        { type: 'TEXT' as const, x: fx + 40, y: fy + 254, width: 70, height: 18, content: 'Password', name: 'Password Label', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, fontWeight: 500, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#6B7280', textAlign: 'left', fontStyle: 'normal', textCase: 'none' } } },
+    51→        // Password input
+    52→        { type: 'RECTANGLE' as const, x: fx + 40, y: fy + 276, width: 295, height: 44, name: 'Password Input', styles: { fills: [{ id: 'f3', type: 'solid', color: '#F9FAFB', opacity: 1 }], strokes: [{ id: 's2', color: '#E5E7EB', width: 1, style: 'solid', align: 'center' as const, cap: 'butt' as const, join: 'miter' as const }], cornerRadius: { topLeft: 8, topRight: 8, bottomRight: 8, bottomLeft: 8 } } },
+    53→        // Login button
+    54→        { type: 'RECTANGLE' as const, x: fx + 40, y: fy + 346, width: 295, height: 48, name: 'Login Button', styles: { fills: [{ id: 'f4', type: 'solid', color: '#6366F1', opacity: 1 }], cornerRadius: { topLeft: 10, topRight: 10, bottomRight: 10, bottomLeft: 10 } } },
+    55→        // Login button text
+    56→        { type: 'TEXT' as const, x: fx + 150, y: fy + 358, width: 75, height: 24, content: 'Sign In', name: 'Button Text', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 16, fontWeight: 600, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#FFFFFF', textAlign: 'center', fontStyle: 'normal', textCase: 'none' } } },
+    57→        // Forgot password
+    58→        { type: 'TEXT' as const, x: fx + 120, y: fy + 410, width: 135, height: 18, content: 'Forgot password?', name: 'Forgot Password', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, fontWeight: 400, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#6366F1', textAlign: 'center', fontStyle: 'normal', textCase: 'none' } } },
+    59→      ];
+    60→    },
+    61→  },
+    62→  // 2. Signup Screen
+    63→  {
+    64→    id: 'signup-screen',
+    65→    name: 'Signup Screen',
+    66→    description: 'Name, email, password, signup button',
+    67→    icon: CreditCard,
+    68→    color: '#8B5CF6',
+    69→    buildElements: (cx, cy) => {
+    70→      const frameW = 375;
+    71→      const frameH = 660;
+    72→      const fx = cx - frameW / 2;
+    73→      const fy = cy - frameH / 2;
+    74→      return [
+    75→        { type: 'FRAME' as const, x: fx, y: fy, width: frameW, height: frameH, name: 'Signup Screen', styles: { fills: [{ id: 'f1', type: 'solid', color: '#FFFFFF', opacity: 1 }], cornerRadius: { topLeft: 12, topRight: 12, bottomRight: 12, bottomLeft: 12 } } },
+    76→        { type: 'TEXT' as const, x: fx + 120, y: fy + 50, width: 135, height: 32, content: 'Create Account', name: 'Title', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 24, fontWeight: 700, lineHeight: 1.4, letterSpacing: 0, textDecoration: 'none', color: '#1F2937', textAlign: 'center', fontStyle: 'normal', textCase: 'none' } } },
+    77→        { type: 'TEXT' as const, x: fx + 100, y: fy + 88, width: 175, height: 20, content: 'Sign up to get started', name: 'Subtitle', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, fontWeight: 400, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#9CA3AF', textAlign: 'center', fontStyle: 'normal', textCase: 'none' } } },
+    78→        // Name input
+    79→        { type: 'RECTANGLE' as const, x: fx + 40, y: fy + 140, width: 295, height: 44, name: 'Name Input', styles: { fills: [{ id: 'f2', type: 'solid', color: '#F9FAFB', opacity: 1 }], strokes: [{ id: 's1', color: '#E5E7EB', width: 1, style: 'solid', align: 'center' as const, cap: 'butt' as const, join: 'miter' as const }], cornerRadius: { topLeft: 8, topRight: 8, bottomRight: 8, bottomLeft: 8 } } },
+    80→        { type: 'TEXT' as const, x: fx + 56, y: fy + 152, width: 120, height: 20, content: 'Full Name', name: 'Name Placeholder', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 14, fontWeight: 400, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#D1D5DB', textAlign: 'left', fontStyle: 'normal', textCase: 'none' } } },
+    81→        // Email input
+    82→        { type: 'RECTANGLE' as const, x: fx + 40, y: fy + 200, width: 295, height: 44, name: 'Email Input', styles: { fills: [{ id: 'f3', type: 'solid', color: '#F9FAFB', opacity: 1 }], strokes: [{ id: 's2', color: '#E5E7EB', width: 1, style: 'solid', align: 'center' as const, cap: 'butt' as const, join: 'miter' as const }], cornerRadius: { topLeft: 8, topRight: 8, bottomRight: 8, bottomLeft: 8 } } },
+    83→        { type: 'TEXT' as const, x: fx + 56, y: fy + 212, width: 100, height: 20, content: 'Email address', name: 'Email Placeholder', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 14, fontWeight: 400, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#D1D5DB', textAlign: 'left', fontStyle: 'normal', textCase: 'none' } } },
+    84→        // Password input
+    85→        { type: 'RECTANGLE' as const, x: fx + 40, y: fy + 260, width: 295, height: 44, name: 'Password Input', styles: { fills: [{ id: 'f4', type: 'solid', color: '#F9FAFB', opacity: 1 }], strokes: [{ id: 's3', color: '#E5E7EB', width: 1, style: 'solid', align: 'center' as const, cap: 'butt' as const, join: 'miter' as const }], cornerRadius: { topLeft: 8, topRight: 8, bottomRight: 8, bottomLeft: 8 } } },
+    86→        { type: 'TEXT' as const, x: fx + 56, y: fy + 272, width: 100, height: 20, content: 'Password', name: 'Password Placeholder', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 14, fontWeight: 400, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#D1D5DB', textAlign: 'left', fontStyle: 'normal', textCase: 'none' } } },
+    87→        // Signup button
+    88→        { type: 'RECTANGLE' as const, x: fx + 40, y: fy + 330, width: 295, height: 48, name: 'Signup Button', styles: { fills: [{ id: 'f5', type: 'solid', color: '#8B5CF6', opacity: 1 }], cornerRadius: { topLeft: 10, topRight: 10, bottomRight: 10, bottomLeft: 10 } } },
+    89→        { type: 'TEXT' as const, x: fx + 140, y: fy + 342, width: 95, height: 24, content: 'Create Account', name: 'Button Text', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 16, fontWeight: 600, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#FFFFFF', textAlign: 'center', fontStyle: 'normal', textCase: 'none' } } },
+    90→        // Divider
+    91→        { type: 'RECTANGLE' as const, x: fx + 40, y: fy + 400, width: 130, height: 1, name: 'Divider Left', styles: { fills: [{ id: 'f6', type: 'solid', color: '#E5E7EB', opacity: 1 }], cornerRadius: { topLeft: 0, topRight: 0, bottomRight: 0, bottomLeft: 0 } } },
+    92→        { type: 'TEXT' as const, x: fx + 182, y: fy + 392, width: 12, height: 18, content: 'or', name: 'Or Text', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, fontWeight: 400, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#9CA3AF', textAlign: 'center', fontStyle: 'normal', textCase: 'none' } } },
+    93→        { type: 'RECTANGLE' as const, x: fx + 205, y: fy + 400, width: 130, height: 1, name: 'Divider Right', styles: { fills: [{ id: 'f7', type: 'solid', color: '#E5E7EB', opacity: 1 }], cornerRadius: { topLeft: 0, topRight: 0, bottomRight: 0, bottomLeft: 0 } } },
+    94→        // Sign in link
+    95→        { type: 'TEXT' as const, x: fx + 105, y: fy + 440, width: 165, height: 20, content: 'Already have an account?', name: 'Sign In Link', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, fontWeight: 400, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#9CA3AF', textAlign: 'center', fontStyle: 'normal', textCase: 'none' } } },
+    96→      ];
+    97→    },
+    98→  },
+    99→  // 3. Navigation Bar
+   100→  {
+   101→    id: 'navigation-bar',
+   102→    name: 'Navigation Bar',
+   103→    description: 'Logo, nav links, profile avatar',
+   104→    icon: Navigation,
+   105→    color: '#3B82F6',
+   106→    buildElements: (cx, cy) => {
+   107→      const barW = 800;
+   108→      const barH = 64;
+   109→      const fx = cx - barW / 2;
+   110→      const fy = cy - barH / 2;
+   111→      return [
+   112→        { type: 'RECTANGLE' as const, x: fx, y: fy, width: barW, height: barH, name: 'Nav Bar', styles: { fills: [{ id: 'f1', type: 'solid', color: '#FFFFFF', opacity: 1 }], strokes: [{ id: 's1', color: '#E5E7EB', width: 1, style: 'solid', align: 'center' as const, cap: 'butt' as const, join: 'miter' as const }], shadows: [{ id: 'sh1', type: 'drop-shadow', color: 'rgba(0,0,0,0.05)', offsetX: 0, offsetY: 2, blur: 8, spread: 0, visible: true }], cornerRadius: { topLeft: 12, topRight: 12, bottomRight: 12, bottomLeft: 12 } } },
+   113→        // Logo
+   114→        { type: 'RECTANGLE' as const, x: fx + 24, y: fy + 16, width: 32, height: 32, name: 'Logo', styles: { fills: [{ id: 'f2', type: 'solid', color: '#3B82F6', opacity: 1 }], cornerRadius: { topLeft: 8, topRight: 8, bottomRight: 8, bottomLeft: 8 } } },
+   115→        { type: 'TEXT' as const, x: fx + 64, y: fy + 20, width: 60, height: 24, content: 'Logo', name: 'Logo Text', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 16, fontWeight: 700, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#1F2937', textAlign: 'left', fontStyle: 'normal', textCase: 'none' } } },
+   116→        // Nav links
+   117→        { type: 'TEXT' as const, x: fx + 200, y: fy + 22, width: 50, height: 20, content: 'Home', name: 'Nav: Home', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 14, fontWeight: 500, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#3B82F6', textAlign: 'left', fontStyle: 'normal', textCase: 'none' } } },
+   118→        { type: 'TEXT' as const, x: fx + 270, y: fy + 22, width: 50, height: 20, content: 'About', name: 'Nav: About', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 14, fontWeight: 400, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#6B7280', textAlign: 'left', fontStyle: 'normal', textCase: 'none' } } },
+   119→        { type: 'TEXT' as const, x: fx + 340, y: fy + 22, width: 50, height: 20, content: 'Services', name: 'Nav: Services', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 14, fontWeight: 400, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#6B7280', textAlign: 'left', fontStyle: 'normal', textCase: 'none' } } },
+   120→        { type: 'TEXT' as const, x: fx + 420, y: fy + 22, width: 40, height: 20, content: 'Blog', name: 'Nav: Blog', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 14, fontWeight: 400, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#6B7280', textAlign: 'left', fontStyle: 'normal', textCase: 'none' } } },
+   121→        // Profile avatar
+   122→        { type: 'CIRCLE' as const, x: fx + barW - 56, y: fy + 16, width: 32, height: 32, name: 'Avatar', styles: { fills: [{ id: 'f3', type: 'solid', color: '#6366F1', opacity: 1 }], cornerRadius: { topLeft: 16, topRight: 16, bottomRight: 16, bottomLeft: 16 } } },
+   123→      ];
+   124→    },
+   125→  },
+   126→  // 4. Card Component
+   127→  {
+   128→    id: 'card-component',
+   129→    name: 'Card Component',
+   130→    description: 'Image, title, description, action button',
+   131→    icon: CreditCard,
+   132→    color: '#EC4899',
+   133→    buildElements: (cx, cy) => {
+   134→      const cardW = 320;
+   135→      const cardH = 380;
+   136→      const fx = cx - cardW / 2;
+   137→      const fy = cy - cardH / 2;
+   138→      return [
+   139→        { type: 'RECTANGLE' as const, x: fx, y: fy, width: cardW, height: cardH, name: 'Card', styles: { fills: [{ id: 'f1', type: 'solid', color: '#FFFFFF', opacity: 1 }], strokes: [{ id: 's1', color: '#E5E7EB', width: 1, style: 'solid', align: 'center' as const, cap: 'butt' as const, join: 'miter' as const }], shadows: [{ id: 'sh1', type: 'drop-shadow', color: 'rgba(0,0,0,0.08)', offsetX: 0, offsetY: 4, blur: 12, spread: 0, visible: true }], cornerRadius: { topLeft: 12, topRight: 12, bottomRight: 12, bottomLeft: 12 } } },
+   140→        // Image placeholder
+   141→        { type: 'RECTANGLE' as const, x: fx, y: fy, width: cardW, height: 180, name: 'Card Image', styles: { fills: [{ id: 'f2', type: 'solid', color: '#E0E7FF', opacity: 1 }], cornerRadius: { topLeft: 12, topRight: 12, bottomRight: 0, bottomLeft: 0 } } },
+   142→        { type: 'TEXT' as const, x: fx + 100, y: fy + 75, width: 120, height: 30, content: '📷', name: 'Image Icon', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 28, fontWeight: 400, lineHeight: 1.2, letterSpacing: 0, textDecoration: 'none', color: '#6366F1', textAlign: 'center', fontStyle: 'normal', textCase: 'none' } } },
+   143→        // Title
+   144→        { type: 'TEXT' as const, x: fx + 24, y: fy + 200, width: 272, height: 24, content: 'Card Title Goes Here', name: 'Card Title', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 18, fontWeight: 600, lineHeight: 1.3, letterSpacing: 0, textDecoration: 'none', color: '#1F2937', textAlign: 'left', fontStyle: 'normal', textCase: 'none' } } },
+   145→        // Description
+   146→        { type: 'TEXT' as const, x: fx + 24, y: fy + 232, width: 272, height: 60, content: 'This is a brief description of the card content. It can span multiple lines.', name: 'Card Description', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, fontWeight: 400, lineHeight: 1.6, letterSpacing: 0, textDecoration: 'none', color: '#9CA3AF', textAlign: 'left', fontStyle: 'normal', textCase: 'none' } } },
+   147→        // CTA button
+   148→        { type: 'RECTANGLE' as const, x: fx + 24, y: fy + 316, width: 272, height: 40, name: 'Card CTA', styles: { fills: [{ id: 'f3', type: 'solid', color: '#EC4899', opacity: 1 }], cornerRadius: { topLeft: 8, topRight: 8, bottomRight: 8, bottomLeft: 8 } } },
+   149→        { type: 'TEXT' as const, x: fx + 115, y: fy + 324, width: 90, height: 24, content: 'Learn More', name: 'CTA Text', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 14, fontWeight: 600, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#FFFFFF', textAlign: 'center', fontStyle: 'normal', textCase: 'none' } } },
+   150→      ];
+   151→    },
+   152→  },
+   153→  // 5. List Item
+   154→  {
+   155→    id: 'list-item',
+   156→    name: 'List Item',
+   157→    description: 'Avatar, title, subtitle, action icon',
+   158→    icon: List,
+   159→    color: '#10B981',
+   160→    buildElements: (cx, cy) => {
+   161→      const itemW = 360;
+   162→      const itemH = 72;
+   163→      const fx = cx - itemW / 2;
+   164→      const fy = cy - itemH / 2;
+   165→      return [
+   166→        { type: 'RECTANGLE' as const, x: fx, y: fy, width: itemW, height: itemH, name: 'List Item', styles: { fills: [{ id: 'f1', type: 'solid', color: '#FFFFFF', opacity: 1 }], strokes: [{ id: 's1', color: '#F3F4F6', width: 1, style: 'solid', align: 'center' as const, cap: 'butt' as const, join: 'miter' as const }], cornerRadius: { topLeft: 12, topRight: 12, bottomRight: 12, bottomLeft: 12 } } },
+   167→        // Avatar
+   168→        { type: 'CIRCLE' as const, x: fx + 16, y: fy + 16, width: 40, height: 40, name: 'Avatar', styles: { fills: [{ id: 'f2', type: 'solid', color: '#D1FAE5', opacity: 1 }], cornerRadius: { topLeft: 20, topRight: 20, bottomRight: 20, bottomLeft: 20 } } },
+   169→        { type: 'TEXT' as const, x: fx + 24, y: fy + 24, width: 24, height: 24, content: 'JD', name: 'Avatar Initials', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 14, fontWeight: 600, lineHeight: 1.4, letterSpacing: 0, textDecoration: 'none', color: '#059669', textAlign: 'center', fontStyle: 'normal', textCase: 'none' } } },
+   170→        // Title
+   171→        { type: 'TEXT' as const, x: fx + 72, y: fy + 18, width: 200, height: 20, content: 'John Doe', name: 'List Title', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 15, fontWeight: 600, lineHeight: 1.3, letterSpacing: 0, textDecoration: 'none', color: '#1F2937', textAlign: 'left', fontStyle: 'normal', textCase: 'none' } } },
+   172→        // Subtitle
+   173→        { type: 'TEXT' as const, x: fx + 72, y: fy + 40, width: 200, height: 18, content: 'john.doe@example.com', name: 'List Subtitle', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, fontWeight: 400, lineHeight: 1.4, letterSpacing: 0, textDecoration: 'none', color: '#9CA3AF', textAlign: 'left', fontStyle: 'normal', textCase: 'none' } } },
+   174→        // Action chevron
+   175→        { type: 'TEXT' as const, x: fx + itemW - 36, y: fy + 24, width: 20, height: 24, content: '›', name: 'Action', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 20, fontWeight: 400, lineHeight: 1.2, letterSpacing: 0, textDecoration: 'none', color: '#D1D5DB', textAlign: 'center', fontStyle: 'normal', textCase: 'none' } } },
+   176→      ];
+   177→    },
+   178→  },
+   179→  // 6. Hero Section
+   180→  {
+   181→    id: 'hero-section',
+   182→    name: 'Hero Section',
+   183→    description: 'Large heading, subtitle, CTA button',
+   184→    icon: Layout,
+   185→    color: '#F59E0B',
+   186→    buildElements: (cx, cy) => {
+   187→      const heroW = 600;
+   188→      const heroH = 240;
+   189→      const fx = cx - heroW / 2;
+   190→      const fy = cy - heroH / 2;
+   191→      return [
+   192→        { type: 'RECTANGLE' as const, x: fx, y: fy, width: heroW, height: heroH, name: 'Hero Background', styles: { fills: [{ id: 'f1', type: 'solid', color: '#FFFBEB', opacity: 1 }], cornerRadius: { topLeft: 16, topRight: 16, bottomRight: 16, bottomLeft: 16 } } },
+   193→        // Heading
+   194→        { type: 'TEXT' as const, x: fx + 40, y: fy + 40, width: 520, height: 48, content: 'Build Something Amazing', name: 'Hero Heading', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 36, fontWeight: 800, lineHeight: 1.2, letterSpacing: -0.5, textDecoration: 'none', color: '#1F2937', textAlign: 'left', fontStyle: 'normal', textCase: 'none' } } },
+   195→        // Subtitle
+   196→        { type: 'TEXT' as const, x: fx + 40, y: fy + 100, width: 400, height: 40, content: 'A powerful platform for designers and developers to create beautiful interfaces together.', name: 'Hero Subtitle', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 16, fontWeight: 400, lineHeight: 1.6, letterSpacing: 0, textDecoration: 'none', color: '#6B7280', textAlign: 'left', fontStyle: 'normal', textCase: 'none' } } },
+   197→        // CTA button
+   198→        { type: 'RECTANGLE' as const, x: fx + 40, y: fy + 168, width: 160, height: 48, name: 'Hero CTA', styles: { fills: [{ id: 'f2', type: 'solid', color: '#F59E0B', opacity: 1 }], cornerRadius: { topLeft: 10, topRight: 10, bottomRight: 10, bottomLeft: 10 } } },
+   199→        { type: 'TEXT' as const, x: fx + 72, y: fy + 178, width: 96, height: 28, content: 'Get Started', name: 'CTA Text', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 16, fontWeight: 600, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#FFFFFF', textAlign: 'center', fontStyle: 'normal', textCase: 'none' } } },
+   200→        // Secondary button
+   201→        { type: 'RECTANGLE' as const, x: fx + 220, y: fy + 168, width: 160, height: 48, name: 'Secondary CTA', styles: { fills: [{ id: 'f3', type: 'solid', color: '#FFFFFF', opacity: 1 }], strokes: [{ id: 's1', color: '#F59E0B', width: 2, style: 'solid', align: 'center' as const, cap: 'butt' as const, join: 'miter' as const }], cornerRadius: { topLeft: 10, topRight: 10, bottomRight: 10, bottomLeft: 10 } } },
+   202→        { type: 'TEXT' as const, x: fx + 254, y: fy + 178, width: 92, height: 28, content: 'Learn More', name: 'Secondary Text', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 16, fontWeight: 600, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#F59E0B', textAlign: 'center', fontStyle: 'normal', textCase: 'none' } } },
+   203→      ];
+   204→    },
+   205→  },
+   206→  // 7. Form Field
+   207→  {
+   208→    id: 'form-field',
+   209→    name: 'Form Field',
+   210→    description: 'Label, input, helper text',
+   211→    icon: Type,
+   212→    color: '#14B8A6',
+   213→    buildElements: (cx, cy) => {
+   214→      const fieldW = 320;
+   215→      const fieldH = 100;
+   216→      const fx = cx - fieldW / 2;
+   217→      const fy = cy - fieldH / 2;
+   218→      return [
+   219→        // Label
+   220→        { type: 'TEXT' as const, x: fx, y: fy, width: 80, height: 20, content: 'Username', name: 'Field Label', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, fontWeight: 500, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#374151', textAlign: 'left', fontStyle: 'normal', textCase: 'none' } } },
+   221→        // Required indicator
+   222→        { type: 'TEXT' as const, x: fx + 64, y: fy - 2, width: 8, height: 20, content: '*', name: 'Required', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, fontWeight: 500, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#EF4444', textAlign: 'left', fontStyle: 'normal', textCase: 'none' } } },
+   223→        // Input
+   224→        { type: 'RECTANGLE' as const, x: fx, y: fy + 28, width: fieldW, height: 42, name: 'Input Field', styles: { fills: [{ id: 'f1', type: 'solid', color: '#FFFFFF', opacity: 1 }], strokes: [{ id: 's1', color: '#D1D5DB', width: 1, style: 'solid', align: 'center' as const, cap: 'butt' as const, join: 'miter' as const }], cornerRadius: { topLeft: 8, topRight: 8, bottomRight: 8, bottomLeft: 8 } } },
+   225→        { type: 'TEXT' as const, x: fx + 16, y: fy + 38, width: 140, height: 20, content: 'Enter username...', name: 'Placeholder', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 14, fontWeight: 400, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#D1D5DB', textAlign: 'left', fontStyle: 'normal', textCase: 'none' } } },
+   226→        // Helper text
+   227→        { type: 'TEXT' as const, x: fx, y: fy + 80, width: 200, height: 18, content: 'Must be at least 3 characters', name: 'Helper Text', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, fontWeight: 400, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#9CA3AF', textAlign: 'left', fontStyle: 'normal', textCase: 'none' } } },
+   228→      ];
+   229→    },
+   230→  },
+   231→  // 8. Bottom Tab Bar
+   232→  {
+   233→    id: 'bottom-tab-bar',
+   234→    name: 'Bottom Tab Bar',
+   235→    description: '5 tab icons with labels',
+   236→    icon: Layout,
+   237→    color: '#6366F1',
+   238→    buildElements: (cx, cy) => {
+   239→      const barW = 375;
+   240→      const barH = 64;
+   241→      const fx = cx - barW / 2;
+   242→      const fy = cy - barH / 2;
+   243→      const tabW = barW / 5;
+   244→      const tabLabels = ['Home', 'Search', 'Add', 'Messages', 'Profile'];
+   245→      const tabIcons = ['🏠', '🔍', '➕', '💬', '👤'];
+   246→      const activeColors = ['#6366F1', '#9CA3AF', '#10B981', '#9CA3AF', '#9CA3AF'];
+   247→      const elements: Partial<BoardElement>[] = [
+   248→        // Bar background
+   249→        { type: 'RECTANGLE' as const, x: fx, y: fy, width: barW, height: barH, name: 'Tab Bar', styles: { fills: [{ id: 'f1', type: 'solid', color: '#FFFFFF', opacity: 1 }], strokes: [{ id: 's1', color: '#E5E7EB', width: 1, style: 'solid', align: 'center' as const, cap: 'butt' as const, join: 'miter' as const }], cornerRadius: { topLeft: 16, topRight: 16, bottomRight: 16, bottomLeft: 16 } } },
+   250→      ];
+   251→      for (let i = 0; i < 5; i++) {
+   252→        const tx = fx + tabW * i;
+   253→        elements.push({
+   254→          type: 'TEXT' as const,
+   255→          x: tx + tabW / 2 - 12,
+   256→          y: fy + 10,
+   257→          width: 24,
+   258→          height: 24,
+   259→          content: tabIcons[i],
+   260→          name: `Tab Icon ${tabLabels[i]}`,
+   261→          styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 18, fontWeight: 400, lineHeight: 1.2, letterSpacing: 0, textDecoration: 'none', color: activeColors[i], textAlign: 'center', fontStyle: 'normal', textCase: 'none' } },
+   262→        });
+   263→        elements.push({
+   264→          type: 'TEXT' as const,
+   265→          x: tx + tabW / 2 - 20,
+   266→          y: fy + 38,
+   267→          width: 40,
+   268→          height: 16,
+   269→          content: tabLabels[i],
+   270→          name: `Tab Label ${tabLabels[i]}`,
+   271→          styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, fontWeight: i === 0 ? 600 : 400, lineHeight: 1.4, letterSpacing: 0, textDecoration: 'none', color: activeColors[i], textAlign: 'center', fontStyle: 'normal', textCase: 'none' } },
+   272→        });
+   273→      }
+   274→      return elements;
+   275→    },
+   276→  },
+   277→  // 9. Status Bar
+   278→  {
+   279→    id: 'status-bar',
+   280→    name: 'Status Bar',
+   281→    description: 'Time, signal, battery indicators',
+   282→    icon: Smartphone,
+   283→    color: '#1F2937',
+   284→    buildElements: (cx, cy) => {
+   285→      const barW = 375;
+   286→      const barH = 36;
+   287→      const fx = cx - barW / 2;
+   288→      const fy = cy - barH / 2;
+   289→      return [
+   290→        { type: 'RECTANGLE' as const, x: fx, y: fy, width: barW, height: barH, name: 'Status Bar', styles: { fills: [{ id: 'f1', type: 'solid', color: '#F9FAFB', opacity: 1 }], cornerRadius: { topLeft: 0, topRight: 0, bottomRight: 0, bottomLeft: 0 } } },
+   291→        // Time
+   292→        { type: 'TEXT' as const, x: fx + 24, y: fy + 8, width: 50, height: 20, content: '9:41', name: 'Time', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 15, fontWeight: 600, lineHeight: 1.3, letterSpacing: 0, textDecoration: 'none', color: '#1F2937', textAlign: 'left', fontStyle: 'normal', textCase: 'none' } } },
+   293→        // Signal bars
+   294→        { type: 'TEXT' as const, x: fx + barW - 120, y: fy + 8, width: 50, height: 20, content: '📶', name: 'Signal', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 14, fontWeight: 400, lineHeight: 1.3, letterSpacing: 0, textDecoration: 'none', color: '#1F2937', textAlign: 'center', fontStyle: 'normal', textCase: 'none' } } },
+   295→        // WiFi
+   296→        { type: 'TEXT' as const, x: fx + barW - 80, y: fy + 8, width: 30, height: 20, content: '📡', name: 'WiFi', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 14, fontWeight: 400, lineHeight: 1.3, letterSpacing: 0, textDecoration: 'none', color: '#1F2937', textAlign: 'center', fontStyle: 'normal', textCase: 'none' } } },
+   297→        // Battery
+   298→        { type: 'RECTANGLE' as const, x: fx + barW - 42, y: fy + 12, width: 24, height: 12, name: 'Battery Body', styles: { fills: [{ id: 'f2', type: 'solid', color: '#FFFFFF', opacity: 1 }], strokes: [{ id: 's1', color: '#374151', width: 1, style: 'solid', align: 'center' as const, cap: 'butt' as const, join: 'miter' as const }], cornerRadius: { topLeft: 3, topRight: 3, bottomRight: 3, bottomLeft: 3 } } },
+   299→        { type: 'RECTANGLE' as const, x: fx + barW - 40, y: fy + 14, width: 18, height: 8, name: 'Battery Level', styles: { fills: [{ id: 'f3', type: 'solid', color: '#10B981', opacity: 1 }], cornerRadius: { topLeft: 2, topRight: 2, bottomRight: 2, bottomLeft: 2 } } },
+   300→        { type: 'RECTANGLE' as const, x: fx + barW - 16, y: fy + 16, width: 2, height: 4, name: 'Battery Cap', styles: { fills: [{ id: 'f4', type: 'solid', color: '#374151', opacity: 1 }], cornerRadius: { topLeft: 1, topRight: 1, bottomRight: 1, bottomLeft: 1 } } },
+   301→      ];
+   302→    },
+   303→  },
+   304→  // 10. Chat Bubble
+   305→  {
+   306→    id: 'chat-bubble',
+   307→    name: 'Chat Bubble',
+   308→    description: 'Message bubble with avatar',
+   309→    icon: MessageSquare,
+   310→    color: '#3B82F6',
+   311→    buildElements: (cx, cy) => {
+   312→      const bubbleW = 260;
+   313→      const bubbleH = 64;
+   314→      const fx = cx - bubbleW / 2 - 20;
+   315→      const fy = cy - bubbleH / 2;
+   316→      return [
+   317→        // Avatar
+   318→        { type: 'CIRCLE' as const, x: fx, y: fy + 8, width: 40, height: 40, name: 'Chat Avatar', styles: { fills: [{ id: 'f1', type: 'solid', color: '#DBEAFE', opacity: 1 }], cornerRadius: { topLeft: 20, topRight: 20, bottomRight: 20, bottomLeft: 20 } } },
+   319→        { type: 'TEXT' as const, x: fx + 8, y: fy + 16, width: 24, height: 24, content: 'A', name: 'Avatar Letter', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 14, fontWeight: 600, lineHeight: 1.4, letterSpacing: 0, textDecoration: 'none', color: '#3B82F6', textAlign: 'center', fontStyle: 'normal', textCase: 'none' } } },
+   320→        // Bubble
+   321→        { type: 'RECTANGLE' as const, x: fx + 52, y: fy, width: bubbleW, height: bubbleH, name: 'Chat Bubble', styles: { fills: [{ id: 'f2', type: 'solid', color: '#F3F4F6', opacity: 1 }], cornerRadius: { topLeft: 16, topRight: 16, bottomRight: 16, bottomLeft: 16 } } },
+   322→        // Message text
+   323→        { type: 'TEXT' as const, x: fx + 68, y: fy + 14, width: 220, height: 36, content: 'Hey! How is the project going? Need any help?', name: 'Message Text', styles: { typography: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: 14, fontWeight: 400, lineHeight: 1.5, letterSpacing: 0, textDecoration: 'none', color: '#374151', textAlign: 'left', fontStyle: 'normal', textCase: 'none' } } },
+   324→      ];
+   325→    },
+   326→  },
+   327→];
+   328→
+   329→function getViewportCenter() {
+   330→  const { panX, panY, zoom } = useCanvasStore.getState();
+   331→  const vw = window.innerWidth;
+   332→  const vh = window.innerHeight;
+   333→  const canvasW = vw / zoom;
+   334→  const canvasH = vh / zoom;
+   335→  return {
+   336→    x: canvasW / 2 - panX / zoom,
+   337→    y: canvasH / 2 - panY / zoom,
+   338→  };
+   339→}
+   340→
+   341→export function WireframeKit() {
+   342→  const [search, setSearch] = React.useState('');
+   343→
+   344→  const filtered = WIREFRAME_TEMPLATES.filter(
+   345→    (t) =>
+   346→      t.name.toLowerCase().includes(search.toLowerCase()) ||
+   347→      t.description.toLowerCase().includes(search.toLowerCase()),
+   348→  );
+   349→
+   350→  const handleInsertTemplate = useCallback((template: WireframeTemplate) => {
+   351→    const { x, y } = getViewportCenter();
+   352→    const store = useCanvasStore.getState();
+   353→    const elementOverrides = template.buildElements(x, y);
+   354→    const newIds: string[] = [];
+   355→
+   356→    for (const override of elementOverrides) {
+   357→      if (override.type && 'x' in override && 'y' in override) {
+   358→        const el = store.addElement(
+   359→          override.type,
+   360→          override.x as number,
+   361→          override.y as number,
+   362→          override,
+   363→        );
+   364→        newIds.push(el.id);
+   365→      }
+   366→    }
+   367→
+   368→    // Select all inserted elements
+   369→    store.selectElement(newIds[0]);
+   370→  }, []);
+   371→
+   372→  return (
+   373→    <div className="flex flex-col h-full">
+   374→      {/* Search */}
+   375→      <div className="relative p-3 pb-2">
+   376→        <Search className="absolute left-6 top-[22px] h-4 w-4 text-muted-foreground" />
+   377→        <Input
+   378→          placeholder="Search wireframes..."
+   379→          value={search}
+   380→          onChange={(e) => setSearch(e.target.value)}
+   381→          className={`pl-9 ${NEU_INSET} border-neutral-200/40 dark:border-neutral-700/30`}
+   382→        />
+   383→      </div>
+   384→
+   385→      {/* Wireframe Grid */}
+   386→      <ScrollArea className="flex-1 px-3 pb-3">
+   387→        <div className="grid grid-cols-2 gap-2">
+   388→          {filtered.map((template) => {
+   389→            const IconComp = template.icon;
+   390→            return (
+   391→              <button
+   392→                key={template.id}
+   393→                onClick={() => handleInsertTemplate(template)}
+   394→                className={`flex flex-col items-center gap-2 rounded-lg border border-neutral-200/40 dark:border-neutral-700/30 p-3 transition-all hover:border-primary/40 hover:bg-primary/5 text-left ${NEU_CARD}`}
+   395→              >
+   396→                {/* Mini preview */}
+   397→                <div
+   398→                  className="w-full h-16 rounded-md flex items-center justify-center"
+   399→                  style={{ backgroundColor: `${template.color}15` }}
+   400→                >
+   401→                  <IconComp
+   402→                    className="h-8 w-8"
+   403→                    style={{ color: template.color }}
+   404→                  />
+   405→                </div>
+   406→                {/* Name & description */}
+   407→                <div className="w-full min-w-0">
+   408→                  <p className="text-xs font-medium truncate">{template.name}</p>
+   409→                  <p className="text-[10px] text-muted-foreground truncate">
+   410→                    {template.description}
+   411→                  </p>
+   412→                </div>
+   413→              </button>
+   414→            );
+   415→          })}
+   416→        </div>
+   417→        {filtered.length === 0 && (
+   418→          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+   419→            <Search className="h-8 w-8 mb-2 opacity-40" />
+   420→            <p className="text-sm">No wireframes found</p>
+   421→          </div>
+   422→        )}
+   423→      </ScrollArea>
+   424→    </div>
+   425→  );
+   426→}
+   427→
+   428→
+   429→

@@ -18,6 +18,7 @@ import {
   Sparkles,
   Upload,
   Download,
+  Users,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -46,6 +47,9 @@ import { BranchDialog } from '@/components/version-control/branch-panel';
 import { MergeRequestDialog } from '@/components/version-control/merge-request-panel';
 import { ImportDialog } from '@/components/editor/import/import-dialog';
 import { AIDesignDialog } from '@/components/editor/ai';
+import { InviteDialog } from '@/components/collab/invite-dialog';
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import type { BoardElement } from '@/lib/types';
 
 // ── Neumorphism helpers ──────────────────────────────────────────────────────
@@ -113,7 +117,7 @@ function EditorError({ message, onRetry }: { message: string; onRetry: () => voi
 
 // ─── Editor Top Bar ──────────────────────────────────────────────────────────
 
-function EditorTopBar({ boardName }: { boardName?: string }) {
+function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; onOpenInviteDialog: () => void }) {
   const closeBoard = useAppStore((s) => s.closeBoard);
   const currentBranchId = useVersionStore((s) => s.currentBranchId);
   const branches = useVersionStore((s) => s.branches);
@@ -133,6 +137,7 @@ function EditorTopBar({ boardName }: { boardName?: string }) {
   const setEditorMode = useAppStore((s) => s.setEditorMode);
   const setAIDesignDialogOpen = useAppStore((s) => s.setAIDesignDialogOpen);
   const setImportDialogOpen = useAppStore((s) => s.setImportDialogOpen);
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
 
   const currentBranch = branches.find((b) => b.id === currentBranchId);
 
@@ -294,6 +299,16 @@ function EditorTopBar({ boardName }: { boardName?: string }) {
 
       <div className="flex-1" />
 
+      {/* Members button */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onOpenInviteDialog}>
+            <Users className="h-4 w-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">{t('collab.members', locale)}</TooltipContent>
+      </Tooltip>
+
       {/* AI & Import actions (desktop) */}
       <div className="hidden md:flex items-center gap-1">
         <Tooltip>
@@ -416,6 +431,7 @@ export default function EditorView() {
   const importOpen = useAppStore((s) => s.importDialogOpen);
   const setAIDesignOpen = useAppStore((s) => s.setAIDesignDialogOpen);
   const setImportOpen = useAppStore((s) => s.setImportDialogOpen);
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
 
   const handleImportElements = useCallback((elements: BoardElement[]) => {
     const cur = useCanvasStore.getState().elements;
@@ -505,7 +521,7 @@ export default function EditorView() {
     <TooltipProvider delayDuration={200}>
       <div className="h-screen flex flex-col overflow-hidden bg-background">
         {/* Top bar */}
-        <EditorTopBar boardName={boardName} />
+        <EditorTopBar boardName={boardName} onOpenInviteDialog={() => setInviteDialogOpen(true)} />
 
         {/* Main body: Left Panel + Toolbar + Canvas + Right Panel */}
         <div className="flex-1 flex overflow-hidden">
@@ -530,6 +546,7 @@ export default function EditorView() {
         <MergeRequestDialog />
         <ImportDialog open={importOpen} onOpenChange={setImportOpen} onImport={handleImportElements} />
         <AIDesignDialog open={aiDesignOpen} onOpenChange={setAIDesignOpen} onGenerated={handleAIGenerated} />
+        <InviteDialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen} boardId={currentBoardId} />
       </div>
     </TooltipProvider>
   );

@@ -249,7 +249,12 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, description, isPublic = false } = body;
+    const { name, description, isPublic = false, templateId } = body as {
+      name?: string;
+      description?: string;
+      isPublic?: boolean;
+      templateId?: string;
+    };
 
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
       return NextResponse.json(
@@ -290,17 +295,65 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Create the initial commit on the main branch
+    // Create the initial commit on the main branch (with template elements if provided)
     const mainBranch = board.branches.find((b) => b.name === 'main');
 
     if (mainBranch) {
+      // Resolve template elements (load from JSON to avoid Turbopack issues)
+      let templateElements: import('@/lib/types').BoardElement[] = [];
+      if (templateId) {
+        try {
+          const fs = await import('fs');
+          const raw = fs.readFileSync('src/lib/templates-data.json', 'utf-8');
+          const allTemplates = JSON.parse(raw) as Record<string, unknown[]>;
+          const rawEls = allTemplates[templateId];
+          if (Array.isArray(rawEls)) {
+            // Restore BoardElement type with proper types
+            templateElements = rawEls.map((el: Record<string, unknown>) => ({
+              id: String(el.id),
+              type: String(el.type) as import('@/lib/types').ElementType,
+              x: Number(el.x), y: Number(el.y),
+              width: Number(el.width), height: Number(el.height),
+              rotation: Number(el.rotation) || 0,
+              content: String(el.content || ''),
+              color: String(el.color || '#FFFFFF'),
+              zIndex: Number(el.zIndex) || 0,
+              locked: false, visible: el.visible !== false,
+              name: String(el.name || ''),
+              styles: typeof el.styles === 'string' ? JSON.parse(el.styles) : (el.styles || null),
+            }));
+          }
+        } catch (err) {
+          console.error('Failed to load template:', templateId, err);
+        }
+      }
+
+      // Also save elements as BoardElements for immediate loading
+      if (templateElements.length > 0) {
+        await db.boardElement.createMany({
+          data: templateElements.map((el) => ({
+            boardId: board.id,
+            type: el.type,
+            x: el.x,
+            y: el.y,
+            width: el.width,
+            height: el.height,
+            rotation: el.rotation || 0,
+            content: el.content || '',
+            color: el.color || '#FFFFFF',
+            zIndex: el.zIndex || 0,
+            styles: el.styles ? JSON.stringify(el.styles) : null,
+          })),
+        });
+      }
+
       await db.commit.create({
         data: {
           boardId: board.id,
           branchId: mainBranch.id,
           authorId: userId,
-          message: 'Initial commit',
-          snapshot: '[]',
+          message: templateId ? `Initial commit from ${templateId} template` : 'Initial commit',
+          snapshot: JSON.stringify(templateElements),
         },
       });
     }

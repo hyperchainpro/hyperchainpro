@@ -11,6 +11,7 @@ import { SettingsDialog } from '@/components/settings/settings-dialog';
 import { ShareDialog } from '@/components/stitch/share-dialog';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CommunityBrowse } from '@/components/community';
+import { AIDesignPage } from '@/components/ai-design/ai-design-page';
 
 export default function HomePage() {
   const { viewMode } = useAppStore();
@@ -105,6 +106,19 @@ export default function HomePage() {
             transition={{ duration: 0.2 }}
           >
             <CommunityBrowse
+              onBack={() => useAppStore.getState().setViewMode('dashboard')}
+            />
+          </motion.div>
+        )}
+        {viewMode === 'ai-design' && (
+          <motion.div
+            key="ai-design"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <AIDesignPage
               onBack={() => useAppStore.getState().setViewMode('dashboard')}
             />
           </motion.div>

@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -29,6 +29,7 @@ model User {
   auditLogs         AuditLog[]
   communityDesigns  CommunityDesign[]
   aiAgents          AIAgent[]
+  sentInvites       BoardInvite[]    @relation("SentInvites")
 }
 
 model Board {
@@ -49,6 +50,7 @@ model Board {
   mergeRequests     MergeRequest[]
   comments          BoardComment[]
   elements          BoardElement[]
+  invites           BoardInvite[]
 }
 
 model BoardMember {
@@ -238,5 +240,26 @@ model ImportJob {
   createdAt   DateTime @default(now())
 
   @@index([userId])
+  @@index([boardId])
+}
+
+// ─── Collaboration: Invites & Board Access ──────────────────────────────────
+
+model BoardInvite {
+  id          String   @id @default(cuid())
+  boardId     String
+  inviterId   String
+  email       String
+  role        String   @default("EDITOR")
+  token       String   @unique
+  acceptedAt  DateTime?
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  board       Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  inviter     User     @relation("SentInvites", fields: [inviterId], references: [id])
+
+  @@index([token])
+  @@index([email])
   @@index([boardId])
 }

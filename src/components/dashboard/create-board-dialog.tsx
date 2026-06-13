@@ -31,6 +31,7 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
+import { t, type Locale } from '@/lib/i18n'
 
 export interface BoardTemplate {
   id: string
@@ -108,17 +109,40 @@ interface CreateBoardDialogProps {
     templateId: string
     isPublic: boolean
   }) => void
+  locale: Locale
 }
 
 export function CreateBoardDialog({
   open,
   onOpenChange,
   onCreateBoard,
+  locale,
 }: CreateBoardDialogProps) {
   const [boardName, setBoardName] = useState('')
   const [description, setDescription] = useState('')
   const [selectedTemplate, setSelectedTemplate] = useState<string>('blank')
   const [isPublic, setIsPublic] = useState(false)
+
+  const templateLabels: Record<string, string> = {
+    blank: t('board.templateBlank', locale),
+    flowchart: t('board.templateFlowchart', locale),
+    mindmap: t('board.templateMindmap', locale),
+    wireframe: t('board.templateWireframe', locale),
+    kanban: t('board.templateKanban', locale),
+    uml: t('board.templateUML', locale),
+    timeline: t('board.templateTimeline', locale),
+    journey: t('board.templateJourney', locale),
+  }
+  const templateDescs: Record<string, string> = {
+    blank: t('board.templateBlankDesc', locale),
+    flowchart: t('board.templateFlowchartDesc', locale),
+    mindmap: t('board.templateMindmapDesc', locale),
+    wireframe: t('board.templateWireframeDesc', locale),
+    kanban: t('board.templateKanbanDesc', locale),
+    uml: t('board.templateUMLDesc', locale),
+    timeline: t('board.templateTimelineDesc', locale),
+    journey: t('board.templateJourneyDesc', locale),
+  }
 
   const canCreate = boardName.trim().length > 0
 
@@ -152,9 +176,9 @@ export function CreateBoardDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle className="text-xl">Create New Board</DialogTitle>
+          <DialogTitle className="text-xl">{t('board.createTitle', locale)}</DialogTitle>
           <DialogDescription>
-            Start with a blank canvas or choose a template to get going quickly.
+            {t('board.createDesc', locale)}
           </DialogDescription>
         </DialogHeader>
 
@@ -162,11 +186,11 @@ export function CreateBoardDialog({
           {/* Board name */}
           <div className="space-y-2">
             <Label htmlFor="board-name">
-              Board Name <span className="text-destructive">*</span>
+              {t('board.name', locale)} <span className="text-destructive">*</span>
             </Label>
             <Input
               id="board-name"
-              placeholder="e.g., Product Roadmap Q4"
+              placeholder={t('board.namePlaceholder', locale)}
               value={boardName}
               onChange={(e) => setBoardName(e.target.value)}
               onKeyDown={(e) => {
@@ -181,10 +205,10 @@ export function CreateBoardDialog({
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="board-description">Description</Label>
+            <Label htmlFor="board-description">{t('board.description', locale)}</Label>
             <Textarea
               id="board-description"
-              placeholder="Brief description of your board (optional)"
+              placeholder={t('board.descriptionPlaceholder', locale)}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="text-sm min-h-[72px] resize-none"
@@ -194,7 +218,7 @@ export function CreateBoardDialog({
 
           {/* Template selector */}
           <div className="space-y-3">
-            <Label>Template</Label>
+            <Label>{t('board.template', locale)}</Label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {templates.map((template) => {
                 const Icon = template.icon
@@ -254,10 +278,10 @@ export function CreateBoardDialog({
                     {/* Text */}
                     <div className="w-full text-center min-w-0">
                       <p className="text-xs font-semibold truncate">
-                        {template.name}
+                        {templateLabels[template.id] ?? template.name}
                       </p>
                       <p className="text-[10px] text-muted-foreground leading-tight mt-0.5 line-clamp-2">
-                        {template.description}
+                        {templateDescs[template.id] ?? template.description}
                       </p>
                     </div>
                   </motion.button>
@@ -278,19 +302,19 @@ export function CreateBoardDialog({
               </div>
               <div>
                 <p className="text-sm font-medium">
-                  {isPublic ? 'Public Board' : 'Private Board'}
+                  {isPublic ? t('board.publicBoard', locale) : t('board.privateBoard', locale)}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {isPublic
-                    ? 'Anyone with the link can view this board'
-                    : 'Only invited members can access this board'}
+                    ? t('board.publicDesc', locale)
+                    : t('board.privateDesc', locale)}
                 </p>
               </div>
             </div>
             <Switch
               checked={isPublic}
               onCheckedChange={setIsPublic}
-              aria-label="Toggle board visibility"
+              aria-label={t('board.toggleVisibility', locale)}
             />
           </div>
         </div>
@@ -300,7 +324,7 @@ export function CreateBoardDialog({
             variant="outline"
             onClick={() => handleOpenChange(false)}
           >
-            Cancel
+            {t('board.cancel', locale)}
           </Button>
           <Button
             onClick={handleCreate}
@@ -308,7 +332,7 @@ export function CreateBoardDialog({
             className="gap-1.5"
           >
             <Plus className="size-4" />
-            Create Board
+            {t('board.create', locale)}
           </Button>
         </DialogFooter>
       </DialogContent>
