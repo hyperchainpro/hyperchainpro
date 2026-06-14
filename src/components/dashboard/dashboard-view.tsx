@@ -325,7 +325,7 @@ function SidebarContent({
 
       {/* Navigation sections */}
       <ScrollArea className="flex-1 px-2 py-1">
-        <nav className="flex flex-col gap-0.5" aria-label="Board navigation">
+        <nav className="flex flex-col gap-0.5" aria-label={t('dashboard.boardNavigation', locale)}>
           {sidebarSections.map((section) => {
             const Icon = section.icon
             const isActive = activeSidebar === section.id
@@ -629,7 +629,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
             size="icon"
             className="md:hidden shrink-0"
             onClick={() => setMobileSidebarOpen(true)}
-            aria-label="Open menu"
+            aria-label={t('dashboard.openMenu', locale)}
           >
             <Menu className="size-5" />
           </Button>
@@ -887,7 +887,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                 </AnimatePresence>
               </motion.div>
             ) : (
-              <EmptyState onCreateBoard={() => setCreateDialogOpen(true)} searchQuery={searchQuery} />
+              <EmptyState onCreateBoard={() => setCreateDialogOpen(true)} searchQuery={searchQuery} locale={locale} />
             )}
           </main>
         </ScrollArea>
@@ -903,7 +903,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
         <nav
           className="fixed bottom-0 left-0 right-0 z-40 bg-background border-t border-border"
           style={{ height: 'calc(60px + env(safe-area-inset-bottom, 0px))', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
-          aria-label="Mobile navigation"
+          aria-label={t('dashboard.mobileNav', locale)}
         >
           <div className="flex items-center justify-around h-[60px]">
             {/* Boards tab */}
@@ -978,7 +978,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
               )}
             >
               <Wand2 className="size-5" />
-              <span className="text-[10px] font-medium">AI</span>
+              <span className="text-[10px] font-medium">{t('dashboard.aiTab', locale)}</span>
             </button>
 
             {/* Profile tab */}
@@ -1038,7 +1038,7 @@ function SidebarItem({ name, active }: { name: string; active?: boolean }) {
 
 // ─── Empty state ─────────────────────────────────────────────────────────────
 
-function EmptyState({ onCreateBoard, searchQuery = '' }: { onCreateBoard: () => void; searchQuery?: string }) {
+function EmptyState({ onCreateBoard, searchQuery = '', locale }: { onCreateBoard: () => void; searchQuery?: string; locale: Locale }) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}

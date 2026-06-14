@@ -14,6 +14,8 @@ import { useCanvasStore } from '@/store/canvas-store';
 import { usePrototypeStore } from '@/store/prototype-store';
 import { useAppStore } from '@/store/app-store';
 import { cn } from '@/lib/utils';
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -41,46 +43,46 @@ const neuBtn =
 
 // ─── Option maps ──────────────────────────────────────────────────────────────
 
-const TRIGGER_OPTIONS: { value: PrototypeTrigger; label: string }[] = [
-  { value: 'on_click', label: 'On Click' },
-  { value: 'on_drag', label: 'On Drag' },
-  { value: 'on_hover', label: 'On Hover' },
-  { value: 'on_press', label: 'On Press' },
-  { value: 'on_timer', label: 'On Timer' },
-  { value: 'on_scroll', label: 'On Scroll' },
+const TRIGGER_OPTIONS: { value: PrototypeTrigger; i18nKey: string }[] = [
+  { value: 'on_click', i18nKey: 'prototype.onClick' },
+  { value: 'on_drag', i18nKey: 'prototype.onDrag' },
+  { value: 'on_hover', i18nKey: 'prototype.onHover' },
+  { value: 'on_press', i18nKey: 'prototype.onPress' },
+ { value: 'on_timer', i18nKey: 'prototype.onTimer' },
+  { value: 'on_scroll', i18nKey: 'prototype.onScroll' },
 ];
 
-const TRANSITION_OPTIONS: { value: TransitionType; label: string }[] = [
-  { value: 'instant', label: 'Instant' },
-  { value: 'dissolve', label: 'Dissolve' },
-  { value: 'smart_animate', label: 'Smart Animate' },
-  { value: 'slide_left', label: 'Slide Left' },
-  { value: 'slide_right', label: 'Slide Right' },
-  { value: 'slide_up', label: 'Slide Up' },
-  { value: 'slide_down', label: 'Slide Down' },
-  { value: 'push_left', label: 'Push Left' },
-  { value: 'push_right', label: 'Push Right' },
+const TRANSITION_OPTIONS: { value: TransitionType; i18nKey: string }[] = [
+  { value: 'instant', i18nKey: 'prototype.instant' },
+  { value: 'dissolve', i18nKey: 'prototype.dissolve' },
+  { value: 'smart_animate', i18nKey: 'prototype.smartAnimate' },
+ { value: 'slide_left', i18nKey: 'prototype.slideLeft' },
+  { value: 'slide_right', i18nKey: 'prototype.slideRight' },
+  { value: 'slide_up', i18nKey: 'prototype.slideUp' },
+  { value: 'slide_down', i18nKey: 'prototype.slideDown' },
+  { value: 'push_left', i18nKey: 'prototype.pushLeft' },
+  { value: 'push_right', i18nKey: 'prototype.pushRight' },
 ];
 
-const EASING_OPTIONS: { value: EasingType; label: string }[] = [
-  { value: 'ease-in', label: 'Ease In' },
-  { value: 'ease-out', label: 'Ease Out' },
-  { value: 'ease-in-out', label: 'Ease In Out' },
-  { value: 'linear', label: 'Linear' },
+const EASING_OPTIONS: { value: EasingType; i18nKey: string }[] = [
+  { value: 'ease-in', i18nKey: 'prototype.easeIn' },
+  { value: 'ease-out', i18nKey: 'prototype.easeOut' },
+  { value: 'ease-in-out', i18nKey: 'prototype.easeInOut' },
+ { value: 'linear', i18nKey: 'prototype.linear' },
 ];
 
 const NAVIGATION_OPTIONS = [
-  { value: 'navigate', label: 'Navigate' },
-  { value: 'overlay', label: 'Overlay' },
-  { value: 'swap', label: 'Swap' },
+  { value: 'navigate', i18nKey: 'prototype.navigate' },
+  { value: 'overlay', i18nKey: 'prototype.overlay' },
+  { value: 'swap', i18nKey: 'prototype.swap' },
 ] as const;
 
 const OVERLAY_POSITION_OPTIONS = [
-  { value: 'center', label: 'Center' },
-  { value: 'top', label: 'Top' },
-  { value: 'bottom', label: 'Bottom' },
-  { value: 'left', label: 'Left' },
-  { value: 'right', label: 'Right' },
+  { value: 'center', i18nKey: 'prototype.posCenter' },
+  { value: 'top', i18nKey: 'prototype.posTop' },
+  { value: 'bottom', i18nKey: 'prototype.posBottom' },
+  { value: 'left', i18nKey: 'prototype.posLeft' },
+ { value: 'right', i18nKey: 'prototype.posRight' },
 ] as const;
 
 // ─── Interaction Form ─────────────────────────────────────────────────────────
@@ -106,11 +108,13 @@ const defaultFormState: FormState = {
 };
 
 function InteractionForm({
+  locale,
   initial,
   frameElements,
   onSave,
   onCancel,
 }: {
+  locale: Locale;
   initial?: FormState;
   frameElements: BoardElement[];
   onSave: (form: FormState) => void;
@@ -135,7 +139,7 @@ function InteractionForm({
     <div className="space-y-2.5 rounded-lg border border-border/50 p-3 bg-muted/20">
       {/* Trigger */}
       <div className="space-y-1">
-        <span className={labelCls}>Trigger</span>
+        <span className={labelCls}>{t("prototype.trigger", locale)}</span>
         <Select value={form.trigger} onValueChange={(v) => update('trigger', v as PrototypeTrigger)}>
           <SelectTrigger className={selectTriggerCls}>
             <SelectValue />
@@ -143,7 +147,7 @@ function InteractionForm({
           <SelectContent>
             {TRIGGER_OPTIONS.map((opt) => (
               <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
+                {t(opt.i18nKey, locale)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -152,15 +156,15 @@ function InteractionForm({
 
       {/* Target Frame */}
       <div className="space-y-1">
-        <span className={labelCls}>Target Frame</span>
+        <span className={labelCls}>{t("prototype.targetFrame", locale)}</span>
         <Select value={form.targetFrameId} onValueChange={(v) => update('targetFrameId', v)}>
           <SelectTrigger className={selectTriggerCls}>
-            <SelectValue placeholder="Select frame..." />
+            <SelectValue placeholder={t('prototype.selectFrame', locale)} />
           </SelectTrigger>
           <SelectContent>
             {frameElements.map((el) => (
               <SelectItem key={el.id} value={el.id}>
-                {el.name || el.content || `Frame ${el.id.slice(0, 6)}`}
+                {el.name || el.content || t('prototype.frameFallback', locale, { id: el.id.slice(0, 6) })}
               </SelectItem>
             ))}
           </SelectContent>
@@ -169,7 +173,7 @@ function InteractionForm({
 
       {/* Transition */}
       <div className="space-y-1">
-        <span className={labelCls}>Transition</span>
+        <span className={labelCls}>{t("prototype.transition", locale)}</span>
         <Select value={form.transition} onValueChange={(v) => update('transition', v as TransitionType)}>
           <SelectTrigger className={selectTriggerCls}>
             <SelectValue />
@@ -177,7 +181,7 @@ function InteractionForm({
           <SelectContent>
             {TRANSITION_OPTIONS.map((opt) => (
               <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
+                {t(opt.i18nKey, locale)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -187,7 +191,7 @@ function InteractionForm({
       {/* Duration */}
       <div className="space-y-1">
         <div className="flex items-center justify-between">
-          <span className={labelCls}>Duration</span>
+          <span className={labelCls}>{t("prototype.duration", locale)}</span>
           <span className="text-[10px] text-muted-foreground">{form.duration}ms</span>
         </div>
         <Slider
@@ -202,7 +206,7 @@ function InteractionForm({
 
       {/* Easing */}
       <div className="space-y-1">
-        <span className={labelCls}>Easing</span>
+        <span className={labelCls}>{t("prototype.easing", locale)}</span>
         <Select value={form.easing} onValueChange={(v) => update('easing', v as EasingType)}>
           <SelectTrigger className={selectTriggerCls}>
             <SelectValue />
@@ -210,7 +214,7 @@ function InteractionForm({
           <SelectContent>
             {EASING_OPTIONS.map((opt) => (
               <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
+                {t(opt.i18nKey, locale)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -219,7 +223,7 @@ function InteractionForm({
 
       {/* Navigation Type */}
       <div className="space-y-1">
-        <span className={labelCls}>Navigation Type</span>
+        <span className={labelCls}>{t("prototype.navigationType", locale)}</span>
         <Select
           value={form.navigationType}
           onValueChange={(v) => update('navigationType', v as FormState['navigationType'])}
@@ -230,7 +234,7 @@ function InteractionForm({
           <SelectContent>
             {NAVIGATION_OPTIONS.map((opt) => (
               <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
+                {t(opt.i18nKey, locale)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -240,7 +244,7 @@ function InteractionForm({
       {/* Overlay Position (only if overlay) */}
       {form.navigationType === 'overlay' && (
         <div className="space-y-1">
-          <span className={labelCls}>Overlay Position</span>
+          <span className={labelCls}>{t("prototype.overlayPosition", locale)}</span>
           <Select
             value={form.overlayPosition}
             onValueChange={(v) => update('overlayPosition', v as FormState['overlayPosition'])}
@@ -251,7 +255,7 @@ function InteractionForm({
             <SelectContent>
               {OVERLAY_POSITION_OPTIONS.map((opt) => (
                 <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
+                  {t(opt.i18nKey, locale)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -262,10 +266,10 @@ function InteractionForm({
       {/* Save / Cancel */}
       <div className="flex gap-2 pt-1">
         <Button size="sm" className="h-7 flex-1 text-xs" onClick={handleSave} disabled={!form.targetFrameId}>
-          Save
+          {t('prototype.save', locale)}
         </Button>
         <Button size="sm" variant="ghost" className="h-7 flex-1 text-xs" onClick={onCancel}>
-          Cancel
+          {t('common.cancel', locale)}
         </Button>
       </div>
     </div>
@@ -275,6 +279,7 @@ function InteractionForm({
 // ─── Main Prototype Panel ─────────────────────────────────────────────────────
 
 export function PrototypePanel() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const elements = useCanvasStore((s) => s.elements);
   const selectedIds = useCanvasStore((s) => s.selectedIds);
   const addInteraction = usePrototypeStore((s) => s.addInteraction);
@@ -348,15 +353,15 @@ export function PrototypePanel() {
     [removeInteraction, editingId],
   );
 
-  const getTriggerLabel = (t: PrototypeTrigger) =>
-    TRIGGER_OPTIONS.find((o) => o.value === t)?.label ?? t;
+  const getTriggerLabel = (trigger: PrototypeTrigger) =>
+    TRIGGER_OPTIONS.find((o) => o.value === trigger)?.i18nKey ?? trigger;
 
-  const getTransitionLabel = (t: TransitionType) =>
-    TRANSITION_OPTIONS.find((o) => o.value === t)?.label ?? t;
+  const getTransitionLabel = (transition: TransitionType) =>
+    TRANSITION_OPTIONS.find((o) => o.value === transition)?.i18nKey ?? transition;
 
   const getTargetName = (id: string) => {
     const el = elements.find((e) => e.id === id);
-    return el?.name || el?.content || `Frame ${id.slice(0, 6)}`;
+    return el?.name || el?.content || t('prototype.frameFallback', locale, { id: id.slice(0, 6) });
   };
 
   const handlePlay = useCallback(() => {
@@ -376,6 +381,7 @@ export function PrototypePanel() {
       <div className="flex h-full flex-col">
         {/* Start Frame & Play section always visible */}
         <StartFrameSection
+          locale={locale}
           frameElements={frameElements}
           startFrameId={startFrameId}
           setStartFrame={setStartFrame}
@@ -387,7 +393,7 @@ export function PrototypePanel() {
             <MousePointerClick className="h-6 w-6 text-muted-foreground/60" />
           </div>
           <p className="text-sm text-muted-foreground">
-            Select a frame to add prototype interactions
+            {t('prototype.selectFrameToInteract', locale)}
           </p>
         </div>
       </div>
@@ -398,6 +404,7 @@ export function PrototypePanel() {
     <div className="flex h-full flex-col">
       {/* Start Frame & Play */}
       <StartFrameSection
+        locale={locale}
         frameElements={frameElements}
         startFrameId={startFrameId}
         setStartFrame={setStartFrame}
@@ -409,10 +416,10 @@ export function PrototypePanel() {
       <div className="px-3 py-2">
         <h3 className="text-xs font-semibold flex items-center gap-1.5">
           <ArrowRightLeft className="h-3.5 w-3.5" />
-          Prototype
+          {t('prototype.title', locale)}
         </h3>
         <p className="text-[10px] text-muted-foreground mt-0.5 truncate">
-          {selectedElement.name || selectedElement.content || `Frame ${selectedElement.id.slice(0, 6)}`}
+          {selectedElement.name || selectedElement.content || t('prototype.frameFallback', locale, { id: selectedElement.id.slice(0, 6) })}
         </p>
       </div>
 
@@ -421,7 +428,7 @@ export function PrototypePanel() {
         <div className="px-3 pb-3 space-y-2">
           {interactions.length === 0 && !showAddForm && !editingId && (
             <p className="text-[11px] text-muted-foreground text-center py-4">
-              No interactions yet. Add one below.
+              {t('prototype.noInteractionsYet', locale)}
             </p>
           )}
 
@@ -447,7 +454,7 @@ export function PrototypePanel() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 text-[11px]">
                       <span className="font-medium truncate">
-                        {getTriggerLabel(interaction.trigger)}
+                        {t(getTriggerLabel(interaction.trigger), locale)}
                       </span>
                       <span className="text-muted-foreground">&rarr;</span>
                       <span className="truncate text-primary">
@@ -455,7 +462,7 @@ export function PrototypePanel() {
                       </span>
                     </div>
                     <div className="text-[10px] text-muted-foreground mt-0.5">
-                      {getTransitionLabel(interaction.transition)} &middot; {interaction.duration}ms
+                      {t(getTransitionLabel(interaction.transition), locale)} &middot; {interaction.duration}ms
                     </div>
                   </div>
                   <button
@@ -493,7 +500,7 @@ export function PrototypePanel() {
               onClick={() => setShowAddForm(true)}
             >
               <Plus className="h-3 w-3" />
-              Add Interaction
+              {t('prototype.addInteraction', locale)}
             </Button>
           )}
         </div>
@@ -505,11 +512,13 @@ export function PrototypePanel() {
 // ─── Start Frame Section ──────────────────────────────────────────────────────
 
 function StartFrameSection({
+  locale,
   frameElements,
   startFrameId,
   setStartFrame,
   onPlay,
 }: {
+  locale: Locale;
   frameElements: BoardElement[];
   startFrameId: string | null;
   setStartFrame: (id: string) => void;
@@ -518,19 +527,19 @@ function StartFrameSection({
   return (
     <div className="px-3 py-3 space-y-2">
       <div className="flex items-center justify-between">
-        <Label className="text-xs font-semibold">Start Frame</Label>
+        <Label className="text-xs font-semibold">{t("prototype.startFrame", locale)}</Label>
       </div>
       <Select
         value={startFrameId ?? ''}
         onValueChange={(v) => setStartFrame(v)}
       >
         <SelectTrigger className="h-7 w-full text-xs">
-          <SelectValue placeholder="Select start frame..." />
+          <SelectValue placeholder={t('prototype.selectStartFrame', locale)} />
         </SelectTrigger>
         <SelectContent>
           {frameElements.map((el) => (
             <SelectItem key={el.id} value={el.id}>
-              {el.name || el.content || `Frame ${el.id.slice(0, 6)}`}
+              {el.name || el.content || t('prototype.frameFallback', locale, { id: el.id.slice(0, 6) })}
             </SelectItem>
           ))}
         </SelectContent>
@@ -546,7 +555,7 @@ function StartFrameSection({
         disabled={frameElements.length === 0}
       >
         <Play className="h-4 w-4" />
-        Play Prototype
+        {t('prototype.playPrototype', locale)}
       </Button>
     </div>
   );

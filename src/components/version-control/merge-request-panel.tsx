@@ -21,10 +21,13 @@ import {
 } from '@/components/ui/select';
 import { GitMerge, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import { useVersionStore } from '@/store/version-store';
 import { useAppStore } from '@/store/app-store';
 
 export function MergeRequestDialog() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [targetBranchId, setTargetBranchId] = useState('');
@@ -51,15 +54,15 @@ export function MergeRequestDialog() {
 
   const handleCreate = useCallback(async () => {
     if (!title.trim()) {
-      setError('Title is required');
+      setError(t('vc.titleRequired', locale));
       return;
     }
     if (!targetBranchId) {
-      setError('Please select a target branch');
+      setError(t('vc.selectTargetBranch', locale));
       return;
     }
     if (!currentBoardId || !currentBranchId) {
-      setError('No board or branch selected');
+      setError(t('vc.noBoardOrBranch', locale));
       return;
     }
 
@@ -82,7 +85,7 @@ export function MergeRequestDialog() {
       createMergeRequest(mr);
       handleClose();
     } catch {
-      setError('Failed to create merge request. Please try again.');
+      setError(t('vc.failedToCreateMRRetry', locale));
     } finally {
       setIsCreating(false);
     }
@@ -94,23 +97,23 @@ export function MergeRequestDialog() {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <GitMerge className="h-5 w-5" />
-            Create Merge Request
+            {t('merge.create', locale)}
           </DialogTitle>
           <DialogDescription>
-            Propose merging your branch into another branch.
+            {t('vc.createMRDesc', locale)}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
           <div className="flex items-center gap-2 text-sm">
-            <span className="text-muted-foreground">Source:</span>
+            <span className="text-muted-foreground">{t("vc.source", locale)}</span>
             <span className="font-mono text-foreground">
-              {currentBranch?.name ?? 'unknown'}
+              {currentBranch?.name ?? t('vc.noBranch', locale)}
             </span>
             <span className="text-muted-foreground">&rarr;</span>
             <Select value={targetBranchId} onValueChange={(v) => { setTargetBranchId(v); if (error) setError(''); }}>
               <SelectTrigger className="w-[180px] h-8 text-sm">
-                <SelectValue placeholder="Select target" />
+                <SelectValue placeholder={t('vc.selectTarget', locale)} />
               </SelectTrigger>
               <SelectContent>
                 {otherBranches.map((b) => (
@@ -124,11 +127,11 @@ export function MergeRequestDialog() {
 
           <div className="space-y-2">
             <label htmlFor="mr-title" className="text-sm font-medium">
-              Title <span className="text-destructive">*</span>
+              {t('vc.title', locale)} <span className="text-destructive">*</span>
             </label>
             <Input
               id="mr-title"
-              placeholder="e.g. Add new layout design"
+              placeholder={t('vc.mrTitlePlaceholder', locale)}
               value={title}
               onChange={(e) => {
                 setTitle(e.target.value);
@@ -142,11 +145,11 @@ export function MergeRequestDialog() {
 
           <div className="space-y-2">
             <label htmlFor="mr-desc" className="text-sm font-medium">
-              Description <span className="text-muted-foreground">(optional)</span>
+              {t('commit.tag', locale)} <span className="text-muted-foreground">{t('vc.optional', locale)}</span>
             </label>
             <Textarea
               id="mr-desc"
-              placeholder="Describe what this merge request changes..."
+              placeholder={t('vc.mrPlaceholder', locale)}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               disabled={isCreating}
@@ -165,7 +168,7 @@ export function MergeRequestDialog() {
             onClick={handleClose}
             disabled={isCreating}
           >
-            Cancel
+            {t('common.cancel', locale)}
           </Button>
           <Button
             onClick={handleCreate}
@@ -173,7 +176,7 @@ export function MergeRequestDialog() {
             className="gap-1.5"
           >
             {isCreating && <Loader2 className="h-4 w-4 animate-spin" />}
-            Create Merge Request
+            {t('merge.create', locale)}
           </Button>
         </DialogFooter>
       </DialogContent>

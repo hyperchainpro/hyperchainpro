@@ -1,5 +1,7 @@
 'use client';
 
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Save, X, Eye, Palette, Sparkles } from 'lucide-react';
@@ -84,6 +86,7 @@ Respond ONLY with JSON: { "elements": [...] }`,
 // ─── Component ────────────────────────────────────────────────────────────
 
 export function AIAgentEditor({ open, onOpenChange, agent, onSaved }: AIAgentEditorProps) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const [form, setForm] = useState<AgentData>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -116,11 +119,11 @@ export function AIAgentEditor({ open, onOpenChange, agent, onSaved }: AIAgentEdi
 
   const handleSave = async () => {
     if (!form.name.trim()) {
-      setError('Agent name is required');
+      setError(t('ai.agentNameRequired', locale));
       return;
     }
     if (!form.systemPrompt.trim()) {
-      setError('System prompt is required');
+      setError(t('ai.systemPromptRequired', locale));
       return;
     }
 
@@ -147,12 +150,12 @@ export function AIAgentEditor({ open, onOpenChange, agent, onSaved }: AIAgentEdi
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to save agent');
+        throw new Error(data.error || t('ai.failedToSaveAgent', locale));
       }
 
       onSaved();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save agent');
+      setError(err instanceof Error ? err.message : t('ai.failedToSaveAgent', locale));
     } finally {
       setSaving(false);
     }
@@ -172,10 +175,10 @@ export function AIAgentEditor({ open, onOpenChange, agent, onSaved }: AIAgentEdi
                 </div>
                 <div>
                   <DialogTitle className="text-white text-lg">
-                    {agent ? 'Edit Agent' : 'Create Agent'}
+                    {agent ? t('ai.editAgent', locale) : t('ai.createAgentTitle', locale)}
                   </DialogTitle>
                   <DialogDescription className="text-white/70 text-xs mt-0.5">
-                    {agent ? 'Update your custom AI agent' : 'Configure a new AI design agent'}
+                    {agent ? t('ai.updateAgentDesc', locale) : t('ai.configureAgentDesc', locale)}
                   </DialogDescription>
                 </div>
               </div>
@@ -186,7 +189,7 @@ export function AIAgentEditor({ open, onOpenChange, agent, onSaved }: AIAgentEdi
                 className="bg-white/10 text-white hover:bg-white/20 hover:text-white"
               >
                 <Eye className="w-3.5 h-3.5 mr-1.5" />
-                {showPreview ? 'Edit' : 'Preview'}
+                {showPreview ? t('ai.edit', locale) : t('ai.preview', locale)}
               </Button>
             </div>
           </DialogHeader>
@@ -201,25 +204,25 @@ export function AIAgentEditor({ open, onOpenChange, agent, onSaved }: AIAgentEdi
               {/* Name */}
               <div className="space-y-2">
                 <Label htmlFor="agent-name" className="text-sm font-medium">
-                  Agent Name <span className="text-destructive">*</span>
+                  {t("ai.agentName", locale)} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="agent-name"
-                  placeholder="e.g. E-commerce Designer"
+                  placeholder={t('ai.agentNamePlaceholder', locale)}
                   value={form.name}
                   onChange={(e) => updateField('name', e.target.value)}
                   className="h-9 text-sm"
                 />
               </div>
 
-              {/* Description */}
+              {/* {t("ai.description", locale)} */}
               <div className="space-y-2">
                 <Label htmlFor="agent-desc" className="text-sm font-medium">
-                  Description
+                  {t("ai.description", locale)}
                 </Label>
                 <Input
                   id="agent-desc"
-                  placeholder="Brief description of what this agent does..."
+                  placeholder={t('agent.descriptionPlaceholder', locale)}
                   value={form.description}
                   onChange={(e) => updateField('description', e.target.value)}
                   className="h-9 text-sm"
@@ -229,17 +232,17 @@ export function AIAgentEditor({ open, onOpenChange, agent, onSaved }: AIAgentEdi
               {/* System Prompt */}
               <div className="space-y-2">
                 <Label htmlFor="agent-prompt" className="text-sm font-medium">
-                  System Prompt <span className="text-destructive">*</span>
+                  {t("ai.systemPrompt", locale)} <span className="text-destructive">*</span>
                 </Label>
                 <Textarea
                   id="agent-prompt"
-                  placeholder="Instructions for the AI agent..."
+                  placeholder={t('agent.systemPromptPlaceholder', locale)}
                   className="min-h-[200px] resize-y text-sm font-mono"
                   value={form.systemPrompt}
                   onChange={(e) => updateField('systemPrompt', e.target.value)}
                 />
                 <p className="text-[11px] text-muted-foreground">
-                  This prompt instructs the AI how to generate designs. Include format instructions and design guidelines.
+                  t('ai.systemPromptHint', locale)
                 </p>
               </div>
 
@@ -270,7 +273,7 @@ export function AIAgentEditor({ open, onOpenChange, agent, onSaved }: AIAgentEdi
               <div className="space-y-2">
                 <Label className="text-sm font-medium flex items-center gap-1.5">
                   <Palette className="w-3.5 h-3.5" />
-                  Color
+                  {t('ai.color', locale)}
                 </Label>
                 <div className="flex flex-wrap gap-2">
                   {COLOR_OPTIONS.map((opt) => (
@@ -310,7 +313,7 @@ export function AIAgentEditor({ open, onOpenChange, agent, onSaved }: AIAgentEdi
                   />
                 </button>
                 <Label className="text-sm cursor-pointer" onClick={() => updateField('isPublic', !form.isPublic)}>
-                  Make public
+                  {t("ai.makePublic", locale)}
                 </Label>
               </div>
 
@@ -345,7 +348,7 @@ export function AIAgentEditor({ open, onOpenChange, agent, onSaved }: AIAgentEdi
             ) : (
               <Save className="w-3.5 h-3.5 mr-1.5" />
             )}
-            {agent ? 'Update Agent' : 'Create Agent'}
+            {agent ? t('ai.updateAgent', locale) : t('ai.createAgent', locale)}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -356,6 +359,7 @@ export function AIAgentEditor({ open, onOpenChange, agent, onSaved }: AIAgentEdi
 // ─── Preview Card ─────────────────────────────────────────────────────────
 
 function PreviewCard({ agent }: { agent: AgentData }) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   return (
     <div className="px-6 py-8 flex items-start justify-center">
       <motion.div
@@ -378,7 +382,7 @@ function PreviewCard({ agent }: { agent: AgentData }) {
           </div>
           <div className="min-w-0">
             <h4 className="font-semibold text-sm truncate">
-              {agent.name || 'Untitled Agent'}
+              {agent.name || t('ai.untitledAgent', locale)}
             </h4>
             {agent.description ? (
               <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
@@ -386,7 +390,7 @@ function PreviewCard({ agent }: { agent: AgentData }) {
               </p>
             ) : (
               <p className="text-xs text-muted-foreground/50 italic mt-0.5">
-                No description
+                {t('ai.noDescription', locale)}
               </p>
             )}
           </div>
@@ -394,18 +398,18 @@ function PreviewCard({ agent }: { agent: AgentData }) {
 
         <div className="space-y-2">
           <Badge variant="outline" className="text-[10px]">
-            Custom Agent
+            {t("ai.customAgent")}
           </Badge>
           {agent.isPublic && (
             <Badge variant="secondary" className="text-[10px] ml-1">
-              Public
+              {t("ai.public")}
             </Badge>
           )}
         </div>
 
         <div className="mt-4 pt-3 border-t">
           <p className="text-[10px] text-muted-foreground font-medium mb-1.5">
-            System Prompt Preview
+            {t("ai.systemPromptPreview", locale)}
           </p>
           <div className="rounded-lg bg-muted/50 p-3 max-h-32 overflow-y-auto">
             <p className="text-[11px] text-muted-foreground font-mono leading-relaxed line-clamp-6">
@@ -417,7 +421,7 @@ function PreviewCard({ agent }: { agent: AgentData }) {
 
         <div className="mt-4">
           <div className="h-7 w-full rounded-lg bg-gradient-to-r from-violet-600 to-purple-600 flex items-center justify-center text-xs text-white font-medium opacity-60">
-            Use Agent
+            {t("ai.useAgent", locale)}
           </div>
         </div>
       </motion.div>

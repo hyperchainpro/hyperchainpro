@@ -35,6 +35,8 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import { useAppStore } from '@/store/app-store';
 import { useVersionStore } from '@/store/version-store';
 import { useCanvasStore } from '@/store/canvas-store';
@@ -56,6 +58,7 @@ const AVATAR_COLORS = [
 ];
 
 function getAvatarColor(id: string): string {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   let hash = 0;
   for (let i = 0; i < id.length; i++) hash = id.charCodeAt(i) + ((hash << 5) - hash);
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
@@ -77,7 +80,8 @@ function EditableBoardName({ board }: { board: Board | null }) {
   const [draftName, setDraftName] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const displayName = draftName ?? board?.name ?? 'Untitled Board';
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+  const displayName = draftName ?? board?.name ?? t('vc.untitledBoard', locale);
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -120,7 +124,7 @@ function EditableBoardName({ board }: { board: Board | null }) {
     <button
       onClick={() => setIsEditing(true)}
       className="rounded-md px-1.5 py-0.5 text-sm font-semibold hover:bg-muted transition-colors text-left max-w-[200px] truncate"
-      title="Click to edit board name"
+      title={t('vc.clickToEditName', locale)}
     >
       {displayName}
     </button>
@@ -130,6 +134,7 @@ function EditableBoardName({ board }: { board: Board | null }) {
 // ─── Branch Selector ─────────────────────────────────────────────────────────
 
 function BranchSelector() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const [open, setOpen] = useState(false);
   const branches = useVersionStore((s) => s.branches);
   const currentBranchId = useVersionStore((s) => s.currentBranchId);
@@ -179,7 +184,7 @@ function BranchSelector() {
   );
 
   const handleCreateBranch = useCallback(() => {
-    const name = prompt('Enter branch name:');
+    const name = prompt(t('vc.enterBranchName', locale));
     if (!name || !currentBoardId) return;
 
     fetch('/api/branches', {
@@ -209,14 +214,14 @@ function BranchSelector() {
           className="h-8 gap-1.5 text-xs font-mono"
         >
           <GitBranch className="h-3.5 w-3.5" />
-          {currentBranch?.name ?? 'no branch'}
+          {currentBranch?.name ?? t('vc.noBranch', locale)}
           <ChevronDown className="h-3 w-3 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-[200px]">
         <DropdownMenuItem onClick={handleCreateBranch} className="gap-2">
           <Plus className="h-3.5 w-3.5" />
-          Create new branch...
+          {t('vc.createNewBranch', locale)}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         {branches.map((branch) => {
@@ -237,7 +242,7 @@ function BranchSelector() {
               </span>
               {branch.isDefault && (
                 <Badge variant="secondary" className="ml-auto h-4 px-1 text-[9px]">
-                  default
+                  {t('vc.defaultBadge', locale)}
                 </Badge>
               )}
             </DropdownMenuItem>
@@ -251,6 +256,7 @@ function BranchSelector() {
 // ─── Export Dropdown ─────────────────────────────────────────────────────────
 
 function ExportDropdown() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const elements = useCanvasStore((s) => s.elements);
 
   const handleExport = useCallback(
@@ -290,7 +296,7 @@ function ExportDropdown() {
               <TooltipTrigger asChild>
                 <Download className="h-4 w-4" />
               </TooltipTrigger>
-              <TooltipContent>Export</TooltipContent>
+              <TooltipContent>{t("vc.export", locale)}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </Button>
@@ -298,16 +304,16 @@ function ExportDropdown() {
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => handleExport('png')} className="gap-2">
           <FileImage className="h-4 w-4" />
-          Export as PNG
+          {t('vc.exportAsPNG', locale)}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handleExport('svg')} className="gap-2">
           <FileCode2 className="h-4 w-4" />
-          Export as SVG
+          {t('vc.exportAsSVG', locale)}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => handleExport('json')} className="gap-2">
           <FileJson className="h-4 w-4" />
-          Export as JSON
+          {t('vc.exportAsJSON', locale)}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -363,6 +369,7 @@ function PresenceIndicators() {
 // ─── Main Topbar ─────────────────────────────────────────────────────────────
 
 export function EditorTopbar({ board }: { board: Board | null }) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const toggleRightPanel = useAppStore((s) => s.toggleRightPanel);
   const rightPanelOpen = useAppStore((s) => s.rightPanelOpen);
   const closeBoard = useAppStore((s) => s.closeBoard);
@@ -396,7 +403,7 @@ export function EditorTopbar({ board }: { board: Board | null }) {
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Back to dashboard</TooltipContent>
+              <TooltipContent>{t("editor.backToDashboard", locale)}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
@@ -416,7 +423,7 @@ export function EditorTopbar({ board }: { board: Board | null }) {
           {openMRCount > 0 && (
             <Badge variant="secondary" className="h-5 px-1.5 text-[10px] gap-1">
               <GitCommitHorizontal className="h-3 w-3" />
-              {openMRCount} MR{openMRCount !== 1 ? 's' : ''}
+              {t('vc.mrCount', locale, { n: openMRCount })}
             </Badge>
           )}
         </div>
@@ -434,10 +441,10 @@ export function EditorTopbar({ board }: { board: Board | null }) {
                   className="h-8 gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs"
                 >
                   <Save className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Commit</span>
+                  <span className="hidden sm:inline">{t("editor.commit", locale)}</span>
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Commit changes (Ctrl+K)</TooltipContent>
+              <TooltipContent>{t("vc.commitChanges", locale)}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
@@ -450,7 +457,7 @@ export function EditorTopbar({ board }: { board: Board | null }) {
                   <Share2 className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Share board</TooltipContent>
+              <TooltipContent>{t("vc.shareBoard", locale)}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
@@ -461,7 +468,7 @@ export function EditorTopbar({ board }: { board: Board | null }) {
                   <Settings className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Board settings</TooltipContent>
+              <TooltipContent>{t("vc.boardSettings", locale)}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
@@ -477,7 +484,7 @@ export function EditorTopbar({ board }: { board: Board | null }) {
                   <PanelRight className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Toggle panel</TooltipContent>
+              <TooltipContent>{t("vc.togglePanel", locale)}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>

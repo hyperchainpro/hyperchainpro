@@ -1,5 +1,7 @@
 'use client';
 
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Wand2, Palette, Loader2, Send } from 'lucide-react';
@@ -63,6 +65,7 @@ const PROMPT_SUGGESTIONS = [
 // ─── Hook ─────────────────────────────────────────────────────────────────
 
 export function useAIDesign() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const [dialogOpen, setDialogOpen] = useState(false);
   const [agentId, setAgentId] = useState<string | undefined>();
   const [agentName, setAgentName] = useState<string | undefined>();
@@ -96,6 +99,7 @@ export function useAIDesign() {
 // ─── Generating Animation ─────────────────────────────────────────────────
 
 function GeneratingAnimation() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   return (
     <div className="flex flex-col items-center justify-center py-8 gap-4">
       <motion.div
@@ -109,7 +113,7 @@ function GeneratingAnimation() {
       </motion.div>
       <div className="text-center space-y-2">
         <p className="text-sm font-semibold text-foreground">
-          Generating your design...
+          {t('ai.generatingDesign', locale)}
         </p>
         <motion.div
           className="flex gap-1 justify-center"
@@ -134,7 +138,7 @@ function GeneratingAnimation() {
           />
         </motion.div>
         <p className="text-xs text-muted-foreground">
-          AI is crafting elements and layout
+          t('ai.craftingElements', locale)
         </p>
       </div>
     </div>
@@ -195,10 +199,10 @@ export function AIDesignDialog({
         setStyle('');
         setColorScheme('');
       } else {
-        throw new Error('No elements were generated');
+        throw new Error(t('ai.noElementsGenerated', locale));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+      setError(err instanceof Error ? err.message : t('common.error', locale));
     } finally {
       setIsGenerating(false);
     }
@@ -232,17 +236,17 @@ export function AIDesignDialog({
               </div>
               <div>
                 <DialogTitle className="text-white text-lg">
-                  {agentName ? `AI Design: ${agentName}` : 'AI Design Generator'}
+                  {agentName ? `AI Design: ${agentName}` : t('ai.designGenerator', locale)}
                 </DialogTitle>
                 <DialogDescription className="text-white/70 text-xs mt-0.5">
-                  Describe your design and watch it come to life
+                  {t('ai.describeAndGenerate', locale)}
                 </DialogDescription>
               </div>
             </div>
           </DialogHeader>
           {agentName && (
             <Badge className="absolute top-6 right-6 bg-white/20 text-white border-white/30 backdrop-blur-sm text-xs">
-              Agent Mode
+              {t('ai.agent', locale)} Mode
             </Badge>
           )}
         </div>
@@ -269,11 +273,11 @@ export function AIDesignDialog({
               {/* Prompt Input */}
               <div className="space-y-2">
                 <Label htmlFor="ai-prompt" className="text-sm font-medium">
-                  Describe your design
+                  {t('ai.describeDesign', locale)}
                 </Label>
                 <Textarea
                   id="ai-prompt"
-                  placeholder="e.g. A modern SaaS dashboard with sidebar navigation, KPI metric cards at the top, and a large chart area below..."
+                  placeholder={t('ai.promptPlaceholder', locale)}
                   className="min-h-[100px] resize-none text-sm"
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
@@ -281,14 +285,14 @@ export function AIDesignDialog({
                   disabled={isGenerating}
                 />
                 <p className="text-[11px] text-muted-foreground">
-                  Press <kbd className="px-1.5 py-0.5 rounded bg-muted text-[10px] font-mono">⌘+Enter</kbd> to generate
+                  <kbd className="px-1.5 py-0.5 rounded bg-muted text-[10px] font-mono">⌘+Enter</kbd> {t("ai.pressKeyToGenerate", locale)}
                 </p>
               </div>
 
               {/* Suggestions */}
               {!agentId && prompt.trim().length === 0 && (
                 <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground">Quick suggestions</Label>
+                  <Label className="text-xs text-muted-foreground">{t("ai.quickSuggestions", locale)}</Label>
                   <div className="flex flex-wrap gap-1.5">
                     {PROMPT_SUGGESTIONS.slice(0, 3).map((s) => (
                       <button
@@ -308,11 +312,11 @@ export function AIDesignDialog({
                 <div className="space-y-2">
                   <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
                     <Wand2 className="w-3 h-3" />
-                    Style Preset
+                    t('ai.stylePreset', locale)
                   </Label>
                   <Select value={style} onValueChange={setStyle}>
                     <SelectTrigger className="w-full h-9 text-sm">
-                      <SelectValue placeholder="Auto" />
+                      <SelectValue placeholder={t('ai.auto', locale)} />
                     </SelectTrigger>
                     <SelectContent>
                       {STYLE_OPTIONS.map((opt) => (
@@ -333,7 +337,7 @@ export function AIDesignDialog({
                   </Label>
                   <Select value={colorScheme} onValueChange={setColorScheme}>
                     <SelectTrigger className="w-full h-9 text-sm">
-                      <SelectValue placeholder="Auto" />
+                      <SelectValue placeholder={t('ai.auto', locale)} />
                     </SelectTrigger>
                     <SelectContent>
                       {COLOR_OPTIONS.map((opt) => (
@@ -374,7 +378,7 @@ export function AIDesignDialog({
                   disabled={isGenerating}
                   className="mr-2"
                 >
-                  Cancel
+                  {t('common.cancel', locale)}
                 </Button>
                 <Button
                   onClick={handleGenerate}
@@ -386,7 +390,7 @@ export function AIDesignDialog({
                   ) : (
                     <Sparkles className="w-4 h-4 mr-2" />
                   )}
-                  {isGenerating ? 'Generating...' : 'Generate Design'}
+                  {isGenerating ? t('ai.generating', locale) : t('ai.generateDesign', locale)}
                 </Button>
               </DialogFooter>
             </motion.div>

@@ -1,5 +1,7 @@
 'use client';
 
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import React, { useCallback, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -339,6 +341,7 @@ function getViewportCenter() {
 }
 
 export function WireframeKit() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const [search, setSearch] = React.useState('');
 
   const filtered = WIREFRAME_TEMPLATES.filter(
@@ -375,7 +378,7 @@ export function WireframeKit() {
       <div className="relative p-3 pb-2">
         <Search className="absolute left-6 top-[22px] h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search wireframes..."
+          placeholder={t("wireframe.searchWireframes", locale)}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className={`pl-9 ${NEU_INSET} border-neutral-200/40 dark:border-neutral-700/30`}
@@ -417,7 +420,7 @@ export function WireframeKit() {
         {filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
             <Search className="h-8 w-8 mb-2 opacity-40" />
-            <p className="text-sm">No wireframes found</p>
+            <p className="text-sm">{t("wireframe.noWireframes", locale)}</p>
           </div>
         )}
       </ScrollArea>

@@ -6,6 +6,8 @@ import { useCanvasStore } from '@/store/canvas-store';
 import { useComponentStore } from '@/store/component-store';
 import { DEVICE_TEMPLATES, getDevicesByCategory, createFrameFromDevice } from '@/lib/device-templates';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import type { DeviceTemplate, ElementType } from '@/lib/types';
@@ -45,13 +47,13 @@ const TEXT_STYLE_PRESETS = [
 
 const CATEGORY_CONFIG: {
   key: DeviceTemplate['category'];
-  label: string;
+  i18nKey: string;
   icon: React.ElementType;
 }[] = [
-  { key: 'phone', label: 'Phone', icon: Smartphone },
-  { key: 'tablet', label: 'Tablet', icon: Tablet },
-  { key: 'desktop', label: 'Desktop', icon: Monitor },
-  { key: 'presentation', label: 'Presentation', icon: Presentation },
+  { key: 'phone', i18nKey: 'assets.phone', icon: Smartphone },
+  { key: 'tablet', i18nKey: 'assets.tablet', icon: Tablet },
+  { key: 'desktop', i18nKey: 'assets.desktop', icon: Monitor },
+  { key: 'presentation', i18nKey: 'assets.presentation', icon: Presentation },
 ];
 
 // ─── Helper: add frame at viewport center ─────────────────────────────────────
@@ -74,15 +76,16 @@ function addFrameAtCenter(template: DeviceTemplate) {
 // ─── Components Tab ───────────────────────────────────────────────────────────
 
 function ComponentsTab() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const components = useComponentStore((s) => s.components);
 
   if (components.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-32 text-xs text-muted-foreground gap-2 px-4">
         <Package className="size-6 opacity-40" />
-        <span className="text-center">No components yet</span>
+        <span className="text-center">{t('assets.noComponents', locale)}</span>
         <span className="text-[10px] opacity-60 text-center">
-          Select elements and use &quot;Create Component&quot; to save them here
+          {t('assets.createComponentHint', locale)}
         </span>
       </div>
     );
@@ -134,10 +137,11 @@ function ComponentsTab() {
 // ─── Frames Tab ───────────────────────────────────────────────────────────────
 
 function FramesTab() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   return (
     <ScrollArea className="h-full">
       <div className="p-2 flex flex-col gap-4">
-        {CATEGORY_CONFIG.map(({ key, label, icon: CategoryIcon }) => {
+        {CATEGORY_CONFIG.map(({ key, i18nKey, icon: CategoryIcon }) => {
           const devices = getDevicesByCategory(key);
           if (devices.length === 0) return null;
           return (
@@ -145,7 +149,7 @@ function FramesTab() {
               <div className="flex items-center gap-1.5 px-1 mb-2">
                 <CategoryIcon className="size-3.5 text-muted-foreground" />
                 <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                  {label}
+                  {t(i18nKey, locale)}
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -191,6 +195,7 @@ function FramesTab() {
 // ─── Styles Tab ───────────────────────────────────────────────────────────────
 
 function StylesTab() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const addTextElement = useCallback((preset: (typeof TEXT_STYLE_PRESETS)[number]) => {
     const { panX, panY, zoom } = useCanvasStore.getState();
     const viewportW = window.innerWidth;
@@ -250,7 +255,7 @@ function StylesTab() {
           <div className="flex items-center gap-1.5 px-1 mb-2">
             <Palette className="size-3.5 text-muted-foreground" />
             <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              Colors
+              {t('assets.colors', locale)}
             </span>
           </div>
           <div className="grid grid-cols-6 gap-1.5">
@@ -283,7 +288,7 @@ function StylesTab() {
           <div className="flex items-center gap-1.5 px-1 mb-2">
             <TypeIcon className="size-3.5 text-muted-foreground" />
             <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              Text Styles
+              {t('assets.textStyles', locale)}
             </span>
           </div>
           <div className="flex flex-col gap-1">
@@ -322,6 +327,7 @@ function StylesTab() {
 // ─── Main Assets Panel ────────────────────────────────────────────────────────
 
 export function AssetsPanel() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   return (
     <div className="flex flex-col h-full">
       {/* Neumorphic tab header */}
@@ -338,19 +344,19 @@ export function AssetsPanel() {
                 value="components"
                 className="flex-1 h-7 text-[11px] rounded-lg data-[state=active]:bg-accent data-[state=active]:shadow-sm"
               >
-                Components
+                {t('assets.components', locale)}
               </TabsTrigger>
               <TabsTrigger
                 value="frames"
                 className="flex-1 h-7 text-[11px] rounded-lg data-[state=active]:bg-accent data-[state=active]:shadow-sm"
               >
-                Frames
+                {t('assets.frames', locale)}
               </TabsTrigger>
               <TabsTrigger
                 value="styles"
                 className="flex-1 h-7 text-[11px] rounded-lg data-[state=active]:bg-accent data-[state=active]:shadow-sm"
               >
-                Styles
+                {t('assets.styles', locale)}
               </TabsTrigger>
             </TabsList>
 

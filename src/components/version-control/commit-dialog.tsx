@@ -15,11 +15,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import { useVersionStore } from '@/store/version-store';
 import { useCanvasStore } from '@/store/canvas-store';
 import { useAppStore } from '@/store/app-store';
 
 export function CommitDialog() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const [message, setMessage] = useState('');
   const [tag, setTag] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -47,7 +50,7 @@ export function CommitDialog() {
 
   const handleGenerateMessage = useCallback(async () => {
     if (elements.length === 0) {
-      setError('No elements to generate a message for');
+      setError(t('vc.noElementsToGenerate', locale));
       return;
     }
     setIsGenerating(true);
@@ -65,7 +68,7 @@ export function CommitDialog() {
       const data = await res.json();
       setMessage(data.message || '');
     } catch {
-      setError('Failed to generate commit message. Please write one manually.');
+      setError(t('vc.failedToGenerateCommitMessage', locale));
     } finally {
       setIsGenerating(false);
     }
@@ -73,11 +76,11 @@ export function CommitDialog() {
 
   const handleCommit = useCallback(async () => {
     if (message.trim().length < 3) {
-      setError('Commit message must be at least 3 characters');
+      setError(t('vc.commitMinChars', locale));
       return;
     }
     if (!currentBoardId || !currentBranchId) {
-      setError('No board or branch selected');
+      setError(t('vc.noBoardOrBranch', locale));
       return;
     }
     setIsCommitting(true);
@@ -99,7 +102,7 @@ export function CommitDialog() {
       addCommit(commit);
       handleClose();
     } catch {
-      setError('Failed to create commit. Please try again.');
+      setError(t('vc.failedToCreateCommitRetry', locale));
       setIsCommitting(false);
     }
   }, [message, tag, currentBoardId, currentBranchId, elements, addCommit, handleClose, setIsCommitting]);
@@ -110,9 +113,9 @@ export function CommitDialog() {
     <Dialog open={commitDialogOpen} onOpenChange={(open) => { if (!open) handleClose(); }}>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle>Create Commit</DialogTitle>
+          <DialogTitle>{t("vc.createCommit", locale)}</DialogTitle>
           <DialogDescription>
-            Save your current work as a new version on this branch.
+            {t("vc.saveDesc", locale)}
           </DialogDescription>
         </DialogHeader>
 
@@ -120,25 +123,25 @@ export function CommitDialog() {
           {/* Branch & changes info */}
           <div className="flex items-center gap-3 text-sm">
             <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">Branch:</span>
+              <span className="text-muted-foreground">{t("vc.branchLabel", locale)}</span>
               <Badge variant="outline" className="font-mono">
-                {currentBranch?.name ?? 'unknown'}
+                {currentBranch?.name ?? t('vc.noAuthor', locale)}
               </Badge>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">Changes:</span>
-              <Badge variant="secondary">{changeCount} elements</Badge>
+              <span className="text-muted-foreground">{t("vc.changes", locale)}</span>
+              <Badge variant="secondary">{changeCount} {t("vc.elements", locale)}</Badge>
             </div>
           </div>
 
           {/* Commit message */}
           <div className="space-y-2">
             <label htmlFor="commit-message" className="text-sm font-medium">
-              Commit message <span className="text-destructive">*</span>
+              {t("vc.commitMessage", locale)} <span className="text-destructive">*</span>
             </label>
             <Textarea
               id="commit-message"
-              placeholder="Describe what changed in this commit..."
+              placeholder={t("vc.commitPlaceholder", locale)}
               value={message}
               onChange={(e) => {
                 setMessage(e.target.value);
@@ -150,7 +153,7 @@ export function CommitDialog() {
             />
             <div className="flex items-center justify-between">
               <p className="text-xs text-muted-foreground">
-                {message.length < 3 ? `Min 3 characters (${message.length}/3)` : `${message.length} characters`}
+                {message.length < 3 ? t('vc.minChars', locale, { n: message.length }) : t('vc.charCount', locale, { n: message.length })}
               </p>
               <Button
                 type="button"
@@ -165,7 +168,7 @@ export function CommitDialog() {
                 ) : (
                   <Sparkles className="h-3.5 w-3.5" />
                 )}
-                Generate with AI
+                {t('vc.generateWithAI', locale)}
               </Button>
             </div>
           </div>
@@ -173,11 +176,11 @@ export function CommitDialog() {
           {/* Tag */}
           <div className="space-y-2">
             <label htmlFor="commit-tag" className="text-sm font-medium">
-              Tag <span className="text-muted-foreground">(optional)</span>
+              {t('commit.tag', locale)} <span className="text-muted-foreground">{t('vc.optional', locale)}</span>
             </label>
             <Input
               id="commit-tag"
-              placeholder="e.g. v1.0, milestone, release"
+              placeholder={t('vc.tagPlaceholder', locale)}
               value={tag}
               onChange={(e) => setTag(e.target.value)}
               disabled={isCommitting || isGenerating}
@@ -197,7 +200,7 @@ export function CommitDialog() {
             onClick={handleClose}
             disabled={isCommitting}
           >
-            Cancel
+            {t('common.cancel', locale)}
           </Button>
           <Button
             onClick={handleCommit}
@@ -207,7 +210,7 @@ export function CommitDialog() {
             {isCommitting ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : null}
-            Create Commit
+            {t('commit.create', locale)}
           </Button>
         </DialogFooter>
       </DialogContent>

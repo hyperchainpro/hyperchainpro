@@ -13,10 +13,13 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { GitBranch, Loader2 } from 'lucide-react';
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import { useVersionStore } from '@/store/version-store';
 import { useAppStore } from '@/store/app-store';
 
 export function BranchDialog() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [isCreating, setIsCreating] = useState(false);
@@ -36,19 +39,19 @@ export function BranchDialog() {
   const handleCreate = useCallback(async () => {
     const trimmed = name.trim();
     if (!trimmed) {
-      setError('Branch name is required');
+      setError(t('vc.branchNameRequired', locale));
       return;
     }
     if (!/^[a-zA-Z0-9._-]+$/.test(trimmed)) {
-      setError('Only letters, numbers, dots, hyphens, and underscores allowed');
+      setError(t('vc.branchNameInvalid', locale));
       return;
     }
     if (branches.some((b) => b.name === trimmed)) {
-      setError('A branch with this name already exists');
+      setError(t('vc.branchNameExists', locale));
       return;
     }
     if (!currentBoardId) {
-      setError('No board selected');
+      setError(t('vc.noBoardSelected', locale));
       return;
     }
 
@@ -68,7 +71,7 @@ export function BranchDialog() {
       createBranch(branch);
       handleClose();
     } catch {
-      setError('Failed to create branch. Please try again.');
+      setError(t('vc.failedToCreateBranchRetry', locale));
     } finally {
       setIsCreating(false);
     }
@@ -80,21 +83,21 @@ export function BranchDialog() {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <GitBranch className="h-5 w-5" />
-            Create Branch
+            {t('branch.create', locale)}
           </DialogTitle>
           <DialogDescription>
-            Create a new branch to work on changes independently.
+            {t('vc.createBranchDesc', locale)}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
           <div className="space-y-2">
             <label htmlFor="branch-name" className="text-sm font-medium">
-              Branch name <span className="text-destructive">*</span>
+              {t('vc.branchName', locale)} <span className="text-destructive">*</span>
             </label>
             <Input
               id="branch-name"
-              placeholder="e.g. feature/new-layout"
+              placeholder={t('vc.branchNamePlaceholder', locale)}
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
@@ -113,7 +116,7 @@ export function BranchDialog() {
           </div>
 
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>Based on:</span>
+            <span>{t("vc.basedOn", locale)}</span>
             <Badge variant="outline" className="font-mono">main</Badge>
           </div>
         </div>
@@ -124,7 +127,7 @@ export function BranchDialog() {
             onClick={handleClose}
             disabled={isCreating}
           >
-            Cancel
+            {t('common.cancel', locale)}
           </Button>
           <Button
             onClick={handleCreate}
@@ -132,7 +135,7 @@ export function BranchDialog() {
             className="gap-1.5"
           >
             {isCreating && <Loader2 className="h-4 w-4 animate-spin" />}
-            Create Branch
+            {t('branch.create', locale)}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -88,7 +88,7 @@ const PROMPT_SUGGESTIONS = [
 
 // ─── Generating Animation ─────────────────────────────────────────────────
 
-function GeneratingAnimation({ agentName }: { agentName?: string }) {
+function GeneratingAnimation({ agentName, locale }: { agentName?: string; locale: Locale }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -107,12 +107,12 @@ function GeneratingAnimation({ agentName }: { agentName?: string }) {
       </motion.div>
       <div className="text-center space-y-3">
         <p className="text-lg font-semibold text-foreground">
-          Generating your design...
+          {t('ai.generatingDesign', locale)}
         </p>
         <p className="text-sm text-muted-foreground">
           {agentName
-            ? `${agentName} is crafting elements and layout`
-            : 'AI is crafting elements and layout'}
+            ? `${agentName} ${t('ai.craftingElements', locale)}`
+            : `AI ${t('ai.craftingElements', locale)}`}
         </p>
         <motion.div
           className="flex gap-1.5 justify-center"
@@ -185,7 +185,7 @@ function GenerationSummary({
           {t('ai.designGenerated', locale) || 'Design Generated!'}
         </h3>
         <p className="text-sm text-muted-foreground">
-          {boardName} — {totalElements} elements created{agentName ? ` with ${agentName}` : ''}
+          {boardName} — {totalElements} {t('ai.elementsCreated', locale)}{agentName ? ` ${t('ai.withAgent', locale, { name: agentName })}` : ''}
         </p>
       </div>
 
@@ -202,14 +202,14 @@ function GenerationSummary({
       {/* Actions */}
       <div className="flex gap-3">
         <Button variant="outline" onClick={onStartOver}>
-          {t('common.startOver', locale) || 'Start Over'}
+          {t('ai.startOver', locale)}
         </Button>
         <Button
           onClick={onOpenInEditor}
           className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg shadow-purple-500/20"
         >
           <Sparkles className="w-4 h-4 mr-2" />
-          {t('ai.openInEditor', locale) || 'Open in Editor'}
+          {t('ai.openInEditor', locale)}
         </Button>
       </div>
     </motion.div>
@@ -222,10 +222,12 @@ function AgentCard({
   agent,
   isSelected,
   onSelect,
+  locale,
 }: {
   agent: AIAgent;
   isSelected: boolean;
   onSelect: () => void;
+  locale: Locale;
 }) {
   return (
     <motion.button
@@ -250,7 +252,7 @@ function AgentCard({
             <span className="text-sm font-semibold truncate">{agent.name}</span>
             {agent.isBuiltIn && (
               <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                Built-in
+                {t('ai.builtIn', locale)}
               </Badge>
             )}
           </div>
@@ -259,7 +261,7 @@ function AgentCard({
           </p>
           {agent.usageCount > 0 && (
             <p className="text-[10px] text-muted-foreground/70 mt-1">
-              {agent.usageCount} uses
+              {agent.usageCount} {t('ai.uses', locale)}
             </p>
           )}
         </div>
@@ -434,10 +436,10 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
           </div>
           <div>
             <h1 className="text-sm font-semibold leading-none">
-              {t('ai.aiDesign', locale) || 'AI Design'}
+              {t('ai.aiDesign', locale)}
             </h1>
             <p className="text-[11px] text-muted-foreground mt-0.5 hidden sm:block">
-              {t('ai.describeAndGenerate', locale) || 'Describe your design and let AI create it'}
+              {t('ai.describeAndGenerate', locale)}
             </p>
           </div>
         </div>
@@ -459,7 +461,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
           <div className="p-4 pb-3">
             <h2 className="text-sm font-semibold flex items-center gap-2">
               <Bot className="w-4 h-4 text-muted-foreground" />
-              AI Agents
+              {t('ai.agents', locale)}
             </h2>
           </div>
 
@@ -469,7 +471,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search agents..."
+                placeholder={t('ai.searchAgents', locale)}
                 value={agentSearch}
                 onChange={(e) => setAgentSearch(e.target.value)}
                 className="w-full h-8 pl-8 pr-3 text-sm bg-background border rounded-lg focus:outline-none focus:ring-1 focus:ring-ring"
@@ -489,8 +491,8 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                 <AgentCard
                   agent={{
                     id: '',
-                    name: 'Default AI',
-                    description: 'Use the standard AI design generator with no specialized agent.',
+                    name: t('ai.defaultAI', locale),
+                    description: t('ai.defaultAIDesc', locale),
                     icon: '🤖',
                     color: '#8B5CF6',
                     isBuiltIn: true,
@@ -498,6 +500,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                   }}
                   isSelected={selectedAgent === null}
                   onSelect={() => setSelectedAgent(null)}
+                  locale={locale}
                 />
 
                 {filteredAgents.map((agent) => (
@@ -506,6 +509,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                     agent={agent}
                     isSelected={selectedAgent?.id === agent.id}
                     onSelect={() => setSelectedAgent(agent)}
+                    locale={locale}
                   />
                 ))}
 
@@ -532,9 +536,10 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                     agentName={selectedAgent?.name}
                     onOpenInEditor={handleOpenInEditor}
                     onStartOver={handleStartOver}
+                    locale={locale}
                   />
                 ) : isGenerating ? (
-                  <GeneratingAnimation agentName={selectedAgent?.name} />
+                  <GeneratingAnimation agentName={selectedAgent?.name} locale={locale} />
                 ) : (
                   <motion.div
                     key="prompt-form"
@@ -547,7 +552,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                     <div className="md:hidden">
                       <Label className="text-sm font-medium mb-2 block flex items-center gap-1.5">
                         <Bot className="w-3.5 h-3.5 text-muted-foreground" />
-                        AI Agent
+                        {t('ai.agent', locale)}
                       </Label>
                       <Select
                         value={selectedAgent?.id || '__default__'}
@@ -561,10 +566,10 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                         }}
                       >
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Default AI" />
+                          <SelectValue placeholder={t('ai.defaultAI', locale)} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="__default__">🤖 Default AI</SelectItem>
+                          <SelectItem value="__default__">🤖 {t('ai.defaultAI', locale)}</SelectItem>
                           {agents.map((agent) => (
                             <SelectItem key={agent.id} value={agent.id}>
                               <span className="flex items-center gap-2">
@@ -581,11 +586,11 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                     <div className="space-y-2">
                       <Label htmlFor="ai-prompt-main" className="text-sm font-medium flex items-center gap-1.5">
                         <Wand2 className="w-3.5 h-3.5 text-muted-foreground" />
-                        {t('ai.describeDesign', locale) || 'Describe your design'}
+                        {t('ai.describeDesign', locale)}
                       </Label>
                       <Textarea
                         id="ai-prompt-main"
-                        placeholder="e.g. A modern SaaS dashboard with sidebar navigation, KPI metric cards at the top, and a large chart area below..."
+                        placeholder={t('ai.promptPlaceholder', locale)}
                         className="min-h-[140px] resize-none text-sm leading-relaxed"
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
@@ -593,11 +598,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                         disabled={isGenerating}
                       />
                       <p className="text-[11px] text-muted-foreground">
-                        Press{' '}
-                        <kbd className="px-1.5 py-0.5 rounded bg-muted text-[10px] font-mono">
-                          ⌘+Enter
-                        </kbd>{' '}
-                        to generate
+                        {t('ai.pressKeyToGenerate', locale)}
                       </p>
                     </div>
 
@@ -606,7 +607,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                       <div className="space-y-2">
                         <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
                           <Zap className="w-3 h-3" />
-                          {t('ai.quickSuggestions', locale) || 'Quick suggestions'}
+                          {t('ai.quickSuggestions', locale)}
                         </Label>
                         <div className="flex flex-col gap-1.5">
                           {PROMPT_SUGGESTIONS.map((s) => (
@@ -634,7 +635,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                       <div className="space-y-2">
                         <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
                           <Wand2 className="w-3 h-3" />
-                          {t('ai.stylePreset', locale) || 'Style Preset'}
+                          {t('ai.stylePreset', locale)}
                         </Label>
                         <div className="flex flex-wrap gap-1.5">
                           <button
@@ -645,7 +646,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                                 : 'border-border hover:border-border bg-card text-muted-foreground hover:text-foreground'
                             }`}
                           >
-                            Auto
+                            {t('ai.auto', locale)}
                           </button>
                           {STYLE_OPTIONS.map((opt) => (
                             <button
@@ -666,7 +667,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                       <div className="space-y-2">
                         <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
                           <Palette className="w-3 h-3" />
-                          {t('ai.colorScheme', locale) || 'Color Scheme'}
+                          {t('ai.colorScheme', locale)}
                         </Label>
                         <div className="flex flex-wrap gap-1.5">
                           <button
@@ -677,7 +678,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                                 : 'border-border hover:border-border bg-card text-muted-foreground hover:text-foreground'
                             }`}
                           >
-                            Auto
+                            {t('ai.auto', locale)}
                           </button>
                           {COLOR_OPTIONS.map((opt) => (
                             <button
@@ -726,7 +727,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                 <div className="flex-1 text-xs text-muted-foreground hidden sm:block truncate">
                   {prompt.trim()
                     ? prompt.trim().slice(0, 80) + (prompt.trim().length > 80 ? '...' : '')
-                    : t('ai.enterPromptToStart', locale) || 'Enter a prompt to start generating'}
+                    : t('ai.enterPromptToStart', locale)}
                 </div>
                 <Button
                   onClick={handleGenerate}
@@ -737,12 +738,12 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                   {isGenerating ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      {t('ai.generating', locale) || 'Generating...'}
+                      {t('ai.generating', locale)}
                     </>
                   ) : (
                     <>
                       <Sparkles className="w-4 h-4 mr-2" />
-                      {t('ai.generateDesign', locale) || 'Generate Design'}
+                      {t('ai.generateDesign', locale)}
                     </>
                   )}
                 </Button>
@@ -756,7 +757,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
           <div className="p-4 pb-3">
             <h2 className="text-sm font-semibold flex items-center gap-2">
               <Layers className="w-4 h-4 text-muted-foreground" />
-              Design Info
+              {t('ai.designInfo', locale)}
             </h2>
           </div>
 
@@ -765,7 +766,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
               {/* Selected Agent Info */}
               <div className="rounded-xl border bg-card p-4 space-y-3">
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Active Agent
+                  {t('ai.activeAgent', locale)}
                 </h3>
                 <div className="flex items-center gap-3">
                   <div
@@ -778,10 +779,10 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                   </div>
                   <div>
                     <p className="text-sm font-medium">
-                      {selectedAgent?.name || 'Default AI'}
+                      {selectedAgent?.name || t('ai.defaultAI', locale)}
                     </p>
                     <p className="text-[11px] text-muted-foreground">
-                      {selectedAgent?.description || 'Standard AI design generator'}
+                      {selectedAgent?.description || t('ai.standardAIDesc', locale)}
                     </p>
                   </div>
                 </div>
@@ -791,19 +792,19 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
               {(style || colorScheme) && (
                 <div className="rounded-xl border bg-card p-4 space-y-3">
                   <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Settings
+                    {t('ai.settings', locale)}
                   </h3>
                   {style && (
                     <div className="flex items-center gap-2 text-sm">
                       <Wand2 className="w-3.5 h-3.5 text-muted-foreground" />
-                      <span className="text-muted-foreground">Style:</span>
+                      <span className="text-muted-foreground">{t('ai.style', locale)}</span>
                       <span className="font-medium">{style}</span>
                     </div>
                   )}
                   {colorScheme && (
                     <div className="flex items-center gap-2 text-sm">
                       <Palette className="w-3.5 h-3.5 text-muted-foreground" />
-                      <span className="text-muted-foreground">Colors:</span>
+                      <span className="text-muted-foreground">{t('ai.colors', locale)}</span>
                       <span className="flex items-center gap-1.5 font-medium">
                         <span
                           className="w-3 h-3 rounded-full inline-block"
@@ -822,24 +823,24 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
               {/* Tips */}
               <div className="rounded-xl border bg-card p-4 space-y-3">
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Tips
+                  {t('ai.tips', locale)}
                 </h3>
                 <ul className="space-y-2 text-xs text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <Type className="w-3.5 h-3.5 mt-0.5 shrink-0 text-violet-500" />
-                    Be specific about layout, components, and visual style
+                    {t('ai.tip1', locale)}
                   </li>
                   <li className="flex items-start gap-2">
                     <Layers className="w-3.5 h-3.5 mt-0.5 shrink-0 text-violet-500" />
-                    Mention the type of page (dashboard, landing, mobile)
+                    {t('ai.tip2', locale)}
                   </li>
                   <li className="flex items-start gap-2">
                     <Palette className="w-3.5 h-3.5 mt-0.5 shrink-0 text-violet-500" />
-                    Use style and color presets for consistent results
+                    {t('ai.tip3', locale)}
                   </li>
                   <li className="flex items-start gap-2">
                     <Bot className="w-3.5 h-3.5 mt-0.5 shrink-0 text-violet-500" />
-                    Select a specialized agent for best results
+                    {t('ai.tip4', locale)}
                   </li>
                 </ul>
               </div>

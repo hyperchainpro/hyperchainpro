@@ -1,5 +1,7 @@
 'use client';
 
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import { useState, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -91,6 +93,7 @@ function getViewportCenter() {
 }
 
 export function IconBrowser() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const [search, setSearch] = useState('');
 
   const filtered = ICON_LIST.filter((icon) =>
@@ -145,7 +148,7 @@ export function IconBrowser() {
       <div className="relative p-3 pb-2">
         <Search className="absolute left-6 top-[22px] h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search icons..."
+          placeholder={t("icon.searchIcons", locale)}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className={`pl-9 ${NEU_INSET} border-neutral-200/40 dark:border-neutral-700/30`}
@@ -172,7 +175,7 @@ export function IconBrowser() {
         {filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
             <Search className="h-8 w-8 mb-2 opacity-40" />
-            <p className="text-sm">No icons found</p>
+            <p className="text-sm">{t("icon.noIcons", locale)}</p>
           </div>
         )}
       </ScrollArea>

@@ -3,6 +3,8 @@
 import React from 'react';
 import { AlertTriangle, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -33,6 +35,9 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
   render() {
     if (this.state.hasError) {
+      const user = useAuthStore.getState().user;
+      const locale = (user?.language as Locale) ?? 'en';
+
       return (
         <div className="flex min-h-screen w-full items-center justify-center bg-background">
           <div className="flex flex-col items-center gap-4 rounded-xl border bg-card p-8 shadow-lg max-w-md mx-4">
@@ -40,9 +45,9 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
               <AlertTriangle className="size-7 text-destructive" />
             </div>
             <div className="text-center space-y-2">
-              <h2 className="text-lg font-semibold">Something went wrong</h2>
+              <h2 className="text-lg font-semibold">{t('error.somethingWentWrong', locale)}</h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                An unexpected error occurred. Please try again.
+                {t('error.unexpectedError', locale)}
               </p>
               {this.state.error && (
                 <p className="text-xs text-muted-foreground font-mono bg-muted rounded-md px-3 py-2 mt-2 max-h-24 overflow-auto">
@@ -52,7 +57,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
             </div>
             <Button onClick={this.handleRetry} className="gap-2">
               <RotateCcw className="size-4" />
-              Retry
+              {t('error.retry', locale)}
             </Button>
           </div>
         </div>

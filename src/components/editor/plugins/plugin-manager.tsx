@@ -1,5 +1,7 @@
 'use client';
 
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import { useState } from 'react';
 import {
   Dialog,
@@ -162,6 +164,7 @@ export function PluginManager({
   open: boolean;
   onOpenChange: (v: boolean) => void;
 }) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const [search, setSearch] = useState('');
   const [plugins, setPlugins] = useState<BuiltInPlugin[]>(INITIAL_PLUGINS);
 
@@ -188,10 +191,10 @@ export function PluginManager({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-lg">
             <Package className="h-5 w-5" />
-            Plugin Manager
+            {t('plugin.title', locale)}
           </DialogTitle>
           <DialogDescription>
-            Browse and manage available plugins for your design workspace.
+            {t('plugin.description', locale)}
           </DialogDescription>
         </DialogHeader>
 
@@ -199,7 +202,7 @@ export function PluginManager({
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search plugins..."
+            placeholder={t("plugin.searchPlugins", locale)}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className={`pl-9 ${NEU_INSET} border-neutral-200/40 dark:border-neutral-700/30`}
@@ -247,7 +250,7 @@ export function PluginManager({
             {filtered.length === 0 && (
               <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                 <Search className="h-8 w-8 mb-2 opacity-40" />
-                <p className="text-sm">No plugins found</p>
+                <p className="text-sm">{t("plugin.noPlugins", locale)}</p>
               </div>
             )}
           </div>
@@ -256,16 +259,16 @@ export function PluginManager({
         {/* Footer */}
         <div className="flex items-center justify-between pt-2 border-t border-neutral-200/40 dark:border-neutral-700/30">
           <p className="text-xs text-muted-foreground">
-            {plugins.filter((p) => p.enabled).length} of {plugins.length} plugins active
+            {t('plugin.activeCount', locale, { active: plugins.filter((p) => p.enabled).length, total: plugins.length })}
           </p>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => toast.info('Plugin marketplace coming soon!')}
+            onClick={() => toast.info(t('plugin.marketplaceComingSoon', locale))}
             className={NEU_RAISED}
           >
             <Plus className="h-4 w-4" />
-            Install from URL
+            {t('plugin.installFromUrl', locale)}
           </Button>
         </div>
       </DialogContent>

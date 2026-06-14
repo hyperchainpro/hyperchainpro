@@ -26,28 +26,29 @@ import { CommunityCard, type CommunityDesignData } from './community-card';
 import { DesignDetailDialog } from './design-detail-dialog';
 import { UploadDesignDialog } from './upload-design-dialog';
 import { cn } from '@/lib/utils';
+import { t, type Locale } from '@/lib/i18n';import { useAuthStore } from '@/store/auth-store';
 
 // ─── Category tabs ───────────────────────────────────────────────────────────
 
 const CATEGORIES = [
-  { value: 'all', label: 'All' },
-  { value: 'mobile-ui', label: 'Mobile UI' },
-  { value: 'web-ui', label: 'Web UI' },
-  { value: 'wireframes', label: 'Wireframes' },
-  { value: 'dashboards', label: 'Dashboards' },
-  { value: 'icons', label: 'Icons' },
-  { value: 'illustrations', label: 'Illustrations' },
-  { value: 'templates', label: 'Templates' },
+  { value: 'all', labelKey: 'community.categoryAll' },
+  { value: 'mobile-ui', labelKey: 'community.categoryMobileUI' },
+  { value: 'web-ui', labelKey: 'community.categoryWebUI' },
+  { value: 'wireframes', labelKey: 'community.categoryWireframes' },
+  { value: 'dashboards', labelKey: 'community.categoryDashboards' },
+  { value: 'icons', labelKey: 'community.categoryIcons' },
+  { value: 'illustrations', labelKey: 'community.categoryIllustrations' },
+  { value: 'templates', labelKey: 'community.categoryTemplates' },
 ] as const;
 
 // ─── Sort options ────────────────────────────────────────────────────────────
 
 type SortOption = 'latest' | 'popular' | 'featured';
 
-const SORT_OPTIONS: { value: SortOption; label: string; icon: React.ElementType }[] = [
-  { value: 'latest', label: 'Latest', icon: Clock },
-  { value: 'popular', label: 'Most Popular', icon: TrendingUp },
-  { value: 'featured', label: 'Featured', icon: Star },
+const SORT_OPTIONS: { value: SortOption; labelKey: string; icon: React.ElementType }[] = [
+  { value: 'latest', labelKey: 'community.sortLatest', icon: Clock },
+  { value: 'popular', labelKey: 'community.sortPopular', icon: TrendingUp },
+  { value: 'featured', labelKey: 'community.sortFeatured', icon: Star },
 ];
 
 // ─── Animation variants ────────────────────────────────────────────────────────
@@ -79,6 +80,7 @@ interface CommunityBrowseProps {
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   // State
   const [designs, setDesigns] = useState<CommunityDesignData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -227,7 +229,7 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
                   size="icon"
                   onClick={onBack}
                   className="shrink-0"
-                  aria-label="Go back"
+                  aria-label={t('common.back', locale)}
                 >
                   <ArrowLeft className="size-5" />
                 </Button>
@@ -237,9 +239,9 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
                   <Users className="size-4" />
                 </div>
                 <div>
-                  <h1 className="text-lg font-bold tracking-tight leading-none">Community</h1>
+                  <h1 className="text-lg font-bold tracking-tight leading-none">{t("community.title", locale)}</h1>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {total > 0 ? `${total} designs shared by creators` : 'Browse and share designs'}
+                    {total > 0 ? t('community.designsShared', locale, { n: total }) : t('community.browseAndShare', locale)}
                   </p>
                 </div>
               </div>
@@ -257,8 +259,8 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
                 size="sm"
               >
                 <Upload className="size-4" />
-                <span className="hidden sm:inline">Share Your Work</span>
-                <span className="sm:hidden">Upload</span>
+                <span className="hidden sm:inline">{t("community.shareYourWork", locale)}</span>
+                <span className="sm:hidden">{t("community.uploadBtn", locale)}</span>
               </Button>
             </div>
           </div>
@@ -272,11 +274,11 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
           <div className="relative max-w-xl mb-3">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search designs, tags, creators..."
+              placeholder={t('community.searchPlaceholder', locale)}
               value={search}
               onChange={(e) => handleSearchChange(e.target.value)}
               className="pl-9 h-9 bg-background border-border/60 focus-visible:ring-1"
-              aria-label="Search community designs"
+              aria-label={t('community.searchCommunityDesigns', locale)}
             />
           </div>
 
@@ -291,7 +293,7 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
                       value={cat.value}
                       className="text-xs h-7 px-3 rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm"
                     >
-                      {cat.label}
+                      {t(cat.labelKey, locale)}
                     </TabsTrigger>
                   ))}
                 </TabsList>
@@ -314,7 +316,7 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
                     )}
                   >
                     <Icon className="size-3" />
-                    {opt.label}
+                    {t(opt.labelKey, locale)}
                   </Button>
                 );
               })}
@@ -324,7 +326,7 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
           {/* Mobile sort selector */}
           <div className="sm:hidden mt-3 flex items-center gap-2">
             <Filter className="size-4 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">Sort:</span>
+            <span className="text-xs text-muted-foreground">{t("community.sort", locale)}</span>
             <div className="flex items-center gap-1">
               {SORT_OPTIONS.map((opt) => (
                 <Button
@@ -334,7 +336,7 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
                   onClick={() => setSort(opt.value)}
                   className="text-xs h-7 px-2.5 rounded-md"
                 >
-                  {opt.label}
+                  {t(opt.labelKey, locale)}
                 </Button>
               ))}
             </div>
@@ -379,7 +381,7 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
                   {loading && (
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <div className="size-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                      <span className="text-sm">Loading more designs...</span>
+                      <span className="text-sm">{t("community.loadingMore", locale)}</span>
                     </div>
                   )}
                 </div>
@@ -392,8 +394,8 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
                     <Sparkles className="size-5" />
                     <p className="text-sm">
                       {designs.length === total
-                        ? `You've seen all ${total} designs!`
-                        : 'That\'s all for now.'}
+                        ? t('community.seenAllDesigns', locale, { n: total })
+                        : t('community.thatsAllForNow', locale)}
                     </p>
                   </div>
                 </div>
@@ -415,12 +417,12 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
               </div>
 
               <h2 className="text-lg font-semibold mb-2">
-                {search ? 'No designs found' : 'No designs yet'}
+                {search ? t('community.noDesignsFound', locale) : t('community.noDesignsYet', locale)}
               </h2>
               <p className="text-sm text-muted-foreground max-w-sm mb-6 leading-relaxed">
                 {search
-                  ? `No designs match "${search}". Try different keywords or browse by category.`
-                  : 'Be the first to share your design with the community! Your creativity could inspire others.'}
+                  ? t('community.noDesignsSearch', locale, { query: search })
+                  : t('community.beFirstToShare', locale)}
               </p>
 
               {search && (
@@ -429,7 +431,7 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
                   onClick={() => setSearch('')}
                   className="gap-2 rounded-lg"
                 >
-                  Clear search
+                  {t('community.clearSearch', locale)}
                 </Button>
               )}
 
@@ -442,7 +444,7 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
                   )}
                 >
                   <Upload className="size-4" />
-                  Share Your First Design
+                  {t('community.shareFirstDesign', locale)}
                 </Button>
               )}
             </motion.div>

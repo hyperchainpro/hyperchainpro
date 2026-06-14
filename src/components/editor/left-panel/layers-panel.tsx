@@ -30,6 +30,8 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import type { BoardElement, ElementType } from '@/lib/types';
 
 // ─── Type → Icon mapping ─────────────────────────────────────────────────────
@@ -213,6 +215,7 @@ function LayerRow({
   onRenameCommit: (name: string) => void;
   onRenameCancel: () => void;
 }) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const { element, depth, isFrame, childCount, typeIndex } = item;
   const { selectedIds, selectElement, updateElement, toggleLock } =
     useCanvasStore();
@@ -418,7 +421,7 @@ function LayerRow({
           </button>
         </TooltipTrigger>
         <TooltipContent side="right" sideOffset={8}>
-          {isHidden ? 'Show' : 'Hide'}
+          {isHidden ? t('layers.hide', locale) : t('layers.show', locale)}
         </TooltipContent>
       </Tooltip>
 
@@ -441,7 +444,7 @@ function LayerRow({
           </button>
         </TooltipTrigger>
         <TooltipContent side="right" sideOffset={8}>
-          {isLocked ? 'Unlock' : 'Lock'}
+          {isLocked ? t('layers.unlock', locale) : t('layers.lock', locale)}
         </TooltipContent>
       </Tooltip>
     </div>
@@ -451,6 +454,7 @@ function LayerRow({
 // ─── Main Layers Panel ───────────────────────────────────────────────────────
 
 export function LayersPanel() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const elements = useCanvasStore((s) => s.elements);
   const [expandedFrames, setExpandedFrames] = useState<Set<string>>(new Set());
   const [renamingId, setRenamingId] = useState<string | null>(null);
@@ -514,9 +518,9 @@ export function LayersPanel() {
     return (
       <div className="flex flex-col items-center justify-center h-32 text-xs text-muted-foreground gap-2">
         <Layers className="size-6 opacity-40" />
-        <span>No layers yet</span>
+        <span>{t('layers.noLayers', locale)}</span>
         <span className="text-[10px] opacity-60">
-          Add elements to the canvas
+          {t("layers.addElementsHint", locale)}
         </span>
       </div>
     );

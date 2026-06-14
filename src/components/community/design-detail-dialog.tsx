@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import type { CommunityDesignData } from './community-card';
 import { cn } from '@/lib/utils';
+import { t, type Locale } from '@/lib/i18n';import { useAuthStore } from '@/store/auth-store';
 
 // ─── Category gradient mapping ────────────────────────────────────────────────
 
@@ -26,15 +27,15 @@ const CATEGORY_GRADIENTS: Record<string, string> = {
   'general': 'from-slate-500 via-gray-500 to-zinc-500',
 };
 
-const CATEGORY_LABELS: Record<string, string> = {
-  'mobile-ui': 'Mobile UI',
-  'web-ui': 'Web UI',
-  'wireframes': 'Wireframes',
-  'dashboards': 'Dashboards',
-  'icons': 'Icons',
-  'illustrations': 'Illustrations',
-  'templates': 'Templates',
-  'general': 'General',
+const CATEGORY_LABEL_KEYS: Record<string, string> = {
+  'mobile-ui': 'community.categoryMobileUI',
+  'web-ui': 'community.categoryWebUI',
+  'wireframes': 'community.categoryWireframes',
+  'dashboards': 'community.categoryDashboards',
+  'icons': 'community.categoryIcons',
+  'illustrations': 'community.categoryIllustrations',
+  'templates': 'community.categoryTemplates',
+  'general': 'community.categoryGeneral',
 };
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -48,6 +49,7 @@ interface DesignDetailDialogProps {
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export function DesignDetailDialog({ designId, open, onOpenChange }: DesignDetailDialogProps) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const [design, setDesign] = useState<CommunityDesignData | null>(null);
   const [loading, setLoading] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -64,14 +66,14 @@ export function DesignDetailDialog({ designId, open, onOpenChange }: DesignDetai
       .then((r) => r.json())
       .then((data) => {
         if (data.error) {
-          toast.error('Failed to load design');
+          toast.error(t('community.failedToLoad', locale));
           setDesign(null);
         } else {
           setDesign(data);
         }
       })
       .catch(() => {
-        toast.error('Failed to load design');
+        toast.error(t('community.failedToLoad', locale));
         setDesign(null);
       })
       .finally(() => setLoading(false));
@@ -85,10 +87,10 @@ export function DesignDetailDialog({ designId, open, onOpenChange }: DesignDetai
         const data = await res.json();
         setDesign((prev) => prev ? { ...prev, likeCount: data.likeCount } : null);
         setLiked(true);
-        toast.success('Liked!');
+        toast.success(t('community.liked', locale));
       }
     } catch {
-      toast.error('Failed to like');
+      toast.error(t('community.failedToLike', locale));
     }
   }, [designId, liked]);
 
@@ -100,10 +102,10 @@ export function DesignDetailDialog({ designId, open, onOpenChange }: DesignDetai
       if (res.ok) {
         const data = await res.json();
         setDesign((prev) => prev ? { ...prev, downloadCount: data.downloadCount } : null);
-        toast.success('Download started!');
+        toast.success(t('community.downloadStarted', locale));
       }
     } catch {
-      toast.error('Failed to download');
+      toast.error(t('community.failedToDownload', locale));
     } finally {
       setDownloading(false);
     }
@@ -111,7 +113,7 @@ export function DesignDetailDialog({ designId, open, onOpenChange }: DesignDetai
 
   const handleShare = useCallback(async () => {
     if (!design) return;
-    const shareText = `Check out "${design.title}" on BranchBoard Community!`;
+    const shareText = t('community.shareText', locale, { title: design.title });
     if (navigator.share) {
       try {
         await navigator.share({ title: design.title, text: shareText });
@@ -120,27 +122,28 @@ export function DesignDetailDialog({ designId, open, onOpenChange }: DesignDetai
       }
     } else {
       await navigator.clipboard.writeText(shareText);
-      toast.success('Link copied to clipboard!');
+      toast.success(t('community.linkCopiedToast', locale));
     }
   }, [design]);
 
   const handleUseTemplate = useCallback(() => {
-    toast.success('Template copied! You can paste it into any board.');
+    toast.success(t('community.templateCopied', locale));
     onOpenChange(false);
   }, [onOpenChange]);
 
   const handleOpenEditor = useCallback(() => {
     if (!design?.boardId) {
-      toast.info('No source board available for this design.');
+      toast.info(t('community.noSourceBoard', locale));
       return;
     }
-    toast.success('Opening in editor...');
+    toast.success(t('community.openingInEditor', locale));
     onOpenChange(false);
     // In a real app, this would navigate to the editor with the board
   }, [design, onOpenChange]);
 
   const gradientClass = design ? (CATEGORY_GRADIENTS[design.category] || CATEGORY_GRADIENTS['general']) : '';
-  const categoryLabel = design ? (CATEGORY_LABELS[design.category] || design.category) : '';
+  const categoryLabelKey = design ? CATEGORY_LABEL_KEYS[design.category] : '';
+  const categoryLabel = categoryLabelKey ? t(categoryLabelKey, locale) : (design?.category || '');
   const tags = design?.tags ? design.tags.split(',').filter(Boolean) : [];
 
   return (
@@ -192,7 +195,7 @@ export function DesignDetailDialog({ designId, open, onOpenChange }: DesignDetai
                 {design.isFeatured && (
                   <div className="absolute top-3 left-3">
                     <Badge className="bg-amber-500 text-white border-0 gap-1 shadow-sm">
-                      ⭐ Featured
+                      ⭐ {t('community.featured', locale)}
                     </Badge>
                   </div>
                 )}
@@ -221,7 +224,7 @@ export function DesignDetailDialog({ designId, open, onOpenChange }: DesignDetai
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-sm font-medium">{design.userName || 'Anonymous'}</p>
+                      <p className="text-sm font-medium">{design.userName || t('community.anonymous', locale)}</p>
                       <p className="text-xs text-muted-foreground">
                         {new Date(design.createdAt).toLocaleDateString('en-US', {
                           month: 'short',
@@ -279,7 +282,7 @@ export function DesignDetailDialog({ designId, open, onOpenChange }: DesignDetai
                     )}
                   >
                     <Heart className={cn('size-4', liked && 'fill-current')} />
-                    {liked ? 'Liked' : 'Like'}
+                    {liked ? t('community.likedBtn', locale) : t('community.likeBtn', locale)}
                   </Button>
 
                   <Button
@@ -290,7 +293,7 @@ export function DesignDetailDialog({ designId, open, onOpenChange }: DesignDetai
                     className="gap-1.5 rounded-lg"
                   >
                     <Download className="size-4" />
-                    {downloading ? 'Downloading...' : 'Download'}
+                    {downloading ? t('community.downloading', locale) : t('community.downloadBtn', locale)}
                   </Button>
 
                   <Button
@@ -300,7 +303,7 @@ export function DesignDetailDialog({ designId, open, onOpenChange }: DesignDetai
                     className="gap-1.5 rounded-lg"
                   >
                     <Share2 className="size-4" />
-                    Share
+                    {t('community.shareBtn', locale)}
                   </Button>
 
                   {design.boardId && (
@@ -311,7 +314,7 @@ export function DesignDetailDialog({ designId, open, onOpenChange }: DesignDetai
                       className="gap-1.5 rounded-lg"
                     >
                       <ExternalLink className="size-4" />
-                      Open in Editor
+                      {t('community.openInEditorBtn', locale)}
                     </Button>
                   )}
 
@@ -321,7 +324,7 @@ export function DesignDetailDialog({ designId, open, onOpenChange }: DesignDetai
                     className="gap-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white border-0"
                   >
                     <Copy className="size-4" />
-                    Use as Template
+                    {t('community.useAsTemplate', locale)}
                   </Button>
                 </div>
               </div>
@@ -335,7 +338,7 @@ export function DesignDetailDialog({ designId, open, onOpenChange }: DesignDetai
               className="flex flex-col items-center justify-center p-12 text-center"
             >
               <User className="size-10 text-muted-foreground mb-3" />
-              <p className="text-sm text-muted-foreground">Design not found</p>
+              <p className="text-sm text-muted-foreground">{t("community.designNotFound", locale)}</p>
             </motion.div>
           )}
         </AnimatePresence>

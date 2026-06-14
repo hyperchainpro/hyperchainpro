@@ -20,6 +20,8 @@ import {
 import { useCanvasStore } from '@/store/canvas-store';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import {
   Collapsible,
   CollapsibleContent,
@@ -193,6 +195,7 @@ function Section({
 // ─── Main Design Panel ────────────────────────────────────────────────────────
 
 export function DesignPanel() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const elements = useCanvasStore((s) => s.elements);
   const selectedIds = useCanvasStore((s) => s.selectedIds);
   const updateElement = useCanvasStore((s) => s.updateElement);
@@ -249,7 +252,7 @@ export function DesignPanel() {
     <ScrollArea className="h-full">
       <div className="space-y-1 p-2">
         {/* ── Section 1: Position & Size ────────────────────────────────── */}
-        <Section title="Position & Size">
+        <Section title={t('design.positionSize', locale)}>
           <div className="grid grid-cols-2 gap-2">
             <TinyNumInput
               label="X"
@@ -276,7 +279,7 @@ export function DesignPanel() {
           </div>
           <div>
             <TinyNumInput
-              label="Rotation"
+              label={t('design.rotation', locale)}
               value={getUniformNumberValue(selectedElements, (el) => el.rotation)}
               onChange={(v) => updateAll({ rotation: v })}
               min={0}
@@ -288,7 +291,7 @@ export function DesignPanel() {
           {isFrame && (
             <>
               <div className="flex items-center justify-between">
-                <Label className="text-xs">Clip Content</Label>
+                <Label className="text-xs">{t("design.clipContent", locale)}</Label>
                 <button
                   className={cn(
                     'relative h-5 w-9 rounded-full transition-colors',
@@ -306,7 +309,7 @@ export function DesignPanel() {
               </div>
               {styles?.frameDevice && (
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] text-muted-foreground">Device:</span>
+                  <span className="text-[10px] text-muted-foreground">{t("design.device", locale)}</span>
                   <span className="text-xs font-medium">{styles.frameDevice}</span>
                 </div>
               )}
@@ -317,7 +320,7 @@ export function DesignPanel() {
         <Separator />
 
         {/* ── Section 2: Fill ───────────────────────────────────────────── */}
-        <Section title="Fill">
+        <Section title={t('design.fill', locale)}>
           {isText ? (
             <TextFillSection
               primary={primary}
@@ -337,7 +340,7 @@ export function DesignPanel() {
         <Separator />
 
         {/* ── Section 3: Stroke ─────────────────────────────────────────── */}
-        <Section title="Stroke">
+        <Section title={t('design.stroke', locale)}>
           <StrokeSection
             primary={primary}
             selectedIds={selectedIds}
@@ -349,7 +352,7 @@ export function DesignPanel() {
         <Separator />
 
         {/* ── Section 4: Effects ────────────────────────────────────────── */}
-        <Section title="Effects" defaultOpen={false}>
+        <Section title={t('design.effects', locale)} defaultOpen={false}>
           <EffectsSection
             primary={primary}
             selectedIds={selectedIds}
@@ -362,7 +365,7 @@ export function DesignPanel() {
         {/* ── Section 5: Typography (TEXT only) ──────────────────────────── */}
         {isText && (
           <>
-            <Section title="Typography">
+            <Section title={t('design.typography', locale)}>
               <TypographySection
                 primary={primary}
                 selectedIds={selectedIds}
@@ -376,7 +379,7 @@ export function DesignPanel() {
         {/* ── Section 6: Auto Layout (FRAME only) ───────────────────────── */}
         {isFrame && (
           <>
-            <Section title="Layout" defaultOpen={false}>
+            <Section title={t('design.layout', locale)} defaultOpen={false}>
               <AutoLayoutSection
                 primary={primary}
                 selectedIds={selectedIds}
@@ -389,7 +392,7 @@ export function DesignPanel() {
 
         {/* ── Section 7: Corner Radius (RECTANGLE / FRAME) ──────────────── */}
         {showCornerRadius && (
-          <Section title="Corner Radius">
+          <Section title={t('design.cornerRadius', locale)}>
             <CornerRadiusSection
               primary={primary}
               selectedIds={selectedIds}
@@ -415,6 +418,7 @@ function ShapeFillSection({
   updateAllStyles: (s: Record<string, unknown>) => void;
   toast: (opts: { title: string; description?: string }) => void;
 }) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const styles = primary.styles;
   const fills: Fill[] = (styles?.fills as Fill[]) ?? [];
 
@@ -477,7 +481,7 @@ function ShapeFillSection({
 
       <div className="space-y-1">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] text-muted-foreground">Opacity</span>
+          <span className="text-[10px] text-muted-foreground">{t("design.opacity", locale)}</span>
           <span className="text-[10px] text-muted-foreground">
             {Math.round(fillOpacity * 100)}%
           </span>
@@ -497,11 +501,11 @@ function ShapeFillSection({
         size="sm"
         className="h-7 w-full text-xs gap-1"
         onClick={() =>
-          toast({ title: 'Coming soon', description: 'Gradient fills coming soon' })
+          toast({ title: t('design.comingSoon', locale), description: t('design.gradientFillsComingSoon', locale) })
         }
       >
         <Plus className="h-3 w-3" />
-        Add Fill
+        {t('design.addFill', locale)}
       </Button>
     </div>
   );
@@ -518,6 +522,7 @@ function TextFillSection({
   selectedIds: string[];
   updateAllStyles: (s: Record<string, unknown>) => void;
 }) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const typography = primary.styles?.typography as TypographyStyles | undefined;
   const color = typography?.color ?? '#1F2937';
 
@@ -569,6 +574,7 @@ function StrokeSection({
   updateAllStyles: (s: Record<string, unknown>) => void;
   toast: (opts: { title: string; description?: string }) => void;
 }) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const styles = primary.styles;
   const strokes: Stroke[] = (styles?.strokes as Stroke[]) ?? [];
   const primaryStroke = strokes[0];
@@ -627,7 +633,7 @@ function StrokeSection({
 
       <div className="grid grid-cols-2 gap-2">
         <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] text-muted-foreground">Width</span>
+          <span className="text-[10px] text-muted-foreground">{t("design.width", locale)}</span>
           <TinyNumInput
             label=""
             value={strokeWidth}
@@ -637,7 +643,7 @@ function StrokeSection({
           />
         </div>
         <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] text-muted-foreground">Style</span>
+          <span className="text-[10px] text-muted-foreground">{t("design.style", locale)}</span>
           <Select
             value={strokeStyle}
             onValueChange={(v) =>
@@ -648,9 +654,9 @@ function StrokeSection({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="solid">Solid</SelectItem>
-              <SelectItem value="dashed">Dashed</SelectItem>
-              <SelectItem value="dotted">Dotted</SelectItem>
+              <SelectItem value="solid">{t('design.solid', locale)}</SelectItem>
+              <SelectItem value="dashed">{t('design.dashed', locale)}</SelectItem>
+              <SelectItem value="dotted">{t('design.dotted', locale)}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -661,11 +667,11 @@ function StrokeSection({
         size="sm"
         className="h-7 w-full text-xs gap-1"
         onClick={() =>
-          toast({ title: 'Coming soon', description: 'Multiple strokes coming soon' })
+          toast({ title: t('design.comingSoon', locale), description: t('design.multipleStrokesComingSoon', locale) })
         }
       >
         <Plus className="h-3 w-3" />
-        Add Stroke
+        t('design.addStroke', locale)
       </Button>
     </div>
   );
@@ -682,6 +688,7 @@ function EffectsSection({
   selectedIds: string[];
   updateAllStyles: (s: Record<string, unknown>) => void;
 }) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const styles = primary.styles;
   const shadows: ShadowEffect[] = (styles?.shadows as ShadowEffect[]) ?? [];
   const layerBlur = (styles?.blurs as { id: string; type: string; value: number; visible: boolean }[] ?? []).find(
@@ -733,7 +740,7 @@ function EffectsSection({
                 )}
               </button>
               <span className="text-[10px] font-medium">
-                {shadow.type === 'drop-shadow' ? 'Drop Shadow' : 'Inner Shadow'}
+                {shadow.type === 'drop-shadow' ? t('design.dropShadow', locale) : t('design.innerShadow', locale)}
               </span>
             </div>
             <button
@@ -773,13 +780,13 @@ function EffectsSection({
               onChange={(v) => updateShadow(shadow.id, { offsetY: v })}
             />
             <TinyNumInput
-              label="Blur"
+              label={t('design.blur', locale)}
               value={shadow.blur}
               onChange={(v) => updateShadow(shadow.id, { blur: v })}
               min={0}
             />
             <TinyNumInput
-              label="Spread"
+              label={t('design.spread', locale)}
               value={shadow.spread}
               onChange={(v) => updateShadow(shadow.id, { spread: v })}
             />
@@ -793,8 +800,8 @@ function EffectsSection({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="drop-shadow">Drop Shadow</SelectItem>
-              <SelectItem value="inner-shadow">Inner Shadow</SelectItem>
+              <SelectItem value="drop-shadow">{t('design.dropShadow', locale)}</SelectItem>
+              <SelectItem value="inner-shadow">{t('design.innerShadow', locale)}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -807,7 +814,7 @@ function EffectsSection({
         onClick={addShadow}
       >
         <Plus className="h-3 w-3" />
-        Add Effect
+        {t('design.addEffect', locale)}
       </Button>
 
       <Separator />
@@ -815,7 +822,7 @@ function EffectsSection({
       {/* Layer Blur */}
       <div className="space-y-1">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-medium">Layer Blur</span>
+          <span className="text-[10px] font-medium">{t("design.layerBlur", locale)}</span>
           <span className="text-[10px] text-muted-foreground">
             {layerBlur?.value ?? 0}
           </span>
@@ -883,8 +890,9 @@ function TypographySection({
   selectedIds: string[];
   updateAllStyles: (s: Record<string, unknown>) => void;
 }) {
-  const typography = primary.styles?.typography as TypographyStyles | undefined;
-  const t = typography ?? {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+  const typ = primary.styles?.typography as TypographyStyles | undefined;
+  const typo = typ ?? {
     fontFamily: 'Inter, system-ui, sans-serif',
     fontSize: 16,
     fontWeight: 400,
@@ -898,7 +906,7 @@ function TypographySection({
   };
 
   const updateTypography = (updates: Partial<TypographyStyles>) => {
-    updateAllStyles({ typography: { ...t, ...updates } as TypographyStyles });
+    updateAllStyles({ typography: { ...typo, ...updates } as TypographyStyles });
   };
 
   const textAlignOptions = [
@@ -912,7 +920,7 @@ function TypographySection({
     <div className="space-y-2.5">
       {/* Font Family */}
       <Select
-        value={t.fontFamily}
+        value={typo.fontFamily}
         onValueChange={(v) => updateTypography({ fontFamily: v })}
       >
         <SelectTrigger size="sm" className="h-7 w-full text-xs">
@@ -930,19 +938,19 @@ function TypographySection({
       {/* Font Size + Weight row */}
       <div className="grid grid-cols-2 gap-2">
         <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] text-muted-foreground">Size</span>
+          <span className="text-[10px] text-muted-foreground">{t("design.size", locale)}</span>
           <TinyNumInput
             label=""
-            value={t.fontSize}
+            value={typo.fontSize}
             onChange={(v) => updateTypography({ fontSize: v })}
             min={1}
             max={200}
           />
         </div>
         <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] text-muted-foreground">Weight</span>
+          <span className="text-[10px] text-muted-foreground">{t("design.weight", locale)}</span>
           <Select
-            value={String(t.fontWeight)}
+            value={String(typo.fontWeight)}
             onValueChange={(v) => updateTypography({ fontWeight: parseInt(v, 10) })}
           >
             <SelectTrigger size="sm" className="h-7 w-full text-xs">
@@ -962,10 +970,10 @@ function TypographySection({
       {/* Line Height + Letter Spacing row */}
       <div className="grid grid-cols-2 gap-2">
         <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] text-muted-foreground">Line Height</span>
+          <span className="text-[10px] text-muted-foreground">{t("design.lineHeight", locale)}</span>
           <TinyNumInput
             label=""
-            value={t.lineHeight}
+            value={typo.lineHeight}
             onChange={(v) => updateTypography({ lineHeight: v })}
             min={0.5}
             max={3}
@@ -973,10 +981,10 @@ function TypographySection({
           />
         </div>
         <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] text-muted-foreground">Letter Spacing</span>
+          <span className="text-[10px] text-muted-foreground">{t("design.letterSpacing", locale)}</span>
           <TinyNumInput
             label=""
-            value={t.letterSpacing}
+            value={typo.letterSpacing}
             onChange={(v) => updateTypography({ letterSpacing: v })}
             min={-5}
             max={20}
@@ -987,14 +995,14 @@ function TypographySection({
 
       {/* Text Align */}
       <div className="space-y-1">
-        <span className="text-[10px] text-muted-foreground">Align</span>
+        <span className="text-[10px] text-muted-foreground">{t("design.align", locale)}</span>
         <div className="flex gap-0.5">
           {textAlignOptions.map((opt) => (
             <button
               key={opt.value}
               className={cn(
                 'h-7 flex-1 flex items-center justify-center rounded-md border transition-colors',
-                t.textAlign === opt.value
+                typo.textAlign === opt.value
                   ? 'border-primary/50 bg-primary/10 text-primary'
                   : 'border-border/50 hover:bg-muted/50 text-muted-foreground',
               )}
@@ -1009,35 +1017,35 @@ function TypographySection({
       {/* Text Case + Text Decoration row */}
       <div className="grid grid-cols-2 gap-2">
         <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] text-muted-foreground">Case</span>
+          <span className="text-[10px] text-muted-foreground">{t("design.case", locale)}</span>
           <Select
-            value={t.textCase}
+            value={typo.textCase}
             onValueChange={(v) => updateTypography({ textCase: v as TypographyStyles['textCase'] })}
           >
             <SelectTrigger size="sm" className="h-7 w-full text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">None</SelectItem>
-              <SelectItem value="uppercase">Uppercase</SelectItem>
-              <SelectItem value="lowercase">Lowercase</SelectItem>
-              <SelectItem value="capitalize">Capitalize</SelectItem>
+              <SelectItem value="none">{t('design.none', locale)}</SelectItem>
+              <SelectItem value="uppercase">{t('design.uppercase', locale)}</SelectItem>
+              <SelectItem value="lowercase">{t('design.lowercase', locale)}</SelectItem>
+              <SelectItem value="capitalize">{t('design.capitalize', locale)}</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] text-muted-foreground">Decoration</span>
+          <span className="text-[10px] text-muted-foreground">{t('design.decoration', locale)}</span>
           <Select
-            value={t.textDecoration}
+            value={typo.textDecoration}
             onValueChange={(v) => updateTypography({ textDecoration: v as TypographyStyles['textDecoration'] })}
           >
             <SelectTrigger size="sm" className="h-7 w-full text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">None</SelectItem>
-              <SelectItem value="underline">Underline</SelectItem>
-              <SelectItem value="line-through">Line-through</SelectItem>
+              <SelectItem value="none">{t('design.none', locale)}</SelectItem>
+              <SelectItem value="underline">{t('design.underline', locale)}</SelectItem>
+              <SelectItem value="line-through">{t('design.lineThrough', locale)}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -1045,29 +1053,29 @@ function TypographySection({
 
       {/* Font Style toggle */}
       <div className="flex items-center justify-between">
-        <span className="text-xs">Style</span>
+        <span className="text-xs">{t("design.style", locale)}</span>
         <div className="flex gap-0.5">
           <button
             className={cn(
               'h-7 px-3 rounded-md border text-xs font-medium transition-colors',
-              t.fontStyle === 'normal'
+              typo.fontStyle === 'normal'
                 ? 'border-primary/50 bg-primary/10 text-primary'
                 : 'border-border/50 hover:bg-muted/50 text-muted-foreground',
             )}
             onClick={() => updateTypography({ fontStyle: 'normal' })}
           >
-            Normal
+            {t('design.normal', locale)}
           </button>
           <button
             className={cn(
               'h-7 px-3 rounded-md border text-xs italic transition-colors',
-              t.fontStyle === 'italic'
+              typo.fontStyle === 'italic'
                 ? 'border-primary/50 bg-primary/10 text-primary'
                 : 'border-border/50 hover:bg-muted/50 text-muted-foreground',
             )}
             onClick={() => updateTypography({ fontStyle: 'italic' })}
           >
-            Italic
+            {t('design.italic', locale)}
           </button>
         </div>
       </div>
@@ -1086,6 +1094,7 @@ function AutoLayoutSection({
   selectedIds: string[];
   updateAllStyles: (s: Record<string, unknown>) => void;
 }) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const layout = primary.styles?.autoLayout as AutoLayout | undefined;
   const enabled = layout?.enabled ?? false;
 
@@ -1111,7 +1120,7 @@ function AutoLayoutSection({
     <div className="space-y-2.5">
       {/* Toggle */}
       <div className="flex items-center justify-between">
-        <Label className="text-xs">Auto Layout</Label>
+        <Label className="text-xs">{t('design.autoLayout', locale)}</Label>
         <button
           className={cn(
             'relative h-5 w-9 rounded-full transition-colors',
@@ -1132,7 +1141,7 @@ function AutoLayoutSection({
         <>
           {/* Direction */}
           <div className="space-y-1">
-            <span className="text-[10px] text-muted-foreground">Direction</span>
+            <span className="text-[10px] text-muted-foreground">{t('design.direction', locale)}</span>
             <div className="flex gap-0.5">
               <button
                 className={cn(
@@ -1143,7 +1152,7 @@ function AutoLayoutSection({
                 )}
                 onClick={() => updateLayout({ direction: 'horizontal' })}
               >
-                Horizontal
+                {t('design.horizontal', locale)}
               </button>
               <button
                 className={cn(
@@ -1154,14 +1163,14 @@ function AutoLayoutSection({
                 )}
                 onClick={() => updateLayout({ direction: 'vertical' })}
               >
-                Vertical
+                {t('design.vertical', locale)}
               </button>
             </div>
           </div>
 
           {/* Gap */}
           <TinyNumInput
-            label="Gap"
+            label={t('design.gap', locale)}
             value={layout?.gap ?? 0}
             onChange={(v) => updateLayout({ gap: v })}
             min={0}
@@ -1171,28 +1180,28 @@ function AutoLayoutSection({
           {/* Padding (T, R, B, L) */}
           <div className="grid grid-cols-2 gap-1.5">
             <TinyNumInput
-              label="Top"
+              label={t('design.top', locale)}
               value={layout?.paddingTop ?? 0}
               onChange={(v) => updateLayout({ paddingTop: v })}
               min={0}
               max={100}
             />
             <TinyNumInput
-              label="Right"
+              label={t('design.right', locale)}
               value={layout?.paddingRight ?? 0}
               onChange={(v) => updateLayout({ paddingRight: v })}
               min={0}
               max={100}
             />
             <TinyNumInput
-              label="Bottom"
+              label={t('design.bottom', locale)}
               value={layout?.paddingBottom ?? 0}
               onChange={(v) => updateLayout({ paddingBottom: v })}
               min={0}
               max={100}
             />
             <TinyNumInput
-              label="Left"
+              label={t('design.left', locale)}
               value={layout?.paddingLeft ?? 0}
               onChange={(v) => updateLayout({ paddingLeft: v })}
               min={0}
@@ -1202,7 +1211,7 @@ function AutoLayoutSection({
 
           {/* Align Items */}
           <div className="space-y-1">
-            <span className="text-[10px] text-muted-foreground">Align Items</span>
+            <span className="text-[10px] text-muted-foreground">{t('design.alignItems', locale)}</span>
             <Select
               value={layout?.alignItems ?? 'start'}
               onValueChange={(v) => updateLayout({ alignItems: v as FlexAlign })}
@@ -1211,17 +1220,17 @@ function AutoLayoutSection({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="start">Start</SelectItem>
-                <SelectItem value="center">Center</SelectItem>
-                <SelectItem value="end">End</SelectItem>
-                <SelectItem value="stretch">Stretch</SelectItem>
+                <SelectItem value="start">{t('design.start', locale)}</SelectItem>
+                <SelectItem value="center">{t('design.center', locale)}</SelectItem>
+                <SelectItem value="end">{t('design.end', locale)}</SelectItem>
+                <SelectItem value="stretch">{t('design.stretch', locale)}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Justify Content */}
           <div className="space-y-1">
-            <span className="text-[10px] text-muted-foreground">Justify Content</span>
+            <span className="text-[10px] text-muted-foreground">{t('design.justifyContent', locale)}</span>
             <Select
               value={layout?.justifyContent ?? 'start'}
               onValueChange={(v) => updateLayout({ justifyContent: v as FlexJustify })}
@@ -1230,10 +1239,10 @@ function AutoLayoutSection({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="start">Start</SelectItem>
-                <SelectItem value="center">Center</SelectItem>
-                <SelectItem value="end">End</SelectItem>
-                <SelectItem value="space-between">Space Between</SelectItem>
+                <SelectItem value="start">{t('design.start', locale)}</SelectItem>
+                <SelectItem value="center">{t('design.center', locale)}</SelectItem>
+                <SelectItem value="end">{t('design.end', locale)}</SelectItem>
+                <SelectItem value="space-between">{t('design.spaceBetween', locale)}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -1254,6 +1263,7 @@ function CornerRadiusSection({
   selectedIds: string[];
   updateAllStyles: (s: Record<string, unknown>) => void;
 }) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const cr = primary.styles?.cornerRadius as CornerRadius | undefined;
   const [linked, setLinked] = useState(() => {
     if (!cr) return true;
@@ -1282,13 +1292,14 @@ function CornerRadiusSection({
         <button
           onClick={() => setLinked(false)}
           className="text-muted-foreground hover:text-foreground transition-colors"
-          title="Unlink corners"
+          title={t("design.unlinkCorners", locale)}
         >
           <Link2 className="h-3.5 w-3.5" />
         </button>
         <div className="flex-1">
           <TinyNumInput
-            label="All"
+            label={t('design.all', locale)}
+
             value={val}
             onChange={setAllCorners}
             min={0}
@@ -1301,7 +1312,7 @@ function CornerRadiusSection({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] text-muted-foreground">Individual Corners</span>
+        <span className="text-[10px] text-muted-foreground">{t('design.individualCorners', locale)}</span>
         <button
           onClick={() => {
             setLinked(true);
@@ -1311,7 +1322,7 @@ function CornerRadiusSection({
             setAllCorners(avg);
           }}
           className="text-muted-foreground hover:text-foreground transition-colors"
-          title="Link corners"
+          title={t("design.linkCorners", locale)}
         >
           <Unlink2 className="h-3.5 w-3.5" />
         </button>

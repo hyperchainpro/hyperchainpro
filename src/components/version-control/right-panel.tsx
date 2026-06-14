@@ -19,6 +19,8 @@ import {
   Plus,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import { useAppStore } from '@/store/app-store';
 import type { RightPanelTab, BoardMember, BoardRole } from '@/lib/types';
 import { HistoryTimeline } from './history-timeline';
@@ -27,12 +29,12 @@ import type { MergeStatus } from '@/lib/types';
 
 // ─── Role badge config ──────────────────────────────────────────────────────
 
-const ROLE_CONFIG: Record<BoardRole, { label: string; className: string }> = {
-  OWNER: { label: 'Owner', className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
-  ADMIN: { label: 'Admin', className: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400' },
-  EDITOR: { label: 'Editor', className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' },
-  REVIEWER: { label: 'Reviewer', className: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400' },
-  VIEWER: { label: 'Viewer', className: 'bg-gray-100 text-gray-700 dark:bg-gray-800/50 dark:text-gray-400' },
+const ROLE_CONFIG: Record<BoardRole, { labelKey: string; className: string }> = {
+  OWNER: { labelKey: 'vc.roleOwner', className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
+  ADMIN: { labelKey: 'vc.roleAdmin', className: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400' },
+  EDITOR: { labelKey: 'vc.roleEditor', className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' },
+  REVIEWER: { labelKey: 'vc.roleReviewer', className: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400' },
+  VIEWER: { labelKey: 'vc.roleViewer', className: 'bg-gray-100 text-gray-700 dark:bg-gray-800/50 dark:text-gray-400' },
 };
 
 const AVATAR_COLORS = [
@@ -47,6 +49,7 @@ const AVATAR_COLORS = [
 ];
 
 function getAvatarColor(id: string): string {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   let hash = 0;
   for (let i = 0; i < id.length; i++) hash = id.charCodeAt(i) + ((hash << 5) - hash);
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
@@ -63,15 +66,16 @@ function getInitials(name: string): string {
 
 // ─── Branches Tab (inline panel) ─────────────────────────────────────────────
 
-const STATUS_BADGE: Record<MergeStatus, { label: string; className: string }> = {
-  OPEN: { label: 'Open', className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' },
-  APPROVED: { label: 'Approved', className: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400' },
-  REJECTED: { label: 'Rejected', className: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400' },
-  MERGED: { label: 'Merged', className: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400' },
-  CONFLICT: { label: 'Conflict', className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
+const STATUS_BADGE: Record<MergeStatus, { labelKey: string; className: string }> = {
+  OPEN: { labelKey: 'vc.statusOpen', className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' },
+  APPROVED: { labelKey: 'vc.statusApproved', className: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400' },
+  REJECTED: { labelKey: 'vc.statusRejected', className: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400' },
+  MERGED: { labelKey: 'vc.statusMerged', className: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400' },
+  CONFLICT: { labelKey: 'vc.statusConflict', className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
 };
 
 function BranchesTab() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const branches = useVersionStore((s) => s.branches);
   const currentBranchId = useVersionStore((s) => s.currentBranchId);
   const switchBranch = useVersionStore((s) => s.switchBranch);
@@ -81,7 +85,7 @@ function BranchesTab() {
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between border-b px-4 py-3">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold">Branches</h3>
+          <h3 className="text-sm font-semibold">{t("vc.branches", locale)}</h3>
           <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
             {branches.length}
           </Badge>
@@ -93,7 +97,7 @@ function BranchesTab() {
           className="h-7 gap-1 px-2 text-xs"
         >
           <Plus className="h-3.5 w-3.5" />
-          New
+          {t('vc.new', locale)}
         </Button>
       </div>
       <ScrollArea className="flex-1">
@@ -101,9 +105,9 @@ function BranchesTab() {
           {branches.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-center">
               <GitBranch className="mb-2 h-8 w-8 text-muted-foreground/50" />
-              <p className="text-sm text-muted-foreground">No branches yet</p>
+              <p className="text-sm text-muted-foreground">{t("vc.noBranches", locale)}</p>
               <p className="text-xs text-muted-foreground">
-                Create a branch to start working
+                {t('vc.createBranchToStart', locale)}
               </p>
             </div>
           ) : (
@@ -120,7 +124,7 @@ function BranchesTab() {
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium">{branch.name}</p>
                     <p className="text-[10px] text-muted-foreground">
-                      {branch.isDefault ? 'Default branch' : `Created ${new Date(branch.createdAt).toLocaleDateString()}`}
+                      {branch.isDefault ? t('vc.defaultBranch', locale) : t('vc.branchCreatedAt', locale, { date: new Date(branch.createdAt).toLocaleDateString() })}
                     </p>
                   </div>
                 </div>
@@ -131,12 +135,12 @@ function BranchesTab() {
                     className="h-6 px-2 text-[10px]"
                     onClick={() => switchBranch(branch.id)}
                   >
-                    Switch
+                    {t('vc.switchBranch', locale)}
                   </Button>
                 )}
                 {branch.id === currentBranchId && (
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5">
-                    Active
+                    {t('vc.active', locale)}
                   </Badge>
                 )}
               </div>
@@ -151,13 +155,14 @@ function BranchesTab() {
 // ─── Merges Tab (inline panel) ───────────────────────────────────────────────
 
 function MergesTab() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const mergeRequests = useVersionStore((s) => s.mergeRequests);
 
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between border-b px-4 py-3">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold">Merge Requests</h3>
+          <h3 className="text-sm font-semibold">{t("vc.mergeRequests", locale)}</h3>
           <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
             {mergeRequests.length}
           </Badge>
@@ -169,7 +174,7 @@ function MergesTab() {
           className="h-7 gap-1 px-2 text-xs"
         >
           <Plus className="h-3.5 w-3.5" />
-          New
+          {t('vc.new', locale)}
         </Button>
       </div>
       <ScrollArea className="flex-1">
@@ -177,9 +182,9 @@ function MergesTab() {
           {mergeRequests.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-center">
               <GitMerge className="mb-2 h-8 w-8 text-muted-foreground/50" />
-              <p className="text-sm text-muted-foreground">No merge requests</p>
+              <p className="text-sm text-muted-foreground">{t("vc.noMergeRequests", locale)}</p>
               <p className="text-xs text-muted-foreground">
-                Create a merge request to propose changes
+                {t('vc.createMRToPropose', locale)}
               </p>
             </div>
           ) : (
@@ -193,7 +198,7 @@ function MergesTab() {
                   <div className="flex items-center justify-between gap-2">
                     <p className="truncate text-sm font-medium">{mr.title}</p>
                     <Badge className={cn('shrink-0 text-[10px] px-1.5 py-0 h-5', status.className)}>
-                      {status.label}
+                      {t(status.labelKey, locale)}
                     </Badge>
                   </div>
                   <div className="mt-1 flex items-center gap-1.5 text-[10px] text-muted-foreground">
@@ -217,6 +222,7 @@ function MergesTab() {
 // ─── Comments Tab ────────────────────────────────────────────────────────────
 
 function CommentsTab() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const [comments, setComments] = useState([
     { id: '1', author: 'Alice', avatar: '', authorId: 'a1', text: 'Great layout! Love the color scheme.', time: '2 hours ago' },
     { id: '2', author: 'Bob', avatar: '', authorId: 'a2', text: 'Should we add more sticky notes in the brainstorming section?', time: '1 hour ago' },
@@ -243,7 +249,7 @@ function CommentsTab() {
   return (
     <div className="flex h-full flex-col">
       <div className="border-b px-4 py-3">
-        <h3 className="text-sm font-semibold">Comments</h3>
+        <h3 className="text-sm font-semibold">{t("vc.comments", locale)}</h3>
       </div>
 
       <ScrollArea className="flex-1">
@@ -251,9 +257,9 @@ function CommentsTab() {
           {comments.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-center">
               <MessageSquare className="mb-2 h-8 w-8 text-muted-foreground/50" />
-              <p className="text-sm text-muted-foreground">No comments yet</p>
+              <p className="text-sm text-muted-foreground">{t("vc.noComments", locale)}</p>
               <p className="text-xs text-muted-foreground">
-                Start a conversation about this board
+                {t('vc.startConversation', locale)}
               </p>
             </div>
           ) : (
@@ -287,7 +293,7 @@ function CommentsTab() {
       <div className="border-t p-3">
         <div className="flex gap-2">
           <Input
-            placeholder="Add a comment..."
+            placeholder={t('vc.addComment', locale)}
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             onKeyDown={(e) => {
@@ -315,6 +321,7 @@ function CommentsTab() {
 // ─── Members Tab ────────────────────────────────────────────────────────────
 
 function MembersTab() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   // Mock data - in a real app this would come from the store / API
   const [members] = useState<BoardMember[]>([
     { id: '1', boardId: 'b1', userId: 'u1', role: 'OWNER', joinedAt: '2024-01-01', user: { id: 'u1', name: 'Alice Johnson', email: 'alice@example.com' } },
@@ -337,7 +344,7 @@ function MembersTab() {
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between border-b px-4 py-3">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold">Members</h3>
+          <h3 className="text-sm font-semibold">{t("vc.members", locale)}</h3>
           <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
             {members.length}
           </Badge>
@@ -348,10 +355,10 @@ function MembersTab() {
           onClick={() => setShowInvite((v) => !v)}
           className="h-7 gap-1 px-2 text-xs"
         >
-          {showInvite ? 'Cancel' : (
+          {showInvite ? t('common.cancel', locale) : (
             <>
               <Plus className="h-3.5 w-3.5" />
-              Invite
+              {t('vc.invite', locale)}
             </>
           )}
         </Button>
@@ -361,7 +368,7 @@ function MembersTab() {
         <div className="border-b px-4 py-3 space-y-2">
           <div className="flex gap-2">
             <Input
-              placeholder="email@example.com"
+              placeholder={t('vc.emailPlaceholder', locale)}
               value={inviteEmail}
               onChange={(e) => setInviteEmail(e.target.value)}
               onKeyDown={(e) => {
@@ -378,7 +385,7 @@ function MembersTab() {
               disabled={!inviteEmail.trim()}
               className="h-8 px-3 text-xs"
             >
-              Invite
+              {t('vc.invite', locale)}
             </Button>
           </div>
         </div>
@@ -411,7 +418,7 @@ function MembersTab() {
                   </div>
                 </div>
                 <Badge className={cn('shrink-0 text-[10px] px-1.5 py-0 h-5', roleConfig.className)}>
-                  {roleConfig.label}
+                  {t(roleConfig.labelKey, locale)}
                 </Badge>
               </div>
             );
@@ -424,17 +431,18 @@ function MembersTab() {
 
 // ─── Tab Icon Map ────────────────────────────────────────────────────────────
 
-const TAB_CONFIG: { value: RightPanelTab; label: string; icon: React.ReactNode }[] = [
-  { value: 'history', label: 'History', icon: <History className="h-4 w-4" /> },
-  { value: 'branches', label: 'Branches', icon: <GitBranch className="h-4 w-4" /> },
-  { value: 'merges', label: 'Merges', icon: <GitMerge className="h-4 w-4" /> },
-  { value: 'comments', label: 'Comments', icon: <MessageSquare className="h-4 w-4" /> },
-  { value: 'members', label: 'Members', icon: <Users className="h-4 w-4" /> },
+const TAB_CONFIG: { value: RightPanelTab; labelKey: string; icon: React.ReactNode }[] = [
+  { value: 'history', labelKey: 'vc.tabHistory', icon: <History className="h-4 w-4" /> },
+  { value: 'branches', labelKey: 'vc.tabBranches', icon: <GitBranch className="h-4 w-4" /> },
+  { value: 'merges', labelKey: 'vc.tabMerges', icon: <GitMerge className="h-4 w-4" /> },
+  { value: 'comments', labelKey: 'vc.tabComments', icon: <MessageSquare className="h-4 w-4" /> },
+  { value: 'members', labelKey: 'vc.tabMembers', icon: <Users className="h-4 w-4" /> },
 ];
 
 // ─── Main Panel ─────────────────────────────────────────────────────────────
 
 export function RightPanel() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const rightPanelOpen = useAppStore((s) => s.rightPanelOpen);
   const setRightPanelOpen = useAppStore((s) => s.setRightPanelOpen);
   const rightPanelTab = useAppStore((s) => s.rightPanelTab);
@@ -474,10 +482,10 @@ export function RightPanel() {
                   key={tab.value}
                   value={tab.value}
                   className="gap-1 px-1.5 text-[11px] data-[state=active]:shadow-sm"
-                  title={tab.label}
+                  title={t(tab.labelKey, locale)}
                 >
                   {tab.icon}
-                  <span className="hidden xl:inline">{tab.label}</span>
+                  <span className="hidden xl:inline">{t(tab.labelKey, locale)}</span>
                 </TabsTrigger>
               ))}
             </TabsList>

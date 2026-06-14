@@ -23,6 +23,8 @@ import {
   FileText,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import { useCanvasStore } from '@/store/canvas-store';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
@@ -33,23 +35,21 @@ import { useToast } from '@/hooks/use-toast';
 interface ToolItem {
   id: CanvasTool;
   icon: React.ReactNode;
-  label: string;
+  labelKey: string;
   shortcut: string;
 }
-
 const TOOLS: ToolItem[] = [
-  { id: 'SELECT', icon: <MousePointer2 className="h-4 w-4" />, label: 'Select', shortcut: 'V' },
-  { id: 'HAND', icon: <Hand className="h-4 w-4" />, label: 'Hand / Pan', shortcut: 'H' },
+  { id: 'SELECT', icon: <MousePointer2 className="h-4 w-4" />, labelKey: 'toolbar.select', shortcut: 'V' },
+  { id: 'HAND', icon: <Hand className="h-4 w-4" />, labelKey: 'toolbar.handPan', shortcut: 'H' },
 ];
-
 const SHAPE_TOOLS: ToolItem[] = [
-  { id: 'STICKY_NOTE', icon: <StickyNote className="h-4 w-4" />, label: 'Sticky Note', shortcut: 'S' },
-  { id: 'RECTANGLE', icon: <Square className="h-4 w-4" />, label: 'Rectangle', shortcut: 'R' },
-  { id: 'CIRCLE', icon: <Circle className="h-4 w-4" />, label: 'Circle', shortcut: 'C' },
-  { id: 'LINE', icon: <Minus className="h-4 w-4" />, label: 'Line', shortcut: 'L' },
-  { id: 'TEXT', icon: <Type className="h-4 w-4" />, label: 'Text', shortcut: 'T' },
-  { id: 'CONNECTOR', icon: <ArrowRight className="h-4 w-4" />, label: 'Connector', shortcut: '' },
-  { id: 'IMAGE', icon: <ImageIcon className="h-4 w-4" />, label: 'Image', shortcut: 'I' },
+  { id: 'STICKY_NOTE', icon: <StickyNote className="h-4 w-4" />, labelKey: 'toolbar.stickyNote', shortcut: 'S' },
+  { id: 'RECTANGLE', icon: <Square className="h-4 w-4" />, labelKey: 'toolbar.rectangle', shortcut: 'R' },
+  { id: 'CIRCLE', icon: <Circle className="h-4 w-4" />, labelKey: 'toolbar.ellipse', shortcut: 'C' },
+  { id: 'LINE', icon: <Minus className="h-4 w-4" />, labelKey: 'toolbar.line', shortcut: 'L' },
+  { id: 'TEXT', icon: <Type className="h-4 w-4" />, labelKey: 'toolbar.text', shortcut: 'T' },
+  { id: 'CONNECTOR', icon: <ArrowRight className="h-4 w-4" />, labelKey: 'toolbar.connector', shortcut: '' },
+  { id: 'IMAGE', icon: <ImageIcon className="h-4 w-4" />, labelKey: 'toolbar.image', shortcut: 'I' },
 ];
 
 const STICKY_COLOR_OPTIONS: { color: StickyColor; bg: string; label: string }[] = [
@@ -62,6 +62,7 @@ const STICKY_COLOR_OPTIONS: { color: StickyColor; bg: string; label: string }[] 
 ];
 
 export default function Toolbar() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const store = useCanvasStore();
   const { toast } = useToast();
   const [stickyOpen, setStickyOpen] = useState(false);
@@ -126,7 +127,7 @@ export default function Toolbar() {
       });
       const data = await res.json();
       if (!res.ok || data.error) {
-        toast({ title: 'AI Error', description: data.error || 'Failed to generate layout', variant: 'destructive' });
+        toast({ title: t('toolbar.aiError', locale), description: data.error || t('toolbar.failedToGenerateLayout', locale), variant: 'destructive' });
         return;
       }
       const generatedElements = data.elements as Array<{
@@ -149,9 +150,9 @@ export default function Toolbar() {
           height: el.height,
         });
       }
-      toast({ title: 'Layout Generated', description: `Added ${generatedElements.length} elements to the canvas.` });
+      toast({ title: t('toolbar.layoutGenerated', locale), description: t('toolbar.addedElements', locale, { n: generatedElements.length }) });
     } catch {
-      toast({ title: 'Error', description: 'Failed to connect to AI service.', variant: 'destructive' });
+      toast({ title: t('toolbar.error', locale), description: t('toolbar.failedToConnectAI', locale), variant: 'destructive' });
     } finally {
       setAiLoading(null);
     }
@@ -160,7 +161,7 @@ export default function Toolbar() {
   const handleAutoArrange = useCallback(() => {
     setAiOpen(false);
     if (elements.length === 0) {
-      toast({ title: 'Nothing to arrange', description: 'Add some elements first.' });
+      toast({ title: t('toolbar.nothingToArrange', locale), description: t('toolbar.addSomeElements', locale) });
       return;
     }
     // Grid-based auto-arrange
@@ -179,7 +180,7 @@ export default function Toolbar() {
       store.moveElement(u.id, u.x, u.y);
     }
     store.pushHistory();
-    toast({ title: 'Auto-arranged', description: `Arranged ${sorted.length} elements in a grid.` });
+    toast({ title: t('toolbar.autoArranged', locale), description: t('toolbar.arrangedElements', locale, { n: sorted.length }) });
   }, [elements, store, toast]);
 
   const handleSummarizeBoard = useCallback(async () => {
@@ -193,12 +194,12 @@ export default function Toolbar() {
       });
       const data = await res.json();
       if (!res.ok || data.error) {
-        toast({ title: 'AI Error', description: data.error || 'Failed to summarize board', variant: 'destructive' });
+        toast({ title: t('toolbar.aiError', locale), description: data.error || t('toolbar.failedToSummarize', locale), variant: 'destructive' });
         return;
       }
-      toast({ title: 'Board Summary', description: data.summary });
+      toast({ title: t('toolbar.boardSummary', locale), description: data.summary });
     } catch {
-      toast({ title: 'Error', description: 'Failed to connect to AI service.', variant: 'destructive' });
+      toast({ title: t('toolbar.error', locale), description: t('toolbar.failedToConnectAI', locale), variant: 'destructive' });
     } finally {
       setAiLoading(null);
     }
@@ -225,7 +226,7 @@ export default function Toolbar() {
               </button>
             </TooltipTrigger>
             <TooltipContent side="right" sideOffset={8}>
-              <span className="font-medium">{tool.label}</span>
+              <span className="font-medium">{t(tool.labelKey, locale)}</span>
               {tool.shortcut && (
                 <kbd className="ml-2 rounded border bg-muted px-1 py-0.5 text-[10px] font-mono">
                   {tool.shortcut}
@@ -273,14 +274,14 @@ export default function Toolbar() {
                     </PopoverTrigger>
                   </TooltipTrigger>
                   <TooltipContent side="right" sideOffset={8}>
-                    <span className="font-medium">{tool.label}</span>
+                    <span className="font-medium">{t(tool.labelKey, locale)}</span>
                     <kbd className="ml-2 rounded border bg-muted px-1 py-0.5 text-[10px] font-mono">
                       {tool.shortcut}
                     </kbd>
                   </TooltipContent>
                 </Tooltip>
                 <PopoverContent side="right" sideOffset={8} className="w-auto p-2" align="start">
-                  <p className="mb-2 text-xs font-medium text-muted-foreground">Note Color</p>
+                  <p className="mb-2 text-xs font-medium text-muted-foreground">{t('toolbar.noteColor', locale)}</p>
                   <div className="grid grid-cols-3 gap-1.5">
                     {STICKY_COLOR_OPTIONS.map((opt) => (
                       <button
@@ -328,11 +329,11 @@ export default function Toolbar() {
                     </PopoverTrigger>
                   </TooltipTrigger>
                   <TooltipContent side="right" sideOffset={8}>
-                    <span className="font-medium">{tool.label}</span>
+                    <span className="font-medium">{t(tool.labelKey, locale)}</span>
                   </TooltipContent>
                 </Tooltip>
                 <PopoverContent side="right" sideOffset={8} className="w-auto p-2" align="start">
-                  <p className="mb-2 text-xs font-medium text-muted-foreground">Connector Style</p>
+                  <p className="mb-2 text-xs font-medium text-muted-foreground">{t('toolbar.connectorStyle', locale)}</p>
                   <div className="flex flex-col gap-1">
                     <button
                       className={cn(
@@ -389,7 +390,7 @@ export default function Toolbar() {
                 </button>
               </TooltipTrigger>
               <TooltipContent side="right" sideOffset={8}>
-                <span className="font-medium">{tool.label}</span>
+                <span className="font-medium">{t(tool.labelKey, locale)}</span>
                 {tool.shortcut && (
                   <kbd className="ml-2 rounded border bg-muted px-1 py-0.5 text-[10px] font-mono">
                     {tool.shortcut}
@@ -421,7 +422,7 @@ export default function Toolbar() {
             </button>
           </TooltipTrigger>
           <TooltipContent side="right" sideOffset={8}>
-            <span className="font-medium">Undo</span>
+            <span className="font-medium">{t('toolbar.undo', locale)}</span>
             <kbd className="ml-2 rounded border bg-muted px-1 py-0.5 text-[10px] font-mono">
               Ctrl+Z
             </kbd>
@@ -444,7 +445,7 @@ export default function Toolbar() {
             </button>
           </TooltipTrigger>
           <TooltipContent side="right" sideOffset={8}>
-            <span className="font-medium">Redo</span>
+            <span className="font-medium">{t('toolbar.redo', locale)}</span>
             <kbd className="ml-2 rounded border bg-muted px-1 py-0.5 text-[10px] font-mono">
               Ctrl+Y
             </kbd>
@@ -490,7 +491,7 @@ export default function Toolbar() {
               disabled={!!aiLoading}
             >
               <LayoutGrid className="h-4 w-4 shrink-0 text-amber-500" />
-              <span>Generate Layout</span>
+              <span>{t('toolbar.generateLayout', locale)}</span>
             </button>
             <button
               className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors hover:bg-accent text-left"
@@ -498,7 +499,7 @@ export default function Toolbar() {
               disabled={!!aiLoading}
             >
               <AlignHorizontalSpaceAround className="h-4 w-4 shrink-0 text-emerald-500" />
-              <span>Auto-arrange</span>
+              <span>{t('toolbar.autoArrange', locale)}</span>
             </button>
             <button
               className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors hover:bg-accent text-left"
@@ -506,7 +507,7 @@ export default function Toolbar() {
               disabled={!!aiLoading || elements.length === 0}
             >
               <FileText className="h-4 w-4 shrink-0 text-sky-500" />
-              <span className={cn(elements.length === 0 && 'opacity-40')}>Summarize Board</span>
+              <span className={cn(elements.length === 0 && 'opacity-40')}>{t('toolbar.summarizeBoard', locale)}</span>
             </button>
           </PopoverContent>
         </Popover>
@@ -524,7 +525,7 @@ export default function Toolbar() {
             </button>
           </TooltipTrigger>
           <TooltipContent side="right" sideOffset={8}>
-            <span className="font-medium">Zoom In</span>
+            <span className="font-medium">{t('toolbar.zoomIn', locale)}</span>
             <kbd className="ml-2 rounded border bg-muted px-1 py-0.5 text-[10px] font-mono">
               Ctrl+Scroll
             </kbd>
@@ -535,7 +536,7 @@ export default function Toolbar() {
         <button
           className="flex h-8 w-12 items-center justify-center rounded-md border bg-background text-[11px] font-mono text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
           onClick={() => store.zoomToFit()}
-          title="Click to zoom to fit"
+          title={t('toolbar.clickToZoom', locale)}
         >
           {Math.round(zoom * 100)}%
         </button>
@@ -550,7 +551,7 @@ export default function Toolbar() {
             </button>
           </TooltipTrigger>
           <TooltipContent side="right" sideOffset={8}>
-            <span className="font-medium">Zoom Out</span>
+            <span className="font-medium">{t('toolbar.zoomOut', locale)}</span>
             <kbd className="ml-2 rounded border bg-muted px-1 py-0.5 text-[10px] font-mono">
               Ctrl+Scroll
             </kbd>
@@ -567,7 +568,7 @@ export default function Toolbar() {
             </button>
           </TooltipTrigger>
           <TooltipContent side="right" sideOffset={8}>
-            <span className="font-medium">Zoom to Fit</span>
+            <span className="font-medium">{t('toolbar.zoomToFit', locale)}</span>
           </TooltipContent>
         </Tooltip>
 
@@ -597,7 +598,7 @@ export default function Toolbar() {
             </button>
           </TooltipTrigger>
           <TooltipContent side="right" sideOffset={8}>
-            <span className="font-medium">Minimap</span>
+            <span className="font-medium">{t('toolbar.minimap', locale)}</span>
           </TooltipContent>
         </Tooltip>
       </div>

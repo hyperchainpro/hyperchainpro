@@ -4,6 +4,8 @@ import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, GripVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import { useCanvasStore } from '@/store/canvas-store';
 import type { BoardElement as BoardElementType, ElementStyles } from '@/lib/types';
 
@@ -40,6 +42,7 @@ const HANDLE_POSITIONS: Record<ResizeHandle, { x: string; y: string; cursor: str
 const ROTATION_HANDLE_OFFSET = 30;
 
 export default function BoardElement({ element, isSelected, zoom, onPointerDown }: BoardElementProps) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const store = useCanvasStore();
   const textRef = useRef<HTMLTextAreaElement>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -383,6 +386,7 @@ function ElementContent({ element, isEditing, textRef, onTextChange, onTextBlur,
 
 /* ── Sticky Note ── */
 function StickyNoteContent({ element, isEditing, textRef, onTextChange, onTextBlur, onTextKeyDown }: ElementContentProps & { element: BoardElementType }) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   return (
     <div
       className="h-full w-full rounded-lg p-4 shadow-md"
@@ -400,14 +404,14 @@ function StickyNoteContent({ element, isEditing, textRef, onTextChange, onTextBl
           onKeyDown={onTextKeyDown}
           className="h-full w-full resize-none bg-transparent text-sm leading-relaxed outline-none"
           style={{ color: '#1a1a2e', fontSize: element.styles.fontSize || 14 }}
-          placeholder="Type something..."
+          placeholder={t('canvas.typeSomething', locale)}
         />
       ) : (
         <div
           className="h-full min-h-[80px] w-full overflow-hidden whitespace-pre-wrap break-words text-sm leading-relaxed"
           style={{ color: '#1a1a2e', fontSize: element.styles.fontSize || 14 }}
         >
-          {element.content || <span className="opacity-40">Type something...</span>}
+          {element.content || <span className="opacity-40">{t('canvas.typeSomething', locale)}</span>}
         </div>
       )}
     </div>
@@ -416,6 +420,7 @@ function StickyNoteContent({ element, isEditing, textRef, onTextChange, onTextBl
 
 /* ── Rectangle ── */
 function RectangleContent({ element, isEditing, textRef, onTextChange, onTextBlur, onTextKeyDown }: ElementContentProps & { element: BoardElementType }) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const s = element.styles;
   const borderStyle = s.lineStyle === 'dashed' ? 'dashed' : 'solid';
   const fillOpacity = s.fillOpacity ?? 1;
@@ -439,14 +444,14 @@ function RectangleContent({ element, isEditing, textRef, onTextChange, onTextBlu
           onKeyDown={onTextKeyDown}
           className="h-full w-full resize-none bg-transparent p-2 text-center outline-none"
           style={{ fontSize: s.fontSize || 16 }}
-          placeholder="Add text..."
+          placeholder={t('canvas.addText', locale)}
         />
       ) : (
         <div
           className="w-full overflow-hidden p-2 text-center whitespace-pre-wrap break-words"
           style={{ fontSize: s.fontSize || 16 }}
         >
-          {element.content || <span className="opacity-40">Add text...</span>}
+          {element.content || <span className="opacity-40">{t('canvas.addText', locale)}</span>}
         </div>
       )}
     </div>
@@ -455,6 +460,7 @@ function RectangleContent({ element, isEditing, textRef, onTextChange, onTextBlu
 
 /* ── Circle / Ellipse ── */
 function CircleContent({ element, isEditing, textRef, onTextChange, onTextBlur, onTextKeyDown }: ElementContentProps & { element: BoardElementType }) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const s = element.styles;
   const borderStyle = s.lineStyle === 'dashed' ? 'dashed' : 'solid';
   const fillOpacity = s.fillOpacity ?? 1;
@@ -478,14 +484,14 @@ function CircleContent({ element, isEditing, textRef, onTextChange, onTextBlur, 
           onKeyDown={onTextKeyDown}
           className="h-full w-full resize-none bg-transparent p-2 text-center outline-none"
           style={{ fontSize: s.fontSize || 16 }}
-          placeholder="Add text..."
+          placeholder={t('canvas.addText', locale)}
         />
       ) : (
         <div
           className="w-full overflow-hidden p-2 text-center whitespace-pre-wrap break-words"
           style={{ fontSize: s.fontSize || 16 }}
         >
-          {element.content || <span className="opacity-40">Add text...</span>}
+          {element.content || <span className="opacity-40">{t('canvas.addText', locale)}</span>}
         </div>
       )}
     </div>
@@ -588,6 +594,7 @@ function ConnectorContent({ element }: { element: BoardElementType }) {
 
 /* ── Text ── */
 function TextContent({ element, isEditing, textRef, onTextChange, onTextBlur, onTextKeyDown }: ElementContentProps & { element: BoardElementType }) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const s = element.styles;
 
   return (
@@ -608,7 +615,7 @@ function TextContent({ element, isEditing, textRef, onTextChange, onTextBlur, on
             color: element.color,
             lineHeight: 1.5,
           }}
-          placeholder="Type text..."
+          placeholder={t('canvas.typeText', locale)}
         />
       ) : (
         <div
@@ -622,7 +629,7 @@ function TextContent({ element, isEditing, textRef, onTextChange, onTextBlur, on
             lineHeight: 1.5,
           }}
         >
-          {element.content || <span className="opacity-30">Type text...</span>}
+          {element.content || <span className="opacity-30">{t('canvas.typeText', locale)}</span>}
         </div>
       )}
     </div>

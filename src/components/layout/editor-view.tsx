@@ -60,6 +60,7 @@ const neuBtn =
 // ─── Loading skeleton ────────────────────────────────────────────────────────
 
 function EditorLoadingSkeleton() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-background">
       <header className="h-12 border-b bg-background flex items-center px-4 gap-3 shrink-0">
@@ -76,7 +77,7 @@ function EditorLoadingSkeleton() {
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3 text-muted-foreground">
             <Loader2 className="h-8 w-8 animate-spin" />
-            <p className="text-sm font-medium">Loading board...</p>
+            <p className="text-sm font-medium">{t('editor.loadingBoard', locale)}</p>
           </div>
         </div>
       </div>
@@ -87,6 +88,7 @@ function EditorLoadingSkeleton() {
 // ─── Error state ─────────────────────────────────────────────────────────────
 
 function EditorError({ message, onRetry }: { message: string; onRetry: () => void }) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-background">
       <header className="h-12 border-b bg-background flex items-center px-4 gap-3 shrink-0">
@@ -94,7 +96,7 @@ function EditorError({ message, onRetry }: { message: string; onRetry: () => voi
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <Separator orientation="vertical" className="h-6" />
-        <span className="text-sm font-medium text-muted-foreground">Error loading board</span>
+        <span className="text-sm font-medium text-muted-foreground">{t('editor.errorLoading', locale)}</span>
       </header>
       <div className="flex-1 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 max-w-sm text-center">
@@ -102,12 +104,12 @@ function EditorError({ message, onRetry }: { message: string; onRetry: () => voi
             <AlertTriangle className="h-7 w-7 text-destructive" />
           </div>
           <div>
-            <p className="text-sm font-semibold">Failed to load board</p>
+            <p className="text-sm font-semibold">{t('editor.failedToLoad', locale)}</p>
             <p className="mt-1 text-sm text-muted-foreground">{message}</p>
           </div>
           <Button variant="outline" onClick={onRetry} className="gap-2">
             <RotateCcw className="h-4 w-4" />
-            Try again
+            {t('editor.tryAgain', locale)}
           </Button>
         </div>
       </div>
@@ -193,7 +195,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent side="bottom">Back to dashboard</TooltipContent>
+        <TooltipContent side="bottom">{t('editor.backToDashboard', locale)}</TooltipContent>
       </Tooltip>
 
       <Separator orientation="vertical" className="h-6" />
@@ -210,14 +212,14 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
             <PanelLeftOpen className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent side="bottom">Toggle layers panel</TooltipContent>
+        <TooltipContent side="bottom">{t('editor.toggleLayers', locale)}</TooltipContent>
       </Tooltip>
 
       <Separator orientation="vertical" className="h-6" />
 
       {/* Board name */}
       <span className="text-sm font-semibold truncate max-w-[120px] md:max-w-[200px]">
-        {boardName ?? 'Board'}
+        {boardName ?? t('editor.boardFallback', locale)}
       </span>
 
       {/* Branch indicator */}
@@ -233,7 +235,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
             <span className="hidden md:inline">{currentBranch?.name ?? 'main'}</span>
           </Button>
         </TooltipTrigger>
-        <TooltipContent side="bottom">Current branch: {currentBranch?.name ?? 'main'}</TooltipContent>
+        <TooltipContent side="bottom">{t('editor.currentBranch', locale)}: {currentBranch?.name ?? 'main'}</TooltipContent>
       </Tooltip>
 
       {/* Design / Prototype mode toggle */}
@@ -247,7 +249,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
           )}
           onClick={() => setEditorMode('design')}
         >
-          Design
+          {t('editor.design', locale)}
         </Button>
         <Button
           variant="ghost"
@@ -259,7 +261,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
           onClick={() => setEditorMode('prototype')}
         >
           <Play className="h-3 w-3" />
-          Prototype
+          {t('editor.prototype', locale)}
         </Button>
       </div>
 
@@ -317,7 +319,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
               <Sparkles className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="bottom">AI Design</TooltipContent>
+          <TooltipContent side="bottom">{t('editor.aiDesign', locale)}</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -325,7 +327,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
               <Upload className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="bottom">Import File</TooltipContent>
+          <TooltipContent side="bottom">{t('editor.importFile', locale)}</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -333,7 +335,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
               <Download className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="bottom">Export SVG</TooltipContent>
+          <TooltipContent side="bottom">{t('editor.exportSvg', locale)}</TooltipContent>
         </Tooltip>
         <Separator orientation="vertical" className="h-6" />
       </div>
@@ -351,10 +353,10 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
                 onClick={stopPlayback}
               >
                 <Square className="h-3 w-3" />
-                Stop
+                {t('editor.stop', locale)}
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="bottom">Stop prototype</TooltipContent>
+            <TooltipContent side="bottom">{t('editor.stopPrototype', locale)}</TooltipContent>
           </Tooltip>
         )}
 
@@ -365,7 +367,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
               <Plus className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="bottom">New branch</TooltipContent>
+          <TooltipContent side="bottom">{t('editor.newBranch', locale)}</TooltipContent>
         </Tooltip>
 
         {/* Merge request */}
@@ -375,7 +377,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
               <GitMerge className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="bottom">New merge request</TooltipContent>
+          <TooltipContent side="bottom">{t('editor.newMergeRequest', locale)}</TooltipContent>
         </Tooltip>
 
         {/* History */}
@@ -390,7 +392,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
               <History className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="bottom">Commit history</TooltipContent>
+          <TooltipContent side="bottom">{t('editor.commitHistory', locale)}</TooltipContent>
         </Tooltip>
 
         {/* Toggle right panel */}
@@ -400,7 +402,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
               <PanelRightOpen className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="bottom">Toggle properties panel</TooltipContent>
+          <TooltipContent side="bottom">{t('editor.toggleProperties', locale)}</TooltipContent>
         </Tooltip>
 
         <Separator orientation="vertical" className="h-6" />
@@ -412,7 +414,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
           onClick={() => setCommitDialogOpen(true)}
         >
           <GitCommitHorizontal className="h-3.5 w-3.5" />
-          <span className="hidden md:inline">Commit</span>
+          <span className="hidden md:inline">{t('editor.commit', locale)}</span>
         </Button>
       </div>
     </header>
@@ -423,6 +425,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
 
 export default function EditorView() {
   const currentBoardId = useAppStore((s) => s.currentBoardId);
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const [boardName, setBoardName] = useState<string | undefined>();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -503,7 +506,7 @@ export default function EditorView() {
   if (!currentBoardId) {
     return (
       <div className="h-screen flex items-center justify-center bg-background">
-        <p className="text-sm text-muted-foreground">No board selected</p>
+        <p className="text-sm text-muted-foreground">{t('editor.noBoardSelected', locale)}</p>
       </div>
     );
   }

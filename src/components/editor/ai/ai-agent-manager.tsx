@@ -1,5 +1,7 @@
 'use client';
 
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -67,6 +69,7 @@ interface AIAgentManagerProps {
 // ─── Component ────────────────────────────────────────────────────────────
 
 export function AIAgentManager({ open, onOpenChange, onGenerated }: AIAgentManagerProps) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const [agents, setAgents] = useState<AIAgent[]>([]);
   const [loading, setLoading] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
@@ -159,9 +162,9 @@ export function AIAgentManager({ open, onOpenChange, onGenerated }: AIAgentManag
                     <Bot className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <DialogTitle className="text-white text-lg">AI Agents</DialogTitle>
+                    <DialogTitle className="text-white text-lg">{t('ai.agents', locale)}</DialogTitle>
                     <DialogDescription className="text-white/70 text-xs mt-0.5">
-                      Choose an AI agent to auto-generate designs
+                      {t('ai.chooseAgentDesc', locale)}
                     </DialogDescription>
                   </div>
                 </div>
@@ -171,7 +174,7 @@ export function AIAgentManager({ open, onOpenChange, onGenerated }: AIAgentManag
                   className="bg-white/20 backdrop-blur-sm text-white border-white/30 hover:bg-white/30 hover:text-white shadow-[4px_4px_8px_rgba(0,0,0,0.06),-4px_-4px_8px_rgba(255,255,255,0.8)]"
                 >
                   <Plus className="w-3.5 h-3.5 mr-1.5" />
-                  Create Agent
+                  {t('ai.createAgentTitle', locale)}
                 </Button>
               </div>
             </DialogHeader>
@@ -194,13 +197,13 @@ export function AIAgentManager({ open, onOpenChange, onGenerated }: AIAgentManag
               </div>
             ) : (
               <>
-                {/* Built-in Agents */}
+                {/* {t('ai.builtIn')} Agents */}
                 {builtInAgents.length > 0 && (
                   <section>
                     <div className="flex items-center gap-2 mb-3">
                       <Shield className="w-3.5 h-3.5 text-muted-foreground" />
                       <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                        Built-in Agents
+                        {t('ai.builtIn')} Agents
                       </h3>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -222,7 +225,7 @@ export function AIAgentManager({ open, onOpenChange, onGenerated }: AIAgentManag
                     <div className="flex items-center gap-2 mb-3">
                       <Sparkles className="w-3.5 h-3.5 text-muted-foreground" />
                       <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                        Your Custom Agents
+                        {t('ai.customAgents')}
                       </h3>
                       <Badge variant="secondary" className="ml-1 text-[10px] px-1.5">
                         {customAgents.length}
@@ -246,7 +249,7 @@ export function AIAgentManager({ open, onOpenChange, onGenerated }: AIAgentManag
                 {agents.length === 0 && (
                   <div className="text-center py-12 text-muted-foreground">
                     <Bot className="w-10 h-10 mx-auto mb-3 opacity-30" />
-                    <p className="text-sm">No agents available yet</p>
+                    <p className="text-sm">{t("ai.noAgentsFound", locale)}</p>
                     <Button
                       variant="outline"
                       size="sm"
@@ -254,7 +257,7 @@ export function AIAgentManager({ open, onOpenChange, onGenerated }: AIAgentManag
                       onClick={handleCreateAgent}
                     >
                       <Plus className="w-3.5 h-3.5 mr-1.5" />
-                      Create your first agent
+                      {t('ai.createAgentTitle', locale)}
                     </Button>
                   </div>
                 )}
@@ -286,15 +289,15 @@ export function AIAgentManager({ open, onOpenChange, onGenerated }: AIAgentManag
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete &ldquo;{deleteTarget?.name}&rdquo;?</AlertDialogTitle>
+            <AlertDialogTitle>{t('agent.deleteConfirm', locale, { name: deleteTarget?.name ?? '' })}</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. The agent will be permanently removed.
+              {t('ai.deleteConfirmDesc', locale)}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel', locale)}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteAgent} className="bg-destructive text-white hover:bg-destructive/90">
-              Delete
+              {t("common.delete", locale)}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -350,19 +353,19 @@ function AgentCard({
                 variant="outline"
                 className="text-[9px] px-1.5 py-0 h-4 shrink-0 border-purple-300 text-purple-600"
               >
-                Built-in
+                {t('ai.builtIn')}
               </Badge>
             )}
           </div>
           <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-            {agent.description || 'No description'}
+            {agent.description || t('ai.noDescription', locale)}
           </p>
 
           {/* Usage Count */}
           <div className="flex items-center gap-3 mt-2">
             <span className="text-[10px] text-muted-foreground flex items-center gap-1">
               <Zap className="w-2.5 h-2.5" />
-              {agent.usageCount} uses
+              {agent.usageCount} {t('ai.uses')}
             </span>
           </div>
         </div>
@@ -382,7 +385,7 @@ function AgentCard({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-36">
                 {onEdit && (
-                  <DropdownMenuItem onClick={onEdit}>Edit</DropdownMenuItem>
+                  <DropdownMenuItem onClick={onEdit}>{t('agent.edit', locale)}</DropdownMenuItem>
                 )}
                 {onDelete && (
                   <DropdownMenuItem
@@ -390,7 +393,7 @@ function AgentCard({
                     className="text-destructive focus:text-destructive"
                   >
                     <Trash2 className="w-3.5 h-3.5 mr-2" />
-                    Delete
+                    {t("common.delete", locale)}
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
@@ -403,7 +406,7 @@ function AgentCard({
             className="h-7 px-2.5 text-xs bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-sm shadow-purple-500/20"
           >
             <ArrowRight className="w-3 h-3 mr-1" />
-            Use
+            {t("ai.use", locale)}
           </Button>
         </div>
       </div>

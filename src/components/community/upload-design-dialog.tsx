@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { t, type Locale } from '@/lib/i18n';import { useAuthStore } from '@/store/auth-store';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -39,14 +40,14 @@ interface BoardOption {
 // ─── Category options ─────────────────────────────────────────────────────────
 
 const CATEGORIES = [
-  { value: 'mobile-ui', label: 'Mobile UI' },
-  { value: 'web-ui', label: 'Web UI' },
-  { value: 'wireframes', label: 'Wireframes' },
-  { value: 'dashboards', label: 'Dashboards' },
-  { value: 'icons', label: 'Icons' },
-  { value: 'illustrations', label: 'Illustrations' },
-  { value: 'templates', label: 'Templates' },
-  { value: 'general', label: 'General' },
+  { value: 'mobile-ui', labelKey: 'community.categoryMobileUI' },
+  { value: 'web-ui', labelKey: 'community.categoryWebUI' },
+  { value: 'wireframes', labelKey: 'community.categoryWireframes' },
+  { value: 'dashboards', labelKey: 'community.categoryDashboards' },
+  { value: 'icons', labelKey: 'community.categoryIcons' },
+  { value: 'illustrations', labelKey: 'community.categoryIllustrations' },
+  { value: 'templates', labelKey: 'community.categoryTemplates' },
+  { value: 'general', labelKey: 'community.categoryGeneral' },
 ];
 
 // ─── Thumbnail gradient options ───────────────────────────────────────────────
@@ -65,6 +66,7 @@ const THUMBNAIL_GRADIENTS = [
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogProps) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('general');
@@ -111,7 +113,7 @@ export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogPro
 
   const handleSubmit = async () => {
     if (!title.trim()) {
-      toast.error('Please enter a title');
+      toast.error(t('community.titleRequired', locale));
       return;
     }
 
@@ -133,10 +135,10 @@ export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogPro
         throw new Error('Failed to publish');
       }
 
-      toast.success('Design published to community! 🎉');
+      toast.success(t('community.publishSuccess', locale));
       onOpenChange(false);
     } catch {
-      toast.error('Failed to publish design. Please try again.');
+      toast.error(t('community.publishFailed', locale));
     } finally {
       setSubmitting(false);
     }
@@ -152,17 +154,17 @@ export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogPro
             <div className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white">
               <Upload className="size-4" />
             </div>
-            Publish to Community
+            {t('community.publishTitle', locale)}
           </DialogTitle>
           <DialogDescription>
-            Share your design with the BranchBoard community. Other creators can discover, like, and use your work as a template.
+            {t('community.publishDesc', locale)}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5 mt-2">
           {/* Thumbnail Preview */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Preview Thumbnail</Label>
+            <Label className="text-sm font-medium">{t("community.previewThumbnail", locale)}</Label>
             <div className="flex items-center gap-4">
               <div
                 className={cn(
@@ -180,14 +182,14 @@ export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogPro
                 </svg>
                 <div className="absolute bottom-1.5 left-2 right-2">
                   <p className="text-[9px] font-medium text-white truncate drop-shadow-sm">
-                    {title || 'Design Title'}
+                    {title || t('community.designTitle', locale)}
                   </p>
                 </div>
               </div>
 
               {/* Gradient picker */}
               <div className="flex flex-col gap-1.5">
-                <span className="text-xs text-muted-foreground">Theme color</span>
+                <span className="text-xs text-muted-foreground">{t("community.themeColor", locale)}</span>
                 <div className="flex flex-wrap gap-1.5 max-w-[180px]">
                   {THUMBNAIL_GRADIENTS.map((gradient, i) => (
                     <button
@@ -209,11 +211,11 @@ export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogPro
           {/* Title */}
           <div className="space-y-2">
             <Label htmlFor="design-title">
-              Title <span className="text-rose-500">*</span>
+              {t('community.titleLabel', locale)} <span className="text-rose-500">*</span>
             </Label>
             <Input
               id="design-title"
-              placeholder="e.g., Minimal Dashboard Template"
+              placeholder={t('community.titlePlaceholder', locale)}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               maxLength={100}
@@ -224,10 +226,10 @@ export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogPro
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="design-description">Description</Label>
+            <Label htmlFor="design-description">{t("community.descriptionLabel", locale)}</Label>
             <Textarea
               id="design-description"
-              placeholder="Describe your design, what makes it special, and how others can use it..."
+              placeholder={t("community.descriptionPlaceholder", locale)}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               maxLength={500}
@@ -240,15 +242,15 @@ export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogPro
           {/* Category & Board selection row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Category</Label>
+              <Label>{t("community.categoryLabel", locale)}</Label>
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger className="h-9">
-                  <SelectValue placeholder="Select category" />
+                  <SelectValue placeholder={t("community.selectCategory", locale)} />
                 </SelectTrigger>
                 <SelectContent>
                   {CATEGORIES.map((cat) => (
                     <SelectItem key={cat.value} value={cat.value}>
-                      {cat.label}
+                      {t(cat.labelKey, locale)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -256,10 +258,10 @@ export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogPro
             </div>
 
             <div className="space-y-2">
-              <Label>Link to Board (optional)</Label>
+              <Label>{t("community.linkToBoard", locale)}</Label>
               <Select value={selectedBoardId} onValueChange={setSelectedBoardId}>
                 <SelectTrigger className="h-9">
-                  <SelectValue placeholder="Select a board" />
+                  <SelectValue placeholder={t("community.selectBoard", locale)} />
                 </SelectTrigger>
                 <SelectContent>
                   {boards.length > 0 ? (
@@ -270,7 +272,7 @@ export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogPro
                     ))
                   ) : (
                     <SelectItem value="none" disabled>
-                      No boards available
+                      {t('community.noBoards', locale)}
                     </SelectItem>
                   )}
                 </SelectContent>
@@ -280,10 +282,10 @@ export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogPro
 
           {/* Tags */}
           <div className="space-y-2">
-            <Label htmlFor="design-tags">Tags</Label>
+            <Label htmlFor="design-tags">{t("community.tagsLabel", locale)}</Label>
             <Input
               id="design-tags"
-              placeholder="ui, dashboard, minimal (comma-separated)"
+              placeholder={t('community.tagsPlaceholder', locale)}
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
               className="h-9"
@@ -314,7 +316,7 @@ export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogPro
               onClick={() => onOpenChange(false)}
               className="rounded-lg"
             >
-              Cancel
+              {t('common.cancel', locale)}
             </Button>
             <Button
               onClick={handleSubmit}
@@ -328,12 +330,12 @@ export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogPro
               {submitting ? (
                 <>
                   <div className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  Publishing...
+                  {t('community.publishing', locale)}
                 </>
               ) : (
                 <>
                   <Check className="size-4" />
-                  Publish to Community
+                  {t('community.publish', locale)}
                 </>
               )}
             </Button>

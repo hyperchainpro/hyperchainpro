@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import {
   Dialog,
   DialogContent,
@@ -31,6 +33,7 @@ export function CreateComponentDialog({
   open: boolean;
   onOpenChange: (v: boolean) => void;
 }) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const [name, setName] = useState('');
   const [error, setError] = useState('');
 
@@ -48,12 +51,12 @@ export function CreateComponentDialog({
     );
 
     if (selectedElements.length === 0) {
-      setError('Please select at least one element on the canvas to create a component.');
+      setError(t('component.selectFirst', locale));
       return;
     }
 
     if (!name.trim()) {
-      setError('Please enter a component name.');
+      setError(t('component.enterName', locale));
       return;
     }
 
@@ -90,7 +93,7 @@ export function CreateComponentDialog({
       });
     }
 
-    toast.success(`Component "${name.trim()}" created with ${selectedElements.length} element(s).`);
+    toast.success(t('component.created', locale, { name: name.trim(), count: selectedElements.length }));
 
     // Reset form and close
     setName('');
@@ -121,10 +124,10 @@ export function CreateComponentDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-lg">
             <Layers className="h-5 w-5" />
-            Create Component
+            {t('component.createTitle', locale)}
           </DialogTitle>
           <DialogDescription>
-            Turn selected elements into a reusable component.
+            {t('component.createDesc', locale)}
           </DialogDescription>
         </DialogHeader>
 
@@ -132,11 +135,11 @@ export function CreateComponentDialog({
           {/* Component Name */}
           <div className="space-y-2">
             <Label htmlFor="component-name" className="text-sm font-medium">
-              Component Name
+              {t('component.name', locale)}
             </Label>
             <Input
               id="component-name"
-              placeholder="e.g. Button, Card, Navigation..."
+              placeholder={t('component.namePlaceholder', locale)}
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
@@ -169,13 +172,13 @@ export function CreateComponentDialog({
               <div>
                 <p className="text-sm font-medium">
                   {selectedCount > 0
-                    ? `${selectedCount} element${selectedCount > 1 ? 's' : ''} selected`
-                    : 'No elements selected'}
+                    ? t('component.elementsSelected', locale, { count: selectedCount })
+                    : t('component.noElementsSelected', locale)}
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {selectedCount > 0
-                    ? 'These elements will be grouped into a component. The first element will be the master.'
-                    : 'Select elements on the canvas first, then open this dialog.'}
+                    ? t('component.selectionHint', locale)
+                    : t('component.noSelectionHint', locale)}
                 </p>
               </div>
             </div>
@@ -195,14 +198,14 @@ export function CreateComponentDialog({
             variant="outline"
             onClick={() => onOpenChange(false)}
           >
-            Cancel
+            {t('common.cancel', locale)}
           </Button>
           <Button
             onClick={handleCreate}
             className={NEU_RAISED}
           >
             <Layers className="h-4 w-4" />
-            Create Component
+            {t('component.createTitle', locale)}
           </Button>
         </DialogFooter>
       </DialogContent>

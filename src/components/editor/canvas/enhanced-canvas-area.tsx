@@ -4,6 +4,8 @@ import React, { useCallback, useRef, useEffect, useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import { useCanvasStore } from '@/store/canvas-store';
 import { usePrototypeStore } from '@/store/prototype-store';
 import { usePresenceStore } from '@/store/presence-store';
@@ -49,6 +51,7 @@ const TOOL_TO_ELEMENT: Record<string, ElementType> = {
 };
 
 export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaProps) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const store = useCanvasStore();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -1044,8 +1047,8 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
               className="absolute inset-0 z-[9998] flex items-center justify-center bg-background/80 backdrop-blur-sm"
             >
               <div className="rounded-2xl border-2 border-dashed border-primary/50 bg-card/80 px-12 py-8 text-center">
-                <p className="text-lg font-medium text-primary">Drop images here</p>
-                <p className="mt-1 text-sm text-muted-foreground">PNG, JPG, GIF, SVG, WebP</p>
+                <p className="text-lg font-medium text-primary">{t('canvas.dropImages', locale)}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{t('canvas.supportedFormats', locale)}</p>
               </div>
             </motion.div>
           )}
@@ -1066,7 +1069,7 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
           {snapToGrid && (
             <>
               <span className="text-border">|</span>
-              <span className="text-emerald-600">Grid: On</span>
+              <span className="text-emerald-600">{t('canvas.gridOn', locale)}</span>
             </>
           )}
         </div>

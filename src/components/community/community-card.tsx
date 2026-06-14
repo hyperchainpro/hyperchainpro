@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { Heart, Download, Star } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -43,15 +45,15 @@ const CATEGORY_GRADIENTS: Record<string, string> = {
   'general': 'from-slate-500 via-gray-500 to-zinc-500',
 };
 
-const CATEGORY_LABELS: Record<string, string> = {
-  'mobile-ui': 'Mobile UI',
-  'web-ui': 'Web UI',
-  'wireframes': 'Wireframes',
-  'dashboards': 'Dashboards',
-  'icons': 'Icons',
-  'illustrations': 'Illustrations',
-  'templates': 'Templates',
-  'general': 'General',
+const CATEGORY_LABEL_KEYS: Record<string, string> = {
+  'mobile-ui': 'community.categoryMobileUI',
+  'web-ui': 'community.categoryWebUI',
+  'wireframes': 'community.categoryWireframes',
+  'dashboards': 'community.categoryDashboards',
+  'icons': 'community.categoryIcons',
+  'illustrations': 'community.categoryIllustrations',
+  'templates': 'community.categoryTemplates',
+  'general': 'community.categoryGeneral',
 };
 
 const CATEGORY_BG_PATTERNS: Record<string, string> = {
@@ -72,9 +74,11 @@ function getGradientClass(category: string): string {
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export function CommunityCard({ design, onClick, onLike }: CommunityCardProps) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const gradientClass = getGradientClass(design.category);
   const pattern = CATEGORY_BG_PATTERNS[design.category] || '';
-  const categoryLabel = CATEGORY_LABELS[design.category] || design.category;
+  const categoryLabelKey = CATEGORY_LABEL_KEYS[design.category];
+  const categoryLabel = categoryLabelKey ? t(categoryLabelKey, locale) : design.category;
 
   return (
     <motion.div
@@ -85,7 +89,7 @@ export function CommunityCard({ design, onClick, onLike }: CommunityCardProps) {
       onClick={onClick}
       role="button"
       tabIndex={0}
-      aria-label={`View ${design.title} by ${design.userName || 'Anonymous'}`}
+      aria-label={`View ${design.title} by ${design.userName || t('community.anonymous', locale)}`}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -146,7 +150,7 @@ export function CommunityCard({ design, onClick, onLike }: CommunityCardProps) {
             <div className="absolute top-2 left-2">
               <Badge className="gap-1 bg-amber-500 text-white border-0 text-[10px] px-2 py-0.5 shadow-sm">
                 <Star className="size-2.5 fill-current" />
-                Featured
+                {t('community.featured', locale)}
               </Badge>
             </div>
           )}
@@ -192,7 +196,7 @@ export function CommunityCard({ design, onClick, onLike }: CommunityCardProps) {
                 {(design.userName || 'A')[0].toUpperCase()}
               </div>
               <span className="text-xs text-muted-foreground truncate">
-                {design.userName || 'Anonymous'}
+                {design.userName || t('community.anonymous', locale)}
               </span>
             </div>
 

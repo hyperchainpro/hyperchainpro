@@ -11,6 +11,8 @@ import {
   Plus,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import { useAppStore } from '@/store/app-store';
 import { useVersionStore } from '@/store/version-store';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -39,28 +41,29 @@ const neuTabInactive =
 
 // ─── Tab config ───────────────────────────────────────────────────────────────
 
-const DESIGN_TABS: { value: 'design' | 'prototype'; label: string; icon: React.ReactNode }[] = [
-  { value: 'design', label: 'Design', icon: <PenTool className="h-3.5 w-3.5" /> },
-  { value: 'prototype', label: 'Prototype', icon: <Play className="h-3.5 w-3.5" /> },
+const DESIGN_TABS: { value: 'design' | 'prototype'; i18nKey: string; icon: React.ReactNode }[] = [
+  { value: 'design', i18nKey: 'toolbar.design', icon: <PenTool className="h-3.5 w-3.5" /> },
+  { value: 'prototype', i18nKey: 'toolbar.prototype', icon: <Play className="h-3.5 w-3.5" /> },
 ];
 
-const VC_TABS: { value: 'history' | 'branches' | 'merges'; label: string; icon: React.ReactNode }[] = [
-  { value: 'history', label: 'History', icon: <History className="h-3.5 w-3.5" /> },
-  { value: 'branches', label: 'Branches', icon: <GitBranch className="h-3.5 w-3.5" /> },
-  { value: 'merges', label: 'Merges', icon: <GitMerge className="h-3.5 w-3.5" /> },
+const VC_TABS: { value: 'history' | 'branches' | 'merges'; i18nKey: string; icon: React.ReactNode }[] = [
+  { value: 'history', i18nKey: 'editor.history', icon: <History className="h-3.5 w-3.5" /> },
+  { value: 'branches', i18nKey: 'vc.branches', icon: <GitBranch className="h-3.5 w-3.5" /> },
+  { value: 'merges', i18nKey: 'vc.mergeRequests', icon: <GitMerge className="h-3.5 w-3.5" /> },
 ];
 
-const STATUS_BADGE: Record<MergeStatus, { label: string; className: string }> = {
-  OPEN: { label: 'Open', className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' },
-  APPROVED: { label: 'Approved', className: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400' },
-  REJECTED: { label: 'Rejected', className: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400' },
-  MERGED: { label: 'Merged', className: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400' },
-  CONFLICT: { label: 'Conflict', className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
+const STATUS_BADGE: Record<MergeStatus, { i18nKey: string; className: string }> = {
+  OPEN: { i18nKey: 'merge.open', className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' },
+  APPROVED: { i18nKey: 'vc.statusApproved', className: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400' },
+  REJECTED: { i18nKey: 'vc.statusRejected', className: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400' },
+  MERGED: { i18nKey: 'vc.statusMerged', className: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400' },
+  CONFLICT: { i18nKey: 'vc.statusConflict', className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
 };
 
 // ─── Branches Tab (inline) ────────────────────────────────────────────────────
 
 function BranchesTab() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const branches = useVersionStore((s) => s.branches);
   const currentBranchId = useVersionStore((s) => s.currentBranchId);
   const switchBranch = useVersionStore((s) => s.switchBranch);
@@ -70,7 +73,7 @@ function BranchesTab() {
     <ScrollArea className="h-full">
       <div className="flex items-center justify-between border-b px-4 py-3">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold">Branches</h3>
+          <h3 className="text-sm font-semibold">{t("vc.branches", locale)}</h3>
           <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
             {branches.length}
           </Badge>
@@ -82,16 +85,16 @@ function BranchesTab() {
           className="h-7 gap-1 px-2 text-xs"
         >
           <Plus className="h-3.5 w-3.5" />
-          New
+          {t('vc.new', locale)}
         </Button>
       </div>
       <div className="p-3 space-y-1">
         {branches.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 text-center">
             <GitBranch className="mb-2 h-8 w-8 text-muted-foreground/50" />
-            <p className="text-sm text-muted-foreground">No branches yet</p>
+            <p className="text-sm text-muted-foreground">{t("vc.noBranches", locale)}</p>
             <p className="text-xs text-muted-foreground">
-              Create a branch to start working
+              {t('vc.createBranchToStart', locale)}
             </p>
           </div>
         ) : (
@@ -116,7 +119,7 @@ function BranchesTab() {
                   <p className="truncate text-sm font-medium">{branch.name}</p>
                   <p className="text-[10px] text-muted-foreground">
                     {branch.isDefault
-                      ? 'Default branch'
+                      ? t('vc.defaultBranch', locale)
                       : `Created ${new Date(branch.createdAt).toLocaleDateString()}`}
                   </p>
                 </div>
@@ -128,14 +131,14 @@ function BranchesTab() {
                   className="h-6 px-2 text-[10px]"
                   onClick={() => switchBranch(branch.id)}
                 >
-                  Switch
+                  {t('vc.switchTo', locale)}
                 </Button>
               ) : (
                 <Badge
                   variant="outline"
                   className="text-[10px] px-1.5 py-0 h-5"
                 >
-                  Active
+                  {t('vc.active', locale)}
                 </Badge>
               )}
             </div>
@@ -149,13 +152,14 @@ function BranchesTab() {
 // ─── Merges Tab (inline) ──────────────────────────────────────────────────────
 
 function MergesTab() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const mergeRequests = useVersionStore((s) => s.mergeRequests);
 
   return (
     <ScrollArea className="h-full">
       <div className="flex items-center justify-between border-b px-4 py-3">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold">Merge Requests</h3>
+          <h3 className="text-sm font-semibold">{t("vc.mergeRequests", locale)}</h3>
           <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
             {mergeRequests.length}
           </Badge>
@@ -167,16 +171,16 @@ function MergesTab() {
           className="h-7 gap-1 px-2 text-xs"
         >
           <Plus className="h-3.5 w-3.5" />
-          New
+          {t('vc.new', locale)}
         </Button>
       </div>
       <div className="p-3 space-y-1">
         {mergeRequests.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 text-center">
             <GitMerge className="mb-2 h-8 w-8 text-muted-foreground/50" />
-            <p className="text-sm text-muted-foreground">No merge requests</p>
+            <p className="text-sm text-muted-foreground">{t("vc.noMergeRequests", locale)}</p>
             <p className="text-xs text-muted-foreground">
-              Create a merge request to propose changes
+              {t('vc.createMergeRequestToPropose', locale)}
             </p>
           </div>
         ) : (
@@ -195,7 +199,7 @@ function MergesTab() {
                       status.className,
                     )}
                   >
-                    {status.label}
+                    {t(status.i18nKey, locale)}
                   </Badge>
                 </div>
                 <div className="mt-1 flex items-center gap-1.5 text-[10px] text-muted-foreground">
@@ -222,6 +226,7 @@ function MergesTab() {
 // ─── Panel Content ────────────────────────────────────────────────────────────
 
 function PanelContent() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const rightPanelTab = useAppStore((s) => s.rightPanelTab);
   const setRightPanelTab = useAppStore((s) => s.setRightPanelTab);
 
@@ -260,7 +265,7 @@ function PanelContent() {
               onClick={() => setRightPanelTab(tab.value)}
             >
               {tab.icon}
-              <span className="hidden lg:inline">{tab.label}</span>
+              <span className="hidden lg:inline">{t(tab.i18nKey, locale)}</span>
             </button>
           ))}
 
@@ -280,7 +285,7 @@ function PanelContent() {
               onClick={() => setRightPanelTab(tab.value)}
             >
               {tab.icon}
-              <span className="hidden lg:inline">{tab.label}</span>
+              <span className="hidden lg:inline">{t(tab.i18nKey, locale)}</span>
             </button>
           ))}
         </div>
@@ -331,13 +336,14 @@ function DesktopRightPanel() {
 // ─── Mobile Right Panel (Sheet overlay) ───────────────────────────────────────
 
 function MobileRightPanel() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const rightPanelOpen = useAppStore((s) => s.rightPanelOpen);
   const setRightPanelOpen = useAppStore((s) => s.setRightPanelOpen);
 
   return (
     <Sheet open={rightPanelOpen} onOpenChange={setRightPanelOpen}>
       <SheetContent side="right" className="w-[85vw] max-w-[300px] p-0">
-        <SheetTitle className="sr-only">Properties Panel</SheetTitle>
+        <SheetTitle className="sr-only">{t("vc.propertiesPanel", locale)}</SheetTitle>
         <div className="h-[calc(100vh-56px)]">
           <PanelContent />
         </div>

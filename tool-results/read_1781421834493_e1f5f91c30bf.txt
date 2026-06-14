@@ -1,0 +1,1350 @@
+     1→'use client';
+     2→
+     3→import { useState, useCallback, useMemo } from 'react';
+     4→import {
+     5→  ChevronDown,
+     6→  ChevronRight,
+     7→  MousePointerClick,
+     8→  Plus,
+     9→  Link2,
+    10→  Unlink2,
+    11→  Trash2,
+    12→  Eye,
+    13→  EyeOff,
+    14→  Type,
+    15→  AlignLeft,
+    16→  AlignCenter,
+    17→  AlignRight,
+    18→  AlignJustify,
+    19→} from 'lucide-react';
+    20→import { useCanvasStore } from '@/store/canvas-store';
+    21→import { useToast } from '@/hooks/use-toast';
+    22→import { cn } from '@/lib/utils';
+    23→import { t, type Locale } from '@/lib/i18n';
+    24→import { useAuthStore } from '@/store/auth-store';
+    25→import {
+    26→  Collapsible,
+    27→  CollapsibleContent,
+    28→  CollapsibleTrigger,
+    29→} from '@/components/ui/collapsible';
+    30→import { Separator } from '@/components/ui/separator';
+    31→import { Slider } from '@/components/ui/slider';
+    32→import {
+    33→  Select,
+    34→  SelectContent,
+    35→  SelectItem,
+    36→  SelectTrigger,
+    37→  SelectValue,
+    38→} from '@/components/ui/select';
+    39→import { Button } from '@/components/ui/button';
+    40→import { Label } from '@/components/ui/label';
+    41→import { ScrollArea } from '@/components/ui/scroll-area';
+    42→import type {
+    43→  BoardElement,
+    44→  Fill,
+    45→  Stroke,
+    46→  ShadowEffect,
+    47→  TypographyStyles,
+    48→  AutoLayout,
+    49→  CornerRadius,
+    50→  FlexAlign,
+    51→  FlexJustify,
+    52→} from '@/lib/types';
+    53→
+    54→// ─── Neumorphism helpers ──────────────────────────────────────────────────────
+    55→
+    56→const neuRaised =
+    57→  'shadow-[3px_3px_6px_rgba(0,0,0,0.06),-3px_-3px_6px_rgba(255,255,255,0.7)] dark:shadow-[3px_3px_6px_rgba(0,0,0,0.3),-3px_-3px_6px_rgba(30,30,30,0.06)]';
+    58→
+    59→const neuInset =
+    60→  'shadow-[inset_1px_1px_3px_rgba(0,0,0,0.06),inset_-1px_-1px_3px_rgba(255,255,255,0.7)] dark:shadow-[inset_1px_1px_3px_rgba(0,0,0,0.3),inset_-1px_-1px_3px_rgba(30,30,30,0.05)]';
+    61→
+    62→// ─── Tiny number input ────────────────────────────────────────────────────────
+    63→
+    64→function TinyNumInput({
+    65→  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+    66→  label,
+    67→  value,
+    68→  onChange,
+    69→  min,
+    70→  max,
+    71→  step = 1,
+    72→  placeholder = '—',
+    73→}: {
+    74→  label: string;
+    75→  value: number | null;
+    76→  onChange: (v: number) => void;
+    77→  min?: number;
+    78→  max?: number;
+    79→  step?: number;
+    80→  placeholder?: string;
+    81→}) {
+    82→  const [editing, setEditing] = useState(false);
+    83→  const [text, setText] = useState('');
+    84→
+    85→  const display = value !== null ? String(Math.round(value * 100) / 100) : placeholder;
+    86→
+    87→  const commit = useCallback(() => {
+    88→    setEditing(false);
+    89→    if (text === '') return;
+    90→    const n = parseFloat(text);
+    91→    if (isNaN(n)) return;
+    92→    const clamped = Math.min(max ?? Infinity, Math.max(min ?? -Infinity, n));
+    93→    onChange(clamped);
+    94→  }, [text, min, max, onChange]);
+    95→
+    96→  if (!editing) {
+    97→    return (
+    98→      <div className="flex flex-col gap-0.5">
+    99→        <span className="text-[10px] text-muted-foreground leading-none">{label}</span>
+   100→        <button
+   101→          className={cn(
+   102→            'h-7 w-full rounded-md border border-border/50 bg-background/50 text-xs text-center px-1',
+   103→            'transition-colors hover:border-primary/30 focus:outline-none focus:ring-1 focus:ring-primary/30',
+   104→          )}
+   105→          onClick={() => {
+   106→            setText(value !== null ? String(value) : '');
+   107→            setEditing(true);
+   108→          }}
+   109→        >
+   110→          {display}
+   111→        </button>
+   112→      </div>
+   113→    );
+   114→  }
+   115→
+   116→  return (
+   117→    <div className="flex flex-col gap-0.5">
+   118→      <span className="text-[10px] text-muted-foreground leading-none">{label}</span>
+   119→      <input
+   120→        autoFocus
+   121→        type="number"
+   122→        min={min}
+   123→        max={max}
+   124→        step={step}
+   125→        value={text}
+   126→        onChange={(e) => setText(e.target.value)}
+   127→        onBlur={commit}
+   128→        onKeyDown={(e) => {
+   129→          if (e.key === 'Enter') commit();
+   130→          if (e.key === 'Escape') setEditing(false);
+   131→        }}
+   132→        className="h-7 w-full rounded-md border border-primary/50 bg-background text-xs text-center px-1 outline-none focus:ring-1 focus:ring-primary/30"
+   133→      />
+   134→    </div>
+   135→  );
+   136→}
+   137→
+   138→// ─── Multi-value helper ───────────────────────────────────────────────────────
+   139→
+   140→function getUniformValue<T>(
+   141→  elements: BoardElement[],
+   142→  getter: (el: BoardElement) => T,
+   143→): T | null {
+   144→  if (elements.length === 0) return null;
+   145→  const first = getter(elements[0]);
+   146→  if (elements.every((el) => getter(el) === first)) return first;
+   147→  return null;
+   148→}
+   149→
+   150→function getUniformNumberValue(
+   151→  elements: BoardElement[],
+   152→  getter: (el: BoardElement) => number,
+   153→): number | null {
+   154→  if (elements.length === 0) return null;
+   155→  const first = getter(elements[0]);
+   156→  if (elements.every((el) => getter(el) === first)) return first;
+   157→  return null;
+   158→}
+   159→
+   160→// ─── Section wrapper ──────────────────────────────────────────────────────────
+   161→
+   162→function Section({
+   163→  title,
+   164→  defaultOpen = true,
+   165→  children,
+   166→}: {
+   167→  title: string;
+   168→  defaultOpen?: boolean;
+   169→  children: React.ReactNode;
+   170→}) {
+   171→  const [open, setOpen] = useState(defaultOpen);
+   172→
+   173→  return (
+   174→    <Collapsible open={open} onOpenChange={setOpen}>
+   175→      <CollapsibleTrigger
+   176→        className={cn(
+   177→          'flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold',
+   178→          'transition-all hover:bg-muted/50 cursor-pointer select-none',
+   179→          neuRaised,
+   180→        )}
+   181→      >
+   182→        <span>{title}</span>
+   183→        {open ? (
+   184→          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+   185→        ) : (
+   186→          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+   187→        )}
+   188→      </CollapsibleTrigger>
+   189→      <CollapsibleContent>
+   190→        <div className="px-3 pb-3 pt-2 space-y-2.5">{children}</div>
+   191→      </CollapsibleContent>
+   192→    </Collapsible>
+   193→  );
+   194→}
+   195→
+   196→// ─── Main Design Panel ────────────────────────────────────────────────────────
+   197→
+   198→export function DesignPanel() {
+   199→  const elements = useCanvasStore((s) => s.elements);
+   200→  const selectedIds = useCanvasStore((s) => s.selectedIds);
+   201→  const updateElement = useCanvasStore((s) => s.updateElement);
+   202→  const updateElementStyles = useCanvasStore((s) => s.updateElementStyles);
+   203→  const { toast } = useToast();
+   204→
+   205→  const selectedElements = useMemo(
+   206→    () => elements.filter((el) => selectedIds.includes(el.id)),
+   207→    [elements, selectedIds],
+   208→  );
+   209→
+   210→  const primary = selectedElements[0] ?? null;
+   211→  const styles = primary?.styles;
+   212→
+   213→  // ── Helper to update all selected elements ──
+   214→  const updateAll = useCallback(
+   215→    (updates: Partial<BoardElement>) => {
+   216→      for (const id of selectedIds) {
+   217→        updateElement(id, updates);
+   218→      }
+   219→    },
+   220→    [selectedIds, updateElement],
+   221→  );
+   222→
+   223→  const updateAllStyles = useCallback(
+   224→    (styleUpdates: Record<string, unknown>) => {
+   225→      for (const id of selectedIds) {
+   226→        updateElementStyles(id, styleUpdates);
+   227→      }
+   228→    },
+   229→    [selectedIds, updateElementStyles],
+   230→  );
+   231→
+   232→  // ── Empty state ──
+   233→  if (selectedElements.length === 0) {
+   234→    return (
+   235→      <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
+   236→        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted/50">
+   237→          <MousePointerClick className="h-6 w-6 text-muted-foreground/60" />
+   238→        </div>
+   239→        <p className="text-sm text-muted-foreground">
+   240→          Select an element to edit its properties
+   241→        </p>
+   242→      </div>
+   243→    );
+   244→  }
+   245→
+   246→  const isText = primary?.type === 'TEXT';
+   247→  const isFrame = primary?.type === 'FRAME';
+   248→  const isRect = primary?.type === 'RECTANGLE';
+   249→  const showCornerRadius = isRect || isFrame;
+   250→
+   251→  return (
+   252→    <ScrollArea className="h-full">
+   253→      <div className="space-y-1 p-2">
+   254→        {/* ── Section 1: Position & Size ────────────────────────────────── */}
+   255→        <Section title="Position & Size">
+   256→          <div className="grid grid-cols-2 gap-2">
+   257→            <TinyNumInput
+   258→              label="X"
+   259→              value={getUniformNumberValue(selectedElements, (el) => el.x)}
+   260→              onChange={(v) => updateAll({ x: v })}
+   261→            />
+   262→            <TinyNumInput
+   263→              label="Y"
+   264→              value={getUniformNumberValue(selectedElements, (el) => el.y)}
+   265→              onChange={(v) => updateAll({ y: v })}
+   266→            />
+   267→            <TinyNumInput
+   268→              label="W"
+   269→              value={getUniformNumberValue(selectedElements, (el) => el.width)}
+   270→              onChange={(v) => updateAll({ width: v })}
+   271→              min={1}
+   272→            />
+   273→            <TinyNumInput
+   274→              label="H"
+   275→              value={getUniformNumberValue(selectedElements, (el) => el.height)}
+   276→              onChange={(v) => updateAll({ height: v })}
+   277→              min={1}
+   278→            />
+   279→          </div>
+   280→          <div>
+   281→            <TinyNumInput
+   282→              label="Rotation"
+   283→              value={getUniformNumberValue(selectedElements, (el) => el.rotation)}
+   284→              onChange={(v) => updateAll({ rotation: v })}
+   285→              min={0}
+   286→              max={360}
+   287→            />
+   288→          </div>
+   289→
+   290→          {/* Frame-specific: Clip Content & Device */}
+   291→          {isFrame && (
+   292→            <>
+   293→              <div className="flex items-center justify-between">
+   294→                <Label className="text-xs">{t("design.clipContent", locale)}</Label>
+   295→                <button
+   296→                  className={cn(
+   297→                    'relative h-5 w-9 rounded-full transition-colors',
+   298→                    styles?.frameClip ? 'bg-primary' : 'bg-muted',
+   299→                  )}
+   300→                  onClick={() => updateAllStyles({ frameClip: !styles?.frameClip })}
+   301→                >
+   302→                  <span
+   303→                    className={cn(
+   304→                      'absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform',
+   305→                      styles?.frameClip && 'translate-x-4',
+   306→                    )}
+   307→                  />
+   308→                </button>
+   309→              </div>
+   310→              {styles?.frameDevice && (
+   311→                <div className="flex items-center gap-1.5">
+   312→                  <span className="text-[10px] text-muted-foreground">{t("design.device", locale)}</span>
+   313→                  <span className="text-xs font-medium">{styles.frameDevice}</span>
+   314→                </div>
+   315→              )}
+   316→            </>
+   317→          )}
+   318→        </Section>
+   319→
+   320→        <Separator />
+   321→
+   322→        {/* ── Section 2: Fill ───────────────────────────────────────────── */}
+   323→        <Section title="Fill">
+   324→          {isText ? (
+   325→            <TextFillSection
+   326→              primary={primary}
+   327→              selectedIds={selectedIds}
+   328→              updateAllStyles={updateAllStyles}
+   329→            />
+   330→          ) : (
+   331→            <ShapeFillSection
+   332→              primary={primary}
+   333→              selectedIds={selectedIds}
+   334→              updateAllStyles={updateAllStyles}
+   335→              toast={toast}
+   336→            />
+   337→          )}
+   338→        </Section>
+   339→
+   340→        <Separator />
+   341→
+   342→        {/* ── Section 3: Stroke ─────────────────────────────────────────── */}
+   343→        <Section title="Stroke">
+   344→          <StrokeSection
+   345→            primary={primary}
+   346→            selectedIds={selectedIds}
+   347→            updateAllStyles={updateAllStyles}
+   348→            toast={toast}
+   349→          />
+   350→        </Section>
+   351→
+   352→        <Separator />
+   353→
+   354→        {/* ── Section 4: Effects ────────────────────────────────────────── */}
+   355→        <Section title="Effects" defaultOpen={false}>
+   356→          <EffectsSection
+   357→            primary={primary}
+   358→            selectedIds={selectedIds}
+   359→            updateAllStyles={updateAllStyles}
+   360→          />
+   361→        </Section>
+   362→
+   363→        <Separator />
+   364→
+   365→        {/* ── Section 5: Typography (TEXT only) ──────────────────────────── */}
+   366→        {isText && (
+   367→          <>
+   368→            <Section title="Typography">
+   369→              <TypographySection
+   370→                primary={primary}
+   371→                selectedIds={selectedIds}
+   372→                updateAllStyles={updateAllStyles}
+   373→              />
+   374→            </Section>
+   375→            <Separator />
+   376→          </>
+   377→        )}
+   378→
+   379→        {/* ── Section 6: Auto Layout (FRAME only) ───────────────────────── */}
+   380→        {isFrame && (
+   381→          <>
+   382→            <Section title="Layout" defaultOpen={false}>
+   383→              <AutoLayoutSection
+   384→                primary={primary}
+   385→                selectedIds={selectedIds}
+   386→                updateAllStyles={updateAllStyles}
+   387→              />
+   388→            </Section>
+   389→            <Separator />
+   390→          </>
+   391→        )}
+   392→
+   393→        {/* ── Section 7: Corner Radius (RECTANGLE / FRAME) ──────────────── */}
+   394→        {showCornerRadius && (
+   395→          <Section title="Corner Radius">
+   396→            <CornerRadiusSection
+   397→              primary={primary}
+   398→              selectedIds={selectedIds}
+   399→              updateAllStyles={updateAllStyles}
+   400→            />
+   401→          </Section>
+   402→        )}
+   403→      </div>
+   404→    </ScrollArea>
+   405→  );
+   406→}
+   407→
+   408→// ─── Fill Section (Shape) ─────────────────────────────────────────────────────
+   409→
+   410→function ShapeFillSection({
+   411→  primary,
+   412→  selectedIds,
+   413→  updateAllStyles,
+   414→  toast,
+   415→}: {
+   416→  primary: BoardElement;
+   417→  selectedIds: string[];
+   418→  updateAllStyles: (s: Record<string, unknown>) => void;
+   419→  toast: (opts: { title: string; description?: string }) => void;
+   420→}) {
+   421→  const styles = primary.styles;
+   422→  const fills: Fill[] = (styles?.fills as Fill[]) ?? [];
+   423→
+   424→  const primaryFill = fills[0];
+   425→  const fillColor = primaryFill?.color ?? primary.color ?? '#FFFFFF';
+   426→  const fillOpacity = primaryFill?.opacity ?? 1;
+   427→
+   428→  const setFillColor = (color: string) => {
+   429→    const current = (styles?.fills as Fill[]) ?? [];
+   430→    if (current.length > 0) {
+   431→      updateAllStyles({
+   432→        fills: current.map((f, i) =>
+   433→          i === 0 ? { ...f, color } : f,
+   434→        ),
+   435→      });
+   436→    } else {
+   437→      updateAllStyles({
+   438→        fills: [{ id: `fill-${Date.now()}`, type: 'solid' as const, color, opacity: 1 }],
+   439→      });
+   440→    }
+   441→  };
+   442→
+   443→  const setFillOpacity = (opacity: number) => {
+   444→    const current = (styles?.fills as Fill[]) ?? [];
+   445→    if (current.length > 0) {
+   446→      updateAllStyles({
+   447→        fills: current.map((f, i) =>
+   448→          i === 0 ? { ...f, opacity } : f,
+   449→        ),
+   450→      });
+   451→    }
+   452→  };
+   453→
+   454→  return (
+   455→    <div className="space-y-2">
+   456→      <div className="flex items-center gap-2">
+   457→        <div className="relative">
+   458→          <input
+   459→            type="color"
+   460→            value={fillColor}
+   461→            onChange={(e) => setFillColor(e.target.value)}
+   462→            className="h-7 w-7 cursor-pointer rounded-md border border-border/50 bg-transparent p-0.5"
+   463→          />
+   464→        </div>
+   465→        <input
+   466→          type="text"
+   467→          value={fillColor}
+   468→          onChange={(e) => {
+   469→            if (/^#[0-9A-Fa-f]{0,6}$/.test(e.target.value) || e.target.value === '') {
+   470→              setFillColor(e.target.value || '#000000');
+   471→            }
+   472→          }}
+   473→          className={cn(
+   474→            'h-7 flex-1 rounded-md border border-border/50 bg-background/50 px-2 text-xs font-mono',
+   475→            'focus:outline-none focus:ring-1 focus:ring-primary/30',
+   476→          )}
+   477→          placeholder="#FFFFFF"
+   478→        />
+   479→      </div>
+   480→
+   481→      <div className="space-y-1">
+   482→        <div className="flex items-center justify-between">
+   483→          <span className="text-[10px] text-muted-foreground">{t("design.opacity", locale)}</span>
+   484→          <span className="text-[10px] text-muted-foreground">
+   485→            {Math.round(fillOpacity * 100)}%
+   486→          </span>
+   487→        </div>
+   488→        <Slider
+   489→          min={0}
+   490→          max={1}
+   491→          step={0.01}
+   492→          value={[fillOpacity]}
+   493→          onValueChange={([v]) => setFillOpacity(v)}
+   494→          className="h-2"
+   495→        />
+   496→      </div>
+   497→
+   498→      <Button
+   499→        variant="ghost"
+   500→        size="sm"
+   501→        className="h-7 w-full text-xs gap-1"
+   502→        onClick={() =>
+   503→          toast({ title: 'Coming soon', description: 'Gradient fills coming soon' })
+   504→        }
+   505→      >
+   506→        <Plus className="h-3 w-3" />
+   507→        Add Fill
+   508→      </Button>
+   509→    </div>
+   510→  );
+   511→}
+   512→
+   513→// ─── Fill Section (Text) ──────────────────────────────────────────────────────
+   514→
+   515→function TextFillSection({
+   516→  primary,
+   517→  selectedIds,
+   518→  updateAllStyles,
+   519→}: {
+   520→  primary: BoardElement;
+   521→  selectedIds: string[];
+   522→  updateAllStyles: (s: Record<string, unknown>) => void;
+   523→}) {
+   524→  const typography = primary.styles?.typography as TypographyStyles | undefined;
+   525→  const color = typography?.color ?? '#1F2937';
+   526→
+   527→  const setTypographyColor = (c: string) => {
+   528→    const current = primary.styles?.typography as TypographyStyles | undefined;
+   529→    updateAllStyles({
+   530→      typography: { ...(current ?? {}), color: c } as TypographyStyles,
+   531→    });
+   532→  };
+   533→
+   534→  return (
+   535→    <div className="space-y-2">
+   536→      <div className="flex items-center gap-2">
+   537→        <input
+   538→          type="color"
+   539→          value={color}
+   540→          onChange={(e) => setTypographyColor(e.target.value)}
+   541→          className="h-7 w-7 cursor-pointer rounded-md border border-border/50 bg-transparent p-0.5"
+   542→        />
+   543→        <input
+   544→          type="text"
+   545→          value={color}
+   546→          onChange={(e) => {
+   547→            if (/^#[0-9A-Fa-f]{0,6}$/.test(e.target.value) || e.target.value === '') {
+   548→              setTypographyColor(e.target.value || '#000000');
+   549→            }
+   550→          }}
+   551→          className={cn(
+   552→            'h-7 flex-1 rounded-md border border-border/50 bg-background/50 px-2 text-xs font-mono',
+   553→            'focus:outline-none focus:ring-1 focus:ring-primary/30',
+   554→          )}
+   555→          placeholder="#1F2937"
+   556→        />
+   557→      </div>
+   558→    </div>
+   559→  );
+   560→}
+   561→
+   562→// ─── Stroke Section ───────────────────────────────────────────────────────────
+   563→
+   564→function StrokeSection({
+   565→  primary,
+   566→  selectedIds,
+   567→  updateAllStyles,
+   568→  toast,
+   569→}: {
+   570→  primary: BoardElement;
+   571→  selectedIds: string[];
+   572→  updateAllStyles: (s: Record<string, unknown>) => void;
+   573→  toast: (opts: { title: string; description?: string }) => void;
+   574→}) {
+   575→  const styles = primary.styles;
+   576→  const strokes: Stroke[] = (styles?.strokes as Stroke[]) ?? [];
+   577→  const primaryStroke = strokes[0];
+   578→
+   579→  const strokeColor = primaryStroke?.color ?? styles?.borderColor ?? '#000000';
+   580→  const strokeWidth = primaryStroke?.width ?? styles?.borderWidth ?? 0;
+   581→  const strokeStyle = primaryStroke?.style ?? styles?.borderStyle ?? 'solid';
+   582→
+   583→  const updateStroke = (updates: Partial<Stroke>) => {
+   584→    const current = (styles?.strokes as Stroke[]) ?? [];
+   585→    if (current.length > 0) {
+   586→      updateAllStyles({
+   587→        strokes: current.map((s, i) => (i === 0 ? { ...s, ...updates } : s)),
+   588→      });
+   589→    } else {
+   590→      updateAllStyles({
+   591→        strokes: [
+   592→          {
+   593→            id: `stroke-${Date.now()}`,
+   594→            color: strokeColor,
+   595→            width: strokeWidth,
+   596→            style: 'solid' as const,
+   597→            align: 'center' as const,
+   598→            cap: 'butt' as const,
+   599→            join: 'miter' as const,
+   600→            ...updates,
+   601→          },
+   602→        ],
+   603→      });
+   604→    }
+   605→  };
+   606→
+   607→  return (
+   608→    <div className="space-y-2">
+   609→      <div className="flex items-center gap-2">
+   610→        <input
+   611→          type="color"
+   612→          value={strokeColor}
+   613→          onChange={(e) => updateStroke({ color: e.target.value })}
+   614→          className="h-7 w-7 cursor-pointer rounded-md border border-border/50 bg-transparent p-0.5"
+   615→        />
+   616→        <input
+   617→          type="text"
+   618→          value={strokeColor}
+   619→          onChange={(e) => {
+   620→            if (/^#[0-9A-Fa-f]{0,6}$/.test(e.target.value) || e.target.value === '') {
+   621→              updateStroke({ color: e.target.value || '#000000' });
+   622→            }
+   623→          }}
+   624→          className={cn(
+   625→            'h-7 flex-1 rounded-md border border-border/50 bg-background/50 px-2 text-xs font-mono',
+   626→            'focus:outline-none focus:ring-1 focus:ring-primary/30',
+   627→          )}
+   628→        />
+   629→      </div>
+   630→
+   631→      <div className="grid grid-cols-2 gap-2">
+   632→        <div className="flex flex-col gap-0.5">
+   633→          <span className="text-[10px] text-muted-foreground">{t("design.width", locale)}</span>
+   634→          <TinyNumInput
+   635→            label=""
+   636→            value={strokeWidth}
+   637→            onChange={(v) => updateStroke({ width: v })}
+   638→            min={0}
+   639→            max={20}
+   640→          />
+   641→        </div>
+   642→        <div className="flex flex-col gap-0.5">
+   643→          <span className="text-[10px] text-muted-foreground">{t("design.style", locale)}</span>
+   644→          <Select
+   645→            value={strokeStyle}
+   646→            onValueChange={(v) =>
+   647→              updateStroke({ style: v as Stroke['style'] })
+   648→            }
+   649→          >
+   650→            <SelectTrigger size="sm" className="h-7 w-full text-xs">
+   651→              <SelectValue />
+   652→            </SelectTrigger>
+   653→            <SelectContent>
+   654→              <SelectItem value="solid">{t("design.solid", locale)}/SelectItem>
+   655→              <SelectItem value="dashed">{t("design.dashed", locale)}/SelectItem>
+   656→              <SelectItem value="dotted">{t("design.dotted", locale)}/SelectItem>
+   657→            </SelectContent>
+   658→          </Select>
+   659→        </div>
+   660→      </div>
+   661→
+   662→      <Button
+   663→        variant="ghost"
+   664→        size="sm"
+   665→        className="h-7 w-full text-xs gap-1"
+   666→        onClick={() =>
+   667→          toast({ title: 'Coming soon', description: 'Multiple strokes coming soon' })
+   668→        }
+   669→      >
+   670→        <Plus className="h-3 w-3" />
+   671→        Add Stroke
+   672→      </Button>
+   673→    </div>
+   674→  );
+   675→}
+   676→
+   677→// ─── Effects Section (Shadow & Blur) ──────────────────────────────────────────
+   678→
+   679→function EffectsSection({
+   680→  primary,
+   681→  selectedIds,
+   682→  updateAllStyles,
+   683→}: {
+   684→  primary: BoardElement;
+   685→  selectedIds: string[];
+   686→  updateAllStyles: (s: Record<string, unknown>) => void;
+   687→}) {
+   688→  const styles = primary.styles;
+   689→  const shadows: ShadowEffect[] = (styles?.shadows as ShadowEffect[]) ?? [];
+   690→  const layerBlur = (styles?.blurs as { id: string; type: string; value: number; visible: boolean }[] ?? []).find(
+   691→    (b) => b.type === 'layer-blur',
+   692→  );
+   693→
+   694→  const addShadow = () => {
+   695→    const current = (styles?.shadows as ShadowEffect[]) ?? [];
+   696→    const newShadow: ShadowEffect = {
+   697→      id: `shadow-${Date.now()}`,
+   698→      type: 'drop-shadow',
+   699→      color: '#00000033',
+   700→      offsetX: 0,
+   701→      offsetY: 4,
+   702→      blur: 10,
+   703→      spread: 0,
+   704→      visible: true,
+   705→    };
+   706→    updateAllStyles({ shadows: [...current, newShadow] });
+   707→  };
+   708→
+   709→  const removeShadow = (id: string) => {
+   710→    const current = (styles?.shadows as ShadowEffect[]) ?? [];
+   711→    updateAllStyles({ shadows: current.filter((s) => s.id !== id) });
+   712→  };
+   713→
+   714→  const updateShadow = (id: string, updates: Partial<ShadowEffect>) => {
+   715→    const current = (styles?.shadows as ShadowEffect[]) ?? [];
+   716→    updateAllStyles({
+   717→      shadows: current.map((s) => (s.id === id ? { ...s, ...updates } : s)),
+   718→    });
+   719→  };
+   720→
+   721→  return (
+   722→    <div className="space-y-3">
+   723→      {/* Shadows */}
+   724→      {shadows.map((shadow) => (
+   725→        <div key={shadow.id} className="space-y-2 rounded-md border border-border/30 p-2">
+   726→          <div className="flex items-center justify-between">
+   727→            <div className="flex items-center gap-1.5">
+   728→              <button
+   729→                onClick={() => updateShadow(shadow.id, { visible: !shadow.visible })}
+   730→                className="text-muted-foreground hover:text-foreground transition-colors"
+   731→              >
+   732→                {shadow.visible ? (
+   733→                  <Eye className="h-3.5 w-3.5" />
+   734→                ) : (
+   735→                  <EyeOff className="h-3.5 w-3.5" />
+   736→                )}
+   737→              </button>
+   738→              <span className="text-[10px] font-medium">
+   739→                {shadow.type === 'drop-shadow' ? 'Drop Shadow' : 'Inner Shadow'}
+   740→              </span>
+   741→            </div>
+   742→            <button
+   743→              onClick={() => removeShadow(shadow.id)}
+   744→              className="text-muted-foreground hover:text-destructive transition-colors"
+   745→            >
+   746→              <Trash2 className="h-3 w-3" />
+   747→            </button>
+   748→          </div>
+   749→
+   750→          <div className="grid grid-cols-2 gap-1.5">
+   751→            <div className="flex items-center gap-1">
+   752→              <input
+   753→                type="color"
+   754→                value={shadow.color.slice(0, 7)}
+   755→                onChange={(e) => updateShadow(shadow.id, { color: e.target.value + '33' })}
+   756→                className="h-5 w-5 cursor-pointer rounded border border-border/50 bg-transparent p-0"
+   757→              />
+   758→              <input
+   759→                type="text"
+   760→                value={shadow.color.slice(0, 7)}
+   761→                onChange={(e) => updateShadow(shadow.id, { color: e.target.value + '33' })}
+   762→                className="h-5 flex-1 rounded border border-border/50 bg-transparent px-1 text-[10px] font-mono focus:outline-none focus:ring-1 focus:ring-primary/30"
+   763→              />
+   764→            </div>
+   765→          </div>
+   766→
+   767→          <div className="grid grid-cols-4 gap-1">
+   768→            <TinyNumInput
+   769→              label="X"
+   770→              value={shadow.offsetX}
+   771→              onChange={(v) => updateShadow(shadow.id, { offsetX: v })}
+   772→            />
+   773→            <TinyNumInput
+   774→              label="Y"
+   775→              value={shadow.offsetY}
+   776→              onChange={(v) => updateShadow(shadow.id, { offsetY: v })}
+   777→            />
+   778→            <TinyNumInput
+   779→              label="Blur"
+   780→              value={shadow.blur}
+   781→              onChange={(v) => updateShadow(shadow.id, { blur: v })}
+   782→              min={0}
+   783→            />
+   784→            <TinyNumInput
+   785→              label="Spread"
+   786→              value={shadow.spread}
+   787→              onChange={(v) => updateShadow(shadow.id, { spread: v })}
+   788→            />
+   789→          </div>
+   790→
+   791→          <Select
+   792→            value={shadow.type}
+   793→            onValueChange={(v) => updateShadow(shadow.id, { type: v as ShadowEffect['type'] })}
+   794→          >
+   795→            <SelectTrigger size="sm" className="h-6 w-full text-[10px]">
+   796→              <SelectValue />
+   797→            </SelectTrigger>
+   798→            <SelectContent>
+   799→              <SelectItem value="drop-shadow">{t("design.dropShadow", locale)}/SelectItem>
+   800→              <SelectItem value="inner-shadow">{t("design.innerShadow", locale)}/SelectItem>
+   801→            </SelectContent>
+   802→          </Select>
+   803→        </div>
+   804→      ))}
+   805→
+   806→      <Button
+   807→        variant="ghost"
+   808→        size="sm"
+   809→        className="h-7 w-full text-xs gap-1"
+   810→        onClick={addShadow}
+   811→      >
+   812→        <Plus className="h-3 w-3" />
+   813→        Add Effect
+   814→      </Button>
+   815→
+   816→      <Separator />
+   817→
+   818→      {/* Layer Blur */}
+   819→      <div className="space-y-1">
+   820→        <div className="flex items-center justify-between">
+   821→          <span className="text-[10px] font-medium">{t("design.layerBlur", locale)}</span>
+   822→          <span className="text-[10px] text-muted-foreground">
+   823→            {layerBlur?.value ?? 0}
+   824→          </span>
+   825→        </div>
+   826→        <Slider
+   827→          min={0}
+   828→          max={100}
+   829→          step={1}
+   830→          value={[layerBlur?.value ?? 0]}
+   831→          onValueChange={([v]) => {
+   832→            const blurs = (styles?.blurs as { id: string; type: string; value: number; visible: boolean }[]) ?? [];
+   833→            const existing = blurs.find((b) => b.type === 'layer-blur');
+   834→            if (existing) {
+   835→              updateAllStyles({
+   836→                blurs: blurs.map((b) =>
+   837→                  b.type === 'layer-blur' ? { ...b, value: v } : b,
+   838→                ),
+   839→              });
+   840→            } else {
+   841→              updateAllStyles({
+   842→                blurs: [
+   843→                  ...blurs,
+   844→                  { id: `blur-${Date.now()}`, type: 'layer-blur', value: v, visible: true },
+   845→                ],
+   846→              });
+   847→            }
+   848→          }}
+   849→          className="h-2"
+   850→        />
+   851→      </div>
+   852→    </div>
+   853→  );
+   854→}
+   855→
+   856→// ─── Typography Section ───────────────────────────────────────────────────────
+   857→
+   858→const FONT_FAMILIES = [
+   859→  'Inter, system-ui, sans-serif',
+   860→  'System UI, sans-serif',
+   861→  'Georgia, serif',
+   862→  'Times New Roman, serif',
+   863→  'Courier New, monospace',
+   864→  'Arial, sans-serif',
+   865→  'Helvetica, sans-serif',
+   866→];
+   867→
+   868→const FONT_WEIGHTS = [
+   869→  { value: '100', label: '100 (Thin)' },
+   870→  { value: '200', label: '200 (Extra Light)' },
+   871→  { value: '300', label: '300 (Light)' },
+   872→  { value: '400', label: '400 (Regular)' },
+   873→  { value: '500', label: '500 (Medium)' },
+   874→  { value: '600', label: '600 (Semi Bold)' },
+   875→  { value: '700', label: '700 (Bold)' },
+   876→  { value: '800', label: '800 (Extra Bold)' },
+   877→  { value: '900', label: '900 (Black)' },
+   878→];
+   879→
+   880→function TypographySection({
+   881→  primary,
+   882→  selectedIds,
+   883→  updateAllStyles,
+   884→}: {
+   885→  primary: BoardElement;
+   886→  selectedIds: string[];
+   887→  updateAllStyles: (s: Record<string, unknown>) => void;
+   888→}) {
+   889→  const typography = primary.styles?.typography as TypographyStyles | undefined;
+   890→  const t = typography ?? {
+   891→    fontFamily: 'Inter, system-ui, sans-serif',
+   892→    fontSize: 16,
+   893→    fontWeight: 400,
+   894→    lineHeight: 1.5,
+   895→    letterSpacing: 0,
+   896→    textDecoration: 'none' as const,
+   897→    color: '#1F2937',
+   898→    textAlign: 'left' as const,
+   899→    fontStyle: 'normal' as const,
+   900→    textCase: 'none' as const,
+   901→  };
+   902→
+   903→  const updateTypography = (updates: Partial<TypographyStyles>) => {
+   904→    updateAllStyles({ typography: { ...t, ...updates } as TypographyStyles });
+   905→  };
+   906→
+   907→  const textAlignOptions = [
+   908→    { value: 'left', icon: AlignLeft },
+   909→    { value: 'center', icon: AlignCenter },
+   910→    { value: 'right', icon: AlignRight },
+   911→    { value: 'justify', icon: AlignJustify },
+   912→  ] as const;
+   913→
+   914→  return (
+   915→    <div className="space-y-2.5">
+   916→      {/* Font Family */}
+   917→      <Select
+   918→        value={t.fontFamily}
+   919→        onValueChange={(v) => updateTypography({ fontFamily: v })}
+   920→      >
+   921→        <SelectTrigger size="sm" className="h-7 w-full text-xs">
+   922→          <SelectValue />
+   923→        </SelectTrigger>
+   924→        <SelectContent>
+   925→          {FONT_FAMILIES.map((f) => (
+   926→            <SelectItem key={f} value={f}>
+   927→              {f.split(',')[0]}
+   928→            </SelectItem>
+   929→          ))}
+   930→        </SelectContent>
+   931→      </Select>
+   932→
+   933→      {/* Font Size + Weight row */}
+   934→      <div className="grid grid-cols-2 gap-2">
+   935→        <div className="flex flex-col gap-0.5">
+   936→          <span className="text-[10px] text-muted-foreground">{t("design.size", locale)}</span>
+   937→          <TinyNumInput
+   938→            label=""
+   939→            value={t.fontSize}
+   940→            onChange={(v) => updateTypography({ fontSize: v })}
+   941→            min={1}
+   942→            max={200}
+   943→          />
+   944→        </div>
+   945→        <div className="flex flex-col gap-0.5">
+   946→          <span className="text-[10px] text-muted-foreground">{t("design.weight", locale)}</span>
+   947→          <Select
+   948→            value={String(t.fontWeight)}
+   949→            onValueChange={(v) => updateTypography({ fontWeight: parseInt(v, 10) })}
+   950→          >
+   951→            <SelectTrigger size="sm" className="h-7 w-full text-xs">
+   952→              <SelectValue />
+   953→            </SelectTrigger>
+   954→            <SelectContent>
+   955→              {FONT_WEIGHTS.map((fw) => (
+   956→                <SelectItem key={fw.value} value={fw.value}>
+   957→                  {fw.label}
+   958→                </SelectItem>
+   959→              ))}
+   960→            </SelectContent>
+   961→          </Select>
+   962→        </div>
+   963→      </div>
+   964→
+   965→      {/* Line Height + Letter Spacing row */}
+   966→      <div className="grid grid-cols-2 gap-2">
+   967→        <div className="flex flex-col gap-0.5">
+   968→          <span className="text-[10px] text-muted-foreground">{t("design.lineHeight", locale)}</span>
+   969→          <TinyNumInput
+   970→            label=""
+   971→            value={t.lineHeight}
+   972→            onChange={(v) => updateTypography({ lineHeight: v })}
+   973→            min={0.5}
+   974→            max={3}
+   975→            step={0.1}
+   976→          />
+   977→        </div>
+   978→        <div className="flex flex-col gap-0.5">
+   979→          <span className="text-[10px] text-muted-foreground">{t("design.letterSpacing", locale)}</span>
+   980→          <TinyNumInput
+   981→            label=""
+   982→            value={t.letterSpacing}
+   983→            onChange={(v) => updateTypography({ letterSpacing: v })}
+   984→            min={-5}
+   985→            max={20}
+   986→            step={0.5}
+   987→          />
+   988→        </div>
+   989→      </div>
+   990→
+   991→      {/* Text Align */}
+   992→      <div className="space-y-1">
+   993→        <span className="text-[10px] text-muted-foreground">{t("design.align", locale)}</span>
+   994→        <div className="flex gap-0.5">
+   995→          {textAlignOptions.map((opt) => (
+   996→            <button
+   997→              key={opt.value}
+   998→              className={cn(
+   999→                'h-7 flex-1 flex items-center justify-center rounded-md border transition-colors',
+  1000→                t.textAlign === opt.value
+  1001→                  ? 'border-primary/50 bg-primary/10 text-primary'
+  1002→                  : 'border-border/50 hover:bg-muted/50 text-muted-foreground',
+  1003→              )}
+  1004→              onClick={() => updateTypography({ textAlign: opt.value })}
+  1005→            >
+  1006→              <opt.icon className="h-3.5 w-3.5" />
+  1007→            </button>
+  1008→          ))}
+  1009→        </div>
+  1010→      </div>
+  1011→
+  1012→      {/* Text Case + Text Decoration row */}
+  1013→      <div className="grid grid-cols-2 gap-2">
+  1014→        <div className="flex flex-col gap-0.5">
+  1015→          <span className="text-[10px] text-muted-foreground">{t("design.case", locale)}</span>
+  1016→          <Select
+  1017→            value={t.textCase}
+  1018→            onValueChange={(v) => updateTypography({ textCase: v as TypographyStyles['textCase'] })}
+  1019→          >
+  1020→            <SelectTrigger size="sm" className="h-7 w-full text-xs">
+  1021→              <SelectValue />
+  1022→            </SelectTrigger>
+  1023→            <SelectContent>
+  1024→              <SelectItem value="none">{t("design.none", locale)}/SelectItem>
+  1025→              <SelectItem value="uppercase">{t("design.uppercase", locale)}/SelectItem>
+  1026→              <SelectItem value="lowercase">{t("design.lowercase", locale)}/SelectItem>
+  1027→              <SelectItem value="capitalize">Capitalize</SelectItem>
+  1028→            </SelectContent>
+  1029→          </Select>
+  1030→        </div>
+  1031→        <div className="flex flex-col gap-0.5">
+  1032→          <span className="text-[10px] text-muted-foreground">Decoration</span>
+  1033→          <Select
+  1034→            value={t.textDecoration}
+  1035→            onValueChange={(v) => updateTypography({ textDecoration: v as TypographyStyles['textDecoration'] })}
+  1036→          >
+  1037→            <SelectTrigger size="sm" className="h-7 w-full text-xs">
+  1038→              <SelectValue />
+  1039→            </SelectTrigger>
+  1040→            <SelectContent>
+  1041→              <SelectItem value="none">{t("design.none", locale)}/SelectItem>
+  1042→              <SelectItem value="underline">Underline</SelectItem>
+  1043→              <SelectItem value="line-through">Line-through</SelectItem>
+  1044→            </SelectContent>
+  1045→          </Select>
+  1046→        </div>
+  1047→      </div>
+  1048→
+  1049→      {/* Font Style toggle */}
+  1050→      <div className="flex items-center justify-between">
+  1051→        <span className="text-xs">{t("design.style", locale)}</span>
+  1052→        <div className="flex gap-0.5">
+  1053→          <button
+  1054→            className={cn(
+  1055→              'h-7 px-3 rounded-md border text-xs font-medium transition-colors',
+  1056→              t.fontStyle === 'normal'
+  1057→                ? 'border-primary/50 bg-primary/10 text-primary'
+  1058→                : 'border-border/50 hover:bg-muted/50 text-muted-foreground',
+  1059→            )}
+  1060→            onClick={() => updateTypography({ fontStyle: 'normal' })}
+  1061→          >
+  1062→            Normal
+  1063→          </button>
+  1064→          <button
+  1065→            className={cn(
+  1066→              'h-7 px-3 rounded-md border text-xs italic transition-colors',
+  1067→              t.fontStyle === 'italic'
+  1068→                ? 'border-primary/50 bg-primary/10 text-primary'
+  1069→                : 'border-border/50 hover:bg-muted/50 text-muted-foreground',
+  1070→            )}
+  1071→            onClick={() => updateTypography({ fontStyle: 'italic' })}
+  1072→          >
+  1073→            Italic
+  1074→          </button>
+  1075→        </div>
+  1076→      </div>
+  1077→    </div>
+  1078→  );
+  1079→}
+  1080→
+  1081→// ─── Auto Layout Section ──────────────────────────────────────────────────────
+  1082→
+  1083→function AutoLayoutSection({
+  1084→  primary,
+  1085→  selectedIds,
+  1086→  updateAllStyles,
+  1087→}: {
+  1088→  primary: BoardElement;
+  1089→  selectedIds: string[];
+  1090→  updateAllStyles: (s: Record<string, unknown>) => void;
+  1091→}) {
+  1092→  const layout = primary.styles?.autoLayout as AutoLayout | undefined;
+  1093→  const enabled = layout?.enabled ?? false;
+  1094→
+  1095→  const defaultLayout: AutoLayout = {
+  1096→    enabled: true,
+  1097→    direction: 'vertical',
+  1098→    gap: 0,
+  1099→    paddingTop: 0,
+  1100→    paddingRight: 0,
+  1101→    paddingBottom: 0,
+  1102→    paddingLeft: 0,
+  1103→    alignItems: 'start',
+  1104→    justifyContent: 'start',
+  1105→    wrap: false,
+  1106→  };
+  1107→
+  1108→  const updateLayout = (updates: Partial<AutoLayout>) => {
+  1109→    const current = layout ?? defaultLayout;
+  1110→    updateAllStyles({ autoLayout: { ...current, ...updates } as AutoLayout });
+  1111→  };
+  1112→
+  1113→  return (
+  1114→    <div className="space-y-2.5">
+  1115→      {/* Toggle */}
+  1116→      <div className="flex items-center justify-between">
+  1117→        <Label className="text-xs">Auto Layout</Label>
+  1118→        <button
+  1119→          className={cn(
+  1120→            'relative h-5 w-9 rounded-full transition-colors',
+  1121→            enabled ? 'bg-primary' : 'bg-muted',
+  1122→          )}
+  1123→          onClick={() => updateLayout({ enabled: !enabled })}
+  1124→        >
+  1125→          <span
+  1126→            className={cn(
+  1127→              'absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform',
+  1128→              enabled && 'translate-x-4',
+  1129→            )}
+  1130→          />
+  1131→        </button>
+  1132→      </div>
+  1133→
+  1134→      {enabled && (
+  1135→        <>
+  1136→          {/* Direction */}
+  1137→          <div className="space-y-1">
+  1138→            <span className="text-[10px] text-muted-foreground">Direction</span>
+  1139→            <div className="flex gap-0.5">
+  1140→              <button
+  1141→                className={cn(
+  1142→                  'h-7 flex-1 rounded-md border text-xs font-medium transition-colors',
+  1143→                  layout?.direction === 'horizontal'
+  1144→                    ? 'border-primary/50 bg-primary/10 text-primary'
+  1145→                    : 'border-border/50 hover:bg-muted/50 text-muted-foreground',
+  1146→                )}
+  1147→                onClick={() => updateLayout({ direction: 'horizontal' })}
+  1148→              >
+  1149→                Horizontal
+  1150→              </button>
+  1151→              <button
+  1152→                className={cn(
+  1153→                  'h-7 flex-1 rounded-md border text-xs font-medium transition-colors',
+  1154→                  layout?.direction === 'vertical'
+  1155→                    ? 'border-primary/50 bg-primary/10 text-primary'
+  1156→                    : 'border-border/50 hover:bg-muted/50 text-muted-foreground',
+  1157→                )}
+  1158→                onClick={() => updateLayout({ direction: 'vertical' })}
+  1159→              >
+  1160→                Vertical
+  1161→              </button>
+  1162→            </div>
+  1163→          </div>
+  1164→
+  1165→          {/* Gap */}
+  1166→          <TinyNumInput
+  1167→            label="Gap"
+  1168→            value={layout?.gap ?? 0}
+  1169→            onChange={(v) => updateLayout({ gap: v })}
+  1170→            min={0}
+  1171→            max={100}
+  1172→          />
+  1173→
+  1174→          {/* Padding (T, R, B, L) */}
+  1175→          <div className="grid grid-cols-2 gap-1.5">
+  1176→            <TinyNumInput
+  1177→              label="Top"
+  1178→              value={layout?.paddingTop ?? 0}
+  1179→              onChange={(v) => updateLayout({ paddingTop: v })}
+  1180→              min={0}
+  1181→              max={100}
+  1182→            />
+  1183→            <TinyNumInput
+  1184→              label="Right"
+  1185→              value={layout?.paddingRight ?? 0}
+  1186→              onChange={(v) => updateLayout({ paddingRight: v })}
+  1187→              min={0}
+  1188→              max={100}
+  1189→            />
+  1190→            <TinyNumInput
+  1191→              label="Bottom"
+  1192→              value={layout?.paddingBottom ?? 0}
+  1193→              onChange={(v) => updateLayout({ paddingBottom: v })}
+  1194→              min={0}
+  1195→              max={100}
+  1196→            />
+  1197→            <TinyNumInput
+  1198→              label="Left"
+  1199→              value={layout?.paddingLeft ?? 0}
+  1200→              onChange={(v) => updateLayout({ paddingLeft: v })}
+  1201→              min={0}
+  1202→              max={100}
+  1203→            />
+  1204→          </div>
+  1205→
+  1206→          {/* Align Items */}
+  1207→          <div className="space-y-1">
+  1208→            <span className="text-[10px] text-muted-foreground">Align Items</span>
+  1209→            <Select
+  1210→              value={layout?.alignItems ?? 'start'}
+  1211→              onValueChange={(v) => updateLayout({ alignItems: v as FlexAlign })}
+  1212→            >
+  1213→              <SelectTrigger size="sm" className="h-7 w-full text-xs">
+  1214→                <SelectValue />
+  1215→              </SelectTrigger>
+  1216→              <SelectContent>
+  1217→                <SelectItem value="start">Start</SelectItem>
+  1218→                <SelectItem value="center">Center</SelectItem>
+  1219→                <SelectItem value="end">End</SelectItem>
+  1220→                <SelectItem value="stretch">Stretch</SelectItem>
+  1221→              </SelectContent>
+  1222→            </Select>
+  1223→          </div>
+  1224→
+  1225→          {/* Justify Content */}
+  1226→          <div className="space-y-1">
+  1227→            <span className="text-[10px] text-muted-foreground">Justify Content</span>
+  1228→            <Select
+  1229→              value={layout?.justifyContent ?? 'start'}
+  1230→              onValueChange={(v) => updateLayout({ justifyContent: v as FlexJustify })}
+  1231→            >
+  1232→              <SelectTrigger size="sm" className="h-7 w-full text-xs">
+  1233→                <SelectValue />
+  1234→              </SelectTrigger>
+  1235→              <SelectContent>
+  1236→                <SelectItem value="start">Start</SelectItem>
+  1237→                <SelectItem value="center">Center</SelectItem>
+  1238→                <SelectItem value="end">End</SelectItem>
+  1239→                <SelectItem value="space-between">Space Between</SelectItem>
+  1240→              </SelectContent>
+  1241→            </Select>
+  1242→          </div>
+  1243→        </>
+  1244→      )}
+  1245→    </div>
+  1246→  );
+  1247→}
+  1248→
+  1249→// ─── Corner Radius Section ────────────────────────────────────────────────────
+  1250→
+  1251→function CornerRadiusSection({
+  1252→  primary,
+  1253→  selectedIds,
+  1254→  updateAllStyles,
+  1255→}: {
+  1256→  primary: BoardElement;
+  1257→  selectedIds: string[];
+  1258→  updateAllStyles: (s: Record<string, unknown>) => void;
+  1259→}) {
+  1260→  const cr = primary.styles?.cornerRadius as CornerRadius | undefined;
+  1261→  const [linked, setLinked] = useState(() => {
+  1262→    if (!cr) return true;
+  1263→    const { topLeft, topRight, bottomRight, bottomLeft } = cr;
+  1264→    return topLeft === topRight && topRight === bottomRight && bottomRight === bottomLeft;
+  1265→  });
+  1266→
+  1267→  const setAllCorners = (v: number) => {
+  1268→    updateAllStyles({
+  1269→      cornerRadius: { topLeft: v, topRight: v, bottomRight: v, bottomLeft: v } as CornerRadius,
+  1270→    });
+  1271→    setLinked(true);
+  1272→  };
+  1273→
+  1274→  const setCorner = (key: keyof CornerRadius, v: number) => {
+  1275→    const current = cr ?? { topLeft: 0, topRight: 0, bottomRight: 0, bottomLeft: 0 };
+  1276→    updateAllStyles({
+  1277→      cornerRadius: { ...current, [key]: v } as CornerRadius,
+  1278→    });
+  1279→  };
+  1280→
+  1281→  if (linked) {
+  1282→    const val = cr?.topLeft ?? 0;
+  1283→    return (
+  1284→      <div className="flex items-center gap-2">
+  1285→        <button
+  1286→          onClick={() => setLinked(false)}
+  1287→          className="text-muted-foreground hover:text-foreground transition-colors"
+  1288→          title={t("design.unlinkCorners", locale)}
+  1289→        >
+  1290→          <Link2 className="h-3.5 w-3.5" />
+  1291→        </button>
+  1292→        <div className="flex-1">
+  1293→          <TinyNumInput
+  1294→            label="All"
+  1295→            value={val}
+  1296→            onChange={setAllCorners}
+  1297→            min={0}
+  1298→          />
+  1299→        </div>
+  1300→      </div>
+  1301→    );
+  1302→  }
+  1303→
+  1304→  return (
+  1305→    <div className="space-y-2">
+  1306→      <div className="flex items-center justify-between">
+  1307→        <span className="text-[10px] text-muted-foreground">Individual Corners</span>
+  1308→        <button
+  1309→          onClick={() => {
+  1310→            setLinked(true);
+  1311→            const avg = Math.round(
+  1312→              ((cr?.topLeft ?? 0) + (cr?.topRight ?? 0) + (cr?.bottomRight ?? 0) + (cr?.bottomLeft ?? 0)) / 4,
+  1313→            );
+  1314→            setAllCorners(avg);
+  1315→          }}
+  1316→          className="text-muted-foreground hover:text-foreground transition-colors"
+  1317→          title={t("design.linkCorners", locale)}
+  1318→        >
+  1319→          <Unlink2 className="h-3.5 w-3.5" />
+  1320→        </button>
+  1321→      </div>
+  1322→      <div className="grid grid-cols-2 gap-1.5">
+  1323→        <TinyNumInput
+  1324→          label="TL"
+  1325→          value={cr?.topLeft ?? 0}
+  1326→          onChange={(v) => setCorner('topLeft', v)}
+  1327→          min={0}
+  1328→        />
+  1329→        <TinyNumInput
+  1330→          label="TR"
+  1331→          value={cr?.topRight ?? 0}
+  1332→          onChange={(v) => setCorner('topRight', v)}
+  1333→          min={0}
+  1334→        />
+  1335→        <TinyNumInput
+  1336→          label="BR"
+  1337→          value={cr?.bottomRight ?? 0}
+  1338→          onChange={(v) => setCorner('bottomRight', v)}
+  1339→          min={0}
+  1340→        />
+  1341→        <TinyNumInput
+  1342→          label="BL"
+  1343→          value={cr?.bottomLeft ?? 0}
+  1344→          onChange={(v) => setCorner('bottomLeft', v)}
+  1345→          min={0}
+  1346→        />
+  1347→      </div>
+  1348→    </div>
+  1349→  );
+  1350→}

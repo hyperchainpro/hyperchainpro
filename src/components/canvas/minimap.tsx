@@ -3,6 +3,7 @@
 import React, { useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { t, type Locale } from '@/lib/i18n';import { useAuthStore } from '@/store/auth-store';
 import { useCanvasStore } from '@/store/canvas-store';
 
 const MINIMAP_WIDTH = 180;
@@ -10,6 +11,7 @@ const MINIMAP_HEIGHT = 130;
 const MINIMAP_PADDING = 16;
 
 export default function Minimap() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const store = useCanvasStore();
   const svgRef = useRef<SVGSVGElement>(null);
 

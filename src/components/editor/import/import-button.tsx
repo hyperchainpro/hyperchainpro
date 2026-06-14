@@ -1,5 +1,7 @@
 'use client';
 
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import { useState } from 'react';
 import { Upload } from 'lucide-react';
 
@@ -26,10 +28,12 @@ export function ImportButton({
   boardId,
   variant = 'ghost',
   size = 'icon',
-  tooltip = 'Import design',
   className,
 }: ImportButtonProps) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const [open, setOpen] = useState(false);
+
+  const tooltipText = tooltip || t('import.ariaLabel', locale);
 
   const btn = (
     <Button
@@ -37,7 +41,7 @@ export function ImportButton({
       size={size}
       className={className}
       onClick={() => setOpen(true)}
-      aria-label="Import design"
+      aria-label={t('import.ariaLabel', locale)}
     >
       <Upload className="size-4" />
     </Button>
@@ -48,7 +52,7 @@ export function ImportButton({
       <Tooltip>
         <TooltipTrigger asChild>{btn}</TooltipTrigger>
         <TooltipContent side="bottom" sideOffset={4}>
-          {tooltip}
+          {tooltipText}
         </TooltipContent>
       </Tooltip>
 

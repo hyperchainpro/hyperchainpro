@@ -29,8 +29,10 @@ import {
   Frame,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { t, type Locale } from '@/lib/i18n';
 import { useCanvasStore } from '@/store/canvas-store';
 import { useAppStore } from '@/store/app-store';
+import { useAuthStore } from '@/store/auth-store';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
@@ -108,13 +110,15 @@ interface DeviceCategory {
   template?: DeviceTemplate;
 }
 
-const DEVICE_CATEGORIES: DeviceCategory[] = [
-  { label: 'iPhone 15 Pro', icon: <Smartphone className="h-5 w-5" />, category: 'phone', template: DEVICE_TEMPLATES[0] },
-  { label: 'iPad Pro 11"', icon: <Tablet className="h-5 w-5" />, category: 'tablet', template: DEVICE_TEMPLATES[7] },
-  { label: 'Desktop 1920×1080', icon: <Monitor className="h-5 w-5" />, category: 'desktop', template: DEVICE_TEMPLATES[9] },
-  { label: '16:9', icon: <Presentation className="h-5 w-5" />, category: 'presentation', template: DEVICE_TEMPLATES[13] },
-  { label: 'Custom', icon: <Frame className="h-5 w-5" />, category: 'custom' },
-];
+function getDeviceCategories(locale: Locale): DeviceCategory[] {
+  return [
+    { label: 'iPhone 15 Pro', icon: <Smartphone className="h-5 w-5" />, category: 'phone', template: DEVICE_TEMPLATES[0] },
+    { label: 'iPad Pro 11"', icon: <Tablet className="h-5 w-5" />, category: 'tablet', template: DEVICE_TEMPLATES[7] },
+    { label: 'Desktop 1920×1080', icon: <Monitor className="h-5 w-5" />, category: 'desktop', template: DEVICE_TEMPLATES[9] },
+    { label: '16:9', icon: <Presentation className="h-5 w-5" />, category: 'presentation', template: DEVICE_TEMPLATES[13] },
+    { label: t('toolbar.custom', locale), icon: <Frame className="h-5 w-5" />, category: 'custom' },
+  ];
+}
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -156,11 +160,11 @@ function ToolButton({
   );
 }
 
-function FramePopover({ onOpenChange }: { onOpenChange: (open: boolean) => void }) {
+function FramePopover({ locale, onOpenChange }: { locale: Locale; onOpenChange: (open: boolean) => void }) {
   return (
     <div className="w-48 p-2 space-y-1">
-      <p className="px-2 py-1 text-xs font-medium text-muted-foreground">Device Frame</p>
-      {DEVICE_CATEGORIES.map((cat) => (
+      <p className="px-2 py-1 text-xs font-medium text-muted-foreground">{t('toolbar.deviceFrame', locale)}</p>
+      {getDeviceCategories(locale).map((cat) => (
         <button
           key={cat.category}
           className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors hover:bg-accent text-left"
@@ -181,7 +185,7 @@ function FramePopover({ onOpenChange }: { onOpenChange: (open: boolean) => void 
   );
 }
 
-function StarPopover({ onOpenChange }: { onOpenChange: (open: boolean) => void }) {
+function StarPopover({ locale, onOpenChange }: { locale: Locale; onOpenChange: (open: boolean) => void }) {
   const [points, setPoints] = useState(5);
 
   const handleApply = () => {
@@ -191,7 +195,7 @@ function StarPopover({ onOpenChange }: { onOpenChange: (open: boolean) => void }
 
   return (
     <div className="w-52 p-3 space-y-3">
-      <Label className="text-xs font-medium text-muted-foreground">Star Points</Label>
+      <Label className="text-xs font-medium text-muted-foreground">{t('toolbar.starPoints', locale)}</Label>
       <div className="flex items-center gap-2">
         <Input
           type="number"
@@ -204,16 +208,16 @@ function StarPopover({ onOpenChange }: { onOpenChange: (open: boolean) => void }
           }}
           className="h-8 w-16 text-center text-sm"
         />
-        <span className="text-xs text-muted-foreground">3–12</span>
+        <span className="text-xs text-muted-foreground">{t('toolbar.rangeHint', locale)}</span>
       </div>
       <Button size="sm" className="w-full" onClick={handleApply}>
-        Apply
+        {t('toolbar.apply', locale)}
       </Button>
     </div>
   );
 }
 
-function PolygonPopover({ onOpenChange }: { onOpenChange: (open: boolean) => void }) {
+function PolygonPopover({ locale, onOpenChange }: { locale: Locale; onOpenChange: (open: boolean) => void }) {
   const [sides, setSides] = useState(6);
 
   const handleApply = () => {
@@ -223,7 +227,7 @@ function PolygonPopover({ onOpenChange }: { onOpenChange: (open: boolean) => voi
 
   return (
     <div className="w-52 p-3 space-y-3">
-      <Label className="text-xs font-medium text-muted-foreground">Polygon Sides</Label>
+      <Label className="text-xs font-medium text-muted-foreground">{t('toolbar.polygonSides', locale)}</Label>
       <div className="flex items-center gap-2">
         <Input
           type="number"
@@ -236,10 +240,10 @@ function PolygonPopover({ onOpenChange }: { onOpenChange: (open: boolean) => voi
           }}
           className="h-8 w-16 text-center text-sm"
         />
-        <span className="text-xs text-muted-foreground">3–12</span>
+        <span className="text-xs text-muted-foreground">{t('toolbar.rangeHint', locale)}</span>
       </div>
       <Button size="sm" className="w-full" onClick={handleApply}>
-        Apply
+        {t('toolbar.apply', locale)}
       </Button>
     </div>
   );
@@ -291,33 +295,43 @@ function ActionButton({
 
 // ─── Tool Definitions ─────────────────────────────────────────────────────────
 
-const SELECTION_TOOLS: ToolDef[] = [
-  { id: 'SELECT', icon: <MousePointer2 className="h-4 w-4" />, label: 'Move / Select', shortcut: 'V' },
-  { id: 'HAND', icon: <Hand className="h-4 w-4" />, label: 'Hand / Pan', shortcut: 'H' },
-];
+function getSelectionTools(locale: Locale): ToolDef[] {
+  return [
+    { id: 'SELECT', icon: <MousePointer2 className="h-4 w-4" />, label: t('toolbar.moveSelect', locale), shortcut: 'V' },
+    { id: 'HAND', icon: <Hand className="h-4 w-4" />, label: t('toolbar.handPan', locale), shortcut: 'H' },
+  ];
+}
 
-const FRAME_SHAPE_TOOLS: ToolDef[] = [
-  { id: 'FRAME', icon: <Layout className="h-4 w-4" />, label: 'Frame', shortcut: 'F', popover: 'frame' },
-  { id: 'RECTANGLE', icon: <Square className="h-4 w-4" />, label: 'Rectangle', shortcut: 'R' },
-  { id: 'ELLIPSE', icon: <Circle className="h-4 w-4" />, label: 'Ellipse', shortcut: 'O' },
-  { id: 'LINE', icon: <Minus className="h-4 w-4" />, label: 'Line', shortcut: 'L' },
-  { id: 'STAR', icon: <Star className="h-4 w-4" />, label: 'Star', shortcut: '', popover: 'star' },
-  { id: 'POLYGON', icon: <Pentagon className="h-4 w-4" />, label: 'Polygon', shortcut: '', popover: 'polygon' },
-];
+function getFrameShapeTools(locale: Locale): ToolDef[] {
+  return [
+    { id: 'FRAME', icon: <Layout className="h-4 w-4" />, label: t('toolbar.frame', locale), shortcut: 'F', popover: 'frame' },
+    { id: 'RECTANGLE', icon: <Square className="h-4 w-4" />, label: t('toolbar.rectangle', locale), shortcut: 'R' },
+    { id: 'ELLIPSE', icon: <Circle className="h-4 w-4" />, label: t('toolbar.ellipse', locale), shortcut: 'O' },
+    { id: 'LINE', icon: <Minus className="h-4 w-4" />, label: t('toolbar.line', locale), shortcut: 'L' },
+    { id: 'STAR', icon: <Star className="h-4 w-4" />, label: t('toolbar.star', locale), shortcut: '', popover: 'star' },
+    { id: 'POLYGON', icon: <Pentagon className="h-4 w-4" />, label: t('toolbar.polygon', locale), shortcut: '', popover: 'polygon' },
+  ];
+}
 
-const PEN_TOOLS: ToolDef[] = [
-  { id: 'PEN_TOOL', icon: <PenTool className="h-4 w-4" />, label: 'Pen Tool', shortcut: 'P' },
-];
+function getPenTools(locale: Locale): ToolDef[] {
+  return [
+    { id: 'PEN_TOOL', icon: <PenTool className="h-4 w-4" />, label: t('toolbar.penTool', locale), shortcut: 'P' },
+  ];
+}
 
-const CONTENT_TOOLS: ToolDef[] = [
-  { id: 'TEXT', icon: <Type className="h-4 w-4" />, label: 'Text', shortcut: 'T' },
-  { id: 'IMAGE', icon: <ImageIcon className="h-4 w-4" />, label: 'Image', shortcut: 'I' },
-  { id: 'STICKY_NOTE', icon: <StickyNote className="h-4 w-4" />, label: 'Sticky Note', shortcut: 'S' },
-];
+function getContentTools(locale: Locale): ToolDef[] {
+  return [
+    { id: 'TEXT', icon: <Type className="h-4 w-4" />, label: t('toolbar.text', locale), shortcut: 'T' },
+    { id: 'IMAGE', icon: <ImageIcon className="h-4 w-4" />, label: t('toolbar.image', locale), shortcut: 'I' },
+    { id: 'STICKY_NOTE', icon: <StickyNote className="h-4 w-4" />, label: t('toolbar.stickyNote', locale), shortcut: 'S' },
+  ];
+}
 
-const CONNECTOR_TOOLS: ToolDef[] = [
-  { id: 'CONNECTOR', icon: <ArrowRight className="h-4 w-4" />, label: 'Connector', shortcut: '' },
-];
+function getConnectorTools(locale: Locale): ToolDef[] {
+  return [
+    { id: 'CONNECTOR', icon: <ArrowRight className="h-4 w-4" />, label: t('toolbar.connector', locale), shortcut: '' },
+  ];
+}
 
 // ─── Popover Tool Wrapper ─────────────────────────────────────────────────────
 
@@ -380,6 +394,7 @@ function PopoverToolButton({
 export default function EnhancedToolbar() {
   const { activeTool, snapToGrid, showMinimap, history, historyIndex, setTool, undo, redo, zoomIn, zoomOut, setSnapToGrid, toggleMinimap } = useCanvasStore();
   const { editorMode, setEditorMode } = useAppStore();
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const pendingAIDesign = useAppStore((s) => s.pendingAIDesign);
   const prevPendingRef = useRef(pendingAIDesign);
 
@@ -412,7 +427,7 @@ export default function EnhancedToolbar() {
             isActive={activeTool === tool.id}
             onToolSelect={handleToolClick}
           >
-            {(onOpenChange) => <FramePopover onOpenChange={onOpenChange} />}
+            {(onOpenChange) => <FramePopover locale={locale} onOpenChange={onOpenChange} />}
           </PopoverToolButton>
         );
       }
@@ -424,7 +439,7 @@ export default function EnhancedToolbar() {
             isActive={activeTool === tool.id}
             onToolSelect={handleToolClick}
           >
-            {(onOpenChange) => <StarPopover onOpenChange={onOpenChange} />}
+            {(onOpenChange) => <StarPopover locale={locale} onOpenChange={onOpenChange} />}
           </PopoverToolButton>
         );
       }
@@ -436,7 +451,7 @@ export default function EnhancedToolbar() {
             isActive={activeTool === tool.id}
             onToolSelect={handleToolClick}
           >
-            {(onOpenChange) => <PolygonPopover onOpenChange={onOpenChange} />}
+            {(onOpenChange) => <PolygonPopover locale={locale} onOpenChange={onOpenChange} />}
           </PopoverToolButton>
         );
       }
@@ -479,7 +494,7 @@ export default function EnhancedToolbar() {
               </button>
             </TooltipTrigger>
             <TooltipContent side="right" sideOffset={8}>
-              <span className="font-medium">Design</span>
+              <span className="font-medium">{t('toolbar.design', locale)}</span>
             </TooltipContent>
           </Tooltip>
 
@@ -498,7 +513,7 @@ export default function EnhancedToolbar() {
               </button>
             </TooltipTrigger>
             <TooltipContent side="right" sideOffset={8}>
-              <span className="font-medium">Prototype</span>
+              <span className="font-medium">{t('toolbar.prototype', locale)}</span>
             </TooltipContent>
           </Tooltip>
         </div>
@@ -507,35 +522,35 @@ export default function EnhancedToolbar() {
 
         {/* ── Selection & Navigation ─────────────────────────────────────── */}
         <div className="flex flex-col items-center gap-0.5">
-          {renderToolSection(SELECTION_TOOLS)}
+          {renderToolSection(getSelectionTools(locale))}
         </div>
 
         <Separator orientation="horizontal" className="my-1.5 w-8" />
 
         {/* ── Frame & Shape Tools ────────────────────────────────────────── */}
         <div className="flex flex-col items-center gap-0.5">
-          {renderToolSection(FRAME_SHAPE_TOOLS)}
+          {renderToolSection(getFrameShapeTools(locale))}
         </div>
 
         <Separator orientation="horizontal" className="my-1.5 w-8" />
 
         {/* ── Drawing & Pen ──────────────────────────────────────────────── */}
         <div className="flex flex-col items-center gap-0.5">
-          {renderToolSection(PEN_TOOLS)}
+          {renderToolSection(getPenTools(locale))}
         </div>
 
         <Separator orientation="horizontal" className="my-1.5 w-8" />
 
         {/* ── Content Tools ──────────────────────────────────────────────── */}
         <div className="flex flex-col items-center gap-0.5">
-          {renderToolSection(CONTENT_TOOLS)}
+          {renderToolSection(getContentTools(locale))}
         </div>
 
         <Separator orientation="horizontal" className="my-1.5 w-8" />
 
         {/* ── Connector ──────────────────────────────────────────────────── */}
         <div className="flex flex-col items-center gap-0.5">
-          {renderToolSection(CONNECTOR_TOOLS)}
+          {renderToolSection(getConnectorTools(locale))}
         </div>
 
         {/* ── Spacer ─────────────────────────────────────────────────────── */}
@@ -548,14 +563,14 @@ export default function EnhancedToolbar() {
         <div className="flex flex-col items-center gap-0.5">
           <ActionButton
             icon={<Undo2 className="h-4 w-4" />}
-            label="Undo"
+            label={t('toolbar.undo', locale)}
             shortcut="Ctrl+Z"
             disabled={!canUndo}
             onClick={undo}
           />
           <ActionButton
             icon={<Redo2 className="h-4 w-4" />}
-            label="Redo"
+            label={t('toolbar.redo', locale)}
             shortcut="Ctrl+Y"
             disabled={!canRedo}
             onClick={redo}
@@ -568,13 +583,13 @@ export default function EnhancedToolbar() {
         <div className="flex flex-col items-center gap-0.5">
           <ActionButton
             icon={<ZoomIn className="h-4 w-4" />}
-            label="Zoom In"
+            label={t('toolbar.zoomIn', locale)}
             shortcut="Ctrl++"
             onClick={zoomIn}
           />
           <ActionButton
             icon={<ZoomOut className="h-4 w-4" />}
-            label="Zoom Out"
+            label={t('toolbar.zoomOut', locale)}
             shortcut="Ctrl+−"
             onClick={zoomOut}
           />
@@ -586,13 +601,13 @@ export default function EnhancedToolbar() {
         <div className="flex flex-col items-center gap-0.5 mb-2">
           <ActionButton
             icon={<Grid3X3 className="h-4 w-4" />}
-            label="Snap to Grid"
+            label={t('toolbar.snapToGrid', locale)}
             active={snapToGrid}
             onClick={() => setSnapToGrid(!snapToGrid)}
           />
           <ActionButton
             icon={<Map className="h-4 w-4" />}
-            label="Minimap"
+            label={t('toolbar.minimap', locale)}
             active={showMinimap}
             onClick={toggleMinimap}
           />

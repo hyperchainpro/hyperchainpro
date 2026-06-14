@@ -1,0 +1,264 @@
+    40→  1649→  1649→  'ai.tip1': { en: 'Be specific about layout, components, and visual style', id: 'Jelaskan secara spesifik tentang tata letak, komponen, dan gaya visual', ja: 'レイアウト、コンポーネント、ビジュアルスタイルを具体的に指定しましょう', ko: '레이아웃, 컴포넌트, 시각적 스타일을 구체적으로 지정하세요', zh: '具体说明布局、组件和视觉风格' },
+    41→  1650→  1650→  'ai.tip2': { en: 'Mention the type of page (dashboard, landing, mobile)', id: 'Sebutkan jenis halaman (dasbor, landing, mobile)', ja: 'ページの種類を指定（ダッシュボード、ランディング、モバイル）', ko: '페이지 유형을 언급하세요 (대시보드, 랜딩, 모바일)', zh: '提及页面类型（仪表板、落地页、移动端）' },
+    42→  1651→  1651→  'ai.tip3': { en: 'Use style and color presets for consistent results', id: 'Gunakan prasetel gaya dan warna untuk hasil yang konsisten', ja: '一貫した結果を得るためにスタイルとカラープリセットを使用しましょう', ko: '일관된 결과를 위해 스타일 및 색상 프리셋을 사용하세요', zh: '使用风格和颜色预设以获得一致的结果' },
+    43→  1652→  1652→  'ai.tip4': { en: 'Select a specialized agent for best results', id: 'Pilih agen khusus untuk hasil terbaik', ja: '最適な結果を得るために専用エージェントを選択しましょう', ko: '최고의 결과를 위해 특화된 에이전트를 선택하세요', zh: '选择专门的代理以获得最佳效果' },
+    44→  1653→  1653→  'ai.pressToGenerate': { en: 'to generate', id: 'untuk menghasilkan', ja: 'で生成', ko: '하여 생성', zh: '生成' },
+    45→  1654→  1654→  'ai.elementsCreated': { en: 'elements created', id: 'elemen dibuat', ja: '要素が作成されました', ko: '요소 생성됨', zh: '个元素已创建' },
+    46→  1655→  1655→
+    47→  1656→  1656→  // ── Common (extended) ──
+    48→  1657→  1657→  'common.back': { en: 'Back', id: 'Kembali', ja: '戻る', ko: '뒤로', zh: '返回' },
+    49→  1658→  1658→
+    50→  1659→  1659→  // ── Community ──
+    51→  1660→  1660→  'community.title': { en: 'Community', id: 'Komunitas', ja: 'コミュニティ', ko: '커뮤니티', zh: '社区' },
+    52→  1661→  1661→  'community.designsShared': { en: '{n} designs shared by creators', id: '{n} desain dibagikan oleh kreator', ja: 'クリエイターが{n}件のデザインを共有', ko: '크리에이터가 공유한 {n}개의 디자인', zh: '创作者分享了 {n} 个设计' },
+    53→  1662→  1662→  'community.browseAndShare': { en: 'Browse and share designs', id: 'Jelajahi dan bagikan desain', ja: 'デザインを閲覧・共有', ko: '디자인 탐색 및 공유', zh: '浏览和分享设计' },
+    54→  1663→  1663→  'community.shareYourWork': { en: 'Share Your Work', id: 'Bagikan Karya Anda', ja: '作品を共有', ko: '작품 공유하기', zh: '分享你的作品' },
+    55→  1664→  1664→  'community.uploadBtn': { en: 'Upload', id: 'Unggah', ja: 'アップロード', ko: '업로드', zh: '上传' },
+    56→  1665→  1665→  'community.searchPlaceholder': { en: 'Search designs, tags, creators...', id: 'Cari desain, tag, kreator...', ja: 'デザイン、タグ、クリエイターを検索...', ko: '디자인, 태그, 크리에이터 검색...', zh: '搜索设计、标签、创作者...' },
+    57→  1666→  1666→  'community.categoryAll': { en: 'All', id: 'Semua', ja: 'すべて', ko: '전체', zh: '全部' },
+    58→  1667→  1667→  'community.categoryMobileUI': { en: 'Mobile UI', id: 'UI Mobile', ja: 'モバイルUI', ko: '모바일 UI', zh: '移动端 UI' },
+    59→  1668→  1668→  'community.categoryWebUI': { en: 'Web UI', id: 'UI Web', ja: 'Web UI', ko: '웹 UI', zh: '网页 UI' },
+    60→  1669→  1669→  'community.categoryWireframes': { en: 'Wireframes', id: 'Wireframe', ja: 'ワイヤーフレーム', ko: '와이어프레임', zh: '线框图' },
+    61→  1670→  1670→  'community.categoryDashboards': { en: 'Dashboards', id: 'Dasbor', ja: 'ダッシュボード', ko: '대시보드', zh: '仪表板' },
+    62→  1671→  1671→  'community.categoryIcons': { en: 'Icons', id: 'Ikon', ja: 'アイコン', ko: '아이콘', zh: '图标' },
+    63→  1672→  1672→  'community.categoryIllustrations': { en: 'Illustrations', id: 'Ilustrasi', ja: 'イラスト', ko: '일러스트', zh: '插画' },
+    64→  1673→  1673→  'community.categoryTemplates': { en: 'Templates', id: 'Templat', ja: 'テンプレート', ko: '템플릿', zh: '模板' },
+    65→  1674→  1674→  'community.sortLatest': { en: 'Latest', id: 'Terbaru', ja: '最新', ko: '최신', zh: '最新' },
+    66→  1675→  1675→  'community.sortPopular': { en: 'Most Popular', id: 'Terpopuler', ja: '人気順', ko: '인기순', zh: '最受欢迎' },
+    67→  1676→  1676→  'community.sortFeatured': { en: 'Featured', id: 'Pilihan', ja: '注目', ko: '추천', zh: '精选' },
+    68→  1677→  1677→  'community.sort': { en: 'Sort:', id: 'Urutkan:', ja: '並べ替え:', ko: '정렬:', zh: '排序：' },
+    69→  1678→  1678→  'community.loadingMore': { en: 'Loading more designs...', id: 'Memuat lebih banyak desain...', ja: 'さらにデザインを読み込み中...', ko: '더 많은 디자인 로딩 중...', zh: '加载更多设计...' },
+    70→  1679→  1679→  'community.seenAllDesigns': { en: "You've seen all {n} designs!", id: 'Anda telah melihat semua {n} desain!', ja: '全{n}件のデザインを見ました！', ko: '{n}개의 모든 디자인을 보셨습니다!', zh: '您已查看全部 {n} 个设计！' },
+    71→  1680→  1680→  'community.thatsAllForNow': { en: "That's all for now.", id: 'Itu saja untuk sekarang.', ja: '今は以上です。', ko: '일단 여기까지입니다.', zh: '目前就这些了。' },
+    72→  1681→  1681→  'community.noDesignsFound': { en: 'No designs found', id: 'Desain tidak ditemukan', ja: 'デザインが見つかりません', ko: '디자인을 찾을 수 없습니다', zh: '未找到设计' },
+    73→  1682→  1682→  'community.noDesignsYet': { en: 'No designs yet', id: 'Belum ada desain', ja: 'まだデザインがありません', ko: '아직 디자인이 없습니다', zh: '暂无设计' },
+    74→  1683→  1683→  'community.noDesignsSearch': { en: 'No designs match "{query}". Try different keywords or browse by category.', id: 'Tidak ada desain yang cocok dengan "{query}". Coba kata kunci lain atau jelajahi berdasarkan kategori.', ja: '「{query}」に一致するデザインがありません。別のキーワードを試すか、カテゴリで閲覧してください。', ko: '"{query}"와 일치하는 디자인이 없습니다. 다른 키워드를 시도하거나 카테고리별로 탐색하세요.', zh: '没有与"{query}"匹配的设计。请尝试不同的关键词或按分类浏览。' },
+    75→  1684→  1684→  'community.beFirstToShare': { en: 'Be the first to share your design with the community! Your creativity could inspire others.', id: 'Jadilah yang pertama membagikan desain Anda dengan komunitas! Kreativitas Anda bisa menginspirasi orang lain.', ja: 'コミュニティにあなたのデザインを最初に共有しましょう！あなたの創造力が他の人をインスパイアするかもしれません。', ko: '커뮤니티에 최초로 디자인을 공유하세요! 당신의 창의력이 다른 사람들에게 영감을 줄 수 있습니다.', zh: '成为第一个与社区分享设计的人！您的创意可能启发他人。' },
+    76→  1685→  1685→  'community.clearSearch': { en: 'Clear search', id: 'Hapus pencarian', ja: '検索をクリア', ko: '검색 지우기', zh: '清除搜索' },
+    77→  1686→  1686→  'community.shareFirstDesign': { en: 'Share Your First Design', id: 'Bagikan Desain Pertama Anda', ja: '最初のデザインを共有', ko: '첫 번째 디자인 공유하기', zh: '分享你的第一个设计' },
+    78→  1687→  1687→  'community.featured': { en: 'Featured', id: 'Pilihan', ja: '注目', ko: '추천', zh: '精选' },
+    79→  1688→  1688→  'community.anonymous': { en: 'Anonymous', id: 'Anonim', ja: '匿名', ko: '익명', zh: '匿名' },
+    80→  1689→  1689→  'community.publishTitle': { en: 'Publish to Community', id: 'Terbitkan ke Komunitas', ja: 'コミュニティに公開', ko: '커뮤니티에 게시', zh: '发布到社区' },
+    81→  1690→  1690→  'community.publishDesc': { en: 'Share your design with the BranchBoard community. Other creators can discover, like, and use your work as a template.', id: 'Bagikan desain Anda dengan komunitas BranchBoard. Kreator lain dapat menemukan, menyukai, dan menggunakan karya Anda sebagai templat.', ja: 'BranchBoardコミュニティにデザインを共有しましょう。他のクリエイターがあなたの作品を発見、いいね、テンプレートとして利用できます。', ko: 'BranchBoard 커뮤니티에 디자인을 공유하세요. 다른 크리에이터가 여러분의 작품을 발견하고 좋아요하며 템플릿으로 사용할 수 있습니다.', zh: '与 BranchBoard 社区分享您的设计。其他创作者可以发现、点赞并使用您的作品作为模板。' },
+    82→  1691→  1691→  'community.previewThumbnail': { en: 'Preview Thumbnail', id: 'Pratinjau Thumbnail', ja: 'サムネイルプレビュー', ko: '썸네일 미리보기', zh: '预览缩略图' },
+    83→  1692→  1692→  'community.themeColor': { en: 'Theme color', id: 'Warna tema', ja: 'テーマカラー', ko: '테마 색상', zh: '主题颜色' },
+    84→  1693→  1693→  'community.titleLabel': { en: 'Title', id: 'Judul', ja: 'タイトル', ko: '제목', zh: '标题' },
+    85→  1694→  1694→  'community.titlePlaceholder': { en: 'e.g., Minimal Dashboard Template', id: 'mis., Templat Dasbor Minimal', ja: '例：ミニマルダッシュボードテンプレート', ko: '예: 미니멀 대시보드 템플릿', zh: '例如：极简仪表板模板' },
+    86→  1695→  1695→  'community.designTitle': { en: 'Design Title', id: 'Judul Desain', ja: 'デザインタイトル', ko: '디자인 제목', zh: '设计标题' },
+    87→  1696→  1696→  'community.descriptionLabel': { en: 'Description', id: 'Deskripsi', ja: '説明', ko: '설명', zh: '描述' },
+    88→  1697→  1697→  'community.descriptionPlaceholder': { en: 'Describe your design, what makes it special, and how others can use it...', id: 'Jelaskan desain Anda, apa yang membuatnya spesial, dan bagaimana orang lain dapat menggunakannya...', ja: 'デザインの説明、特徴、他の人がどう使えるかを書いてください...', ko: '디자인을 설명하고, 특별한 점과 다른 사람이 어떻게 사용할 수 있는지 알려주세요...', zh: '描述您的设计、它的独特之处以及其他人如何使用它...' },
+    89→  1698→  1698→  'community.categoryLabel': { en: 'Category', id: 'Kategori', ja: 'カテゴリ', ko: '카테고리', zh: '分类' },
+    90→  1699→  1699→  'community.selectCategory': { en: 'Select category', id: 'Pilih kategori', ja: 'カテゴリを選択', ko: '카테고리 선택', zh: '选择分类' },
+    91→  1700→  1700→  'community.linkToBoard': { en: 'Link to Board (optional)', id: 'Tautan ke Papan (opsional)', ja: 'ボードへのリンク（任意）', ko: '보드 링크 (선택사항)', zh: '链接到白板（可选）' },
+    92→  1701→  1701→  'community.selectBoard': { en: 'Select a board', id: 'Pilih papan', ja: 'ボードを選択', ko: '보드 선택', zh: '选择白板' },
+    93→  1702→  1702→  'community.noBoards': { en: 'No boards available', id: 'Tidak ada papan yang tersedia', ja: '利用可能なボードがありません', ko: '사용 가능한 보드 없음', zh: '暂无可用白板' },
+    94→  1703→  1703→  'community.tagsLabel': { en: 'Tags', id: 'Tag', ja: 'タグ', ko: '태그', zh: '标签' },
+    95→  1704→  1704→  'community.tagsPlaceholder': { en: 'ui, dashboard, minimal (comma-separated)', id: 'ui, dasbor, minimal (dipisahkan koma)', ja: 'ui, ダッシュボード, ミニマル（カンマ区切り）', ko: 'ui, 대시보드, 미니멀 (쉼표로 구분)', zh: 'ui, 仪表板, 极简（逗号分隔）' },
+    96→  1705→  1705→  'community.publishing': { en: 'Publishing...', id: 'Mempublikasikan...', ja: '公開中...', ko: '게시 중...', zh: '发布中...' },
+    97→  1706→  1706→  'community.publish': { en: 'Publish to Community', id: 'Terbitkan ke Komunitas', ja: 'コミュニティに公開', ko: '커뮤니티에 게시', zh: '发布到社区' },
+    98→  1707→  1707→  'community.titleRequired': { en: 'Please enter a title', id: 'Silakan masukkan judul', ja: 'タイトルを入力してください', ko: '제목을 입력해 주세요', zh: '请输入标题' },
+    99→  1708→  1708→  'community.publishSuccess': { en: 'Design published to community! 🎉', id: 'Desain diterbitkan ke komunitas! 🎉', ja: 'デザインがコミュニティに公開されました！🎉', ko: '디자인이 커뮤니티에 게시되었습니다! 🎉', zh: '设计已发布到社区！🎉' },
+   100→  1709→  1709→  'community.publishFailed': { en: 'Failed to publish design. Please try again.', id: 'Gagal menerbitkan desain. Silakan coba lagi.', ja: 'デザインの公開に失敗しました。もう一度お試しください。', ko: '디자인 게시에 실패했습니다. 다시 시도해 주세요.', zh: '设计发布失败，请重试。' },
+   101→  1710→  1710→  'community.failedToLoad': { en: 'Failed to load design', id: 'Gagal memuat desain', ja: 'デザインの読み込みに失敗しました', ko: '디자인 로딩 실패', zh: '加载设计失败' },
+   102→  1711→  1711→  'community.liked': { en: 'Liked!', id: 'Disukai!', ja: 'いいね！', ko: '좋아요!', zh: '已点赞！' },
+   103→  1712→  1712→  'community.failedToLike': { en: 'Failed to like', id: 'Gagal menyukai', ja: 'いいねに失敗しました', ko: '좋아요 실패', zh: '点赞失败' },
+   104→  1713→  1713→  'community.downloadStarted': { en: 'Download started!', id: 'Unduhan dimulai!', ja: 'ダウンロード開始！', ko: '다운로드 시작!', zh: '开始下载！' },
+   105→  1714→  1714→  'community.failedToDownload': { en: 'Failed to download', id: 'Gagal mengunduh', ja: 'ダウンロードに失敗しました', ko: '다운로드 실패', zh: '下载失败' },
+   106→  1715→  1715→  'community.linkCopiedToast': { en: 'Link copied to clipboard!', id: 'Tautan disalin ke clipboard!', ja: 'リンクをクリップボードにコピーしました！', ko: '링크가 클립보드에 복사되었습니다!', zh: '链接已复制到剪贴板！' },
+   107→  1716→  1716→  'community.templateCopied': { en: 'Template copied! You can paste it into any board.', id: 'Templat disalin! Anda bisa menempelkannya ke papan mana pun.', ja: 'テンプレートをコピーしました！任意のボードに貼り付けできます。', ko: '템플릿이 복사되었습니다! 모든 보드에 붙여넣을 수 있습니다.', zh: '模板已复制！您可以粘贴到任何白板中。' },
+   108→  1717→  1717→  'community.noSourceBoard': { en: 'No source board available for this design.', id: 'Tidak ada papan sumber yang tersedia untuk desain ini.', ja: 'このデザインのソースボードがありません。', ko: '이 디자인에 사용 가능한 소스 보드가 없습니다.', zh: '此设计没有可用的源白板。' },
+   109→  1718→  1718→  'community.openingInEditor': { en: 'Opening in editor...', id: 'Membuka di editor...', ja: 'エディタで開いています...', ko: '에디터에서 열기...', zh: '在编辑器中打开...' },
+   110→  1719→  1719→  'community.designNotFound': { en: 'Design not found', id: 'Desain tidak ditemukan', ja: 'デザインが見つかりません', ko: '디자인을 찾을 수 없습니다', zh: '未找到设计' },
+   111→  1720→  1720→  'community.likeBtn': { en: 'Like', id: 'Suka', ja: 'いいね', ko: '좋아요', zh: '点赞' },
+   112→  1721→  1721→  'community.likedBtn': { en: 'Liked', id: 'Disukai', ja: 'いいね済み', ko: '좋아요됨', zh: '已点赞' },
+   113→  1722→  1722→  'community.downloading': { en: 'Downloading...', id: 'Mengunduh...', ja: 'ダウンロード中...', ko: '다운로드 중...', zh: '下载中...' },
+   114→  1723→  1723→  'community.downloadBtn': { en: 'Download', id: 'Unduh', ja: 'ダウンロード', ko: '다운로드', zh: '下载' },
+   115→  1724→  1724→  'community.shareBtn': { en: 'Share', id: 'Bagikan', ja: '共有', ko: '공유', zh: '分享' },
+   116→  1725→  1725→  'community.openInEditorBtn': { en: 'Open in Editor', id: 'Buka di Editor', ja: 'エディタで開く', ko: '에디터에서 열기', zh: '在编辑器中打开' },
+   117→  1726→  1726→  'community.useAsTemplate': { en: 'Use as Template', id: 'Gunakan sebagai Templat', ja: 'テンプレートとして使用', ko: '템플릿으로 사용', zh: '用作模板' },
+   118→  1727→  1727→
+   119→  1728→  1728→  // ── Toolbar ──
+   120→  1729→  1729→  'toolbar.moveSelect': { en: 'Move / Select', id: 'Pindah / Pilih', ja: '移動 / 選択', ko: '이동 / 선택', zh: '移动 / 选择' },
+   121→  1730→  1730→  'toolbar.handPan': { en: 'Hand / Pan', id: 'Tangan / Geser', ja: 'ハンド / パン', ko: '손 / 이동', zh: '抓手 / 平移' },
+   122→  1731→  1731→  'toolbar.frame': { en: 'Frame', id: 'Bingkai', ja: 'フレーム', ko: '프레임', zh: '画框' },
+   123→  1732→  1732→  'toolbar.rectangle': { en: 'Rectangle', id: 'Persegi Panjang', ja: '長方形', ko: '사각형', zh: '矩形' },
+   124→  1733→  1733→  'toolbar.ellipse': { en: 'Ellipse', id: 'Elips', ja: '楕円', ko: '타원', zh: '椭圆' },
+   125→  1734→  1734→  'toolbar.line': { en: 'Line', id: 'Garis', ja: 'ライン', ko: '선', zh: '线条' },
+   126→  1735→  1735→  'toolbar.star': { en: 'Star', id: 'Bintang', ja: 'スター', ko: '별', zh: '星形' },
+   127→  1736→  1736→  'toolbar.polygon': { en: 'Polygon', id: 'Poligon', ja: 'ポリゴン', ko: '다각형', zh: '多边形' },
+   128→  1737→  1737→  'toolbar.penTool': { en: 'Pen Tool', id: 'Alat Pena', ja: 'ペンツール', ko: '펜 도구', zh: '画笔工具' },
+   129→  1738→  1738→  'toolbar.text': { en: 'Text', id: 'Teks', ja: 'テキスト', ko: '텍스트', zh: '文本' },
+   130→  1739→  1739→  'toolbar.image': { en: 'Image', id: 'Gambar', ja: '画像', ko: '이미지', zh: '图片' },
+   131→  1740→  1740→  'toolbar.stickyNote': { en: 'Sticky Note', id: 'Catatan Lengket', ja: '付箋', ko: '스티커 노트', zh: '便签' },
+   132→  1741→  1741→  'toolbar.connector': { en: 'Connector', id: 'Konektor', ja: 'コネクタ', ko: '커넥터', zh: '连接线' },
+   133→  1742→  1742→  'toolbar.deviceFrame': { en: 'Device Frame', id: 'Bingkai Perangkat', ja: 'デバイスフレーム', ko: '디바이스 프레임', zh: '设备画框' },
+   134→  1743→  1743→  'toolbar.starPoints': { en: 'Star Points', id: 'Titik Bintang', ja: 'スターの頂点', ko: '별 꼭지점', zh: '星形顶点' },
+   135→  1744→  1744→  'toolbar.polygonSides': { en: 'Polygon Sides', id: 'Sisi Poligon', ja: 'ポリゴンの辺数', ko: '다각형 변', zh: '多边形边数' },
+   136→  1745→  1745→  'toolbar.rangeHint': { en: '3–12', id: '3–12', ja: '3–12', ko: '3–12', zh: '3–12' },
+   137→  1746→  1746→  'toolbar.custom': { en: 'Custom', id: 'Kustom', ja: 'カスタム', ko: '사용자 지정', zh: '自定义' },
+   138→  1747→  1747→  'toolbar.noteColor': { en: 'Note Color', id: 'Warna Catatan', ja: '付箋の色', ko: '메모 색상', zh: '便签颜色' },
+   139→  1748→  1748→  'toolbar.connectorStyle': { en: 'Connector Style', id: 'Gaya Konektor', ja: 'コネクタスタイル', ko: '커넥터 스타일', zh: '连接线样式' },
+   140→  1749→  1749→  'toolbar.generateLayout': { en: 'Generate Layout', id: 'Hasilkan Tata Letak', ja: 'レイアウトを生成', ko: '레이아웃 생성', zh: '生成布局' },
+   141→  1750→  1750→  'toolbar.autoArrange': { en: 'Auto-arrange', id: 'Susun Otomatis', ja: '自動配置', ko: '자동 정렬', zh: '自动排列' },
+   142→  1751→  1751→  'toolbar.summarizeBoard': { en: 'Summarize Board', id: 'Ringkas Papan', ja: 'ボードを要約', ko: '보드 요약', zh: '总结白板' },
+   143→  1752→  1752→  'toolbar.zoomToFit': { en: 'Zoom to Fit', id: 'Perbesar untuk Muat', ja: 'フィットにズーム', ko: '맞춤 확대', zh: '缩放至适合' },
+   144→  1753→  1753→  'toolbar.snapToGrid': { en: 'Snap to Grid', id: 'Kunci ke Grid', ja: 'グリッドにスナップ', ko: '그리드 스냅', zh: '对齐网格' },
+   145→  1754→  1754→  'toolbar.minimap': { en: 'Minimap', id: 'Peta Mini', ja: 'ミニマップ', ko: '미니맵', zh: '小地图' },
+   146→  1755→  1755→  'toolbar.undo': { en: 'Undo', id: 'Batalkan', ja: '元に戻す', ko: '실행 취소', zh: '撤销' },
+   147→  1756→  1756→  'toolbar.redo': { en: 'Redo', id: 'Ulangi', ja: 'やり直す', ko: '다시 실행', zh: '重做' },
+   148→  1757→  1757→  'toolbar.zoomIn': { en: 'Zoom In', id: 'Perbesar', ja: 'ズームイン', ko: '확대', zh: '放大' },
+   149→  1758→  1758→  'toolbar.zoomOut': { en: 'Zoom Out', id: 'Perkecil', ja: 'ズームアウト', ko: '축소', zh: '缩小' },
+   150→  1759→  1759→  'toolbar.clickToZoom': { en: 'Click to zoom to fit', id: 'Klik untuk memperbesar agar muat', ja: 'クリックでフィットズーム', ko: '클릭하여 맞춤 확대', zh: '点击缩放至适合' },
+   151→  1760→  1760→  'toolbar.design': { en: 'Design', id: 'Desain', ja: 'デザイン', ko: '디자인', zh: '设计' },
+   152→  1761→  1761→  'toolbar.prototype': { en: 'Prototype', id: 'Prototipe', ja: 'プロトタイプ', ko: '프로토타입', zh: '原型' },
+   153→  1762→  1762→  'toolbar.apply': { en: 'Apply', id: 'Terapkan', ja: '適用', ko: '적용', zh: '应用' },
+   154→  1763→  1763→
+   155→  1764→  1764→  // ── Canvas ──
+   156→  1765→  1765→  'canvas.dropImages': { en: 'Drop images here', id: 'Jatuhkan gambar di sini', ja: 'ここに画像をドロップ', ko: '이곳에 이미지를 드롭', zh: '将图片拖放到此处' },
+   157→  1766→  1766→  'canvas.supportedFormats': { en: 'PNG, JPG, GIF, SVG, WebP', id: 'PNG, JPG, GIF, SVG, WebP', ja: 'PNG, JPG, GIF, SVG, WebP', ko: 'PNG, JPG, GIF, SVG, WebP', zh: 'PNG, JPG, GIF, SVG, WebP' },
+   158→  1767→  1767→  'canvas.gridOn': { en: 'Grid: On', id: 'Grid: Aktif', ja: 'グリッド: オン', ko: '그리드: 켜짐', zh: '网格：开' },
+   159→  1768→  1768→  'canvas.typeSomething': { en: 'Type something...', id: 'Ketik sesuatu...', ja: 'テキストを入力...', ko: '텍스트를 입력...', zh: '输入文本...' },
+   160→  1769→  1769→  'canvas.addText': { en: 'Add text...', id: 'Tambah teks...', ja: 'テキストを追加...', ko: '텍스트 추가...', zh: '添加文本...' },
+   161→  1770→  1770→  'canvas.typeText': { en: 'Type text...', id: 'Ketik teks...', ja: 'テキストを入力...', ko: '텍스트를 입력...', zh: '输入文本...' },
+   162→  1771→  1771→
+   163→  1772→  1772→  // ── Layers ──
+   164→  1773→  1773→  'layers.title': { en: 'Layers', id: 'Layer', ja: 'レイヤー', ko: '레이어', zh: '图层' },
+   165→  1774→  1774→  'layers.noLayers': { en: 'No layers yet', id: 'Belum ada layer', ja: 'レイヤーがありません', ko: '레이어가 없습니다', zh: '暂无图层' },
+   166→  1775→  1775→  'layers.searchLayers': { en: 'Search layers...', id: 'Cari layer...', ja: 'レイヤーを検索...', ko: '레이어 검색...', zh: '搜索图层...' },
+   167→  1776→  1776→
+   168→  1777→  1777→  // ── Assets ──
+   169→  1778→  1778→  'assets.title': { en: 'Assets', id: 'Aset', ja: 'アセット', ko: '에셋', zh: '资源' },
+   170→  1779→  1779→  'assets.noComponents': { en: 'No components yet', id: 'Belum ada komponen', ja: 'コンポーネントがありません', ko: '컴포넌트가 없습니다', zh: '暂无组件' },
+   171→  1780→  1780→  'assets.searchComponents': { en: 'Search components...', id: 'Cari komponen...', ja: 'コンポーネントを検索...', ko: '컴포넌트 검색...', zh: '搜索组件...' },
+   172→  1781→  1781→
+   173→  1782→  1782→  // ── Design Panel ──
+   174→  1783→  1783→  'design.clipContent': { en: 'Clip Content', id: 'Potong Konten', ja: 'コンテンツをクリップ', ko: '콘텐츠 클립', zh: '裁剪内容' },
+   175→  1784→  1784→  'design.device': { en: 'Device:', id: 'Perangkat:', ja: 'デバイス：', ko: '디바이스:', zh: '设备：' },
+   176→  1785→  1785→  'design.opacity': { en: 'Opacity', id: 'Opasitas', ja: '不透明度', ko: '불투명도', zh: '不透明度' },
+   177→  1786→  1786→  'design.width': { en: 'Width', id: 'Lebar', ja: '幅', ko: '너비', zh: '宽度' },
+   178→  1787→  1787→  'design.style': { en: 'Style', id: 'Gaya', ja: 'スタイル', ko: '스타일', zh: '样式' },
+   179→  1788→  1788→  'design.solid': { en: 'Solid', id: 'Solid', ja: '実線', ko: '실선', zh: '实线' },
+   180→  1789→  1789→  'design.dashed': { en: 'Dashed', id: 'Garis Putus-putus', ja: '破線', ko: '점선', zh: '虚线' },
+   181→  1790→  1790→  'design.dotted': { en: 'Dotted', id: 'Titik-titik', ja: '点線', ko: '점모양', zh: '点线' },
+   182→  1791→  1791→  'design.dropShadow': { en: 'Drop Shadow', id: 'Bayangan Jatuh', ja: 'ドロップシャドウ', ko: '드롭 섀도우', zh: '投影' },
+   183→  1792→  1792→  'design.innerShadow': { en: 'Inner Shadow', id: 'Bayangan Dalam', ja: 'インナーシャドウ', ko: '인너 섀도우', zh: '内阴影' },
+   184→  1793→  1793→  'design.layerBlur': { en: 'Layer Blur', id: 'Blur Layer', ja: 'レイヤーブラー', ko: '레이어 블러', zh: '图层模糊' },
+   185→  1794→  1794→  'design.size': { en: 'Size', id: 'Ukuran', ja: 'サイズ', ko: '크기', zh: '大小' },
+   186→  1795→  1795→  'design.weight': { en: 'Weight', id: 'Berat', ja: 'ウェイト', ko: '두께', zh: '字重' },
+   187→  1796→  1796→  'design.lineHeight': { en: 'Line Height', id: 'Tinggi Baris', ja: '行間', ko: '줄 높이', zh: '行高' },
+   188→  1797→  1797→  'design.letterSpacing': { en: 'Letter Spacing', id: 'Jarak Huruf', ja: '字送り', ko: '자 간격', zh: '字间距' },
+   189→  1798→  1798→  'design.align': { en: 'Align', id: 'Rata', ja: '整列', ko: '정렬', zh: '对齐' },
+   190→  1799→  1799→  'design.case': { en: 'Case', id: 'Huruf', ja: 'ケース', ko: '대소문자', zh: '大小写' },
+   191→  1800→  1800→  'design.none': { en: 'None', id: 'Tidak Ada', ja: 'なし', ko: '없음', zh: '无' },
+   192→  1801→  1801→  'design.uppercase': { en: 'Uppercase', id: 'Huruf Besar', ja: '大文字', ko: '대문자', zh: '大写' },
+   193→  1802→  1802→  'design.lowercase': { en: 'Lowercase', id: 'Huruf Kecil', ja: '小文字', ko: '소문자', zh: '小写' },
+   194→  1803→  1803→  'design.unlinkCorners': { en: 'Unlink corners', id: 'Lepaskan sudut', ja: 'コーナーのリンクを解除', ko: '코너 연결 해제', zh: '取消圆角链接' },
+   195→  1804→  1804→  'design.linkCorners': { en: 'Link corners', id: 'Tautkan sudut', ja: 'コーナーをリンク', ko: '코너 연결', zh: '链接圆角' },
+   196→  1805→  1805→  'design.cornerRadius': { en: 'Corner Radius', id: 'Radius Sudut', ja: 'コーナー半径', ko: '모서리 반경', zh: '圆角半径' },
+   197→  1806→  1806→  'design.borderRadius': { en: 'Border Radius', id: 'Radius Batas', ja: 'ボーダー半径', ko: '테두리 반경', zh: '边框圆角' },
+   198→  1807→  1807→  'design.fill': { en: 'Fill', id: 'Isi', ja: '塗り', ko: '채우기', zh: '填充' },
+   199→  1808→  1808→  'design.stroke': { en: 'Stroke', id: 'Garis', ja: 'ストローク', ko: '선', zh: '描边' },
+   200→  1809→  1809→  'design.effects': { en: 'Effects', id: 'Efek', ja: 'エフェクト', ko: '효과', zh: '效果' },
+   201→  1810→  1810→  'design.export': { en: 'Export', id: 'Ekspor', ja: 'エクスポート', ko: '내보내기', zh: '导出' },
+   202→  1811→  1811→
+   203→  1812→  1812→  // ── Prototype Panel ──
+   204→  1813→  1813→  'prototype.title': { en: 'Prototype', id: 'Prototipe', ja: 'プロトタイプ', ko: '프로토타입', zh: '原型' },
+   205→  1814→  1814→  'prototype.trigger': { en: 'Trigger', id: 'Pemicu', ja: 'トリガー', ko: '트리거', zh: '触发器' },
+   206→  1815→  1815→  'prototype.targetFrame': { en: 'Target Frame', id: 'Bingkai Target', ja: 'ターゲットフレーム', ko: '대상 프레임', zh: '目标画框' },
+   207→  1816→  1816→  'prototype.transition': { en: 'Transition', id: 'Transisi', ja: 'トランジション', ko: '전환', zh: '过渡' },
+   208→  1817→  1817→  'prototype.duration': { en: 'Duration', id: 'Durasi', ja: '時間', ko: '지속 시간', zh: '持续时间' },
+   209→  1818→  1818→  'prototype.easing': { en: 'Easing', id: 'Easing', ja: 'イージング', ko: '이징', zh: '缓动' },
+   210→  1819→  1819→  'prototype.navigationType': { en: 'Navigation Type', id: 'Tipe Navigasi', ja: 'ナビゲーションタイプ', ko: '네비게이션 유형', zh: '导航类型' },
+   211→  1820→  1820→  'prototype.overlayPosition': { en: 'Overlay Position', id: 'Posisi Overlay', ja: 'オーバーレイ位置', ko: '오버레이 위치', zh: '覆盖层位置' },
+   212→  1821→  1821→  'prototype.startFrame': { en: 'Start Frame', id: 'Bingkai Awal', ja: '開始フレーム', ko: '시작 프레임', zh: '起始画框' },
+   213→  1822→  1822→  'prototype.selectFrame': { en: 'Select frame...', id: 'Pilih bingkai...', ja: 'フレームを選択...', ko: '프레임 선택...', zh: '选择画框...' },
+   214→  1823→  1823→  'prototype.selectStartFrame': { en: 'Select start frame...', id: 'Pilih bingkai awal...', ja: '開始フレームを選択...', ko: '시작 프레임 선택...', zh: '选择起始画框...' },
+   215→  1824→  1824→  'prototype.noInteractions': { en: 'No interactions yet. Select an element to add prototype interactions.', id: 'Belum ada interaksi. Pilih elemen untuk menambahkan interaksi prototipe.', ja: 'インタラクションがありません。要素を選択してプロトタイプのインタラクションを追加してください。', ko: '아직 상호작용이 없습니다. 요소를 선택하여 프로토타입 상호작용을 추가하세요.', zh: '暂无交互。选择元素以添加原型交互。' },
+   216→  1825→  1825→
+   217→  1826→  1826→  // ── Version Control ──
+   218→  1827→  1827→  'vc.branches': { en: 'Branches', id: 'Cabang', ja: 'ブランチ', ko: '브랜치', zh: '分支' },
+   219→  1828→  1828→  'vc.noBranches': { en: 'No branches yet', id: 'Belum ada cabang', ja: 'ブランチがありません', ko: '브랜치가 없습니다', zh: '暂无分支' },
+   220→  1829→  1829→  'vc.mergeRequests': { en: 'Merge Requests', id: 'Permintaan Merge', ja: 'マージリクエスト', ko: '병합 요청', zh: '合并请求' },
+   221→  1830→  1830→  'vc.noMergeRequests': { en: 'No merge requests', id: 'Tidak ada permintaan merge', ja: 'マージリクエストがありません', ko: '병합 요청 없음', zh: '暂无合并请求' },
+   222→  1831→  1831→  'vc.propertiesPanel': { en: 'Properties Panel', id: 'Panel Properti', ja: 'プロパティパネル', ko: '속성 패널', zh: '属性面板' },
+   223→  1832→  1832→  'vc.createCommit': { en: 'Create Commit', id: 'Buat Komit', ja: 'コミットを作成', ko: '커밋 만들기', zh: '创建提交' },
+   224→  1833→  1833→  'vc.branchLabel': { en: 'Branch:', id: 'Cabang:', ja: 'ブランチ：', ko: '브랜치:', zh: '分支：' },
+   225→  1834→  1834→  'vc.changes': { en: 'Changes:', id: 'Perubahan:', ja: '変更：', ko: '변경 사항:', zh: '变更：' },
+   226→  1835→  1835→  'vc.commitPlaceholder': { en: 'Describe what changed in this commit...', id: 'Jelaskan perubahan dalam komit ini...', ja: 'このコミットの変更内容を記述...', ko: '이 커밋의 변경 사항을 설명...', zh: '描述此提交中的变更...' },
+   227→  1836→  1836→  'vc.basedOn': { en: 'Based on:', id: 'Berdasarkan:', ja: 'ベース：', ko: '기반:', zh: '基于：' },
+   228→  1837→  1837→  'vc.commitHistoryTitle': { en: 'Commit History', id: 'Riwayat Komit', ja: 'コミット履歴', ko: '커밋 기록', zh: '提交历史' },
+   229→  1838→  1838→  'vc.allAuthors': { en: 'All authors', id: 'Semua penulis', ja: 'すべての作者', ko: '모든 작성자', zh: '全部作者' },
+   230→  1839→  1839→  'vc.allTime': { en: 'All time', id: 'Semua waktu', ja: 'すべての期間', ko: '전체 기간', zh: '全部时间' },
+   231→  1840→  1840→  'vc.today': { en: 'Today', id: 'Hari ini', ja: '今日', ko: '오늘', zh: '今天' },
+   232→  1841→  1841→  'vc.thisWeek': { en: 'This week', id: 'Minggu ini', ja: '今週', ko: '이번 주', zh: '本周' },
+   233→  1842→  1842→  'vc.thisMonth': { en: 'This month', id: 'Bulan ini', ja: '今月', ko: '이번 달', zh: '本月' },
+   234→  1843→  1843→  'vc.noCommits': { en: 'No commits yet', id: 'Belum ada komit', ja: 'コミットがありません', ko: '커밋이 없습니다', zh: '暂无提交' },
+   235→  1844→  1844→  'vc.source': { en: 'Source:', id: 'Sumber:', ja: 'ソース：', ko: '소스:', zh: '来源：' },
+   236→  1845→  1845→  'vc.selectTarget': { en: 'Select target', id: 'Pilih target', ja: 'ターゲットを選択', ko: '대상 선택', zh: '选择目标' },
+   237→  1846→  1846→  'vc.mrPlaceholder': { en: 'Describe what this merge request changes...', id: 'Jelaskan perubahan permintaan merge ini...', ja: 'このマージリクエストの変更内容を記述...', ko: '이 병합 요청의 변경 사항을 설명...', zh: '描述此合并请求的变更...' },
+   238→  1847→  1847→  'vc.export': { en: 'Export', id: 'Ekspor', ja: 'エクスポート', ko: '내보내기', zh: '导出' },
+   239→  1848→  1848→  'vc.commitChanges': { en: 'Commit changes (Ctrl+K)', id: 'Komit perubahan (Ctrl+K)', ja: '変更をコミット (Ctrl+K)', ko: '변경 사항 커밋 (Ctrl+K)', zh: '提交变更 (Ctrl+K)' },
+   240→  1849→  1849→  'vc.shareBoard': { en: 'Share board', id: 'Bagikan papan', ja: 'ボードを共有', ko: '보드 공유', zh: '分享白板' },
+   241→  1850→  1850→  'vc.boardSettings': { en: 'Board settings', id: 'Pengaturan papan', ja: 'ボード設定', ko: '보드 설정', zh: '白板设置' },
+   242→  1851→  1851→  'vc.togglePanel': { en: 'Toggle panel', id: 'Buka/tutup panel', ja: 'パネルの表示切替', ko: '패널 전환', zh: '切换面板' },
+   243→  1852→  1852→  'vc.clickToEditName': { en: 'Click to edit board name', id: 'Klik untuk mengedit nama papan', ja: 'クリックしてボード名を編集', ko: '클릭하여 보드 이름 편집', zh: '点击编辑白板名称' },
+   244→  1853→  1853→  'vc.comments': { en: 'Comments', id: 'Komentar', ja: 'コメント', ko: '댓글', zh: '评论' },
+   245→  1854→  1854→  'vc.noComments': { en: 'No comments yet', id: 'Belum ada komentar', ja: 'コメントがありません', ko: '댓글이 없습니다', zh: '暂无评论' },
+   246→  1855→  1855→  'vc.members': { en: 'Members', id: 'Anggota', ja: 'メンバー', ko: '멤버', zh: '成员' },
+   247→  1856→  1856→  'vc.addComment': { en: 'Add a comment...', id: 'Tambah komentar...', ja: 'コメントを追加...', ko: '댓글 추가...', zh: '添加评论...' },
+   248→  1857→  1857→  'vc.noAuthor': { en: 'Unknown', id: 'Tidak Diketahui', ja: '不明', ko: '알 수 없음', zh: '未知' },
+   249→  1858→  1858→
+   250→  1859→  1859→  // ── Agent (AI Agent Manager/Editor) ──
+   251→  1860→  1860→  'agent.noAgentsAvailable': { en: 'No agents available yet', id: 'Belum ada agen yang tersedia', ja: '利用可能なエージェントがありません', ko: '사용 가능한 에이전트가 없습니다', zh: '暂无可用代理' },
+   252→  1861→  1861→  'agent.deleteConfirm': { en: 'Delete "{name}"?', id: 'Hapus "{name}"?', ja: '「{name}」を削除しますか？', ko: '"{name}"을(를) 삭제하시겠습니까?', zh: '删除 "{name}"？' },
+   253→  1862→  1862→  'agent.deleteDesc': { en: 'This action cannot be undone. This will permanently delete the agent.', id: 'Tindakan ini tidak dapat dibatalkan. Agen akan dihapus secara permanen.', ja: 'この操作は取り消せません。エージェントが完全に削除されます。', ko: '이 작업은 되돌릴 수 없습니다. 에이전트가 영구적으로 삭제됩니다.', zh: '此操作无法撤销。代理将被永久删除。' },
+   254→  1863→  1863→  'agent.edit': { en: 'Edit', id: 'Edit', ja: '編集', ko: '편집', zh: '编辑' },
+   255→  1864→  1864→  'agent.descriptionPlaceholder': { en: 'Brief description of what this agent does...', id: 'Deskripsi singkat tentang apa yang dilakukan agen ini...', ja: 'このエージェントの機能の簡単な説明...', ko: '이 에이전트가 하는 일에 대한 간단한 설명...', zh: '简要描述此代理的功能...' },
+   256→  1865→  1865→  'agent.systemPromptPlaceholder': { en: 'Instructions for the AI agent...', id: 'Instruksi untuk agen AI...', ja: 'AIエージェントへの指示...', ko: 'AI 에이전트에 대한 지시...', zh: 'AI 代理的指令...' },
+   257→  1866→  1866→  'agent.name': { en: 'Name', id: 'Nama', ja: '名前', ko: '이름', zh: '名称' },
+   258→  1867→  1867→  'agent.namePlaceholder': { en: 'Agent name', id: 'Nama agen', ja: 'エージェント名', ko: '에이전트 이름', zh: '代理名称' },
+   259→  1868→  1868→
+   260→  1869→  1869→  // ── Import ──
+   261→  1870→  1870→  'import.title': { en: 'Import Design', id: 'Impor Desain', ja: 'デザインをインポート', ko: '디자인 가져오기', zh: '导入设计' },
+   262→  1871→  1871→  'import.successful': { en: 'Import successful!', id: 'Impor berhasil!', ja: 'インポート成功！', ko: '가져오기 성공!', zh: '导入成功！' },
+   263→  1872→  1872→  'import.failed': { en: 'Import failed', id: 'Impor gagal', ja: 'インポート失敗', ko: '가져오기 실패', zh: '导入失败' },
+   264→  1873→  1873→  'import.ariaLabel': { en: 'Import design', id: 'Impor desain', ja: 'デザインをインポート', ko: '디자인 가져오기', zh: '导入设计' },
+   265→  1874→  1874→
+   266→  1875→  1875→  // ── Plugin ──
+   267→  1876→  1876→  'plugin.noPlugins': { en: 'No plugins found', id: 'Plugin tidak ditemukan', ja: 'プラグインが見つかりません', ko: '플러그인을 찾을 수 없습니다', zh: '未找到插件' },
+   268→  1877→  1877→  'plugin.searchPlugins': { en: 'Search plugins...', id: 'Cari plugin...', ja: 'プラグインを検索...', ko: '플러그인 검색...', zh: '搜索插件...' },
+   269→  1878→  1878→
+   270→  1879→  1879→  // ── Icon Browser ──
+   271→  1880→  1880→  'icon.noIcons': { en: 'No icons found', id: 'Ikon tidak ditemukan', ja: 'アイコンが見つかりません', ko: '아이콘을 찾을 수 없습니다', zh: '未找到图标' },
+   272→  1881→  1881→  'icon.searchIcons': { en: 'Search icons...', id: 'Cari ikon...', ja: 'アイコンを検索...', ko: '아이콘 검색...', zh: '搜索图标...' },
+   273→  1882→  1882→
+   274→  1883→  1883→  // ── Wireframe Kit ──
+   275→  1884→  1884→  'wireframe.noWireframes': { en: 'No wireframes found', id: 'Wireframe tidak ditemukan', ja: 'ワイヤーフレームが見つかりません', ko: '와이어프레임을 찾을 수 없습니다', zh: '未找到线框图' },
+   276→  1885→  1885→  'wireframe.searchWireframes': { en: 'Search wireframes...', id: 'Cari wireframe...', ja: 'ワイヤーフレームを検索...', ko: '와이어프레임 검색...', zh: '搜索线框图...' },
+   277→  1886→  1886→};
+   278→  1887→  1887→
+   279→  1888→  1888→// ─── Translation Function ─────────────────────────────────────────────────────
+   280→  1889→  1889→
+   281→  1890→  1890→/**
+   282→  1891→  1891→ * Look up a translation key in the given locale.
+   283→  1892→  1892→ * Falls back to English if the key is missing in the target locale.
+   284→  1893→  1893→ * Returns the key itself if no translation is found at all.
+   285→  1894→  1894→ */
+   286→  1895→  1895→export function t(
+   287→  1896→  1896→  key: string,
+   288→  1897→  1897→  locale: Locale,
+   289→  1898→  1898→  params?: Record<string, string | number>,
+   290→  1899→  1899→): string {
+   291→  1900→  1900→  const entry = translations[key];
+   292→  1901→  1901→  if (!entry) return key;
+   293→  1902→  1902→
+   294→  1903→  1903→  let text = entry[locale] ?? entry['en'] ?? key;
+   295→  1904→  1904→
+   296→  1905→  1905→  if (params) {
+   297→  1906→  1906→    for (const [k, v] of Object.entries(params)) {
+   298→  1907→  1907→      text = text.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
+   299→  1908→  1908→    }
+   300→  1909→  1909→  }
+   301→  1910→  1910→
+   302→  1911→  1911→  return text;
+   303→  1912→  1912→}

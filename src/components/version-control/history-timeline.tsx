@@ -14,12 +14,14 @@ import {
 } from '@/components/ui/select';
 import { GitCommitHorizontal, Tag, RotateCcw, Eye, Filter, CalendarDays } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
 import type { CommitInfo } from '@/lib/types';
 import { useVersionStore } from '@/store/version-store';
 
 // ─── Relative Time ──────────────────────────────────────────────────────────
 
-function formatRelativeTime(dateStr: string): string {
+function formatRelativeTime(dateStr: string, locale: string): string {
   const now = Date.now();
   const then = new Date(dateStr).getTime();
   const diffMs = now - then;
@@ -30,13 +32,13 @@ function formatRelativeTime(dateStr: string): string {
   const diffWeek = Math.floor(diffDay / 7);
   const diffMonth = Math.floor(diffDay / 30);
 
-  if (diffSec < 5) return 'just now';
-  if (diffSec < 60) return `${diffSec} seconds ago`;
-  if (diffMin < 60) return `${diffMin} minute${diffMin !== 1 ? 's' : ''} ago`;
-  if (diffHr < 24) return `${diffHr} hour${diffHr !== 1 ? 's' : ''} ago`;
-  if (diffDay < 7) return `${diffDay} day${diffDay !== 1 ? 's' : ''} ago`;
-  if (diffWeek < 5) return `${diffWeek} week${diffWeek !== 1 ? 's' : ''} ago`;
-  return `${diffMonth} month${diffMonth !== 1 ? 's' : ''} ago`;
+  if (diffSec < 5) return t('vc.justNow', locale);
+  if (diffSec < 60) return t('vc.secondsAgo', locale, { n: diffSec });
+  if (diffMin < 60) return diffMin === 1 ? t('vc.minuteAgo', locale, { n: diffMin }) : t('vc.minutesAgo', locale, { n: diffMin });
+  if (diffHr < 24) return diffHr === 1 ? t('vc.hourAgo', locale, { n: diffHr }) : t('vc.hoursAgo', locale, { n: diffHr });
+  if (diffDay < 7) return diffDay === 1 ? t('vc.dayAgo', locale, { n: diffDay }) : t('vc.daysAgo', locale, { n: diffDay });
+  if (diffWeek < 5) return diffWeek === 1 ? t('vc.weekAgo', locale, { n: diffWeek }) : t('vc.weeksAgo', locale, { n: diffWeek });
+  return diffMonth === 1 ? t('vc.monthAgo', locale, { n: diffMonth }) : t('vc.monthsAgo', locale, { n: diffMonth });
 }
 
 // ─── Avatar Colors ──────────────────────────────────────────────────────────
@@ -79,6 +81,7 @@ interface FilterState {
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export function HistoryTimeline() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const [filters, setFilters] = useState<FilterState>({ authorId: null, dateRange: 'all' });
   const [previewCommitId, setPreviewCommitId] = useState<string | null>(null);
 
@@ -145,9 +148,9 @@ export function HistoryTimeline() {
       {/* Header */}
       <div className="border-b px-4 py-3">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-semibold">Commit History</h3>
+          <h3 className="text-sm font-semibold">{t("vc.commitHistoryTitle", locale)}</h3>
           <span className="text-xs text-muted-foreground">
-            {filteredCommits.length} commit{filteredCommits.length !== 1 ? 's' : ''}
+            {t('vc.commitsCount', locale, { n: filteredCommits.length })}
           </span>
         </div>
 
@@ -164,10 +167,10 @@ export function HistoryTimeline() {
           >
             <SelectTrigger className="h-7 flex-1 text-xs">
               <Filter className="mr-1.5 h-3 w-3 shrink-0" />
-              <SelectValue placeholder="All authors" />
+              <SelectValue placeholder={t('vc.allAuthorsPlaceholder', locale)} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="__all__">All authors</SelectItem>
+              <SelectItem value="__all__">{t("vc.allAuthors", locale)}</SelectItem>
               {authors.map((a) => (
                 <SelectItem key={a.id} value={a.id}>
                   {a.name}
@@ -190,10 +193,10 @@ export function HistoryTimeline() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All time</SelectItem>
-              <SelectItem value="today">Today</SelectItem>
-              <SelectItem value="week">This week</SelectItem>
-              <SelectItem value="month">This month</SelectItem>
+              <SelectItem value="all">{t("vc.allTime", locale)}</SelectItem>
+              <SelectItem value="today">{t("vc.today", locale)}</SelectItem>
+              <SelectItem value="week">{t("vc.thisWeek", locale)}</SelectItem>
+              <SelectItem value="month">{t("vc.thisMonth", locale)}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -205,9 +208,9 @@ export function HistoryTimeline() {
           {filteredCommits.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-center">
               <GitCommitHorizontal className="mb-2 h-8 w-8 text-muted-foreground/50" />
-              <p className="text-sm text-muted-foreground">No commits yet</p>
+              <p className="text-sm text-muted-foreground">{t("vc.noCommits", locale)}</p>
               <p className="text-xs text-muted-foreground">
-                Make changes and create your first commit
+                {t('vc.makeFirstCommit', locale)}
               </p>
             </div>
           ) : (
@@ -220,7 +223,7 @@ export function HistoryTimeline() {
                   const isHead = commit.id === headCommitId;
                   const isPreview = commit.id === previewCommitId;
                   const authorColor = getAvatarColor(commit.authorId);
-                  const authorName = commit.author?.name ?? 'Unknown';
+                  const authorName = commit.author?.name ?? t('vc.noAuthor', locale);
                   const authorInitials = getInitials(authorName);
                   const isLast = idx === filteredCommits.length - 1;
 
@@ -290,7 +293,7 @@ export function HistoryTimeline() {
                             ·
                           </span>
                           <span className="text-xs text-muted-foreground/60 shrink-0">
-                            {formatRelativeTime(commit.createdAt)}
+                            {formatRelativeTime(commit.createdAt, locale)}
                           </span>
                         </div>
 
@@ -303,7 +306,7 @@ export function HistoryTimeline() {
                             onClick={() => handlePreview(commit.id)}
                           >
                             <Eye className="h-3 w-3" />
-                            Preview
+                            {t('vc.preview', locale)}
                           </Button>
                           <Button
                             variant="ghost"
@@ -312,7 +315,7 @@ export function HistoryTimeline() {
                             onClick={() => handleRestore(commit)}
                           >
                             <RotateCcw className="h-3 w-3" />
-                            Restore
+                            {t('vc.restore', locale)}
                           </Button>
                         </div>
 
@@ -320,14 +323,14 @@ export function HistoryTimeline() {
                         {isPreview && (
                           <div className="mt-3 rounded border bg-muted/30 p-3">
                             <p className="text-xs text-muted-foreground mb-1">
-                              Snapshot preview
+                              {t('vc.snapshotPreview', locale)}
                             </p>
                             <p className="text-xs font-mono text-muted-foreground">
-                              Commit: {commit.id.slice(0, 7)} · Branch: {branches.find((b) => b.id === commit.branchId)?.name ?? commit.branchId}
+                              {t('vc.commitId', locale, { id: commit.id.slice(0, 7) })} · {t('vc.branchNameLabel', locale, { name: branches.find((b) => b.id === commit.branchId)?.name ?? commit.branchId })}
                             </p>
                             {commit.parentId && (
                               <p className="text-xs font-mono text-muted-foreground mt-0.5">
-                                Parent: {commit.parentId.slice(0, 7)}
+                                {t('vc.parentCommitId', locale, { id: commit.parentId.slice(0, 7) })}
                               </p>
                             )}
                           </div>

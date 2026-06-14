@@ -1,5 +1,6 @@
 'use client';
 
+import { t, type Locale } from '@/lib/i18n';import { useAuthStore } from '@/store/auth-store';
 import { useCallback, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, FileJson, ImageIcon, FileType, X, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
@@ -62,6 +63,7 @@ const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDialogProps) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const inputRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<ImportStatus>('idle');
   const [progress, setProgress] = useState(0);
@@ -92,7 +94,7 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
     async (file: File) => {
       // Validate size
       if (file.size > MAX_FILE_SIZE) {
-        setError(`File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)} MB.`);
+        setError(t('import.fileTooLarge', locale, { size: MAX_FILE_SIZE / (1024 * 1024) }));
         setStatus('error');
         return;
       }
@@ -120,7 +122,7 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
         const data = await res.json();
 
         if (!res.ok) {
-          throw new Error(data.error || 'Import failed');
+          throw new Error(data.error || t('import.importFailedError', locale));
         }
 
         setProgress(100);
@@ -136,7 +138,7 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
         }
       } catch (err) {
         setStatus('error');
-        setError(err instanceof Error ? err.message : 'Something went wrong.');
+        setError(err instanceof Error ? err.message : t('common.error', locale));
         setProgress(0);
       }
     },
@@ -182,9 +184,9 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
       <DialogContent className="sm:max-w-[520px] gap-0 p-0 overflow-hidden">
         {/* Header */}
         <DialogHeader className="p-6 pb-4">
-          <DialogTitle className="text-xl">Import Design</DialogTitle>
+          <DialogTitle className="text-xl">{t("import.title", locale)}</DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
-            Import designs from SVG, Figma JSON, or image files.
+            {t("import.description", locale)}
           </DialogDescription>
         </DialogHeader>
 
@@ -223,11 +225,11 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
                   </div>
                   <div className="text-center">
                     <p className="text-sm font-medium">
-                      Drag &amp; drop your file here, or{' '}
-                      <span className="text-primary underline underline-offset-2">browse</span>
+                      {t('import.dragDrop', locale)}{' '}
+                      <span className="text-primary underline underline-offset-2">{t('import.browse', locale)}</span>
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Max {MAX_FILE_SIZE / (1024 * 1024)} MB
+                      {t('import.maxSize', locale, { size: MAX_FILE_SIZE / (1024 * 1024) })}
                     </p>
                   </div>
                 </motion.div>
@@ -247,7 +249,7 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
                   </div>
                   <div className="text-center w-full">
                     <p className="text-sm font-medium">
-                      {status === 'uploading' ? 'Uploading...' : 'Parsing elements...'}
+                      {status === 'uploading' ? t('import.uploading', locale) : t('import.parsingElements', locale)}
                     </p>
                     {fileName && (
                       <p className="mt-0.5 text-xs text-muted-foreground truncate max-w-[220px] mx-auto">
@@ -277,9 +279,9 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
                     <CheckCircle2 className="size-6 text-emerald-500" />
                   </motion.div>
                   <div className="text-center">
-                    <p className="text-sm font-medium text-emerald-600">Import successful!</p>
+                    <p className="text-sm font-medium text-emerald-600">{t("import.successful", locale)}</p>
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                      {elementCount} element{elementCount !== 1 ? 's' : ''} imported
+                      {t('import.elementsImported', locale, { count: elementCount })}
                     </p>
                   </div>
                 </motion.div>
@@ -298,7 +300,7 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
                     <AlertCircle className="size-6 text-destructive" />
                   </div>
                   <div className="text-center max-w-[280px]">
-                    <p className="text-sm font-medium text-destructive">Import failed</p>
+                    <p className="text-sm font-medium text-destructive">{t("import.failed", locale)}</p>
                     <p className="mt-0.5 text-xs text-muted-foreground break-words">{error}</p>
                   </div>
                   <Button
@@ -311,7 +313,7 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
                     className="mt-1"
                   >
                     <X className="size-3.5" />
-                    Try again
+                    {t('import.tryAgain', locale)}
                   </Button>
                 </motion.div>
               )}
@@ -330,7 +332,7 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
           {/* Supported Formats */}
           <div className="mt-5">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
-              Supported formats
+              {t('import.supportedFormats', locale)}
             </p>
             <div className="flex gap-3">
               {FORMATS.map((fmt) => (
