@@ -282,3 +282,23 @@ Stage Summary:
 - Settings dialog now uses column layout on mobile (tabs on top, content below) and row layout on desktop (sidebar left, content right)
 - Mobile bottom nav Settings tab now properly opens the Settings dialog
 - Note: Dev server has severe Turbopack instability in sandbox environment (crashes after 1-2 requests), preventing browser verification. Code fix is structurally verified.
+
+---
+Task ID: 11
+Agent: Main
+Task: Fix mobile profile settings still not showing - deeper investigation
+
+Work Log:
+- Discovered SidebarContent function had `locale` in its TypeScript interface but NOT in destructured parameters — caused ReferenceError "locale is not defined" crashing the entire dashboard on render
+- Fixed by adding `locale` to the destructured parameters in SidebarContent
+- Temporarily switched to SQLite for browser testing (PostgreSQL unavailable in sandbox)
+- Verified with agent-browser on 375x812 mobile viewport: Settings dialog now opens correctly from bottom nav, profile settings (avatar, name, email, password fields, save button) are all visible and properly laid out
+- Confirmed via VLM analysis that the settings content renders correctly below the horizontal tab bar
+- Reverted prisma/schema.prisma and db.ts back to PostgreSQL configuration for user's environment
+- Pre-existing lint errors (3) are unrelated to these changes
+
+Stage Summary:
+- Root cause 1: SidebarContent `locale` not destructured → entire dashboard crashed (fixed)
+- Root cause 2: Settings dialog body used flex-row on mobile → 0px content width (fixed in previous session)
+- Root cause 3: Bottom nav Profile tab opened sidebar instead of Settings (fixed in previous session)
+- All 3 fixes verified working on mobile viewport (375x812 iPhone X)

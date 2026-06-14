@@ -288,6 +288,7 @@ function SidebarContent({
   onCreateBoard,
   userName,
   userInitials,
+  locale,
 }: {
   sidebarSections: { id: SidebarSection; labelKey: string; icon: React.ElementType; count: number }[]
   activeSidebar: SidebarSection | null
