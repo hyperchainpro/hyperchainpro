@@ -158,9 +158,9 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         <Separator />
 
         {/* Body: sidebar + content */}
-        <div className="flex flex-1 min-h-0">
+        <div className="flex flex-col flex-1 min-h-0 sm:flex-row">
           {/* Sidebar — vertical on desktop, horizontal on mobile */}
-          <nav className="shrink-0 border-r">
+          <nav className="shrink-0 border-b sm:border-b-0 sm:border-r">
             {/* Mobile: horizontal scroll */}
             <div className="flex sm:hidden">
               <div className="flex gap-1 p-2 overflow-x-auto">
@@ -211,7 +211,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           </nav>
 
           {/* Content area */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 min-h-0 overflow-hidden">
             <ScrollArea className="h-full">
               <div className="p-6">
                 <AnimatePresence mode="wait">

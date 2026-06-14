@@ -263,3 +263,22 @@ Stage Summary:
 - Collab service running on port 3004
 - NEON blocked by sandbox DNS - using local PostgreSQL 17 on port 5433
 - Dev server has environment stability issue (Turbopack process dies silently - likely sandbox resource constraint)
+
+---
+Task ID: 10
+Agent: Main
+Task: Fix mobile profile settings not visible
+
+Work Log:
+- Investigated settings dialog mobile layout issue
+- Found root cause: settings dialog body used `flex` (row direction) with horizontal tab bar in a `shrink-0` nav — on mobile screens (375px), the tab bar consumed all horizontal space leaving content area at ~0px width
+- Found secondary issue: mobile bottom nav "Profile" tab opened the board sidebar Sheet instead of the Settings dialog
+- Fixed settings-dialog.tsx: Changed body from `flex flex-1 min-h-0` to `flex flex-col flex-1 min-h-0 sm:flex-row` (column on mobile, row on desktop)
+- Fixed settings-dialog.tsx: Changed nav border from `border-r` to `border-b sm:border-b-0 sm:border-r` (bottom border on mobile, right on desktop)
+- Fixed settings-dialog.tsx: Added `min-h-0 overflow-hidden` to content area for proper column flex behavior
+- Fixed dashboard-view.tsx: Changed mobile bottom nav "Profile" tab to call `onOpenSettings?.()` instead of `setMobileSidebarOpen(true)`, changed icon from User to Settings, changed label from "Profile" to settings title
+
+Stage Summary:
+- Settings dialog now uses column layout on mobile (tabs on top, content below) and row layout on desktop (sidebar left, content right)
+- Mobile bottom nav Settings tab now properly opens the Settings dialog
+- Note: Dev server has severe Turbopack instability in sandbox environment (crashes after 1-2 requests), preventing browser verification. Code fix is structurally verified.

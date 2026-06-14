@@ -981,16 +981,19 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
               <span className="text-[10px] font-medium">{t('dashboard.aiTab', locale)}</span>
             </button>
 
-            {/* Profile tab */}
+            {/* Profile / Settings tab */}
             <button
-              onClick={() => setMobileSidebarOpen(true)}
+              onClick={() => {
+                setMobileSidebarOpen(false)
+                onOpenSettings?.()
+              }}
               className={cn(
                 'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-colors min-w-[56px]',
                 'text-muted-foreground hover:text-foreground'
               )}
             >
-              <User className="size-5" />
-              <span className="text-[10px] font-medium">{t('dashboard.profile', locale)}</span>
+              <Settings className="size-5" />
+              <span className="text-[10px] font-medium">{t('settings.title', locale)}</span>
             </button>
           </div>
         </nav>

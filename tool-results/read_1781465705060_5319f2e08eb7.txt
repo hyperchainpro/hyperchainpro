@@ -325,7 +325,7 @@
    325→
    326→      {/* Navigation sections */}
    327→      <ScrollArea className="flex-1 px-2 py-1">
-   328→        <nav className="flex flex-col gap-0.5" aria-label="Board navigation">
+   328→        <nav className="flex flex-col gap-0.5" aria-label={t('dashboard.boardNavigation', locale)}>
    329→          {sidebarSections.map((section) => {
    330→            const Icon = section.icon
    331→            const isActive = activeSidebar === section.id
@@ -629,7 +629,7 @@
    629→            size="icon"
    630→            className="md:hidden shrink-0"
    631→            onClick={() => setMobileSidebarOpen(true)}
-   632→            aria-label="Open menu"
+   632→            aria-label={t('dashboard.openMenu', locale)}
    633→          >
    634→            <Menu className="size-5" />
    635→          </Button>
@@ -887,7 +887,7 @@
    887→                </AnimatePresence>
    888→              </motion.div>
    889→            ) : (
-   890→              <EmptyState onCreateBoard={() => setCreateDialogOpen(true)} searchQuery={searchQuery} />
+   890→              <EmptyState onCreateBoard={() => setCreateDialogOpen(true)} searchQuery={searchQuery} locale={locale} />
    891→            )}
    892→          </main>
    893→        </ScrollArea>
@@ -903,7 +903,7 @@
    903→        <nav
    904→          className="fixed bottom-0 left-0 right-0 z-40 bg-background border-t border-border"
    905→          style={{ height: 'calc(60px + env(safe-area-inset-bottom, 0px))', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
-   906→          aria-label="Mobile navigation"
+   906→          aria-label={t('dashboard.mobileNav', locale)}
    907→        >
    908→          <div className="flex items-center justify-around h-[60px]">
    909→            {/* Boards tab */}
@@ -978,7 +978,7 @@
    978→              )}
    979→            >
    980→              <Wand2 className="size-5" />
-   981→              <span className="text-[10px] font-medium">AI</span>
+   981→              <span className="text-[10px] font-medium">{t('dashboard.aiTab', locale)}</span>
    982→            </button>
    983→
    984→            {/* Profile tab */}
@@ -1038,7 +1038,7 @@
   1038→
   1039→// ─── Empty state ─────────────────────────────────────────────────────────────
   1040→
-  1041→function EmptyState({ onCreateBoard, searchQuery = '' }: { onCreateBoard: () => void; searchQuery?: string }) {
+  1041→function EmptyState({ onCreateBoard, searchQuery = '', locale }: { onCreateBoard: () => void; searchQuery?: string; locale: Locale }) {
   1042→  return (
   1043→    <motion.div
   1044→      initial={{ opacity: 0, scale: 0.95 }}
