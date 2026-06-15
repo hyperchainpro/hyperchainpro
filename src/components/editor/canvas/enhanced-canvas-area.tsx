@@ -2,9 +2,10 @@
 
 import React, { useCallback, useRef, useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, X } from 'lucide-react';
+import { ChevronLeft, X, ZoomIn, ZoomOut, Maximize2, Puzzle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { t, type Locale } from '@/lib/i18n';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuthStore } from '@/store/auth-store';
 import { useCanvasStore } from '@/store/canvas-store';
 import { usePrototypeStore } from '@/store/prototype-store';
@@ -658,6 +659,20 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
       // Ctrl/Cmd shortcuts
       if (e.ctrlKey || e.metaKey) {
         switch (e.key) {
+          case '=':
+          case '+':
+            e.preventDefault();
+            store.zoomIn();
+            return;
+          case '-':
+          case '_':
+            e.preventDefault();
+            store.zoomOut();
+            return;
+          case '0':
+            e.preventDefault();
+            store.zoomToFit();
+            return;
           case 'z':
             if (e.shiftKey) {
               e.preventDefault();
@@ -752,6 +767,9 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
         case 'Escape':
           store.deselectAll();
           store.setTool('SELECT');
+          return;
+        case '/':
+          useAppStore.getState().setPluginDialogOpen(true);
           return;
       }
     };
@@ -1054,7 +1072,65 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
           )}
         </AnimatePresence>
 
-        {/* Bottom Status Bar */}
+        {/* Bottom-Left: Zoom Controls */}
+        <div className="absolute left-3 bottom-3 z-50 flex items-center gap-1 rounded-xl border bg-card/90 px-1.5 py-1 shadow-sm backdrop-blur-sm">
+          <button
+            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-accent/50 text-foreground"
+            onClick={() => store.zoomOut()}
+            title="Zoom Out (Ctrl+-)"
+          >
+            <ZoomOut className="h-4 w-4" />
+          </button>
+          <button
+            className="flex h-8 min-w-[56px] items-center justify-center rounded-lg px-2 text-xs font-mono font-medium text-foreground transition-colors hover:bg-accent/50"
+            onClick={() => {
+              // Prompt-free: cycle through common zoom levels
+              const zoomLevels = [0.1, 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 5];
+              const nextZoom = zoomLevels.find((z) => z > zoom + 0.01) ?? 1;
+              store.setZoom(nextZoom);
+            }}
+            title="Click to set zoom level"
+          >
+            {Math.round(zoom * 100)}%
+          </button>
+          <button
+            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-accent/50 text-foreground"
+            onClick={() => store.zoomIn()}
+            title="Zoom In (Ctrl++)"
+          >
+            <ZoomIn className="h-4 w-4" />
+          </button>
+          <div className="mx-0.5 h-5 w-px bg-border" />
+          <button
+            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-accent/50 text-foreground"
+            onClick={() => store.zoomToFit()}
+            title="Zoom to Fit (Ctrl+0)"
+          >
+            <Maximize2 className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Bottom-Left: Plugin Button (below zoom controls on desktop) */}
+        <div className="absolute left-3 bottom-14 z-50">
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border bg-card/90 shadow-sm backdrop-blur-sm transition-colors hover:bg-accent/50 text-foreground"
+                  onClick={() => useAppStore.getState().setPluginDialogOpen(true)}
+                >
+                  <Puzzle className="h-4 w-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <span className="font-medium">{t('toolbar.plugins', locale)}</span>
+                <kbd className="ml-2 rounded border bg-muted px-1.5 py-0.5 text-[10px] font-mono">/</kbd>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+
+        {/* Bottom-Right: Status Bar */}
         <div className="absolute right-3 bottom-3 z-50 flex items-center gap-3 rounded-lg border bg-card/90 px-3 py-1.5 text-xs text-muted-foreground shadow-sm backdrop-blur-sm">
           <span>
             X: <span className="font-mono text-foreground">{Math.round(cursorPos.x)}</span>

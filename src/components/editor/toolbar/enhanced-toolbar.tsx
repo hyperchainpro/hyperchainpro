@@ -28,6 +28,7 @@ import {
   Monitor,
   Presentation,
   Frame,
+  Globe,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { t, type Locale } from '@/lib/i18n';
@@ -109,15 +110,19 @@ interface DeviceCategory {
   icon: React.ReactNode;
   category: DeviceTemplate['category'] | 'custom';
   template?: DeviceTemplate;
+  subItems?: DeviceTemplate[];
 }
 
 function getDeviceCategories(locale: Locale): DeviceCategory[] {
   return [
-    { label: 'iPhone 15 Pro', icon: <Smartphone className="h-5 w-5" />, category: 'phone', template: DEVICE_TEMPLATES[0] },
-    { label: 'iPad Pro 11"', icon: <Tablet className="h-5 w-5" />, category: 'tablet', template: DEVICE_TEMPLATES[7] },
-    { label: 'Desktop 1920×1080', icon: <Monitor className="h-5 w-5" />, category: 'desktop', template: DEVICE_TEMPLATES[9] },
-    { label: '16:9', icon: <Presentation className="h-5 w-5" />, category: 'presentation', template: DEVICE_TEMPLATES[13] },
-    { label: t('toolbar.custom', locale), icon: <Frame className="h-5 w-5" />, category: 'custom' },
+    { label: 'iPhone 16 Pro', icon: <Smartphone className="h-4 w-4" />, category: 'phone', template: DEVICE_TEMPLATES[0] },
+    { label: 'Galaxy S24 Ultra', icon: <Smartphone className="h-4 w-4" />, category: 'phone', template: DEVICE_TEMPLATES.find(d => d.id === 'galaxy-s24-ultra') },
+    { label: 'Pixel 9 Pro', icon: <Smartphone className="h-4 w-4" />, category: 'phone', template: DEVICE_TEMPLATES.find(d => d.id === 'pixel-9-pro') },
+    { label: 'iPad Pro 11"', icon: <Tablet className="h-4 w-4" />, category: 'tablet', template: DEVICE_TEMPLATES.find(d => d.id === 'ipad-pro-11-m4') },
+    { label: 'Desktop 1920×1080', icon: <Monitor className="h-4 w-4" />, category: 'desktop', template: DEVICE_TEMPLATES.find(d => d.id === 'desktop-1920') },
+    { label: 'Website 1440×900', icon: <Globe className="h-4 w-4" />, category: 'desktop', template: DEVICE_TEMPLATES.find(d => d.id === 'desktop-1440') },
+    { label: 'Presentation 16:9', icon: <Presentation className="h-4 w-4" />, category: 'presentation', template: DEVICE_TEMPLATES.find(d => d.id === 'presentation-169') },
+    { label: t('toolbar.custom', locale), icon: <Frame className="h-4 w-4" />, category: 'custom' },
   ];
 }
 

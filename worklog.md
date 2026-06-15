@@ -542,3 +542,119 @@ Stage Summary:
 - Export supports 27+ output formats with proper API route
 - Both import and export dialogs show formats organized by category with search
 - Format registry provides metadata: extension, name, application, category, import/export support level
+---
+Task ID: 7
+Agent: general-purpose
+Task: Update Prisma schema and Board API for device type
+
+Work Log:
+- Added deviceType and deviceId fields to Board model
+- Ran db:push to apply schema changes
+- Updated POST /api/boards to accept deviceType/deviceId
+- Updated GET /api/boards to return deviceType/deviceId
+- Updated board card to display device type badge with lucide icons
+- Updated dashboard-view to pass deviceType/deviceId from API to card data
+
+Stage Summary:
+- Database schema supports device type selection
+- API accepts and returns device type info
+- Dashboard shows device type badges on board cards
+
+---
+Task ID: 4
+Agent: general-purpose
+Task: Expand device templates and update create board dialog
+
+Work Log:
+- Expanded device-templates.ts with 117 device models across all categories
+- Added all iPhone models (16 through SE 1st Gen, 33 models)
+- Added Android phones: Samsung Galaxy S21-S24 series, Z Fold/Flip, Google Pixel 6-9 series, OnePlus 12/Nord 4, Xiaomi 14/13 Pro, Nothing Phone 2/2a, Motorola Edge 40 Pro/Razr 50 Ultra, Sony Xperia 1 VI, Oppo Find X7 Ultra, Huawei P60 Pro
+- Added Android tablets: Samsung Galaxy Tab S9/S8/A9, Google Pixel Tablet, Xiaomi Pad 6, OnePlus Pad, Huawei MatePad Pro
+- Added iPad models: Pro 12.9" M4/M2, Pro 11" M4/M2, Air M2/5th Gen, Mini 6th Gen, 10th/9th Gen
+- Added Desktop/Website: Full HD/QHD/4K, MacBook Air 13"/Pro 14"/16", Surface Pro, Chromebook, 8 responsive breakpoints
+- Added Presentations: 16:9, 4:3, 1:1
+- Added Social Media: Instagram Post/Story/Reel, YouTube Thumbnail, Facebook Cover, Twitter Header, LinkedIn Banner, TikTok, Pinterest
+- Added DeviceTypeGroup system with 6 categories (iphone, android, website, tablet, presentation, social)
+- Added getDevicesByTypeGroup() filter function
+- Extended DeviceTemplate category type to include 'social'
+- Updated create-board-dialog.tsx with device type selection step (6-category card grid)
+- Added device model selection with mini device preview cards for each type group
+- Added framer-motion animations for device type/model expansion
+- Updated dashboard-view.tsx handleCreateBoard to pass deviceType and deviceId to API
+- Added 8 i18n keys for device type labels (en/id/ja/ko/zh)
+- Maintained neumorphism styling and existing UI patterns throughout
+
+Stage Summary:
+- Comprehensive device template library with 117 devices across 6 categories
+- Create board dialog now has a device type selector with expandable model list
+- Board creation flow: name → description → device type → device model → template → visibility
+- Board creation sends deviceType and deviceId to the API
+
+---
+Task ID: 6
+Agent: general-purpose
+Task: Add 300 more plugins to plugins-data.ts
+
+Work Log:
+- Read existing plugins-data.ts (225 existing plugins, 25 categories)
+- Generated 300 new plugins via Node.js script, evenly distributed: 12 per category × 25 categories
+- Categories: shapes, charts, icons, layout, wireframe, diagrams, text, images, colors, export, templates, ai-tools, collaboration, accessibility, math, typography, branding, animation, prototyping, 3d, illustration, photo-editing, responsive, code-gen, handoff
+- Inserted all 300 plugins before the closing `]` bracket using Node.js file manipulation
+- Fixed `GridOn` icon (invalid in installed lucide-react) → replaced with `LayoutGrid` (6 occurrences)
+- ~20% of new plugins marked as `isPopular: true` (every 5th entry)
+- 20 varied authors used (DesignLabs, OpenUI, PixelCraft, FigmaTools, DevKit, UIForge, etc.)
+- All 171 unique icon names verified as valid lucide-react exports
+- TypeScript compilation (`tsc --noEmit`) passes with zero errors
+- File grew from ~72KB (2353 lines) to ~177KB (5714 lines)
+
+Stage Summary:
+- Total plugins: 525 (225 existing + 300 new)
+- All plugin IDs unique, all icons valid, all categories from the PluginCategory union type
+- File is syntactically and type-correct
+
+---
+Task ID: 2-3
+Agent: Main
+Task: Add zoom controls and plugin button overlay on canvas workspace
+
+Work Log:
+- Added ZoomIn, ZoomOut, Maximize2, Puzzle imports to enhanced-canvas-area.tsx
+- Added Tooltip imports for canvas overlay tooltips
+- Created bottom-left zoom controls bar with: Zoom Out, Zoom Level (clickable to cycle), Zoom In, Zoom to Fit
+- Created bottom-left plugin button (Puzzle icon) that opens the plugin dialog
+- Added keyboard shortcuts: Ctrl+/Cmd++ (zoom in), Ctrl+-/Cmd+- (zoom out), Ctrl+0/Cmd+0 (zoom to fit), / (open plugins)
+- Zoom level display is clickable to cycle through preset levels
+
+Stage Summary:
+- Canvas now has floating zoom controls at bottom-left
+- Plugin button visible at bottom-left above zoom controls
+- Keyboard shortcuts for zoom working
+- Status bar moved to bottom-right with coordinates and zoom level
+
+---
+Task ID: 5
+Agent: Main
+Task: Update toolbar frame popover with expanded device categories
+
+Work Log:
+- Updated getDeviceCategories() in enhanced-toolbar.tsx to show 8 device quick-picks
+- Added iPhone 16 Pro, Galaxy S24 Ultra, Pixel 9 Pro, iPad Pro 11", Desktop 1920×1080, Website 1440×900, Presentation 16:9, Custom
+- Added Globe import for website icon
+
+Stage Summary:
+- Toolbar frame popover shows quick-access devices from all categories
+
+---
+Task ID: 8
+Agent: Main
+Task: Ensure all features visible in mobile and desktop modes
+
+Work Log:
+- Removed `hidden md:flex` from Merge Request button in editor topbar
+- Removed `hidden md:flex` from History button in editor topbar
+- Both features now visible on mobile and desktop
+- Zoom controls and plugin button on canvas are always visible (no responsive hiding)
+
+Stage Summary:
+- Merge Request and History buttons now visible on all screen sizes
+- All editor features accessible in both mobile and desktop browser modes

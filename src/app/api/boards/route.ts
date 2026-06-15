@@ -229,6 +229,8 @@ export async function GET(request: NextRequest) {
       isPublic: board.isPublic,
       thumbnail: board.thumbnail,
       defaultBranch: board.defaultBranch,
+      deviceType: board.deviceType,
+      deviceId: board.deviceId,
       memberCount: board._count.members,
       commitCount: board._count.commits,
       branchCount: board._count.branches,
@@ -249,11 +251,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, description, isPublic = false, templateId } = body as {
+    const { name, description, isPublic = false, templateId, deviceType, deviceId } = body as {
       name?: string;
       description?: string;
       isPublic?: boolean;
       templateId?: string;
+      deviceType?: string;
+      deviceId?: string;
     };
 
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
@@ -272,6 +276,8 @@ export async function POST(request: NextRequest) {
         isPublic,
         ownerId: userId,
         defaultBranch: 'main',
+        deviceType: deviceType || null,
+        deviceId: deviceId || null,
         branches: {
           create: {
             name: 'main',

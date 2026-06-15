@@ -480,6 +480,8 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
           isStarred: false,
           updatedAt: b.updatedAt as string,
           isPublic: b.isPublic as boolean,
+          deviceType: (b.deviceType as string) || null,
+          deviceId: (b.deviceId as string) || null,
         }))
         setBoards(apiBoards)
       })
@@ -541,7 +543,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
     return items
   }, [searchQuery, activeFilter, sortOption, activeSidebar, boards])
 
-  const handleCreateBoard = async (data: { name: string; description?: string; isPublic: boolean; templateId?: string }) => {
+  const handleCreateBoard = async (data: { name: string; description?: string; isPublic: boolean; templateId?: string; deviceType?: string; deviceId?: string }) => {
     try {
       const res = await fetch('/api/boards', {
         method: 'POST',
@@ -551,6 +553,8 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
           description: data.description || undefined,
           isPublic: data.isPublic,
           templateId: data.templateId,
+          deviceType: data.deviceType,
+          deviceId: data.deviceId,
         }),
       });
       if (!res.ok) throw new Error('Failed to create board');
@@ -567,6 +571,8 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
         isStarred: false,
         updatedAt: b.updatedAt as string,
         isPublic: b.isPublic as boolean,
+        deviceType: (b.deviceType as string) || null,
+        deviceId: (b.deviceId as string) || null,
       }));
       setBoards(apiBoards);
       toast.success(t('dashboard.boardCreated', locale))

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plus,
@@ -16,6 +16,10 @@ import {
   EyeOff,
   Globe,
   Lock,
+  ChevronDown,
+  Monitor,
+  Presentation,
+  Camera,
 } from 'lucide-react'
 import {
   Dialog,
@@ -32,6 +36,12 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
 import { t, type Locale } from '@/lib/i18n'
+import {
+  DEVICE_TYPE_GROUPS,
+  getDevicesByTypeGroup,
+  type DeviceTypeGroup,
+} from '@/lib/device-templates'
+import type { DeviceTemplate } from '@/lib/types'
 
 export interface BoardTemplate {
   id: string
@@ -100,6 +110,16 @@ const templates: BoardTemplate[] = [
   },
 ]
 
+// Icon mapping for device type groups
+const DEVICE_TYPE_ICONS: Record<DeviceTypeGroup, React.ElementType> = {
+  iphone: Smartphone,
+  android: Smartphone,
+  website: Monitor,
+  tablet: Smartphone,
+  presentation: Presentation,
+  social: Camera,
+}
+
 interface CreateBoardDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -108,6 +128,8 @@ interface CreateBoardDialogProps {
     description: string
     templateId: string
     isPublic: boolean
+    deviceType?: DeviceTypeGroup
+    deviceId?: string
   }) => void
   locale: Locale
 }
@@ -122,6 +144,9 @@ export function CreateBoardDialog({
   const [description, setDescription] = useState('')
   const [selectedTemplate, setSelectedTemplate] = useState<string>('blank')
   const [isPublic, setIsPublic] = useState(false)
+  const [selectedDeviceType, setSelectedDeviceType] = useState<DeviceTypeGroup | null>(null)
+  const [selectedDevice, setSelectedDevice] = useState<string | null>(null)
+  const [showDeviceModels, setShowDeviceModels] = useState(false)
 
   const templateLabels: Record<string, string> = {
     blank: t('board.templateBlank', locale),
@@ -144,6 +169,12 @@ export function CreateBoardDialog({
     journey: t('board.templateJourneyDesc', locale),
   }
 
+  // Get devices for the selected device type group
+  const devicesForGroup = useMemo<DeviceTemplate[]>(() => {
+    if (!selectedDeviceType) return []
+    return getDevicesByTypeGroup(selectedDeviceType)
+  }, [selectedDeviceType])
+
   const canCreate = boardName.trim().length > 0
 
   const handleCreate = () => {
@@ -153,6 +184,8 @@ export function CreateBoardDialog({
       description: description.trim(),
       templateId: selectedTemplate,
       isPublic,
+      deviceType: selectedDeviceType ?? undefined,
+      deviceId: selectedDevice ?? undefined,
     })
     handleReset()
     onOpenChange(false)
@@ -163,6 +196,9 @@ export function CreateBoardDialog({
     setDescription('')
     setSelectedTemplate('blank')
     setIsPublic(false)
+    setSelectedDeviceType(null)
+    setSelectedDevice(null)
+    setShowDeviceModels(false)
   }
 
   const handleOpenChange = (newOpen: boolean) => {
@@ -170,6 +206,19 @@ export function CreateBoardDialog({
       handleReset()
     }
     onOpenChange(newOpen)
+  }
+
+  const handleDeviceTypeSelect = (group: DeviceTypeGroup) => {
+    if (selectedDeviceType === group) {
+      // Deselect if already selected
+      setSelectedDeviceType(null)
+      setSelectedDevice(null)
+      setShowDeviceModels(false)
+    } else {
+      setSelectedDeviceType(group)
+      setSelectedDevice(null)
+      setShowDeviceModels(true)
+    }
   }
 
   return (
@@ -214,6 +263,126 @@ export function CreateBoardDialog({
               className="text-sm min-h-[72px] resize-none neu-input border-0"
               rows={3}
             />
+          </div>
+
+          {/* Device Type Selector */}
+          <div className="space-y-3">
+            <Label>{t('board.deviceType', locale)}</Label>
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+              {DEVICE_TYPE_GROUPS.map((group) => {
+                const GroupIcon = DEVICE_TYPE_ICONS[group.id]
+                const isSelected = selectedDeviceType === group.id
+
+                return (
+                  <motion.button
+                    key={group.id}
+                    type="button"
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => handleDeviceTypeSelect(group.id)}
+                    className={cn(
+                      'relative flex flex-col items-center gap-1.5 rounded-xl p-2.5 transition-all text-left border-0',
+                      isSelected
+                        ? 'neu-pressed'
+                        : 'neu-flat'
+                    )}
+                  >
+                    {/* Selected indicator */}
+                    {isSelected && (
+                      <motion.div
+                        layoutId="device-type-selected"
+                        className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                      >
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 12 12"
+                          fill="none"
+                          className="text-current"
+                        >
+                          <path
+                            d="M2.5 6L5 8.5L9.5 3.5"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </motion.div>
+                    )}
+
+                    {/* Emoji icon */}
+                    <span className="text-lg leading-none">{group.icon}</span>
+
+                    {/* Label */}
+                    <p className="text-[10px] font-semibold text-center leading-tight truncate w-full">
+                      {t(group.labelKey, locale)}
+                    </p>
+                  </motion.button>
+                )
+              })}
+            </div>
+
+            {/* Device models for selected type */}
+            {showDeviceModels && selectedDeviceType && devicesForGroup.length > 0 && (
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowDeviceModels(false)}
+                    className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mb-2"
+                  >
+                    <ChevronDown className="size-3 rotate-180" />
+                    {t('board.collapseDevices', locale)}
+                  </button>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 max-h-48 overflow-y-auto pr-1 -mr-1">
+                      {devicesForGroup.map((device) => {
+                        const isSelected = selectedDevice === device.id
+
+                        return (
+                          <motion.button
+                            key={device.id}
+                            type="button"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => setSelectedDevice(isSelected ? null : device.id)}
+                            className={cn(
+                              'flex items-center gap-2 rounded-lg px-2.5 py-2 transition-all text-left text-xs border-0',
+                              isSelected
+                                ? 'neu-pressed'
+                                : 'neu-flat'
+                            )}
+                          >
+                            {/* Mini device preview */}
+                            <div
+                              className="flex-shrink-0 flex items-center justify-center rounded border border-border/30 bg-muted/30"
+                              style={{
+                                width: 20,
+                                height: Math.max(14, Math.round(20 * (device.height / device.width))),
+                              }}
+                            >
+                              <div
+                                className="rounded-[1px] bg-muted-foreground/20"
+                                style={{
+                                  width: 12,
+                                  height: Math.max(10, Math.round(12 * (device.height / device.width))),
+                                }}
+                              />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium truncate leading-tight">{device.name}</p>
+                              <p className="text-[9px] text-muted-foreground leading-tight">
+                                {device.width}×{device.height}
+                              </p>
+                            </div>
+                          </motion.button>
+                        )
+                      })}
+                    </div>
+                  </div>
+              )}
           </div>
 
           {/* Template selector */}

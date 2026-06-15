@@ -13,6 +13,12 @@ import {
   Share2,
   Trash2,
   ExternalLink,
+  Smartphone,
+  Monitor,
+  Tablet,
+  Layout,
+  Camera,
+  type LucideIcon,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -51,6 +57,8 @@ export interface BoardCardData {
   isStarred: boolean
   updatedAt: Date | string
   isPublic: boolean
+  deviceType?: string | null
+  deviceId?: string | null
 }
 
 interface BoardCardProps {
@@ -96,6 +104,33 @@ function formatRelativeTime(date: Date | string, locale: Locale): string {
   if (diffDay < 7) return t('board.daysAgo', locale, { n: diffDay })
   if (diffDay < 30) return t('board.weeksAgo', locale, { n: Math.floor(diffDay / 7) })
   return t('board.monthsAgo', locale, { n: Math.floor(diffDay / 30) })
+}
+
+const deviceIconMap: Record<string, LucideIcon> = {
+  iphone: Smartphone,
+  android: Smartphone,
+  website: Monitor,
+  tablet: Tablet,
+  presentation: Layout,
+  social: Camera,
+}
+
+function getDeviceIcon(deviceType?: string | null): LucideIcon | null {
+  if (!deviceType) return null
+  return deviceIconMap[deviceType] || null
+}
+
+function getDeviceLabel(deviceType?: string | null): string {
+  if (!deviceType) return ''
+ const labels: Record<string, string> = {
+    iphone: 'iPhone',
+    android: 'Android',
+    website: 'Website',
+    tablet: 'Tablet',
+    presentation: 'Presentation',
+    social: 'Social',
+  }
+  return labels[deviceType] || deviceType
 }
 
 function getInitials(name: string): string {
@@ -252,8 +287,28 @@ export function BoardCard({
             </div>
           )}
 
-          {/* Visibility badge */}
-          <div className="absolute bottom-2 left-2">
+          {/* Bottom badges: device type + visibility */}
+          <div className="absolute bottom-2 left-2 flex items-center gap-1.5">
+            {board.deviceType && (() => {
+              const Icon = getDeviceIcon(board.deviceType)
+              if (!Icon) return null
+              return (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge
+                      variant="secondary"
+                      className="neu-badge !text-[10px] !py-0.5 !px-2 border-0 gap-1"
+                    >
+                      <Icon className="size-3" />
+                      {getDeviceLabel(board.deviceType)}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{board.deviceId || getDeviceLabel(board.deviceType)}</p>
+                  </TooltipContent>
+                </Tooltip>
+              )
+            })()}
             <Badge
               variant="secondary"
               className="neu-badge !text-[10px] !py-0.5 !px-2.5 border-0"

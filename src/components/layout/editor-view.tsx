@@ -362,7 +362,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
         {/* Merge request */}
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="hidden md:flex h-8 w-8 neu-icon-btn" onClick={() => setMergeDialogOpen(true)}>
+            <Button variant="ghost" size="icon" className="h-8 w-8 neu-icon-btn" onClick={() => setMergeDialogOpen(true)}>
               <GitMerge className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
@@ -375,7 +375,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
             <Button
               variant={rightPanelOpen ? 'secondary' : 'ghost'}
               size="icon"
-              className="hidden md:flex h-8 w-8 neu-icon-btn"
+              className="h-8 w-8 neu-icon-btn"
               onClick={() => setRightPanelTab('history')}
             >
               <History className="h-4 w-4" />

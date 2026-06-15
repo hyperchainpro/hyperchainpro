@@ -415,7 +415,7 @@ export interface PrototypeInteraction {
 export interface DeviceTemplate {
   id: string;
   name: string;
-  category: 'phone' | 'tablet' | 'desktop' | 'presentation' | 'custom';
+  category: 'phone' | 'tablet' | 'desktop' | 'presentation' | 'social' | 'custom';
   width: number;
   height: number;
   statusBarHeight?: number;
