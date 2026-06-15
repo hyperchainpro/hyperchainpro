@@ -387,3 +387,42 @@ Stage Summary:
 - Root cause: ai-design-dialog.tsx and ai-agent-manager.tsx used `locale` variable without defining it; these modules are eagerly imported through editor-view.tsx
 - Fixed 3 files with a total of 21 locale-related issues
 - ErrorBoundary no longer triggers; app renders correctly on both mobile and desktop
+---
+Task ID: 1
+Agent: main
+Task: Fix 'locale is not defined' error and apply neumorphism design from neumorphism.io
+
+Work Log:
+- Made `t()` function in `/src/lib/i18n.ts` defensive by making `locale` parameter optional (defaults to 'en')
+- Cleared `.next` cache to remove stale compiled files
+- Restarted dev server
+- Applied comprehensive neumorphism design system:
+  - Updated `globals.css` with neumorphism-friendly theme colors (gray background #e0e5ec light, #2d2d3a dark)
+  - Created CSS utility classes: neu-raised, neu-pressed, neu-flat, neu-input, neu-card, btn-neu, btn-neu-primary, neu-icon-btn, neu-badge, neu-divider, neu-avatar, neu-concave, neu-convex
+  - Applied to auth-view.tsx (card, inputs, buttons, language selector)
+  - Applied to dashboard-view.tsx (sidebar, header, toolbar, filters, bottom nav, empty state)
+  - Applied to board-card.tsx (card wrapper, actions, badges, avatars)
+  - Applied to settings-dialog.tsx (dialog, tabs, navigation)
+  - Applied to theme-settings.tsx (theme toggles, accent colors, font size)
+  - Applied to ai-agents-settings.tsx (agent cards, selects)
+  - Applied to language-settings.tsx (language buttons)
+  - Applied to profile-settings.tsx (inputs, avatar, sections)
+  - Applied to community-browse.tsx (header, search, filters, cards)
+  - Applied to community-card.tsx (card, badges, avatar)
+  - Applied to upload-design-dialog.tsx (dialog, inputs, selects)
+  - Applied to ai-design-page.tsx (panels, agent cards, prompt area)
+  - Applied to plugin-browser-dialog.tsx (dialog, search, tabs, plugin cards)
+  - Applied to create-board-dialog.tsx (dialog, inputs, template cards)
+  - Applied to editor-view.tsx (toolbar, buttons, panels)
+  - Applied to share-dialog.tsx (dialog, inputs, permission buttons)
+  - Applied to comment-panel.tsx (panel, tabs, comment cards, input)
+  - Applied to error-boundary.tsx (error card, retry button)
+  - Applied to page.tsx (loading screen logo and indicator)
+
+Stage Summary:
+- 'locale is not defined' error FIXED by making t() accept optional locale
+- Full neumorphism design from neumorphism.io applied across entire application
+- All surfaces use same background color with soft shadows for depth (key neumorphism principle)
+- Both light and dark mode supported
+- Agent-browser verification: no JS errors, dashboard/settings/plugins/auth all work correctly
+- Mobile responsive layout verified

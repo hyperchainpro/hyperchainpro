@@ -19,12 +19,6 @@ import { useAuthStore } from '@/store/auth-store'
 import { t } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
-// ── Neumorphism helpers ─────────────────────────────────────────────────────
-
-const neuLight = 'shadow-[6px_6px_12px_rgba(0,0,0,0.08),-6px_-6px_12px_rgba(255,255,255,0.9)]'
-const neuDark = 'dark:shadow-[6px_6px_12px_rgba(0,0,0,0.4),-6px_-6px_12px_rgba(30,30,30,0.1)]'
-const neuInset = 'shadow-[inset_3px_3px_6px_rgba(0,0,0,0.06),inset_-3px_-3px_6px_rgba(255,255,255,0.7)] dark:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3),inset_-3px_-3px_6px_rgba(50,50,50,0.15)]'
-
 // ── Types ───────────────────────────────────────────────────────────────────
 
 interface CommentPanelProps {
@@ -228,16 +222,16 @@ export function CommentPanel({ boardId, elementId, onClose }: CommentPanelProps)
   ]
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full neu-raised bg-background">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 neu-divider shrink-0">
         <div className="flex items-center gap-2">
           <MessageSquare className="h-4 w-4 text-primary" />
           <h2 className="text-sm font-semibold">
             {t('comments.title', locale)}
           </h2>
           {openCount > 0 && (
-            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 neu-badge">
               {openCount}
             </Badge>
           )}
@@ -246,7 +240,7 @@ export function CommentPanel({ boardId, elementId, onClose }: CommentPanelProps)
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7"
+            className="h-7 w-7 neu-icon-btn"
             onClick={onClose}
           >
             <X className="h-4 w-4" />
@@ -255,7 +249,7 @@ export function CommentPanel({ boardId, elementId, onClose }: CommentPanelProps)
       </div>
 
       {/* Filter tabs */}
-      <div className="flex items-center gap-1 px-4 py-2 border-b shrink-0">
+      <div className="flex items-center gap-1 px-4 py-2 neu-divider shrink-0">
         <Filter className="h-3.5 w-3.5 text-muted-foreground mr-1" />
         {filters.map(({ value, labelKey, count }) => (
           <button
@@ -264,8 +258,8 @@ export function CommentPanel({ boardId, elementId, onClose }: CommentPanelProps)
             className={cn(
               'rounded-lg px-2.5 py-1 text-xs font-medium transition-colors',
               filter === value
-                ? 'bg-primary/10 text-primary'
-                : 'text-muted-foreground hover:bg-muted/50',
+                ? 'neu-pressed bg-primary/10 text-primary'
+                : 'neu-flat text-muted-foreground hover:bg-muted/30',
             )}
           >
             {t(labelKey, locale)} ({count})
@@ -306,14 +300,13 @@ export function CommentPanel({ boardId, elementId, onClose }: CommentPanelProps)
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
                     className={cn(
-                      'rounded-xl p-4 transition-all',
+                      'rounded-xl p-4 transition-all bg-background',
                       comment.resolved && 'opacity-60',
-                      neuLight,
-                      neuDark,
+                      'neu-flat',
                     )}
                   >
                     <div className="flex gap-3">
-                      <Avatar className="h-7 w-7 shrink-0 mt-0.5">
+                      <Avatar className="h-7 w-7 shrink-0 mt-0.5 neu-avatar">
                         <AvatarImage src={comment.userAvatar} />
                         <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
                           {initials}
@@ -330,7 +323,7 @@ export function CommentPanel({ boardId, elementId, onClose }: CommentPanelProps)
                           {comment.resolved && (
                             <Badge
                               variant="secondary"
-                              className="text-[9px] px-1.5 py-0 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400"
+                              className="text-[9px] px-1.5 py-0 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400 neu-badge"
                             >
                               {t('comments.resolved', locale)}
                             </Badge>
@@ -343,7 +336,7 @@ export function CommentPanel({ boardId, elementId, onClose }: CommentPanelProps)
                           <div className="mt-2">
                             <button
                               onClick={() => handleResolve(comment.id)}
-                              className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary transition-colors"
+                              className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary transition-colors btn-neu rounded-lg px-2 py-1"
                             >
                               <CheckCircle2 className="h-3 w-3" />
                               {t('comments.resolve', locale)}
@@ -354,7 +347,7 @@ export function CommentPanel({ boardId, elementId, onClose }: CommentPanelProps)
                           <div className="mt-2">
                             <button
                               onClick={() => handleResolve(comment.id)}
-                              className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary transition-colors"
+                              className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary transition-colors btn-neu rounded-lg px-2 py-1"
                             >
                               {t('comments.reopen', locale)}
                             </button>
@@ -371,7 +364,7 @@ export function CommentPanel({ boardId, elementId, onClose }: CommentPanelProps)
       </ScrollArea>
 
       {/* New comment input */}
-      <div className="border-t p-4 shrink-0">
+      <div className="neu-divider p-4 shrink-0">
         <div className="relative">
           <Textarea
             ref={textareaRef}
@@ -379,7 +372,7 @@ export function CommentPanel({ boardId, elementId, onClose }: CommentPanelProps)
             onChange={(e) => handleTextChange(e.target.value)}
             placeholder={t('comments.placeholder', locale)}
             rows={2}
-            className={cn('border-0 bg-muted/50 rounded-xl resize-none pr-10', neuInset)}
+            className={cn('border-0 bg-background rounded-xl resize-none pr-10 neu-input')}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
                 e.preventDefault()
@@ -395,7 +388,7 @@ export function CommentPanel({ boardId, elementId, onClose }: CommentPanelProps)
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 4 }}
-                className="absolute bottom-full left-0 mb-1 w-48 rounded-xl bg-popover border p-1 shadow-lg z-50"
+                className="absolute bottom-full left-0 mb-1 w-48 rounded-xl bg-background border-0 p-1 neu-raised z-50"
               >
                 {mentionResults.map((u) => (
                   <button
@@ -415,7 +408,7 @@ export function CommentPanel({ boardId, elementId, onClose }: CommentPanelProps)
             size="icon"
             onClick={handleSubmit}
             disabled={!newComment.trim()}
-            className="absolute right-2 bottom-2 h-7 w-7 rounded-lg"
+            className="absolute right-2 bottom-2 h-7 w-7 rounded-lg btn-neu"
           >
             <Send className="h-3.5 w-3.5" />
           </Button>

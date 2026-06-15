@@ -6,11 +6,6 @@ import { useAuthStore } from '@/store/auth-store'
 import { t, LOCALES, type Locale } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
-// ── Neumorphism helpers ─────────────────────────────────────────────────────
-
-const neuLight = 'shadow-[6px_6px_12px_rgba(0,0,0,0.08),-6px_-6px_12px_rgba(255,255,255,0.9)]'
-const neuDark = 'dark:shadow-[6px_6px_12px_rgba(0,0,0,0.4),-6px_-6px_12px_rgba(30,30,30,0.1)]'
-
 // ── Language data ───────────────────────────────────────────────────────────
 
 interface LocaleInfo {
@@ -75,12 +70,10 @@ export function LanguageSettings() {
               onClick={() => handleSelect(item.code)}
               whileTap={{ scale: 0.98 }}
               className={cn(
-                'w-full flex items-center gap-4 rounded-xl p-4 transition-all text-left border-2',
+                'w-full flex items-center gap-4 rounded-xl p-4 transition-all text-left bg-background border-0',
                 isActive
-                  ? 'border-primary bg-primary/5'
-                  : 'border-transparent bg-card hover:bg-muted/50',
-                neuLight,
-                neuDark,
+                  ? 'neu-pressed'
+                  : 'neu-flat hover:bg-background',
               )}
             >
               <span className="text-2xl" role="img" aria-label={item.name}>
@@ -94,7 +87,7 @@ export function LanguageSettings() {
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground"
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground neu-badge border-0"
                 >
                   <Check className="h-3.5 w-3.5" />
                 </motion.div>

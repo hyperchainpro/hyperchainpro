@@ -33,10 +33,6 @@ declare global {
   }
 }
 
-// ─── Neumorphism helpers ──────────────────────────────────────────────────────────
-
-const neuLight = 'shadow-[6px_6px_12px_rgba(0,0,0,0.08),-6px_-6px_12px_rgba(255,255,255,0.9)] dark:shadow-[6px_6px_12px_rgba(0,0,0,0.4),-6px_-6px_12px_rgba(30,30,30,0.1)]'
-
 // ─── Slide variants ───────────────────────────────────────────────────────────
 
 const slideVariants = {
@@ -305,7 +301,7 @@ export default function AuthView() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
-                className="h-11"
+                className="h-11 neu-input !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 transition-all duration-200"
               />
             </div>
           )}
@@ -326,7 +322,7 @@ export default function AuthView() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               autoComplete="name"
-              className="h-11"
+              className="h-11 neu-input !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 transition-all duration-200"
             />
           </div>
         )}
@@ -341,7 +337,7 @@ export default function AuthView() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             autoComplete="email"
-            className="h-11"
+            className="h-11 neu-input !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 transition-all duration-200"
           />
         </div>
 
@@ -356,12 +352,12 @@ export default function AuthView() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete={authView === 'register' ? 'new-password' : 'current-password'}
-              className="h-11 pr-10"
+              className="h-11 pr-10 neu-input !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 transition-all duration-200"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-all duration-200"
               tabIndex={-1}
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
@@ -381,7 +377,7 @@ export default function AuthView() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               autoComplete="new-password"
-              className="h-11"
+              className="h-11 neu-input !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 transition-all duration-200"
             />
           </div>
         )}
@@ -397,10 +393,10 @@ export default function AuthView() {
   }[authView];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#e0e5ec] dark:bg-[#2d2d3a] p-4">
       {/* Subtle decorative blurs */}
-      <div className="pointer-events-none absolute top-[-20%] left-[-10%] h-[500px] w-[500px] rounded-full bg-violet-200/30 blur-3xl dark:bg-violet-900/10" />
-      <div className="pointer-events-none absolute bottom-[-20%] right-[-10%] h-[500px] w-[500px] rounded-full bg-amber-200/30 blur-3xl dark:bg-amber-900/10" />
+      <div className="pointer-events-none absolute top-[-20%] left-[-10%] h-[500px] w-[500px] rounded-full bg-violet-300/8 blur-3xl dark:bg-violet-800/5" />
+      <div className="pointer-events-none absolute bottom-[-20%] right-[-10%] h-[500px] w-[500px] rounded-full bg-amber-300/8 blur-3xl dark:bg-amber-800/5" />
 
       <div className="relative w-full max-w-md">
         <AnimatePresence mode="wait" custom={direction}>
@@ -413,14 +409,14 @@ export default function AuthView() {
             exit="exit"
             transition={slideTransition}
           >
-            <Card className={cn('border-0 shadow-xl shadow-black/5 dark:shadow-black/20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl relative', neuLight)}>
+            <Card className={cn('neu-raised !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-2xl relative')}>
               <CardHeader className="text-center pb-2">
                 {/* Back button */}
                 {authView !== 'login' && (
                   <button
                     type="button"
                     onClick={() => setAuthView('login')}
-                    className="absolute left-4 top-6 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    className="absolute left-4 top-6 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-all duration-200 neu-flat !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-xl px-3 py-1.5"
                   >
                     <ArrowLeft className="h-4 w-4" />
                     {t('auth.backToLogin', locale)}
@@ -428,7 +424,7 @@ export default function AuthView() {
                 )}
 
                 {/* Logo */}
-                <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg shadow-violet-500/25">
+                <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-[5px_5px_10px_rgba(0,0,0,0.08),-5px_-5px_10px_rgba(255,255,255,0.85)] dark:shadow-[5px_5px_10px_rgba(0,0,0,0.4),-5px_-5px_10px_rgba(50,50,60,0.08)]">
                   <GitBranch className="h-6 w-6 text-white" />
                 </div>
                 <CardTitle className="text-2xl font-bold tracking-tight">
@@ -450,9 +446,9 @@ export default function AuthView() {
 
                   {/* Captcha */}
                   {!forgotSent && (
-                    <div className="flex justify-center">
+                    <div className="flex justify-center neu-flat !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-2xl py-3">
                       {captchaLoading ? (
-                        <div className="flex h-[65px] w-[300px] items-center justify-center rounded-md border border-border bg-muted/30">
+                        <div className="flex h-[65px] w-[300px] items-center justify-center">
                           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                         </div>
                       ) : (
@@ -476,7 +472,8 @@ export default function AuthView() {
                   {!forgotSent && (
                     <Button
                       type="submit"
-                      className="w-full h-11 text-sm font-medium bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 transition-all"
+                      variant="neu"
+                      className="w-full h-11 !bg-violet-500 hover:!bg-violet-600 !text-white rounded-2xl transition-all duration-200"
                       disabled={isLoading}
                     >
                       {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -492,7 +489,7 @@ export default function AuthView() {
                     <button
                       type="button"
                       onClick={() => setAuthView('forgot-password')}
-                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      className="text-xs text-muted-foreground hover:text-foreground transition-all duration-200 neu-flat !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-xl px-3 py-1.5"
                     >
                       {t('auth.forgotPassword', locale)}
                     </button>
@@ -501,7 +498,7 @@ export default function AuthView() {
                       <button
                         type="button"
                         onClick={() => setAuthView('register')}
-                        className="font-medium text-violet-600 hover:text-violet-500 dark:text-violet-400 dark:hover:text-violet-300 transition-colors"
+                        className="font-medium text-violet-600 hover:text-violet-500 dark:text-violet-400 dark:hover:text-violet-300 transition-all duration-200 neu-flat !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-xl px-3 py-1.5"
                       >
                         {t('auth.signUp', locale)}
                       </button>
@@ -514,7 +511,7 @@ export default function AuthView() {
                     <button
                       type="button"
                       onClick={() => setAuthView('login')}
-                      className="font-medium text-violet-600 hover:text-violet-500 dark:text-violet-400 dark:hover:text-violet-300 transition-colors"
+                      className="font-medium text-violet-600 hover:text-violet-500 dark:text-violet-400 dark:hover:text-violet-300 transition-all duration-200 neu-flat !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-xl px-3 py-1.5"
                     >
                       {t('auth.login', locale)}
                     </button>
@@ -524,7 +521,7 @@ export default function AuthView() {
                   <button
                     type="button"
                     onClick={() => setAuthView('login')}
-                    className="text-sm font-medium text-violet-600 hover:text-violet-500 dark:text-violet-400 dark:hover:text-violet-300 transition-colors"
+                    className="text-sm font-medium text-violet-600 hover:text-violet-500 dark:text-violet-400 dark:hover:text-violet-300 transition-all duration-200 btn-neu !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-2xl px-5 py-2"
                   >
                     {t('auth.backToLogin', locale)}
                   </button>
@@ -535,7 +532,7 @@ export default function AuthView() {
         </AnimatePresence>
 
         {/* Language selector */}
-        <div className="mt-4 flex justify-center gap-1">
+        <div className="mt-4 flex justify-center gap-2">
           {LOCALES.map((l) => (
             <button
               key={l.code}
@@ -546,10 +543,10 @@ export default function AuthView() {
                   useAuthStore.getState().setUser({ ...user, language: l.code });
                 }
               }}
-              className={`rounded-md px-2.5 py-1 text-xs transition-colors ${
+              className={`text-xs transition-all duration-200 ${
                 locale === l.code
-                  ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300 font-medium'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  ? 'neu-pressed !bg-[#e0e5ec] dark:!bg-[#2d2d3a] text-foreground font-medium px-3 py-1.5'
+                  : 'neu-flat !bg-[#e0e5ec] dark:!bg-[#2d2d3a] text-muted-foreground hover:text-foreground px-3 py-1.5'
               }`}
               title={l.name}
             >

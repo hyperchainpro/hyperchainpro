@@ -174,7 +174,7 @@ export function CreateBoardDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col neu-raised bg-background rounded-2xl border-0">
         <DialogHeader>
           <DialogTitle className="text-xl">{t('board.createTitle', locale)}</DialogTitle>
           <DialogDescription>
@@ -199,7 +199,7 @@ export function CreateBoardDialog({
                 }
               }}
               autoFocus
-              className="text-sm"
+              className="text-sm neu-input border-0"
             />
           </div>
 
@@ -211,7 +211,7 @@ export function CreateBoardDialog({
               placeholder={t('board.descriptionPlaceholder', locale)}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="text-sm min-h-[72px] resize-none"
+              className="text-sm min-h-[72px] resize-none neu-input border-0"
               rows={3}
             />
           </div>
@@ -232,10 +232,10 @@ export function CreateBoardDialog({
                     whileTap={{ scale: 0.97 }}
                     onClick={() => setSelectedTemplate(template.id)}
                     className={cn(
-                      'relative flex flex-col items-center gap-2 rounded-xl border-2 p-3 transition-all text-left',
+                      'relative flex flex-col items-center gap-2 rounded-xl p-3 transition-all text-left border-0',
                       isSelected
-                        ? 'border-primary bg-primary/5 shadow-sm dark:bg-primary/10'
-                        : 'border-border hover:border-primary/40 hover:bg-accent/50'
+                        ? 'neu-pressed'
+                        : 'neu-flat'
                     )}
                   >
                     {/* Selected indicator */}
@@ -291,7 +291,7 @@ export function CreateBoardDialog({
           </div>
 
           {/* Visibility toggle */}
-          <div className="flex items-center justify-between rounded-lg border border-border p-3 bg-accent/30">
+          <div className="flex items-center justify-between rounded-lg p-3 bg-background neu-concave border-0">
             <div className="flex items-center gap-3">
               <div className="flex size-9 items-center justify-center rounded-lg bg-muted">
                 {isPublic ? (
@@ -319,17 +319,18 @@ export function CreateBoardDialog({
           </div>
         </div>
 
-        <DialogFooter className="pt-4 border-t mt-2">
+        <DialogFooter className="pt-4 mt-2 neu-divider">
           <Button
             variant="outline"
             onClick={() => handleOpenChange(false)}
+            className="btn-neu border-0"
           >
             {t('board.cancel', locale)}
           </Button>
           <Button
             onClick={handleCreate}
             disabled={!canCreate}
-            className="gap-1.5"
+            className="gap-1.5 btn-neu-primary border-0"
           >
             <Plus className="size-4" />
             {t('board.create', locale)}

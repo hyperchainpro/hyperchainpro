@@ -192,7 +192,7 @@ function GenerationSummary({
       {/* Element breakdown */}
       <div className="flex flex-wrap justify-center gap-2 max-w-sm">
         {Object.entries(typeCounts).map(([type, count]) => (
-          <Badge key={type} variant="secondary" className="gap-1.5 text-xs">
+          <Badge key={type} variant="secondary" className="gap-1.5 text-xs neu-badge">
             {type}
             <span className="font-mono text-muted-foreground">{count}</span>
           </Badge>
@@ -201,12 +201,12 @@ function GenerationSummary({
 
       {/* Actions */}
       <div className="flex gap-3">
-        <Button variant="outline" onClick={onStartOver}>
+        <Button variant="outline" onClick={onStartOver} className="btn-neu border-0">
           {t('ai.startOver', locale)}
         </Button>
         <Button
           onClick={onOpenInEditor}
-          className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg shadow-purple-500/20"
+          className="btn-neu-primary border-0"
         >
           <Sparkles className="w-4 h-4 mr-2" />
           {t('ai.openInEditor', locale)}
@@ -234,10 +234,10 @@ function AgentCard({
       whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.99 }}
       onClick={onSelect}
-      className={`w-full text-left p-3 rounded-xl border transition-all duration-200 ${
+      className={`w-full text-left p-3 rounded-xl transition-all duration-200 border-0 ${
         isSelected
-          ? 'border-violet-500/50 bg-violet-500/5 shadow-sm shadow-violet-500/10'
-          : 'border-border/50 bg-card hover:border-border hover:bg-accent/50'
+          ? 'neu-pressed'
+          : 'neu-flat'
       }`}
     >
       <div className="flex items-start gap-3">
@@ -417,18 +417,18 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
-      <header className="flex items-center gap-3 px-4 md:px-6 h-14 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shrink-0">
+      <header className="flex items-center gap-3 px-4 md:px-6 h-14 bg-background neu-flat shrink-0">
         <Button
           variant="ghost"
           size="sm"
           onClick={onBack}
-          className="gap-1.5"
+          className="gap-1.5 neu-icon-btn"
         >
           <ArrowLeft className="size-4" />
           <span className="hidden sm:inline">{t('common.back', locale)}</span>
         </Button>
 
-        <Separator orientation="vertical" className="h-6" />
+        <Separator orientation="vertical" className="h-6 neu-divider--vertical" />
 
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
@@ -446,7 +446,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
 
         <div className="ml-auto">
           {selectedAgent && (
-            <Badge variant="secondary" className="gap-1.5">
+            <Badge variant="secondary" className="gap-1.5 neu-badge">
               <Bot className="w-3 h-3" />
               {selectedAgent.name}
             </Badge>
@@ -457,7 +457,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
       {/* Main Content */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Left Panel - Agent Selection (desktop) */}
-        <aside className="hidden md:flex w-72 lg:w-80 border-r flex-col shrink-0 bg-muted/20">
+        <aside className="hidden md:flex w-72 lg:w-80 flex-col shrink-0 bg-background">
           <div className="p-4 pb-3">
             <h2 className="text-sm font-semibold flex items-center gap-2">
               <Bot className="w-4 h-4 text-muted-foreground" />
@@ -474,7 +474,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                 placeholder={t('ai.searchAgents', locale)}
                 value={agentSearch}
                 onChange={(e) => setAgentSearch(e.target.value)}
-                className="w-full h-8 pl-8 pr-3 text-sm bg-background border rounded-lg focus:outline-none focus:ring-1 focus:ring-ring"
+                className="w-full h-8 pl-8 pr-3 text-sm neu-input border-0 rounded-lg focus:outline-none focus:ring-0"
               />
             </div>
           </div>
@@ -591,7 +591,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                       <Textarea
                         id="ai-prompt-main"
                         placeholder={t('ai.promptPlaceholder', locale)}
-                        className="min-h-[140px] resize-none text-sm leading-relaxed"
+                        className="min-h-[140px] resize-none text-sm leading-relaxed neu-input border-0"
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
                         onKeyDown={handleKeyDown}
@@ -614,10 +614,10 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                             <button
                               key={s.text}
                               onClick={() => handleSuggestionClick(s.text)}
-                              className="group text-left text-xs px-3 py-2.5 rounded-lg bg-muted/40 hover:bg-muted border border-border/40 hover:border-border transition-all"
+                              className="group text-left text-xs px-3 py-2.5 rounded-lg bg-background neu-flat border-0 transition-all"
                             >
                               <div className="flex items-start gap-2">
-                                <Badge variant="outline" className="text-[10px] shrink-0 mt-0.5">
+                                <Badge variant="outline" className="text-[10px] shrink-0 mt-0.5 neu-badge border-0">
                                   {s.category}
                                 </Badge>
                                 <span className="text-muted-foreground group-hover:text-foreground transition-colors leading-relaxed">
@@ -640,10 +640,10 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                         <div className="flex flex-wrap gap-1.5">
                           <button
                             onClick={() => setStyle('')}
-                            className={`text-xs px-2.5 py-1.5 rounded-lg border transition-all ${
+                            className={`text-xs px-2.5 py-1.5 rounded-lg border-0 transition-all ${
                               !style
-                                ? 'border-primary bg-primary/10 text-primary font-medium'
-                                : 'border-border hover:border-border bg-card text-muted-foreground hover:text-foreground'
+                                ? 'neu-pressed font-medium'
+                                : 'neu-flat'
                             }`}
                           >
                             {t('ai.auto', locale)}
@@ -652,10 +652,10 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                             <button
                               key={opt.value}
                               onClick={() => setStyle(style === opt.value ? '' : opt.value)}
-                              className={`text-xs px-2.5 py-1.5 rounded-lg border transition-all ${
+                              className={`text-xs px-2.5 py-1.5 rounded-lg border-0 transition-all ${
                                 style === opt.value
-                                  ? 'border-primary bg-primary/10 text-primary font-medium'
-                                  : 'border-border hover:border-border bg-card text-muted-foreground hover:text-foreground'
+                                  ? 'neu-pressed font-medium'
+                                  : 'neu-flat'
                               }`}
                             >
                               <span className="mr-1">{opt.icon}</span>
@@ -672,10 +672,10 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                         <div className="flex flex-wrap gap-1.5">
                           <button
                             onClick={() => setColorScheme('')}
-                            className={`text-xs px-2.5 py-1.5 rounded-lg border transition-all ${
+                            className={`text-xs px-2.5 py-1.5 rounded-lg border-0 transition-all ${
                               !colorScheme
-                                ? 'border-primary bg-primary/10 text-primary font-medium'
-                                : 'border-border hover:border-border bg-card text-muted-foreground hover:text-foreground'
+                                ? 'neu-pressed font-medium'
+                                : 'neu-flat'
                             }`}
                           >
                             {t('ai.auto', locale)}
@@ -684,10 +684,10 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                             <button
                               key={opt.value}
                               onClick={() => setColorScheme(colorScheme === opt.value ? '' : opt.value)}
-                              className={`text-xs px-2.5 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 ${
+                              className={`text-xs px-2.5 py-1.5 rounded-lg border-0 transition-all flex items-center gap-1.5 ${
                                 colorScheme === opt.value
-                                  ? 'border-primary bg-primary/10 text-primary font-medium'
-                                  : 'border-border hover:border-border bg-card text-muted-foreground hover:text-foreground'
+                                  ? 'neu-pressed font-medium'
+                                  : 'neu-flat'
                               }`}
                             >
                               <span
@@ -722,7 +722,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
 
           {/* Fixed Bottom Bar with Generate Button */}
           {!generatedElements && (
-            <div className="shrink-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 md:px-8 py-4">
+            <div className="shrink-0 bg-background neu-flat px-4 md:px-8 py-4">
               <div className="max-w-3xl mx-auto flex items-center gap-3">
                 <div className="flex-1 text-xs text-muted-foreground hidden sm:block truncate">
                   {prompt.trim()
@@ -733,7 +733,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
                   onClick={handleGenerate}
                   disabled={!prompt.trim() || isGenerating}
                   size="lg"
-                  className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg shadow-purple-500/20 disabled:opacity-50 min-w-[160px]"
+                  className="btn-neu-primary border-0 disabled:opacity-50 min-w-[160px]"
                 >
                   {isGenerating ? (
                     <>
@@ -753,7 +753,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
         </main>
 
         {/* Right Panel - Preview / Info (desktop only) */}
-        <aside className="hidden lg:flex w-72 border-l flex-col shrink-0 bg-muted/20">
+        <aside className="hidden lg:flex w-72 flex-col shrink-0 bg-background">
           <div className="p-4 pb-3">
             <h2 className="text-sm font-semibold flex items-center gap-2">
               <Layers className="w-4 h-4 text-muted-foreground" />
@@ -764,7 +764,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
           <ScrollArea className="flex-1 px-4 pb-4">
             <div className="space-y-4">
               {/* Selected Agent Info */}
-              <div className="rounded-xl border bg-card p-4 space-y-3">
+              <div className="rounded-xl neu-card bg-background p-4 space-y-3">
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                   {t('ai.activeAgent', locale)}
                 </h3>
@@ -790,7 +790,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
 
               {/* Style Settings Summary */}
               {(style || colorScheme) && (
-                <div className="rounded-xl border bg-card p-4 space-y-3">
+                <div className="rounded-xl neu-card bg-background p-4 space-y-3">
                   <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     {t('ai.settings', locale)}
                   </h3>
@@ -821,7 +821,7 @@ export function AIDesignPage({ onBack }: AIDesignPageProps) {
               )}
 
               {/* Tips */}
-              <div className="rounded-xl border bg-card p-4 space-y-3">
+              <div className="rounded-xl neu-card bg-background p-4 space-y-3">
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                   {t('ai.tips', locale)}
                 </h3>

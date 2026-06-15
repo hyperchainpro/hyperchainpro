@@ -43,73 +43,107 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/*
+ * Neumorphism Design System
+ * ─────────────────────────────────
+ * Key principle: background, card, popover, sidebar, muted, accent,
+ * and secondary are ALL the same color. Visual depth comes
+ * exclusively from dual-direction box-shadows.
+ */
+
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  /* #e0e5ec → soft gray-blue — the single neumorphic surface color */
+  --neu-bg: oklch(0.905 0.008 248);
+  --radius: 0.875rem;
+
+  --background: var(--neu-bg);
+  --foreground: oklch(0.22 0.01 250);
+
+  /* All surfaces share the same background — shadows provide depth */
+  --card: var(--neu-bg);
+  --card-foreground: oklch(0.22 0.01 250);
+  --popover: var(--neu-bg);
+  --popover-foreground: oklch(0.22 0.01 250);
+  --secondary: var(--neu-bg);
+  --secondary-foreground: oklch(0.22 0.01 250);
+  --muted: var(--neu-bg);
+  --muted-foreground: oklch(0.50 0.006 250);
+  --accent: var(--neu-bg);
+  --accent-foreground: oklch(0.22 0.01 250);
+
+  /* Primary is a distinct accent (blue) for interactive highlights */
+  --primary: oklch(0.55 0.18 260);
+  --primary-foreground: oklch(0.97 0.005 260);
+
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+
+  /* Border & input are intentionally very subtle — neumorphism avoids hard borders */
+  --border: oklch(0.905 0.008 248 / 45%);
+  --input: oklch(0.905 0.008 248 / 50%);
+  --ring: oklch(0.55 0.18 260);
+
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+
+  /* Sidebar shares the same surface color */
+  --sidebar: var(--neu-bg);
+  --sidebar-foreground: oklch(0.22 0.01 250);
+  --sidebar-primary: oklch(0.55 0.18 260);
+  --sidebar-primary-foreground: oklch(0.97 0.005 260);
+  --sidebar-accent: var(--neu-bg);
+  --sidebar-accent-foreground: oklch(0.22 0.01 250);
+  --sidebar-border: oklch(0.905 0.008 248 / 45%);
+  --sidebar-ring: oklch(0.55 0.18 260);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  /* #2d2d3a → deep gray-blue — the single neumorphic surface color in dark mode */
+  --neu-bg: oklch(0.235 0.018 280);
+
+  --background: var(--neu-bg);
+  --foreground: oklch(0.90 0.008 250);
+
+  /* All surfaces share the same background */
+  --card: var(--neu-bg);
+  --card-foreground: oklch(0.90 0.008 250);
+  --popover: var(--neu-bg);
+  --popover-foreground: oklch(0.90 0.008 250);
+  --secondary: var(--neu-bg);
+  --secondary-foreground: oklch(0.90 0.008 250);
+  --muted: var(--neu-bg);
+  --muted-foreground: oklch(0.60 0.01 250);
+  --accent: var(--neu-bg);
+  --accent-foreground: oklch(0.90 0.008 250);
+
+  /* Primary is a lighter blue for dark mode */
+  --primary: oklch(0.68 0.17 260);
+  --primary-foreground: oklch(0.15 0.02 260);
+
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+
+  /* Very subtle border — nearly invisible */
+  --border: oklch(0.235 0.018 280 / 35%);
+  --input: oklch(0.235 0.018 280 / 40%);
+  --ring: oklch(0.68 0.17 260);
+
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+
+  /* Sidebar shares the same surface color */
+  --sidebar: var(--neu-bg);
+  --sidebar-foreground: oklch(0.90 0.008 250);
+  --sidebar-primary: oklch(0.68 0.17 260);
+  --sidebar-primary-foreground: oklch(0.15 0.02 260);
+  --sidebar-accent: var(--neu-bg);
+  --sidebar-accent-foreground: oklch(0.90 0.008 250);
+  --sidebar-border: oklch(0.235 0.018 280 / 35%);
+  --sidebar-ring: oklch(0.68 0.17 260);
 }
 
 @layer base {
@@ -125,126 +159,294 @@
   }
 }
 
-/* ─── Neumorphism Design System ─────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   Neumorphism Design System — Light Mode (default)
+   ═══════════════════════════════════════════════════════════════════════════
+   Every element sits on the same #e0e5ec surface. Dual-direction shadows
+   create the illusion of extrusion or recession.
+   ═══════════════════════════════════════════════════════════════════════════ */
 
-/* Light mode neumorphism */
+/* ── Raised surface (cards, panels, elevated containers) ─────────────── */
 .neu-raised {
   background: var(--background);
   box-shadow:
-    6px 6px 14px rgba(0, 0, 0, 0.07),
-    -6px -6px 14px rgba(255, 255, 255, 0.85);
+    8px 8px 16px oklch(0.68 0.01 250 / 25%),
+    -8px -8px 16px oklch(1 0 0 / 75%);
   border-radius: 16px;
+  border: none;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
+.neu-raised:hover {
+  box-shadow:
+    10px 10px 20px oklch(0.68 0.01 250 / 30%),
+    -10px -10px 20px oklch(1 0 0 / 80%);
+  transform: translateY(-1px);
+}
+
+/* ── Pressed / inset surface (active toggles, selected items) ────────── */
 .neu-pressed {
   background: var(--background);
   box-shadow:
-    inset 4px 4px 8px rgba(0, 0, 0, 0.06),
-    inset -4px -4px 8px rgba(255, 255, 255, 0.7);
+    inset 5px 5px 10px oklch(0.68 0.01 250 / 22%),
+    inset -5px -5px 10px oklch(1 0 0 / 70%);
   border-radius: 16px;
+  border: none;
+  transition: box-shadow 0.2s ease;
 }
 
+/* ── Flat surface (subtle elevation, subtle hover areas) ─────────────── */
 .neu-flat {
   background: var(--background);
   box-shadow:
-    4px 4px 10px rgba(0, 0, 0, 0.05),
-    -4px -4px 10px rgba(255, 255, 255, 0.8);
-  border-radius: 12px;
+    4px 4px 8px oklch(0.68 0.01 250 / 20%),
+    -4px -4px 8px oklch(1 0 0 / 72%);
+  border-radius: 14px;
+  border: none;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
+.neu-flat:hover {
+  box-shadow:
+    6px 6px 12px oklch(0.68 0.01 250 / 25%),
+    -6px -6px 12px oklch(1 0 0 / 78%);
+  transform: translateY(-1px);
+}
+
+/* ── Input field (inset shadow + focus ring) ─────────────────────────── */
 .neu-input {
   background: var(--background);
   box-shadow:
-    inset 3px 3px 6px rgba(0, 0, 0, 0.05),
-    inset -3px -3px 6px rgba(255, 255, 255, 0.7);
+    inset 3px 3px 6px oklch(0.68 0.01 250 / 20%),
+    inset -3px -3px 6px oklch(1 0 0 / 70%);
   border: 1px solid transparent;
-  border-radius: 12px;
+  border-radius: 14px;
+  padding: 10px 14px;
+  color: var(--foreground);
+  transition: box-shadow 0.2s ease;
+}
+
+.neu-input::placeholder {
+  color: var(--muted-foreground);
 }
 
 .neu-input:focus {
   box-shadow:
-    inset 2px 2px 4px rgba(0, 0, 0, 0.04),
-    inset -2px -2px 4px rgba(255, 255, 255, 0.6),
-    0 0 0 2px var(--ring);
+    inset 2px 2px 4px oklch(0.68 0.01 250 / 15%),
+    inset -2px -2px 4px oklch(1 0 0 / 65%),
+    0 0 0 2px oklch(0.55 0.18 260 / 40%);
   border-color: transparent;
+  outline: none;
 }
 
-/* Dark mode neumorphism */
-.dark .neu-raised {
+/* ── Concave surface (recessed areas, wells, docks) ──────────────────── */
+.neu-concave {
+  background: linear-gradient(
+    145deg,
+    oklch(0.87 0.008 248),
+    oklch(0.935 0.008 248)
+  );
   box-shadow:
-    6px 6px 14px rgba(0, 0, 0, 0.4),
-    -6px -6px 14px rgba(50, 50, 60, 0.1);
+    6px 6px 12px oklch(0.68 0.01 250 / 25%),
+    -6px -6px 12px oklch(1 0 0 / 75%);
+  border-radius: 16px;
+  border: none;
+  transition: box-shadow 0.2s ease;
 }
 
-.dark .neu-pressed {
+/* ── Convex surface (pill-shaped raised elements, tags, chips) ────────── */
+.neu-convex {
+  background: linear-gradient(
+    145deg,
+    oklch(0.935 0.008 248),
+    oklch(0.87 0.008 248)
+  );
   box-shadow:
-    inset 4px 4px 8px rgba(0, 0, 0, 0.35),
-    inset -4px -4px 8px rgba(50, 50, 60, 0.08);
+    4px 4px 8px oklch(0.68 0.01 250 / 20%),
+    -4px -4px 8px oklch(1 0 0 / 72%);
+  border-radius: 50px;
+  border: none;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.dark .neu-flat {
+.neu-convex:hover {
   box-shadow:
-    4px 4px 10px rgba(0, 0, 0, 0.35),
-    -4px -4px 10px rgba(50, 50, 60, 0.08);
+    6px 6px 12px oklch(0.68 0.01 250 / 25%),
+    -6px -6px 12px oklch(1 0 0 / 78%);
+  transform: translateY(-1px);
 }
 
-.dark .neu-input {
+/* ── Card (raised + rounded + no border — the canonical neumorphic card) */
+.neu-card {
+  background: var(--background);
   box-shadow:
-    inset 3px 3px 6px rgba(0, 0, 0, 0.3),
-    inset -3px -3px 6px rgba(50, 50, 60, 0.06);
+    8px 8px 16px oklch(0.68 0.01 250 / 25%),
+    -8px -8px 16px oklch(1 0 0 / 75%);
+  border-radius: 18px;
+  border: none;
+  padding: 24px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.dark .neu-input:focus {
+.neu-card:hover {
   box-shadow:
-    inset 2px 2px 4px rgba(0, 0, 0, 0.25),
-    inset -2px -2px 4px rgba(50, 50, 60, 0.05),
-    0 0 0 2px var(--ring);
+    10px 10px 20px oklch(0.68 0.01 250 / 30%),
+    -10px -10px 20px oklch(1 0 0 / 80%);
+  transform: translateY(-2px);
 }
 
-/* Neumorphism button base */
+/* ── Button (raised with press effect) ───────────────────────────────── */
 .btn-neu {
   background: var(--background);
   box-shadow:
-    5px 5px 10px rgba(0, 0, 0, 0.06),
-    -5px -5px 10px rgba(255, 255, 255, 0.8);
+    6px 6px 12px oklch(0.68 0.01 250 / 22%),
+    -6px -6px 12px oklch(1 0 0 / 72%);
   border-radius: 14px;
-  transition: all 0.2s ease;
   border: none;
+  padding: 10px 24px;
+  font-weight: 500;
+  color: var(--foreground);
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .btn-neu:hover {
   box-shadow:
-    7px 7px 14px rgba(0, 0, 0, 0.08),
-    -7px -7px 14px rgba(255, 255, 255, 0.9);
+    8px 8px 16px oklch(0.68 0.01 250 / 28%),
+    -8px -8px 16px oklch(1 0 0 / 80%);
   transform: translateY(-1px);
 }
 
 .btn-neu:active {
   box-shadow:
-    inset 3px 3px 6px rgba(0, 0, 0, 0.06),
-    inset -3px -3px 6px rgba(255, 255, 255, 0.7);
+    inset 4px 4px 8px oklch(0.68 0.01 250 / 22%),
+    inset -4px -4px 8px oklch(1 0 0 / 70%);
   transform: translateY(0);
 }
 
-.dark .btn-neu {
+/* ── Primary button (accent background + neumorphic shadow) ──────────── */
+.btn-neu-primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
   box-shadow:
-    5px 5px 10px rgba(0, 0, 0, 0.4),
-    -5px -5px 10px rgba(50, 50, 60, 0.08);
+    6px 6px 12px oklch(0.68 0.01 250 / 25%),
+    -3px -3px 8px oklch(1 0 0 / 40%);
+  border-radius: 14px;
+  border: none;
+  padding: 10px 24px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.dark .btn-neu:hover {
+.btn-neu-primary:hover {
   box-shadow:
-    7px 7px 14px rgba(0, 0, 0, 0.5),
-    -7px -7px 14px rgba(50, 50, 60, 0.1);
+    8px 8px 16px oklch(0.68 0.01 250 / 30%),
+    -4px -4px 10px oklch(1 0 0 / 45%);
+  transform: translateY(-1px);
 }
 
-.dark .btn-neu:active {
+.btn-neu-primary:active {
   box-shadow:
-    inset 3px 3px 6px rgba(0, 0, 0, 0.35),
-    inset -3px -3px 6px rgba(50, 50, 60, 0.06);
+    inset 3px 3px 6px oklch(0.35 0.1 260 / 30%),
+    inset -3px -3px 6px oklch(0.75 0.2 260 / 20%);
+  transform: translateY(0);
 }
 
-/* Custom scrollbar for neumorphism */
+/* ── Icon button (square / circle, compact) ──────────────────────────── */
+.neu-icon-btn {
+  background: var(--background);
+  box-shadow:
+    4px 4px 8px oklch(0.68 0.01 250 / 20%),
+    -4px -4px 8px oklch(1 0 0 / 72%);
+  border-radius: 14px;
+  border: none;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--foreground);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.neu-icon-btn:hover {
+  box-shadow:
+    6px 6px 12px oklch(0.68 0.01 250 / 25%),
+    -6px -6px 12px oklch(1 0 0 / 78%);
+  transform: translateY(-1px);
+}
+
+.neu-icon-btn:active {
+  box-shadow:
+    inset 3px 3px 6px oklch(0.68 0.01 250 / 22%),
+    inset -3px -3px 6px oklch(1 0 0 / 70%);
+  transform: translateY(0);
+}
+
+/* ── Badge (soft shadow chip) ────────────────────────────────────────── */
+.neu-badge {
+  background: var(--background);
+  box-shadow:
+    3px 3px 6px oklch(0.68 0.01 250 / 18%),
+    -3px -3px 6px oklch(1 0 0 / 70%);
+  border-radius: 50px;
+  border: none;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: box-shadow 0.2s ease;
+}
+
+/* ── Divider (subtle horizontal/vertical rule) ───────────────────────── */
+.neu-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    oklch(0.68 0.01 250 / 15%),
+    transparent
+  );
+  border: none;
+  margin: 16px 0;
+}
+
+.neu-divider--vertical {
+  width: 1px;
+  height: auto;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    oklch(0.68 0.01 250 / 15%),
+    transparent
+  );
+  margin: 0 16px;
+}
+
+/* ── Avatar (ring shadow around circular image) ──────────────────────── */
+.neu-avatar {
+  box-shadow:
+    4px 4px 8px oklch(0.68 0.01 250 / 22%),
+    -4px -4px 8px oklch(1 0 0 / 72%);
+  border-radius: 50%;
+  border: none;
+  object-fit: cover;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.neu-avatar:hover {
+  box-shadow:
+    6px 6px 12px oklch(0.68 0.01 250 / 28%),
+    -6px -6px 12px oklch(1 0 0 / 80%);
+  transform: translateY(-1px);
+}
+
+/* ── Custom scrollbar ────────────────────────────────────────────────── */
 .neu-scroll::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -255,12 +457,199 @@
 }
 
 .neu-scroll::-webkit-scrollbar-thumb {
-  background: var(--muted-foreground);
+  background: oklch(0.68 0.01 250 / 30%);
   border-radius: 3px;
-  opacity: 0.3;
 }
 
 .neu-scroll::-webkit-scrollbar-thumb:hover {
-  background: var(--foreground);
-  opacity: 0.5;
+  background: oklch(0.55 0.01 250 / 40%);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Neumorphism Design System — Dark Mode
+   ═══════════════════════════════════════════════════════════════════════════
+   Surface is #2d2d3a. Dark shadows use pure black; light shadows use a
+   slightly brighter gray-blue highlight.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.dark .neu-raised {
+  box-shadow:
+    8px 8px 16px oklch(0.10 0.02 280 / 60%),
+    -8px -8px 16px oklch(0.35 0.015 280 / 18%);
+}
+
+.dark .neu-raised:hover {
+  box-shadow:
+    10px 10px 20px oklch(0.10 0.02 280 / 65%),
+    -10px -10px 20px oklch(0.35 0.015 280 / 22%);
+}
+
+.dark .neu-pressed {
+  box-shadow:
+    inset 5px 5px 10px oklch(0.10 0.02 280 / 50%),
+    inset -5px -5px 10px oklch(0.35 0.015 280 / 12%);
+}
+
+.dark .neu-flat {
+  box-shadow:
+    4px 4px 8px oklch(0.10 0.02 280 / 50%),
+    -4px -4px 8px oklch(0.35 0.015 280 / 15%);
+}
+
+.dark .neu-flat:hover {
+  box-shadow:
+    6px 6px 12px oklch(0.10 0.02 280 / 55%),
+    -6px -6px 12px oklch(0.35 0.015 280 / 20%);
+}
+
+.dark .neu-input {
+  box-shadow:
+    inset 3px 3px 6px oklch(0.10 0.02 280 / 45%),
+    inset -3px -3px 6px oklch(0.35 0.015 280 / 10%);
+  color: var(--foreground);
+}
+
+.dark .neu-input:focus {
+  box-shadow:
+    inset 2px 2px 4px oklch(0.10 0.02 280 / 35%),
+    inset -2px -2px 4px oklch(0.35 0.015 280 / 8%),
+    0 0 0 2px oklch(0.68 0.17 260 / 35%);
+}
+
+.dark .neu-concave {
+  background: linear-gradient(
+    145deg,
+    oklch(0.21 0.018 280),
+    oklch(0.26 0.018 280)
+  );
+  box-shadow:
+    6px 6px 12px oklch(0.10 0.02 280 / 55%),
+    -6px -6px 12px oklch(0.35 0.015 280 / 18%);
+}
+
+.dark .neu-convex {
+  background: linear-gradient(
+    145deg,
+    oklch(0.26 0.018 280),
+    oklch(0.21 0.018 280)
+  );
+  box-shadow:
+    4px 4px 8px oklch(0.10 0.02 280 / 50%),
+    -4px -4px 8px oklch(0.35 0.015 280 / 15%);
+}
+
+.dark .neu-convex:hover {
+  box-shadow:
+    6px 6px 12px oklch(0.10 0.02 280 / 55%),
+    -6px -6px 12px oklch(0.35 0.015 280 / 20%);
+}
+
+.dark .neu-card {
+  box-shadow:
+    8px 8px 16px oklch(0.10 0.02 280 / 60%),
+    -8px -8px 16px oklch(0.35 0.015 280 / 18%);
+}
+
+.dark .neu-card:hover {
+  box-shadow:
+    10px 10px 20px oklch(0.10 0.02 280 / 65%),
+    -10px -10px 20px oklch(0.35 0.015 280 / 22%);
+}
+
+.dark .btn-neu {
+  box-shadow:
+    6px 6px 12px oklch(0.10 0.02 280 / 55%),
+    -6px -6px 12px oklch(0.35 0.015 280 / 15%);
+}
+
+.dark .btn-neu:hover {
+  box-shadow:
+    8px 8px 16px oklch(0.10 0.02 280 / 60%),
+    -8px -8px 16px oklch(0.35 0.015 280 / 20%);
+}
+
+.dark .btn-neu:active {
+  box-shadow:
+    inset 4px 4px 8px oklch(0.10 0.02 280 / 50%),
+    inset -4px -4px 8px oklch(0.35 0.015 280 / 10%);
+}
+
+.dark .btn-neu-primary {
+  box-shadow:
+    6px 6px 12px oklch(0.10 0.02 280 / 55%),
+    -3px -3px 8px oklch(0.35 0.015 280 / 12%);
+}
+
+.dark .btn-neu-primary:hover {
+  box-shadow:
+    8px 8px 16px oklch(0.10 0.02 280 / 60%),
+    -4px -4px 10px oklch(0.35 0.015 280 / 15%);
+}
+
+.dark .btn-neu-primary:active {
+  box-shadow:
+    inset 3px 3px 6px oklch(0.25 0.1 260 / 35%),
+    inset -3px -3px 6px oklch(0.55 0.15 260 / 15%);
+}
+
+.dark .neu-icon-btn {
+  box-shadow:
+    4px 4px 8px oklch(0.10 0.02 280 / 50%),
+    -4px -4px 8px oklch(0.35 0.015 280 / 15%);
+}
+
+.dark .neu-icon-btn:hover {
+  box-shadow:
+    6px 6px 12px oklch(0.10 0.02 280 / 55%),
+    -6px -6px 12px oklch(0.35 0.015 280 / 20%);
+}
+
+.dark .neu-icon-btn:active {
+  box-shadow:
+    inset 3px 3px 6px oklch(0.10 0.02 280 / 50%),
+    inset -3px -3px 6px oklch(0.35 0.015 280 / 10%);
+}
+
+.dark .neu-badge {
+  box-shadow:
+    3px 3px 6px oklch(0.10 0.02 280 / 45%),
+    -3px -3px 6px oklch(0.35 0.015 280 / 12%);
+}
+
+.dark .neu-divider {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    oklch(0.45 0.01 280 / 20%),
+    transparent
+  );
+}
+
+.dark .neu-divider--vertical {
+  background: linear-gradient(
+    180deg,
+    transparent,
+    oklch(0.45 0.01 280 / 20%),
+    transparent
+  );
+}
+
+.dark .neu-avatar {
+  box-shadow:
+    4px 4px 8px oklch(0.10 0.02 280 / 55%),
+    -4px -4px 8px oklch(0.35 0.015 280 / 18%);
+}
+
+.dark .neu-avatar:hover {
+  box-shadow:
+    6px 6px 12px oklch(0.10 0.02 280 / 60%),
+    -6px -6px 12px oklch(0.35 0.015 280 / 22%);
+}
+
+.dark .neu-scroll::-webkit-scrollbar-thumb {
+  background: oklch(0.40 0.01 280 / 35%);
+}
+
+.dark .neu-scroll::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.50 0.01 280 / 45%);
 }

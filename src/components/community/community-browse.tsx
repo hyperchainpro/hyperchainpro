@@ -201,7 +201,7 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
   const renderSkeletons = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5">
       {[...Array(8)].map((_, i) => (
-        <div key={i} className="rounded-xl border border-border bg-card overflow-hidden">
+        <div key={i} className="rounded-xl neu-card bg-background overflow-hidden">
           <Skeleton className="aspect-[4/3] w-full" />
           <div className="p-3 space-y-2">
             <Skeleton className="h-4 w-3/4" />
@@ -218,7 +218,7 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-background">
       {/* Header */}
-      <header className="shrink-0 border-b border-border bg-card/80 backdrop-blur-sm">
+      <header className="shrink-0 bg-background neu-flat">
         <div className="px-4 py-3 lg:px-6">
           <div className="flex items-center justify-between gap-4">
             {/* Left: Back + Title */}
@@ -228,7 +228,7 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
                   variant="ghost"
                   size="icon"
                   onClick={onBack}
-                  className="shrink-0"
+                  className="shrink-0 neu-icon-btn"
                   aria-label={t('common.back', locale)}
                 >
                   <ArrowLeft className="size-5" />
@@ -253,8 +253,7 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
               <Button
                 onClick={() => setUploadOpen(true)}
                 className={cn(
-                  'gap-2 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600',
-                  'hover:from-violet-700 hover:to-fuchsia-700 text-white border-0 shadow-sm'
+                  'gap-2 rounded-lg btn-neu-primary border-0'
                 )}
                 size="sm"
               >
@@ -268,7 +267,7 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
       </header>
 
       {/* Search + Filters */}
-      <div className="shrink-0 border-b border-border bg-muted/30">
+      <div className="shrink-0 bg-background neu-flat">
         <div className="px-4 py-3 lg:px-6">
           {/* Search bar */}
           <div className="relative max-w-xl mb-3">
@@ -277,7 +276,7 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
               placeholder={t('community.searchPlaceholder', locale)}
               value={search}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-9 h-9 bg-background border-border/60 focus-visible:ring-1"
+              className="pl-9 h-9 neu-input border-0 focus-visible:ring-0"
               aria-label={t('community.searchCommunityDesigns', locale)}
             />
           </div>
@@ -286,12 +285,12 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
           <div className="flex items-center justify-between gap-3">
             <div className="flex-1 overflow-x-auto">
               <Tabs value={category} onValueChange={setCategory}>
-                <TabsList className="h-8 bg-muted/50 p-0.5 gap-0.5">
+                <TabsList className="h-8 bg-transparent p-0.5 gap-0.5">
                   {CATEGORIES.map((cat) => (
                     <TabsTrigger
                       key={cat.value}
                       value={cat.value}
-                      className="text-xs h-7 px-3 rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                      className="text-xs h-7 px-3 rounded-lg border-0 data-[state=active]:neu-pressed data-[state=inactive]:neu-flat"
                     >
                       {t(cat.labelKey, locale)}
                     </TabsTrigger>
@@ -311,8 +310,8 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
                     size="sm"
                     onClick={() => setSort(opt.value)}
                     className={cn(
-                      'text-xs h-7 px-2.5 rounded-md gap-1',
-                      sort === opt.value && 'font-semibold'
+                      'text-xs h-7 px-2.5 rounded-lg gap-1 border-0',
+                      sort === opt.value ? 'neu-pressed font-semibold' : 'neu-flat'
                     )}
                   >
                     <Icon className="size-3" />
@@ -334,7 +333,10 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
                   variant={sort === opt.value ? 'secondary' : 'ghost'}
                   size="sm"
                   onClick={() => setSort(opt.value)}
-                  className="text-xs h-7 px-2.5 rounded-md"
+                  className={cn(
+                    'text-xs h-7 px-2.5 rounded-lg border-0',
+                    sort === opt.value ? 'neu-pressed font-semibold' : 'neu-flat'
+                  )}
                 >
                   {t(opt.labelKey, locale)}
                 </Button>
@@ -429,7 +431,7 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
                 <Button
                   variant="outline"
                   onClick={() => setSearch('')}
-                  className="gap-2 rounded-lg"
+                  className="gap-2 rounded-lg btn-neu border-0"
                 >
                   {t('community.clearSearch', locale)}
                 </Button>
@@ -439,8 +441,7 @@ export function CommunityBrowse({ onBack }: CommunityBrowseProps) {
                 <Button
                   onClick={() => setUploadOpen(true)}
                   className={cn(
-                    'gap-2 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600',
-                    'hover:from-violet-700 hover:to-fuchsia-700 text-white border-0'
+                    'gap-2 rounded-lg btn-neu-primary border-0'
                   )}
                 >
                   <Upload className="size-4" />

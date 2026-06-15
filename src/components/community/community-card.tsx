@@ -97,7 +97,7 @@ export function CommunityCard({ design, onClick, onLike }: CommunityCardProps) {
         }
       }}
     >
-      <div className="relative overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-shadow group-hover:shadow-md">
+      <div className="relative overflow-hidden rounded-xl neu-card bg-background transition-shadow">
         {/* Thumbnail area */}
         <div
           className={cn(
@@ -148,7 +148,7 @@ export function CommunityCard({ design, onClick, onLike }: CommunityCardProps) {
           {/* Featured badge */}
           {design.isFeatured && (
             <div className="absolute top-2 left-2">
-              <Badge className="gap-1 bg-amber-500 text-white border-0 text-[10px] px-2 py-0.5 shadow-sm">
+              <Badge className="gap-1 bg-amber-500 text-white border-0 text-[10px] px-2 py-0.5 neu-badge">
                 <Star className="size-2.5 fill-current" />
                 {t('community.featured', locale)}
               </Badge>
@@ -157,7 +157,7 @@ export function CommunityCard({ design, onClick, onLike }: CommunityCardProps) {
 
           {/* Category badge */}
           <div className="absolute top-2 right-2">
-            <Badge className="bg-black/30 text-white border-0 text-[10px] px-2 py-0.5 backdrop-blur-sm">
+            <Badge className="bg-black/30 text-white border-0 text-[10px] px-2 py-0.5 backdrop-blur-sm neu-badge">
               {categoryLabel}
             </Badge>
           </div>
@@ -192,7 +192,7 @@ export function CommunityCard({ design, onClick, onLike }: CommunityCardProps) {
           {/* Author & stats */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 min-w-0">
-              <div className="flex size-5 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-400 text-[8px] font-bold text-white">
+              <div className="flex size-5 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-400 text-[8px] font-bold text-white neu-avatar">
                 {(design.userName || 'A')[0].toUpperCase()}
               </div>
               <span className="text-xs text-muted-foreground truncate">

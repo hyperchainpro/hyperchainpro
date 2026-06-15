@@ -1,0 +1,252 @@
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:69:  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:116:      toast.error(t('community.titleRequired', locale));
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:138:      toast.success(t('community.publishSuccess', locale));
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:141:      toast.error(t('community.publishFailed', locale));
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:157:            {t('community.publishTitle', locale)}
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:160:            {t('community.publishDesc', locale)}
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:167:            <Label className="text-sm font-medium">{t("community.previewThumbnail", locale)}</Label>
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:185:                    {title || t('community.designTitle', locale)}
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:192:                <span className="text-xs text-muted-foreground">{t("community.themeColor", locale)}</span>
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:214:              {t('community.titleLabel', locale)} <span className="text-rose-500">*</span>
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:218:              placeholder={t('community.titlePlaceholder', locale)}
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:229:            <Label htmlFor="design-description">{t("community.descriptionLabel", locale)}</Label>
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:232:              placeholder={t("community.descriptionPlaceholder", locale)}
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:245:              <Label>{t("community.categoryLabel", locale)}</Label>
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:248:                  <SelectValue placeholder={t("community.selectCategory", locale)} />
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:253:                      {t(cat.labelKey, locale)}
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:261:              <Label>{t("community.linkToBoard", locale)}</Label>
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:264:                  <SelectValue placeholder={t("community.selectBoard", locale)} />
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:275:                      {t('community.noBoards', locale)}
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:285:            <Label htmlFor="design-tags">{t("community.tagsLabel", locale)}</Label>
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:288:              placeholder={t('community.tagsPlaceholder', locale)}
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:319:              {t('common.cancel', locale)}
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:333:                  {t('community.publishing', locale)}
+/home/z/my-project/src/components/community/upload-design-dialog.tsx:338:                  {t('community.publish', locale)}
+/home/z/my-project/src/components/community/community-card.tsx:77:  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+/home/z/my-project/src/components/community/community-card.tsx:81:  const categoryLabel = categoryLabelKey ? t(categoryLabelKey, locale) : design.category;
+/home/z/my-project/src/components/community/community-card.tsx:92:      aria-label={`View ${design.title} by ${design.userName || t('community.anonymous', locale)}`}
+/home/z/my-project/src/components/community/community-card.tsx:153:                {t('community.featured', locale)}
+/home/z/my-project/src/components/community/community-card.tsx:199:                {design.userName || t('community.anonymous', locale)}
+/home/z/my-project/src/components/community/community-browse.tsx:83:  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+/home/z/my-project/src/components/community/community-browse.tsx:232:                  aria-label={t('common.back', locale)}
+/home/z/my-project/src/components/community/community-browse.tsx:242:                  <h1 className="text-lg font-bold tracking-tight leading-none">{t("community.title", locale)}</h1>
+/home/z/my-project/src/components/community/community-browse.tsx:244:                    {total > 0 ? t('community.designsShared', locale, { n: total }) : t('community.browseAndShare', locale)}
+/home/z/my-project/src/components/community/community-browse.tsx:262:                <span className="hidden sm:inline">{t("community.shareYourWork", locale)}</span>
+/home/z/my-project/src/components/community/community-browse.tsx:263:                <span className="sm:hidden">{t("community.uploadBtn", locale)}</span>
+/home/z/my-project/src/components/community/community-browse.tsx:277:              placeholder={t('community.searchPlaceholder', locale)}
+/home/z/my-project/src/components/community/community-browse.tsx:281:              aria-label={t('community.searchCommunityDesigns', locale)}
+/home/z/my-project/src/components/community/community-browse.tsx:296:                      {t(cat.labelKey, locale)}
+/home/z/my-project/src/components/community/community-browse.tsx:319:                    {t(opt.labelKey, locale)}
+/home/z/my-project/src/components/community/community-browse.tsx:329:            <span className="text-xs text-muted-foreground">{t("community.sort", locale)}</span>
+/home/z/my-project/src/components/community/community-browse.tsx:339:                  {t(opt.labelKey, locale)}
+/home/z/my-project/src/components/community/community-browse.tsx:384:                      <span className="text-sm">{t("community.loadingMore", locale)}</span>
+/home/z/my-project/src/components/community/community-browse.tsx:397:                        ? t('community.seenAllDesigns', locale, { n: total })
+/home/z/my-project/src/components/community/community-browse.tsx:398:                        : t('community.thatsAllForNow', locale)}
+/home/z/my-project/src/components/community/community-browse.tsx:420:                {search ? t('community.noDesignsFound', locale) : t('community.noDesignsYet', locale)}
+/home/z/my-project/src/components/community/community-browse.tsx:424:                  ? t('community.noDesignsSearch', locale, { query: search })
+/home/z/my-project/src/components/community/community-browse.tsx:425:                  : t('community.beFirstToShare', locale)}
+/home/z/my-project/src/components/community/community-browse.tsx:434:                  {t('community.clearSearch', locale)}
+/home/z/my-project/src/components/community/community-browse.tsx:447:                  {t('community.shareFirstDesign', locale)}
+/home/z/my-project/src/components/community/design-detail-dialog.tsx:52:  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+/home/z/my-project/src/components/community/design-detail-dialog.tsx:69:          toast.error(t('community.failedToLoad', locale));
+/home/z/my-project/src/components/community/design-detail-dialog.tsx:76:        toast.error(t('community.failedToLoad', locale));
+/home/z/my-project/src/components/community/design-detail-dialog.tsx:90:        toast.success(t('community.liked', locale));
+/home/z/my-project/src/components/community/design-detail-dialog.tsx:93:      toast.error(t('community.failedToLike', locale));
+/home/z/my-project/src/components/community/design-detail-dialog.tsx:105:        toast.success(t('community.downloadStarted', locale));
+/home/z/my-project/src/components/community/design-detail-dialog.tsx:108:      toast.error(t('community.failedToDownload', locale));
+/home/z/my-project/src/components/community/design-detail-dialog.tsx:116:    const shareText = t('community.shareText', locale, { title: design.title });
+/home/z/my-project/src/components/community/design-detail-dialog.tsx:125:      toast.success(t('community.linkCopiedToast', locale));
+/home/z/my-project/src/components/community/design-detail-dialog.tsx:130:    toast.success(t('community.templateCopied', locale));
+/home/z/my-project/src/components/community/design-detail-dialog.tsx:136:      toast.info(t('community.noSourceBoard', locale));
+/home/z/my-project/src/components/community/design-detail-dialog.tsx:139:    toast.success(t('community.openingInEditor', locale));
+/home/z/my-project/src/components/community/design-detail-dialog.tsx:146:  const categoryLabel = categoryLabelKey ? t(categoryLabelKey, locale) : (design?.category || '');
+/home/z/my-project/src/components/community/design-detail-dialog.tsx:198:                      ⭐ {t('community.featured', locale)}
+/home/z/my-project/src/components/community/design-detail-dialog.tsx:227:                      <p className="text-sm font-medium">{design.userName || t('community.anonymous', locale)}</p>
+/home/z/my-project/src/components/community/design-detail-dialog.tsx:285:                    {liked ? t('community.likedBtn', locale) : t('community.likeBtn', locale)}
+/home/z/my-project/src/components/community/design-detail-dialog.tsx:296:                    {downloading ? t('community.downloading', locale) : t('community.downloadBtn', locale)}
+/home/z/my-project/src/components/community/design-detail-dialog.tsx:306:                    {t('community.shareBtn', locale)}
+/home/z/my-project/src/components/community/design-detail-dialog.tsx:317:                      {t('community.openInEditorBtn', locale)}
+/home/z/my-project/src/components/community/design-detail-dialog.tsx:327:                    {t('community.useAsTemplate', locale)}
+/home/z/my-project/src/components/community/design-detail-dialog.tsx:341:              <p className="text-sm text-muted-foreground">{t("community.designNotFound", locale)}</p>
+/home/z/my-project/src/components/stitch/comment-panel.tsx:112:function formatRelativeTime(isoString: string, locale: string): string {
+/home/z/my-project/src/components/stitch/comment-panel.tsx:118:  if (minutes < 1) return t('comments.justNow', locale)
+/home/z/my-project/src/components/stitch/comment-panel.tsx:119:  if (minutes < 60) return t('comments.minutesAgo', locale, { n: minutes })
+/home/z/my-project/src/components/stitch/comment-panel.tsx:120:  if (hours < 24) return t('comments.hoursAgo', locale, { n: hours })
+/home/z/my-project/src/components/stitch/comment-panel.tsx:121:  return t('comments.daysAgo', locale, { n: days })
+/home/z/my-project/src/components/stitch/comment-panel.tsx:142:  const locale = useAuthStore((s) => s.user?.language ?? 'en')
+/home/z/my-project/src/components/stitch/comment-panel.tsx:237:            {t('comments.title', locale)}
+/home/z/my-project/src/components/stitch/comment-panel.tsx:271:            {t(labelKey, locale)} ({count})
+/home/z/my-project/src/components/stitch/comment-panel.tsx:288:                  {t('comments.empty', locale)}
+/home/z/my-project/src/components/stitch/comment-panel.tsx:328:                            {formatRelativeTime(comment.createdAt, locale)}
+/home/z/my-project/src/components/stitch/comment-panel.tsx:335:                              {t('comments.resolved', locale)}
+/home/z/my-project/src/components/stitch/comment-panel.tsx:349:                              {t('comments.resolve', locale)}
+/home/z/my-project/src/components/stitch/comment-panel.tsx:359:                              {t('comments.reopen', locale)}
+/home/z/my-project/src/components/stitch/comment-panel.tsx:380:            placeholder={t('comments.placeholder', locale)}
+/home/z/my-project/src/components/stitch/comment-panel.tsx:424:          {t('comments.hint', locale)}
+/home/z/my-project/src/components/canvas/canvas-area.tsx:20:  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+/home/z/my-project/src/components/canvas/canvas-area.tsx:659:                <p className="text-lg font-medium text-primary">{t('canvas.dropImages', locale)}</p>
+/home/z/my-project/src/components/canvas/canvas-area.tsx:660:                <p className="mt-1 text-sm text-muted-foreground">{t('canvas.supportedFormats', locale)}</p>
+/home/z/my-project/src/components/canvas/canvas-area.tsx:681:              <span className="text-emerald-600">{t('canvas.gridOn', locale)}</span>
+/home/z/my-project/src/components/stitch/share-dialog.tsx:112:  const locale = useAuthStore((s) => s.user?.language ?? 'en')
+/home/z/my-project/src/components/stitch/share-dialog.tsx:209:            {t('settings.stitch.shareTitle', locale)} — {boardName}
+/home/z/my-project/src/components/stitch/share-dialog.tsx:212:            {t('settings.stitch.shareDesc', locale)}
+/home/z/my-project/src/components/stitch/share-dialog.tsx:227:                  {t('settings.stitch.shareLink', locale)}
+/home/z/my-project/src/components/stitch/share-dialog.tsx:234:                  ? t('settings.stitch.anyoneWithLink', locale)
+/home/z/my-project/src/components/stitch/share-dialog.tsx:235:                  : t('settings.stitch.onlyInvited', locale)}
+/home/z/my-project/src/components/stitch/share-dialog.tsx:256:                    ? t('settings.stitch.copied', locale)
+/home/z/my-project/src/components/stitch/share-dialog.tsx:257:                    : t('settings.stitch.copy', locale)}
+/home/z/my-project/src/components/stitch/share-dialog.tsx:268:                    {t('settings.stitch.linkPermission', locale)}
+/home/z/my-project/src/components/stitch/share-dialog.tsx:278:                        {t('settings.stitch.viewer', locale)}
+/home/z/my-project/src/components/stitch/share-dialog.tsx:281:                        {t('settings.stitch.commenter', locale)}
+/home/z/my-project/src/components/stitch/share-dialog.tsx:284:                        {t('settings.stitch.editor', locale)}
+/home/z/my-project/src/components/stitch/share-dialog.tsx:295:                {t('settings.stitch.invitePeople', locale)}
+/home/z/my-project/src/components/stitch/share-dialog.tsx:301:                  placeholder={t('settings.stitch.emailPlaceholder', locale)}
+/home/z/my-project/src/components/stitch/share-dialog.tsx:311:                      {t('settings.stitch.editor', locale)}
+/home/z/my-project/src/components/stitch/share-dialog.tsx:314:                      {t('settings.stitch.viewer', locale)}
+/home/z/my-project/src/components/stitch/share-dialog.tsx:317:                      {t('settings.stitch.commenter', locale)}
+/home/z/my-project/src/components/stitch/share-dialog.tsx:335:                {t('settings.stitch.collaborators', locale)} ({collaborators.length})
+/home/z/my-project/src/components/stitch/share-dialog.tsx:395:                                {t('settings.stitch.makeEditor', locale)}
+/home/z/my-project/src/components/stitch/share-dialog.tsx:402:                                {t('settings.stitch.makeViewer', locale)}
+/home/z/my-project/src/components/stitch/share-dialog.tsx:409:                                {t('settings.stitch.makeCommenter', locale)}
+/home/z/my-project/src/components/stitch/share-dialog.tsx:418:                                {t('settings.stitch.remove', locale)}
+/home/z/my-project/src/components/stitch/share-dialog.tsx:435:                {t('settings.stitch.integrations', locale)}
+/home/z/my-project/src/components/stitch/share-dialog.tsx:445:                        toast.success(t('settings.stitch.githubConnected', locale))
+/home/z/my-project/src/components/stitch/share-dialog.tsx:447:                        toast.success(t('settings.stitch.slackConnected', locale))
+/home/z/my-project/src/components/stitch/share-dialog.tsx:449:                        toast.success(t('settings.stitch.pdfExported', locale))
+/home/z/my-project/src/components/stitch/share-dialog.tsx:454:                    {t(labelKey, locale)}
+/home/z/my-project/src/components/canvas/minimap.tsx:14:  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+/home/z/my-project/src/components/stitch/activity-feed.tsx:235:function formatRelativeTime(isoString: string, locale: string): string {
+/home/z/my-project/src/components/stitch/activity-feed.tsx:241:  if (minutes < 1) return t('activity.justNow', locale)
+/home/z/my-project/src/components/stitch/activity-feed.tsx:242:  if (minutes < 60) return t('activity.minutesAgo', locale, { n: minutes })
+/home/z/my-project/src/components/stitch/activity-feed.tsx:243:  if (hours < 24) return t('activity.hoursAgo', locale, { n: hours })
+/home/z/my-project/src/components/stitch/activity-feed.tsx:244:  return t('activity.daysAgo', locale, { n: days })
+/home/z/my-project/src/components/stitch/activity-feed.tsx:247:function formatGroupLabel(isoString: string, locale: string): string {
+/home/z/my-project/src/components/stitch/activity-feed.tsx:251:  if (days === 0) return t('activity.today', locale)
+/home/z/my-project/src/components/stitch/activity-feed.tsx:252:  if (days === 1) return t('activity.yesterday', locale)
+/home/z/my-project/src/components/stitch/activity-feed.tsx:253:  if (days < 7) return t('activity.thisWeek', locale)
+/home/z/my-project/src/components/stitch/activity-feed.tsx:254:  return t('activity.earlier', locale)
+/home/z/my-project/src/components/stitch/activity-feed.tsx:260:  const locale = useAuthStore((s) => s.user?.language ?? 'en')
+/home/z/my-project/src/components/stitch/activity-feed.tsx:278:    const groupLabel = formatGroupLabel(activity.createdAt, locale)
+/home/z/my-project/src/components/stitch/activity-feed.tsx:293:          {t('activity.title', locale)}
+/home/z/my-project/src/components/stitch/activity-feed.tsx:361:                            {formatRelativeTime(activity.createdAt, locale)}
+/home/z/my-project/src/components/stitch/activity-feed.tsx:382:                {t('activity.loadMore', locale)}
+/home/z/my-project/src/components/canvas/toolbar.tsx:65:  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+/home/z/my-project/src/components/canvas/toolbar.tsx:130:        toast({ title: t('toolbar.aiError', locale), description: data.error || t('toolbar.failedToGenerateLayout', locale), variant: 'destructive' });
+/home/z/my-project/src/components/canvas/toolbar.tsx:153:      toast({ title: t('toolbar.layoutGenerated', locale), description: t('toolbar.addedElements', locale, { n: generatedElements.length }) });
+/home/z/my-project/src/components/canvas/toolbar.tsx:155:      toast({ title: t('toolbar.error', locale), description: t('toolbar.failedToConnectAI', locale), variant: 'destructive' });
+/home/z/my-project/src/components/canvas/toolbar.tsx:164:      toast({ title: t('toolbar.nothingToArrange', locale), description: t('toolbar.addSomeElements', locale) });
+/home/z/my-project/src/components/canvas/toolbar.tsx:183:    toast({ title: t('toolbar.autoArranged', locale), description: t('toolbar.arrangedElements', locale, { n: sorted.length }) });
+/home/z/my-project/src/components/canvas/toolbar.tsx:197:        toast({ title: t('toolbar.aiError', locale), description: data.error || t('toolbar.failedToSummarize', locale), variant: 'destructive' });
+/home/z/my-project/src/components/canvas/toolbar.tsx:200:      toast({ title: t('toolbar.boardSummary', locale), description: data.summary });
+/home/z/my-project/src/components/canvas/toolbar.tsx:202:      toast({ title: t('toolbar.error', locale), description: t('toolbar.failedToConnectAI', locale), variant: 'destructive' });
+/home/z/my-project/src/components/canvas/toolbar.tsx:229:              <span className="font-medium">{t(tool.labelKey, locale)}</span>
+/home/z/my-project/src/components/canvas/toolbar.tsx:277:                    <span className="font-medium">{t(tool.labelKey, locale)}</span>
+/home/z/my-project/src/components/canvas/toolbar.tsx:284:                  <p className="mb-2 text-xs font-medium text-muted-foreground">{t('toolbar.noteColor', locale)}</p>
+/home/z/my-project/src/components/canvas/toolbar.tsx:332:                    <span className="font-medium">{t(tool.labelKey, locale)}</span>
+/home/z/my-project/src/components/canvas/toolbar.tsx:336:                  <p className="mb-2 text-xs font-medium text-muted-foreground">{t('toolbar.connectorStyle', locale)}</p>
+/home/z/my-project/src/components/canvas/toolbar.tsx:393:                <span className="font-medium">{t(tool.labelKey, locale)}</span>
+/home/z/my-project/src/components/canvas/toolbar.tsx:425:            <span className="font-medium">{t('toolbar.undo', locale)}</span>
+/home/z/my-project/src/components/canvas/toolbar.tsx:448:            <span className="font-medium">{t('toolbar.redo', locale)}</span>
+/home/z/my-project/src/components/canvas/toolbar.tsx:494:              <span>{t('toolbar.generateLayout', locale)}</span>
+/home/z/my-project/src/components/canvas/toolbar.tsx:502:              <span>{t('toolbar.autoArrange', locale)}</span>
+/home/z/my-project/src/components/canvas/toolbar.tsx:510:              <span className={cn(elements.length === 0 && 'opacity-40')}>{t('toolbar.summarizeBoard', locale)}</span>
+/home/z/my-project/src/components/canvas/toolbar.tsx:528:            <span className="font-medium">{t('toolbar.zoomIn', locale)}</span>
+/home/z/my-project/src/components/canvas/toolbar.tsx:539:          title={t('toolbar.clickToZoom', locale)}
+/home/z/my-project/src/components/canvas/toolbar.tsx:554:            <span className="font-medium">{t('toolbar.zoomOut', locale)}</span>
+/home/z/my-project/src/components/canvas/toolbar.tsx:571:            <span className="font-medium">{t('toolbar.zoomToFit', locale)}</span>
+/home/z/my-project/src/components/canvas/toolbar.tsx:601:            <span className="font-medium">{t('toolbar.minimap', locale)}</span>
+/home/z/my-project/src/components/canvas/board-element.tsx:45:  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+/home/z/my-project/src/components/canvas/board-element.tsx:389:  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+/home/z/my-project/src/components/canvas/board-element.tsx:407:          placeholder={t('canvas.typeSomething', locale)}
+/home/z/my-project/src/components/canvas/board-element.tsx:414:          {element.content || <span className="opacity-40">{t('canvas.typeSomething', locale)}</span>}
+/home/z/my-project/src/components/canvas/board-element.tsx:423:  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+/home/z/my-project/src/components/canvas/board-element.tsx:447:          placeholder={t('canvas.addText', locale)}
+/home/z/my-project/src/components/canvas/board-element.tsx:454:          {element.content || <span className="opacity-40">{t('canvas.addText', locale)}</span>}
+/home/z/my-project/src/components/canvas/board-element.tsx:463:  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+/home/z/my-project/src/components/canvas/board-element.tsx:487:          placeholder={t('canvas.addText', locale)}
+/home/z/my-project/src/components/canvas/board-element.tsx:494:          {element.content || <span className="opacity-40">{t('canvas.addText', locale)}</span>}
+/home/z/my-project/src/components/canvas/board-element.tsx:597:  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+/home/z/my-project/src/components/canvas/board-element.tsx:618:          placeholder={t('canvas.typeText', locale)}
+/home/z/my-project/src/components/canvas/board-element.tsx:632:          {element.content || <span className="opacity-30">{t('canvas.typeText', locale)}</span>}
+/home/z/my-project/src/components/version-control/editor-topbar.tsx:61:  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+/home/z/my-project/src/components/version-control/editor-topbar.tsx:83:  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+/home/z/my-project/src/components/version-control/editor-topbar.tsx:84:  const displayName = draftName ?? board?.name ?? t('vc.untitledBoard', locale);
+/home/z/my-project/src/components/version-control/editor-topbar.tsx:127:      title={t('vc.clickToEditName', locale)}
+/home/z/my-project/src/components/version-control/editor-topbar.tsx:137:  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+/home/z/my-project/src/components/version-control/editor-topbar.tsx:187:    const name = prompt(t('vc.enterBranchName', locale));
+/home/z/my-project/src/components/version-control/editor-topbar.tsx:217:          {currentBranch?.name ?? t('vc.noBranch', locale)}
+/home/z/my-project/src/components/version-control/editor-topbar.tsx:224:          {t('vc.createNewBranch', locale)}
+/home/z/my-project/src/components/version-control/editor-topbar.tsx:245:                  {t('vc.defaultBadge', locale)}
+/home/z/my-project/src/components/version-control/editor-topbar.tsx:259:  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+/home/z/my-project/src/components/version-control/editor-topbar.tsx:299:              <TooltipContent>{t("vc.export", locale)}</TooltipContent>
+/home/z/my-project/src/components/version-control/editor-topbar.tsx:307:          {t('vc.exportAsPNG', locale)}
+/home/z/my-project/src/components/version-control/editor-topbar.tsx:311:          {t('vc.exportAsSVG', locale)}
+/home/z/my-project/src/components/version-control/editor-topbar.tsx:316:          {t('vc.exportAsJSON', locale)}
+/home/z/my-project/src/components/version-control/editor-topbar.tsx:372:  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+/home/z/my-project/src/components/version-control/editor-topbar.tsx:406:              <TooltipContent>{t("editor.backToDashboard", locale)}</TooltipContent>
+/home/z/my-project/src/components/version-control/editor-topbar.tsx:426:              {t('vc.mrCount', locale, { n: openMRCount })}
+/home/z/my-project/src/components/version-control/editor-topbar.tsx:444:                  <span className="hidden sm:inline">{t("editor.commit", locale)}</span>
+/home/z/my-project/src/components/version-control/editor-topbar.tsx:447:              <TooltipContent>{t("vc.commitChanges", locale)}</TooltipContent>
+/home/z/my-project/src/components/version-control/editor-topbar.tsx:460:              <TooltipContent>{t("vc.shareBoard", locale)}</TooltipContent>
+/home/z/my-project/src/components/version-control/editor-topbar.tsx:471:              <TooltipContent>{t("vc.boardSettings", locale)}</TooltipContent>
+/home/z/my-project/src/components/version-control/editor-topbar.tsx:487:              <TooltipContent>{t("vc.togglePanel", locale)}</TooltipContent>
+/home/z/my-project/src/components/auth/auth-view.tsx:67:  const locale = useAuthStore((s) => s.getLocale());
+/home/z/my-project/src/components/auth/auth-view.tsx:161:        setFormError(t('auth.emailRequired', locale));
+/home/z/my-project/src/components/auth/auth-view.tsx:165:        setFormError(t('auth.invalidEmail', locale));
+/home/z/my-project/src/components/auth/auth-view.tsx:172:      setFormError(t('auth.emailRequired', locale));
+/home/z/my-project/src/components/auth/auth-view.tsx:176:      setFormError(t('auth.invalidEmail', locale));
+/home/z/my-project/src/components/auth/auth-view.tsx:180:      setFormError(t('auth.passwordRequired', locale));
+/home/z/my-project/src/components/auth/auth-view.tsx:184:      setFormError(t('auth.passwordMin', locale));
+/home/z/my-project/src/components/auth/auth-view.tsx:190:        setFormError(t('auth.nameRequired', locale));
+/home/z/my-project/src/components/auth/auth-view.tsx:194:        setFormError(t('auth.passwordMismatch', locale));
+/home/z/my-project/src/components/auth/auth-view.tsx:200:  }, [authView, email, password, confirmPassword, name, locale]);
+/home/z/my-project/src/components/auth/auth-view.tsx:208:      setFormError(t('auth.captchaFailed', locale));
+/home/z/my-project/src/components/auth/auth-view.tsx:226:          setFormError(data.error || t('common.error', locale));
+/home/z/my-project/src/components/auth/auth-view.tsx:241:          setFormError(data.error || t('common.error', locale));
+/home/z/my-project/src/components/auth/auth-view.tsx:256:          setFormError(data.error || t('common.error', locale));
+/home/z/my-project/src/components/auth/auth-view.tsx:263:      setFormError(t('common.error', locale));
+/home/z/my-project/src/components/auth/auth-view.tsx:271:    login: t('auth.loginTitle', locale),
+/home/z/my-project/src/components/auth/auth-view.tsx:272:    register: t('auth.registerTitle', locale),
+/home/z/my-project/src/components/auth/auth-view.tsx:273:    'forgot-password': t('auth.forgotTitle', locale),
+/home/z/my-project/src/components/auth/auth-view.tsx:279:    'forgot-password': t('auth.forgotDescription', locale),
+/home/z/my-project/src/components/auth/auth-view.tsx:295:                {t('auth.resetSent', locale)}
+/home/z/my-project/src/components/auth/auth-view.tsx:300:              <Label htmlFor="forgot-email">{t('auth.email', locale)}</Label>
+/home/z/my-project/src/components/auth/auth-view.tsx:304:                placeholder={t('auth.emailPlaceholder', locale)}
+/home/z/my-project/src/components/auth/auth-view.tsx:321:            <Label htmlFor="auth-name">{t('auth.name', locale)}</Label>
+/home/z/my-project/src/components/auth/auth-view.tsx:325:              placeholder={t('auth.namePlaceholder', locale)}
+/home/z/my-project/src/components/auth/auth-view.tsx:336:          <Label htmlFor="auth-email">{t('auth.email', locale)}</Label>
+/home/z/my-project/src/components/auth/auth-view.tsx:340:            placeholder={t('auth.emailPlaceholder', locale)}
+/home/z/my-project/src/components/auth/auth-view.tsx:350:          <Label htmlFor="auth-password">{t('auth.password', locale)}</Label>
+/home/z/my-project/src/components/auth/auth-view.tsx:355:              placeholder={t('auth.passwordPlaceholder', locale)}
+/home/z/my-project/src/components/auth/auth-view.tsx:376:            <Label htmlFor="auth-confirm-password">{t('auth.confirmPassword', locale)}</Label>
+/home/z/my-project/src/components/auth/auth-view.tsx:380:              placeholder={t('auth.passwordPlaceholder', locale)}
+/home/z/my-project/src/components/auth/auth-view.tsx:394:    login: t('auth.login', locale),
+/home/z/my-project/src/components/auth/auth-view.tsx:395:    register: t('auth.register', locale),
+/home/z/my-project/src/components/auth/auth-view.tsx:396:    'forgot-password': t('auth.resetPassword', locale),
+/home/z/my-project/src/components/auth/auth-view.tsx:426:                    {t('auth.backToLogin', locale)}
+/home/z/my-project/src/components/auth/auth-view.tsx:497:                      {t('auth.forgotPassword', locale)}
+/home/z/my-project/src/components/auth/auth-view.tsx:500:                      <span>{t('auth.noAccount', locale)}</span>
+/home/z/my-project/src/components/auth/auth-view.tsx:506:                        {t('auth.signUp', locale)}
+/home/z/my-project/src/components/auth/auth-view.tsx:513:                    <span>{t('auth.hasAccount', locale)}</span>
+/home/z/my-project/src/components/auth/auth-view.tsx:519:                      {t('auth.login', locale)}
+/home/z/my-project/src/components/auth/auth-view.tsx:529:                    {t('auth.backToLogin', locale)}
+/home/z/my-project/src/components/auth/auth-view.tsx:550:                locale === l.code
+/home/z/my-project/src/components/version-control/merge-request-panel.tsx:30:  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+/home/z/my-project/src/components/version-control/merge-request-panel.tsx:57:      setError(t('vc.titleRequired', locale));
+/home/z/my-project/src/components/version-control/merge-request-panel.tsx:61:      setError(t('vc.selectTargetBranch', locale));
+/home/z/my-project/src/components/version-control/merge-request-panel.tsx:65:      setError(t('vc.noBoardOrBranch', locale));
+/home/z/my-project/src/components/version-control/merge-request-panel.tsx:88:      setError(t('vc.failedToCreateMRRetry', locale));
+/home/z/my-project/src/components/version-control/merge-request-panel.tsx:100:            {t('merge.create', locale)}
+/home/z/my-project/src/components/version-control/merge-request-panel.tsx:103:            {t('vc.createMRDesc', locale)}
+/home/z/my-project/src/components/version-control/merge-request-panel.tsx:109:            <span className="text-muted-foreground">{t("vc.source", locale)}</span>
+/home/z/my-project/src/components/version-control/merge-request-panel.tsx:111:              {currentBranch?.name ?? t('vc.noBranch', locale)}
+/home/z/my-project/src/components/version-control/merge-request-panel.tsx:116:                <SelectValue placeholder={t('vc.selectTarget', locale)} />
+/home/z/my-project/src/components/version-control/merge-request-panel.tsx:130:              {t('vc.title', locale)} <span className="text-destructive">*</span>
+/home/z/my-project/src/components/version-control/merge-request-panel.tsx:134:              placeholder={t('vc.mrTitlePlaceholder', locale)}
+/home/z/my-project/src/components/version-control/merge-request-panel.tsx:148:              {t('commit.tag', locale)} <span className="text-muted-foreground">{t('vc.optional', locale)}</span>
+/home/z/my-project/src/components/version-control/merge-request-panel.tsx:152:              placeholder={t('vc.mrPlaceholder', locale)}
+/home/z/my-project/src/components/version-control/merge-request-panel.tsx:171:            {t('common.cancel', locale)}
+/home/z/my-project/src/components/version-control/merge-request-panel.tsx:179:            {t('merge.create', locale)}
+/home/z/my-project/src/components/version-control/commit-dialog.tsx:25:  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+
+[Showing results with pagination = limit: 250]

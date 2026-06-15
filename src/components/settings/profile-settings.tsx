@@ -7,15 +7,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useAuthStore } from '@/store/auth-store'
 import { t } from '@/lib/i18n'
-
-const neuLight = 'shadow-[6px_6px_12px_rgba(0,0,0,0.08),-6px_-6px_12px_rgba(255,255,255,0.9)]'
-const neuDark = 'dark:shadow-[6px_6px_12px_rgba(0,0,0,0.4),-6px_-6px_12px_rgba(30,30,30,0.1)]'
-const neuInput = 'shadow-[inset_3px_3px_6px_rgba(0,0,0,0.06),inset_-3px_-3px_6px_rgba(255,255,255,0.7)]'
-const neuInputDark = 'dark:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3),inset_-3px_-3px_6px_rgba(50,50,50,0.15)]'
+import { cn } from '@/lib/utils'
 
 export function ProfileSettings() {
   const user = useAuthStore((s) => s.user)
@@ -108,17 +103,15 @@ export function ProfileSettings() {
       className="space-y-6"
     >
       {/* Avatar section */}
-      <div
-        className={`rounded-xl bg-card p-6 ${neuLight} ${neuDark}`}
-      >
+      <div className="rounded-2xl bg-background p-6 neu-card border-0">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">
           {t('settings.avatar', locale)}
         </h3>
         <div className="flex items-center gap-4">
           <div className="relative group">
-            <Avatar className="h-20 w-20">
+            <Avatar className="h-20 w-20 neu-avatar">
               <AvatarImage src={avatarUrl} alt={user?.name ?? 'User'} />
-              <AvatarFallback className="text-lg bg-primary/10 text-primary font-semibold">
+              <AvatarFallback className="text-lg bg-background text-primary font-semibold">
                 {initials}
               </AvatarFallback>
             </Avatar>
@@ -135,7 +128,10 @@ export function ProfileSettings() {
             <div className="mt-1">
               <Badge
                 variant="secondary"
-                className={roleColor[user?.role ?? 'USER'] ?? ''}
+                className={cn(
+                  'neu-badge border-0',
+                  roleColor[user?.role ?? 'USER'] ?? '',
+                )}
               >
                 {user?.role ?? 'USER'}
               </Badge>
@@ -157,14 +153,14 @@ export function ProfileSettings() {
               value={avatarUrl}
               onChange={(e) => setAvatarUrl(e.target.value)}
               placeholder="https://example.com/avatar.jpg"
-              className={`mt-1.5 ${neuInput} ${neuInputDark} border-0 bg-muted/50 rounded-xl`}
+              className="mt-1.5 neu-input border-0 bg-background rounded-xl"
             />
           </motion.div>
         )}
       </div>
 
       {/* Profile info */}
-      <div className={`rounded-xl bg-card p-6 ${neuLight} ${neuDark}`}>
+      <div className="rounded-2xl bg-background p-6 neu-card border-0">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">
           {t('settings.profileInfo', locale)}
         </h3>
@@ -176,7 +172,7 @@ export function ProfileSettings() {
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className={`mt-1.5 ${neuInput} ${neuInputDark} border-0 bg-muted/50 rounded-xl`}
+              className="mt-1.5 neu-input border-0 bg-background rounded-xl"
             />
           </div>
           <div>
@@ -186,7 +182,7 @@ export function ProfileSettings() {
             <Input
               value={user?.email ?? ''}
               disabled
-              className={`mt-1.5 ${neuInput} ${neuInputDark} border-0 bg-muted/50 rounded-xl opacity-60 cursor-not-allowed`}
+              className="mt-1.5 neu-input border-0 bg-background rounded-xl opacity-60 cursor-not-allowed"
             />
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -205,7 +201,7 @@ export function ProfileSettings() {
           <Button
             onClick={handleSaveProfile}
             disabled={saving}
-            className="w-full rounded-xl"
+            className="w-full rounded-xl btn-neu-primary border-0"
           >
             {saving ? t('settings.saving', locale) : t('settings.saveProfile', locale)}
           </Button>
@@ -213,8 +209,8 @@ export function ProfileSettings() {
       </div>
 
       {/* Change password */}
-      <Separator />
-      <div className={`rounded-xl bg-card p-6 ${neuLight} ${neuDark}`}>
+      <div className="neu-divider" />
+      <div className="rounded-2xl bg-background p-6 neu-card border-0">
         <h3 className="text-sm font-medium text-muted-foreground mb-4 flex items-center gap-2">
           <Lock className="h-4 w-4" />
           {t('settings.changePassword', locale)}
@@ -229,12 +225,12 @@ export function ProfileSettings() {
                 type={showCurrentPw ? 'text' : 'password'}
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
-                className={`pr-10 ${neuInput} ${neuInputDark} border-0 bg-muted/50 rounded-xl`}
+                className="pr-10 neu-input border-0 bg-background rounded-xl"
               />
               <button
                 type="button"
                 onClick={() => setShowCurrentPw(!showCurrentPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors neu-icon-btn h-6 w-6 rounded-lg"
               >
                 {showCurrentPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -249,12 +245,12 @@ export function ProfileSettings() {
                 type={showNewPw ? 'text' : 'password'}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className={`pr-10 ${neuInput} ${neuInputDark} border-0 bg-muted/50 rounded-xl`}
+                className="pr-10 neu-input border-0 bg-background rounded-xl"
               />
               <button
                 type="button"
                 onClick={() => setShowNewPw(!showNewPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors neu-icon-btn h-6 w-6 rounded-lg"
               >
                 {showNewPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -269,12 +265,12 @@ export function ProfileSettings() {
                 type={showConfirmPw ? 'text' : 'password'}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className={`pr-10 ${neuInput} ${neuInputDark} border-0 bg-muted/50 rounded-xl`}
+                className="pr-10 neu-input border-0 bg-background rounded-xl"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPw(!showConfirmPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors neu-icon-btn h-6 w-6 rounded-lg"
               >
                 {showConfirmPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -287,7 +283,7 @@ export function ProfileSettings() {
             onClick={handleChangePassword}
             disabled={pwSaving || !currentPassword || !newPassword || !confirmPassword}
             variant="outline"
-            className="w-full rounded-xl"
+            className="w-full rounded-xl btn-neu border-0"
           >
             {pwSaving
               ? t('settings.saving', locale)

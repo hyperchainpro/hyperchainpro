@@ -2221,13 +2221,15 @@ const translations: TranslationMap = {
  */
 export function t(
   key: string,
-  locale: Locale,
+  locale?: Locale | null,
   params?: Record<string, string | number>,
 ): string {
+  // Defensive: if locale is undefined/null, default to 'en'
+  const loc: Locale = (locale as Locale) ?? 'en';
   const entry = translations[key];
   if (!entry) return key;
 
-  let text = entry[locale] ?? entry['en'] ?? key;
+  let text = entry[loc] ?? entry['en'] ?? key;
 
   if (params) {
     for (const [k, v] of Object.entries(params)) {

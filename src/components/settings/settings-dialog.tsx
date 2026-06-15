@@ -19,7 +19,6 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/store/auth-store'
 import { t } from '@/lib/i18n'
@@ -29,11 +28,6 @@ import { ProfileSettings } from './profile-settings'
 import { AIAgentsSettings } from './ai-agents-settings'
 import { ThemeSettings } from './theme-settings'
 import { LanguageSettings } from './language-settings'
-
-// ── Neumorphism helpers ─────────────────────────────────────────────────────
-
-const neuLight = 'shadow-[6px_6px_12px_rgba(0,0,0,0.08),-6px_-6px_12px_rgba(255,255,255,0.9)]'
-const neuDark = 'dark:shadow-[6px_6px_12px_rgba(0,0,0,0.4),-6px_-6px_12px_rgba(30,30,30,0.1)]'
 
 // ── Tab definitions ─────────────────────────────────────────────────────────
 
@@ -102,7 +96,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-w-2xl w-[calc(100%-2rem)] h-[85vh] max-h-[700px] flex flex-col p-0 overflow-hidden rounded-2xl gap-0"
+        className="max-w-2xl w-[calc(100%-2rem)] h-[85vh] max-h-[700px] flex flex-col p-0 overflow-hidden rounded-3xl gap-0 neu-raised bg-background border-0"
         showCloseButton={false}
       >
         {/* Header */}
@@ -118,7 +112,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-semibold">
+                <div className="h-8 w-8 rounded-full bg-background flex items-center justify-center text-primary text-xs font-semibold neu-avatar">
                   {(user?.name ?? 'U')
                     .split(' ')
                     .map((n) => n[0])
@@ -134,7 +128,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 variant="ghost"
                 size="icon"
                 onClick={() => onOpenChange(false)}
-                className="h-8 w-8 rounded-xl"
+                className="h-8 w-8 rounded-xl neu-icon-btn"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -155,12 +149,12 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           </div>
         </DialogHeader>
 
-        <Separator />
+        <div className="neu-divider" />
 
         {/* Body: sidebar + content */}
         <div className="flex flex-col flex-1 min-h-0 sm:flex-row">
           {/* Sidebar — vertical on desktop, horizontal on mobile */}
-          <nav className="shrink-0 border-b sm:border-b-0 sm:border-r">
+          <nav className="shrink-0">
             {/* Mobile: horizontal scroll */}
             <div className="flex sm:hidden">
               <div className="flex gap-1 p-2 overflow-x-auto">
@@ -172,10 +166,10 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                       key={tab.id}
                       onClick={() => handleTabChange(tab.id)}
                       className={cn(
-                        'flex flex-col items-center gap-1 rounded-xl px-3 py-2 text-xs font-medium transition-all whitespace-nowrap min-w-[60px]',
+                        'flex flex-col items-center gap-1 rounded-xl px-3 py-2 text-xs font-medium transition-all whitespace-nowrap min-w-[60px] bg-background',
                         isActive
-                          ? 'bg-primary/10 text-primary'
-                          : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
+                          ? 'neu-pressed text-primary'
+                          : 'text-muted-foreground hover:neu-flat hover:text-foreground',
                       )}
                     >
                       <Icon className="h-4 w-4" />
@@ -196,10 +190,10 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     key={tab.id}
                     onClick={() => handleTabChange(tab.id)}
                     className={cn(
-                      'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all text-left',
+                      'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all text-left bg-background',
                       isActive
-                        ? 'bg-primary/10 text-primary'
-                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
+                        ? 'neu-pressed text-primary'
+                        : 'text-muted-foreground hover:neu-flat hover:text-foreground',
                     )}
                   >
                     <Icon className="h-4.5 w-4.5 shrink-0" />
@@ -249,11 +243,7 @@ function AccountTab({ onLogout }: { onLogout: () => void }) {
     >
       {/* Danger zone */}
       <div
-        className={cn(
-          'rounded-xl bg-card p-6 border border-destructive/20',
-          neuLight,
-          neuDark,
-        )}
+        className="rounded-2xl bg-background p-6 neu-flat border-0 shadow-[6px_6px_12px_rgba(239,68,68,0.06),-6px_-6px_12px_rgba(239,68,68,0.02)] dark:shadow-[6px_6px_12px_rgba(239,68,68,0.15),-6px_-6px_12px_rgba(239,68,68,0.05)]"
       >
         <h3 className="text-sm font-medium text-destructive mb-2">
           {t('settings.account.dangerZone', locale)}
@@ -264,7 +254,7 @@ function AccountTab({ onLogout }: { onLogout: () => void }) {
         <div className="space-y-3">
           <Button
             variant="outline"
-            className="w-full rounded-xl gap-2 text-destructive border-destructive/30 hover:bg-destructive/5 hover:text-destructive"
+            className="w-full rounded-xl gap-2 text-destructive border-0 neu-flat hover:neu-pressed hover:text-destructive"
             onClick={onLogout}
           >
             <LogOut className="h-4 w-4" />
@@ -274,7 +264,7 @@ function AccountTab({ onLogout }: { onLogout: () => void }) {
       </div>
 
       {/* Account info */}
-      <div className={`rounded-xl bg-card p-6 ${neuLight} ${neuDark}`}>
+      <div className="rounded-2xl bg-background p-6 neu-card border-0">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">
           {t('settings.account.info', locale)}
         </h3>

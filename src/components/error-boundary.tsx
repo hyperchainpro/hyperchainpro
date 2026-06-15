@@ -40,8 +40,8 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
       return (
         <div className="flex min-h-screen w-full items-center justify-center bg-background">
-          <div className="flex flex-col items-center gap-4 rounded-xl border bg-card p-8 shadow-lg max-w-md mx-4">
-            <div className="flex size-14 items-center justify-center rounded-full bg-destructive/10">
+          <div className="neu-card flex flex-col items-center gap-5 p-8 max-w-md mx-4">
+            <div className="flex size-14 items-center justify-center rounded-full bg-destructive/10 neu-flat">
               <AlertTriangle className="size-7 text-destructive" />
             </div>
             <div className="text-center space-y-2">
@@ -50,12 +50,14 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                 {t('error.unexpectedError', locale)}
               </p>
               {this.state.error && (
-                <p className="text-xs text-muted-foreground font-mono bg-muted rounded-md px-3 py-2 mt-2 max-h-24 overflow-auto">
-                  {this.state.error.message}
-                </p>
+                <div className="neu-pressed mt-2 max-h-24 overflow-auto">
+                  <p className="text-xs text-muted-foreground font-mono px-3 py-2">
+                    {this.state.error.message}
+                  </p>
+                </div>
               )}
             </div>
-            <Button onClick={this.handleRetry} className="gap-2">
+            <Button onClick={this.handleRetry} className="btn-neu gap-2">
               <RotateCcw className="size-4" />
               {t('error.retry', locale)}
             </Button>

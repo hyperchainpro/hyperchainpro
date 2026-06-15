@@ -169,9 +169,9 @@ export function PluginBrowserDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex h-[85vh] max-w-5xl flex-col gap-0 overflow-hidden rounded-2xl p-0 sm:h-[80vh]">
+      <DialogContent className="flex h-[85vh] max-w-5xl flex-col gap-0 overflow-hidden rounded-2xl p-0 sm:h-[80vh] neu-raised bg-background border-0">
         {/* ── Header ──────────────────────────────────────────── */}
-        <DialogHeader className="shrink-0 border-b px-4 py-3 sm:px-6 sm:py-4">
+        <DialogHeader className="shrink-0 px-4 py-3 sm:px-6 sm:py-4">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0 flex-1">
               <DialogTitle className="flex items-center gap-2 text-lg font-semibold">
@@ -185,7 +185,7 @@ export function PluginBrowserDialog({
             <Button
               variant="ghost"
               size="icon"
-              className="shrink-0"
+              className="shrink-0 neu-icon-btn"
               onClick={() => onOpenChange(false)}
             >
               <X className="size-4" />
@@ -200,7 +200,7 @@ export function PluginBrowserDialog({
               placeholder={t('search_plugins', locale) || 'Search plugins...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-10 pl-9 pr-9"
+              className="h-10 pl-9 pr-9 neu-input border-0"
             />
             {searchQuery && (
               <Button
@@ -216,7 +216,7 @@ export function PluginBrowserDialog({
         </DialogHeader>
 
         {/* ── Category Tabs ──────────────────────────────────── */}
-        <div className="shrink-0 border-b px-2 sm:px-4">
+        <div className="shrink-0 px-2 sm:px-4">
           <ScrollArea orientation="horizontal" className="w-full">
             <Tabs
               value={activeCategory}
@@ -227,7 +227,7 @@ export function PluginBrowserDialog({
                   <TabsTrigger
                     key={cat}
                     value={cat}
-                    className="shrink-0 rounded-full px-3 text-xs font-medium capitalize data-[state=active]:bg-primary data-[state=active]:text-primary-foreground sm:px-4 sm:text-sm"
+                    className="shrink-0 rounded-full px-3 text-xs font-medium capitalize border-0 data-[state=active]:neu-pressed data-[state=inactive]:neu-flat sm:px-4 sm:text-sm"
                   >
                     {categoryLabels[cat]}
                   </TabsTrigger>
@@ -270,7 +270,7 @@ export function PluginBrowserDialog({
                             }}
                             className="group"
                           >
-                            <div className="flex h-full flex-col rounded-xl border border-border/60 bg-card p-3 transition-colors duration-200 hover:border-border hover:shadow-sm sm:p-4">
+                            <div className="flex h-full flex-col rounded-xl neu-card bg-background p-3 transition-colors duration-200 sm:p-4">
                               {/* Top row: icon + badges */}
                               <div className="flex items-start justify-between gap-2">
                                 <div
@@ -282,7 +282,7 @@ export function PluginBrowserDialog({
                                   {plugin.isPopular && (
                                     <Badge
                                       variant="secondary"
-                                      className="gap-1 rounded-full px-1.5 py-0 text-[10px] font-semibold leading-4 text-amber-700 dark:text-amber-400"
+                                      className="gap-1 rounded-full px-1.5 py-0 text-[10px] font-semibold leading-4 text-amber-700 dark:text-amber-400 neu-badge"
                                     >
                                       <Sparkles className="size-2.5" />
                                       Popular
@@ -290,7 +290,7 @@ export function PluginBrowserDialog({
                                   )}
                                   <Badge
                                     variant="outline"
-                                    className={`rounded-full px-1.5 py-0 text-[10px] font-medium capitalize leading-4 ${categoryColors[plugin.category] ?? ''}`}
+                                    className={`rounded-full px-1.5 py-0 text-[10px] font-medium capitalize leading-4 border-0 neu-badge ${categoryColors[plugin.category] ?? ''}`}
                                   >
                                     {plugin.category.replace('-', ' ')}
                                   </Badge>
@@ -322,10 +322,10 @@ export function PluginBrowserDialog({
                                         : 'default'
                                     }
                                     size="sm"
-                                    className={`mt-2.5 h-9 min-h-[44px] w-full gap-1.5 text-xs font-medium sm:text-sm ${
+                                    className={`mt-2.5 h-9 min-h-[44px] w-full gap-1.5 text-xs font-medium sm:text-sm border-0 ${
                                       installedMap[plugin.id]
-                                        ? ''
-                                        : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                                        ? 'btn-neu'
+                                        : 'btn-neu-primary'
                                     }`}
                                     onClick={() => handleToggleInstall(plugin)}
                                   >

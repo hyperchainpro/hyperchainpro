@@ -49,15 +49,6 @@ import { t } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
-// ── Neumorphism helpers ─────────────────────────────────────────────────────
-
-const neuLight = 'shadow-[6px_6px_12px_rgba(0,0,0,0.08),-6px_-6px_12px_rgba(255,255,255,0.9)]'
-const neuDark = 'dark:shadow-[6px_6px_12px_rgba(0,0,0,0.4),-6px_-6px_12px_rgba(30,30,30,0.1)]'
-const neuInput = 'shadow-[inset_3px_3px_6px_rgba(0,0,0,0.06),inset_-3px_-3px_6px_rgba(255,255,255,0.7)]'
-const neuInputDark = 'dark:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3),inset_-3px_-3px_6px_rgba(50,50,50,0.15)]'
-const neuBtn = 'shadow-[4px_4px_8px_rgba(0,0,0,0.06),-4px_-4px_8px_rgba(255,255,255,0.8)] dark:shadow-[4px_4px_8px_rgba(0,0,0,0.35),-4px_-4px_8px_rgba(30,30,30,0.08)]'
-const neuBtnHover = 'hover:shadow-[2px_2px_4px_rgba(0,0,0,0.06),-2px_-2px_4px_rgba(255,255,255,0.8)] dark:hover:shadow-[2px_2px_4px_rgba(0,0,0,0.35),-2px_-2px_4px_rgba(30,30,30,0.08)]'
-
 // ── Types ───────────────────────────────────────────────────────────────────
 
 interface ShareDialogProps {
@@ -200,7 +191,7 @@ export function ShareDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-w-lg w-[calc(100%-2rem)] max-h-[85vh] flex flex-col p-0 overflow-hidden rounded-2xl gap-0"
+        className="max-w-lg w-[calc(100%-2rem)] max-h-[85vh] flex flex-col p-0 overflow-hidden rounded-2xl gap-0 neu-raised bg-background border-0"
         showCloseButton={false}
       >
         <DialogHeader className="px-6 pt-6 pb-4 shrink-0">
@@ -216,7 +207,7 @@ export function ShareDialog({
         <ScrollArea className="flex-1">
           <div className="px-6 pb-6 space-y-6">
             {/* ── Share link section ── */}
-            <div className={`rounded-xl bg-card p-4 ${neuLight} ${neuDark}`}>
+            <div className="rounded-xl bg-background p-4 neu-raised">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-medium flex items-center gap-2">
                   {isPublic ? (
@@ -239,13 +230,13 @@ export function ShareDialog({
                 <Input
                   readOnly
                   value={generatedLink}
-                  className={`flex-1 text-xs font-mono ${neuInput} ${neuInputDark} border-0 bg-muted/50 rounded-xl`}
+                  className="flex-1 text-xs font-mono neu-input border-0 bg-background rounded-xl"
                 />
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={handleCopy}
-                  className="shrink-0 rounded-xl gap-1.5"
+                  className="shrink-0 rounded-xl gap-1.5 btn-neu"
                 >
                   {copied ? (
                     <Check className="h-3.5 w-3.5" />
@@ -269,7 +260,7 @@ export function ShareDialog({
                   </Label>
                   <Select value={linkPermission} onValueChange={setLinkPermission}>
                     <SelectTrigger
-                      className={`mt-1.5 border-0 bg-muted/50 rounded-xl ${neuInput} ${neuInputDark}`}
+                      className="mt-1.5 border-0 bg-background rounded-xl neu-input"
                     >
                       <SelectValue />
                     </SelectTrigger>
@@ -290,7 +281,7 @@ export function ShareDialog({
             </div>
 
             {/* ── Invite people section ── */}
-            <div className={`rounded-xl bg-card p-4 ${neuLight} ${neuDark}`}>
+            <div className="rounded-xl bg-background p-4 neu-raised">
               <h3 className="text-sm font-medium mb-3">
                 {t('settings.stitch.invitePeople', locale)}
               </h3>
@@ -299,11 +290,11 @@ export function ShareDialog({
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
                   placeholder={t('settings.stitch.emailPlaceholder', locale)}
-                  className={`flex-1 ${neuInput} ${neuInputDark} border-0 bg-muted/50 rounded-xl`}
+                  className="flex-1 neu-input border-0 bg-background rounded-xl"
                   onKeyDown={(e) => e.key === 'Enter' && handleInvite()}
                 />
                 <Select value={inviteRole} onValueChange={setInviteRole}>
-                  <SelectTrigger className="w-[110px] border-0 bg-muted/50 rounded-xl">
+                  <SelectTrigger className="w-[110px] border-0 bg-background rounded-xl neu-input">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -322,7 +313,7 @@ export function ShareDialog({
                   size="sm"
                   onClick={handleInvite}
                   disabled={sending || !inviteEmail.trim()}
-                  className="shrink-0 rounded-xl gap-1.5"
+                  className="shrink-0 rounded-xl gap-1.5 btn-neu-primary"
                 >
                   <Send className="h-3.5 w-3.5" />
                 </Button>
@@ -330,7 +321,7 @@ export function ShareDialog({
             </div>
 
             {/* ── Collaborators list ── */}
-            <div className={`rounded-xl bg-card p-4 ${neuLight} ${neuDark}`}>
+            <div className="rounded-xl bg-background p-4 neu-raised">
               <h3 className="text-sm font-medium mb-3">
                 {t('settings.stitch.collaborators', locale)} ({collaborators.length})
               </h3>
@@ -350,9 +341,9 @@ export function ShareDialog({
                         initial={{ opacity: 0, y: 4 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, x: -20 }}
-                        className="flex items-center gap-3 rounded-lg p-2 hover:bg-muted/50 transition-colors"
+                        className="flex items-center gap-3 rounded-lg p-2 hover:bg-muted/30 transition-colors"
                       >
-                        <Avatar className="h-8 w-8">
+                        <Avatar className="h-8 w-8 neu-avatar">
                           <AvatarImage src={collab.avatar} />
                           <AvatarFallback className="text-xs bg-primary/10 text-primary">
                             {initials}
@@ -369,7 +360,7 @@ export function ShareDialog({
                         <Badge
                           variant="secondary"
                           className={cn(
-                            'text-[10px] px-2 py-0',
+                            'text-[10px] px-2 py-0 neu-badge',
                             roleColor[collab.role] ?? '',
                           )}
                         >
@@ -427,10 +418,10 @@ export function ShareDialog({
               </div>
             </div>
 
-            <Separator />
+            <Separator className="neu-divider" />
 
             {/* ── Integrations ── */}
-            <div className={`rounded-xl bg-card p-4 ${neuLight} ${neuDark}`}>
+            <div className="rounded-xl bg-background p-4 neu-raised">
               <h3 className="text-sm font-medium mb-3">
                 {t('settings.stitch.integrations', locale)}
               </h3>
@@ -439,7 +430,7 @@ export function ShareDialog({
                   <Button
                     key={labelKey}
                     variant="outline"
-                    className={cn('rounded-xl gap-2 h-10 text-xs', neuBtn, neuBtnHover)}
+                    className={cn('rounded-xl gap-2 h-10 text-xs btn-neu')}
                     onClick={() => {
                       if (action === 'github') {
                         toast.success(t('settings.stitch.githubConnected', locale))

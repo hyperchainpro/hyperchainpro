@@ -156,7 +156,7 @@ export function BoardCard({
       className="group relative"
     >
       <Card
-        className="cursor-pointer overflow-hidden border-border/60 py-0 transition-shadow duration-300 hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-black/20 gap-0"
+        className="neu-raised cursor-pointer overflow-hidden border-0 bg-background py-0 gap-0"
         onClick={() => onOpen?.(board.id)}
       >
         {/* Thumbnail area */}
@@ -184,15 +184,15 @@ export function BoardCard({
           )}
 
           {/* Top-right actions overlay */}
-          <div className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-black/10 backdrop-blur-sm md:bg-transparent md:backdrop-blur-none md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
+          <div className="absolute top-2 right-2 flex items-center gap-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
             {/* Star toggle */}
             <button
               onClick={handleStarToggle}
               className={cn(
-                'flex size-8 items-center justify-center rounded-full backdrop-blur-sm transition-colors',
+                'neu-icon-btn !size-8 !rounded-full !p-0 transition-colors',
                 isStarred
-                  ? 'bg-amber-400/90 text-white hover:bg-amber-500/90'
-                  : 'bg-black/20 text-white hover:bg-black/30'
+                  ? 'text-amber-500'
+                  : 'text-muted-foreground'
               )}
             >
               <Star
@@ -208,25 +208,25 @@ export function BoardCard({
                     e.stopPropagation()
                     e.preventDefault()
                   }}
-                  className="flex size-8 items-center justify-center rounded-full bg-black/20 text-white backdrop-blur-sm transition-colors hover:bg-black/30"
+                  className="neu-icon-btn !size-8 !rounded-full !p-0 text-muted-foreground"
                 >
                   <MoreVertical className="size-4" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="w-48"
+                className="w-48 neu-raised border-0 bg-background !p-1.5"
                 onClick={(e) => e.stopPropagation()}
               >
-                <DropdownMenuItem onClick={() => onOpen?.(board.id)}>
+                <DropdownMenuItem onClick={() => onOpen?.(board.id)} className="neu-flat !rounded-lg !border-0">
                   <ExternalLink className="size-4" />
                   <span>{t('board.open', locale)}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onDuplicate?.(board.id)}>
+                <DropdownMenuItem onClick={() => onDuplicate?.(board.id)} className="neu-flat !rounded-lg !border-0">
                   <Copy className="size-4" />
                   <span>{t('board.duplicate', locale)}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onShare?.(board.id)}>
+                <DropdownMenuItem onClick={() => onShare?.(board.id)} className="neu-flat !rounded-lg !border-0">
                   <Share2 className="size-4" />
                   <span>{t('board.share', locale)}</span>
                 </DropdownMenuItem>
@@ -234,6 +234,7 @@ export function BoardCard({
                 <DropdownMenuItem
                   variant="destructive"
                   onClick={() => onDelete?.(board.id)}
+                  className="neu-flat !rounded-lg !border-0"
                 >
                   <Trash2 className="size-4" />
                   <span>{t('board.delete', locale)}</span>
@@ -245,7 +246,7 @@ export function BoardCard({
           {/* Always-visible star on non-hover (only when starred) */}
           {isStarred && (
             <div className="absolute top-2 right-2 flex items-center gap-1 transition-opacity duration-200 md:group-hover:opacity-0">
-              <div className="flex size-8 items-center justify-center rounded-full bg-amber-400/90 text-white">
+              <div className="neu-icon-btn !size-8 !rounded-full !p-0 text-amber-500">
                 <Star className="size-4 fill-current" />
               </div>
             </div>
@@ -255,7 +256,7 @@ export function BoardCard({
           <div className="absolute bottom-2 left-2">
             <Badge
               variant="secondary"
-              className="text-[10px] font-medium backdrop-blur-sm bg-white/80 dark:bg-black/50 border-0"
+              className="neu-badge !text-[10px] !py-0.5 !px-2.5 border-0"
             >
               {board.isPublic ? t('board.public', locale) : t('board.private', locale)}
             </Badge>
@@ -281,7 +282,7 @@ export function BoardCard({
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1">
-                  <Badge variant="outline" className="gap-1 text-[10px] px-1.5 py-0 h-5 font-normal">
+                  <Badge variant="outline" className="neu-flat !rounded-lg !border-0 gap-1 text-[10px] !px-2 !py-0.5 !h-auto font-normal">
                     <GitBranch className="size-3" />
                     {board.branchCount}
                   </Badge>
@@ -295,7 +296,7 @@ export function BoardCard({
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1">
-                  <Badge variant="outline" className="gap-1 text-[10px] px-1.5 py-0 h-5 font-normal">
+                  <Badge variant="outline" className="neu-flat !rounded-lg !border-0 gap-1 text-[10px] !px-2 !py-0.5 !h-auto font-normal">
                     <GitCommit className="size-3" />
                     {board.commitCount}
                   </Badge>
@@ -316,7 +317,7 @@ export function BoardCard({
                   {displayedMembers.map((member, index) => (
                     <Tooltip key={member.id}>
                       <TooltipTrigger asChild>
-                        <Avatar className="size-6 ring-2 ring-background transition-transform hover:scale-110 hover:z-10">
+                        <Avatar className="neu-avatar size-6 transition-transform hover:scale-110 hover:z-10">
                           {member.avatar ? (
                             <AvatarImage src={member.avatar} alt={member.name} />
                           ) : null}
@@ -338,7 +339,7 @@ export function BoardCard({
                   {remainingCount > 0 && (
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <div className="flex size-6 items-center justify-center rounded-full bg-muted ring-2 ring-background text-[9px] font-medium text-muted-foreground">
+                        <div className="neu-flat !rounded-full !size-6 flex items-center justify-center !border-0 text-[9px] font-medium text-muted-foreground">
                           +{remainingCount}
                         </div>
                       </TooltipTrigger>

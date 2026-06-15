@@ -69,11 +69,6 @@ type FilterTab = 'all' | 'recent' | 'starred'
 type SortOption = 'lastModified' | 'name' | 'created'
 type SidebarSection = 'my-boards' | 'shared' | 'starred' | 'recent'
 
-// ── Neumorphism helpers ────────────────────────────────────────────────────
-
-const neuBtn = 'shadow-[4px_4px_8px_rgba(0,0,0,0.06),-4px_-4px_8px_rgba(255,255,255,0.8)] dark:shadow-[4px_4px_8px_rgba(0,0,0,0.35),-4px_-4px_8px_rgba(30,30,30,0.08)]'
-const neuBtnHover = 'hover:shadow-[2px_2px_4px_rgba(0,0,0,0.06),-2px_-2px_4px_rgba(255,255,255,0.8)] dark:hover:shadow-[2px_2px_4px_rgba(0,0,0,0.35),-2px_-2px_4px_rgba(30,30,30,0.08)]'
-
 // ── Demo data ──────────────────────────────────────────────────────────────
 
 const demoBoards: BoardCardData[] = [
@@ -238,7 +233,7 @@ function ThemeToggle() {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button variant="ghost" size="icon" onClick={cycleTheme}>
+        <Button variant="ghost" size="icon" className="neu-icon-btn" onClick={cycleTheme}>
           {theme === 'dark' ? <Moon className="size-4" /> : theme === 'light' ? <Sun className="size-4" /> : <Monitor className="size-4" />}
         </Button>
       </TooltipTrigger>
@@ -311,20 +306,20 @@ function SidebarContent({
         <span className="text-base font-bold tracking-tight">BranchBoard</span>
       </div>
 
-      <Separator />
+      <div className="neu-divider" />
 
       {/* New Board button */}
       <div className="p-3">
         <Button
           onClick={onCreateBoard}
-          className={cn('w-full gap-2 rounded-xl border-0 bg-background text-foreground font-medium', neuBtn, neuBtnHover, 'active:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.06),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] dark:active:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.35),inset_-2px_-2px_4px_rgba(30,30,30,0.08)]')}
+          className="btn-neu w-full gap-2 text-foreground font-medium"
         >
           <Plus className="size-4" />
           {t('dashboard.newBoard', locale)}
         </Button>
       </div>
 
-      <Separator />
+      <div className="neu-divider" />
 
       {/* Navigation sections */}
       <ScrollArea className="flex-1 px-2 py-1">
@@ -349,17 +344,17 @@ function SidebarContent({
                 <CollapsibleTrigger asChild>
                   <button
                     className={cn(
-                      'flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                      'flex w-full items-center gap-2.5 px-3 py-2 text-sm font-medium transition-all duration-200 border-0',
                       isActive
-                        ? 'bg-accent text-accent-foreground'
-                        : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+                        ? 'neu-pressed !rounded-lg text-foreground'
+                        : 'bg-transparent text-muted-foreground hover:shadow-[4px_4px_8px_rgba(0,0,0,0.07),-4px_-4px_8px_rgba(255,255,255,0.85)] dark:hover:shadow-[4px_4px_8px_rgba(0,0,0,0.4),-4px_-4px_8px_rgba(50,50,60,0.1)] hover:text-foreground'
                     )}
                   >
                     <Icon className="size-4 shrink-0" />
                     <span className="flex-1 text-left">{t(section.labelKey, locale)}</span>
                     <Badge
                       variant="secondary"
-                      className="text-[10px] px-1.5 py-0 h-5 font-normal"
+                      className="text-[10px] px-1.5 py-0 h-5 font-normal border-0"
                     >
                       {section.count}
                     </Badge>
@@ -424,10 +419,10 @@ function SidebarContent({
       </ScrollArea>
 
       {/* Sidebar footer */}
-      <Separator />
+      <div className="neu-divider" />
       <div className="p-3">
         <div className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm text-muted-foreground">
-          <Avatar className="size-6">
+          <Avatar className="size-6 neu-avatar">
             <AvatarFallback className="bg-violet-500 text-[10px] text-white font-medium">
               {userInitials}
             </AvatarFallback>
@@ -582,7 +577,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* ─── Desktop Sidebar ────────────────────────────────────────────── */}
-      <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card">
+      <aside className="hidden md:flex w-64 flex-col border-0 bg-background shadow-[6px_6px_14px_rgba(0,0,0,0.07),-6px_-6px_14px_rgba(255,255,255,0.85)] dark:shadow-[6px_6px_14px_rgba(0,0,0,0.4),-6px_-6px_14px_rgba(50,50,60,0.1)]">
         <SidebarContent
           sidebarSections={sidebarSections}
           activeSidebar={activeSidebar}
@@ -598,7 +593,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
       {/* ─── Mobile Sidebar (Sheet) ─────────────────────────────────────── */}
       {isMobile && (
         <Sheet open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen}>
-          <SheetContent side="left" className="w-72 p-0">
+          <SheetContent side="left" className="w-72 p-0 !bg-background !border-0 shadow-[6px_6px_14px_rgba(0,0,0,0.07),-6px_-6px_14px_rgba(255,255,255,0.85)] dark:shadow-[6px_6px_14px_rgba(0,0,0,0.4),-6px_-6px_14px_rgba(50,50,60,0.1)]">
             <SheetTitle className="sr-only">{t('dashboard.navMenu', locale)}</SheetTitle>
             <div className="flex h-full flex-col">
               <SidebarContent
@@ -625,12 +620,12 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
       {/* ─── Main content ──────────────────────────────────────────────── */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Header */}
-        <header className="flex items-center justify-between gap-4 border-b border-border bg-card px-4 py-3 lg:px-6">
+        <header className="flex items-center justify-between gap-4 border-0 bg-background neu-flat !rounded-none px-4 py-3 lg:px-6">
           {/* Hamburger menu (mobile) */}
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden shrink-0"
+            className="md:hidden shrink-0 neu-icon-btn"
             onClick={() => setMobileSidebarOpen(true)}
             aria-label={t('dashboard.openMenu', locale)}
           >
@@ -652,7 +647,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
               placeholder={t('dashboard.search', locale)}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 h-9 bg-muted/50 border-0 focus-visible:ring-1"
+              className="neu-input !pl-9 h-9 border-0"
             />
           </div>
 
@@ -661,7 +656,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
             <Button
               variant="default"
               size="sm"
-              className="md:hidden gap-1.5"
+              className="md:hidden gap-1.5 btn-neu"
               onClick={() => setCreateDialogOpen(true)}
             >
               <Plus className="size-4" />
@@ -675,7 +670,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                   variant="outline"
                   size="sm"
                   onClick={() => useAppStore.getState().setViewMode('ai-design')}
-                  className="hidden md:flex gap-1.5 rounded-lg"
+                  className="hidden md:flex gap-1.5 rounded-lg btn-neu bg-background border-0"
                 >
                   <Wand2 className="size-3.5" />
                   {t('dashboard.aiDesign', locale)}
@@ -691,7 +686,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                   variant="outline"
                   size="icon"
                   onClick={() => useAppStore.getState().setPluginDialogOpen(true)}
-                  className="rounded-lg"
+                  className="rounded-lg neu-icon-btn bg-background border-0"
                   aria-label={t('toolbar.plugins', locale)}
                 >
                   <Puzzle className="size-4" />
@@ -707,7 +702,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                   variant="outline"
                   size="sm"
                   onClick={() => useAppStore.getState().setViewMode('community')}
-                  className="hidden md:flex gap-1.5 rounded-lg"
+                  className="hidden md:flex gap-1.5 rounded-lg btn-neu bg-background border-0"
                 >
                   <Users className="size-3.5" />
                   {t('dashboard.community', locale)}
@@ -723,7 +718,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                   variant="outline"
                   size="sm"
                   onClick={() => setUploadDialogOpen(true)}
-                  className="hidden md:flex gap-1.5 rounded-lg"
+                  className="hidden md:flex gap-1.5 rounded-lg btn-neu bg-background border-0"
                 >
                   <Upload className="size-3.5" />
                   {t('dashboard.upload', locale)}
@@ -741,7 +736,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
             {/* Settings - hidden on mobile */}
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" onClick={() => onOpenSettings?.()} className="hidden md:flex">
+                <Button variant="ghost" size="icon" onClick={() => onOpenSettings?.()} className="hidden md:flex neu-icon-btn">
                   <Settings className="size-4" />
                 </Button>
               </TooltipTrigger>
@@ -751,7 +746,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
             {/* Notification bell - hidden on mobile */}
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative hidden md:flex">
+                <Button variant="ghost" size="icon" className="relative hidden md:flex neu-icon-btn">
                   <Bell className="size-4" />
                   <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-rose-500 ring-2 ring-background" />
                 </Button>
@@ -761,7 +756,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
 
             {/* User avatar / Logout */}
             <div className="flex items-center gap-1">
-              <Avatar className="size-8 ring-2 ring-border cursor-pointer transition-ring hover:ring-primary/30" onClick={() => onOpenSettings?.()}>
+              <Avatar className="size-8 neu-avatar cursor-pointer" onClick={() => onOpenSettings?.()}>
                 <AvatarFallback className="bg-violet-500 text-xs text-white font-medium">
                   {userInitials}
                 </AvatarFallback>
@@ -769,7 +764,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
               {/* Logout - hidden on mobile */}
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="size-8 hidden md:flex" onClick={handleLogout}>
+                  <Button variant="ghost" size="icon" className="size-8 hidden md:flex neu-icon-btn" onClick={handleLogout}>
                     <LogOut className="size-3.5" />
                   </Button>
                 </TooltipTrigger>
@@ -780,20 +775,20 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
         </header>
 
         {/* Mobile search bar (below header, above filter bar) */}
-        <div className="md:hidden border-b border-border bg-card px-4 py-2">
+        <div className="md:hidden border-0 bg-background px-4 py-2">
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder={t('dashboard.search', locale)}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 h-9 bg-muted/50 border-0 focus-visible:ring-1"
+              className="neu-input !pl-9 h-9 border-0"
             />
           </div>
         </div>
 
         {/* Filter / Sort bar */}
-        <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5 lg:px-6 bg-muted/30">
+        <div className="flex items-center justify-between gap-3 border-0 px-4 py-2.5 lg:px-6 bg-background">
           <div className="flex items-center gap-1 flex-1 md:flex-none justify-center md:justify-start">
             {(
               [
@@ -808,8 +803,10 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                 size="sm"
                 onClick={() => setActiveFilter(tab.key)}
                 className={cn(
-                  'text-xs h-8 px-3 rounded-full',
-                  activeFilter === tab.key && 'font-semibold'
+                  'text-xs h-8 px-3 rounded-full border-0 transition-all duration-200',
+                  activeFilter === tab.key
+                    ? 'neu-pressed !rounded-full font-semibold text-foreground'
+                    : 'bg-transparent text-muted-foreground hover:text-foreground'
                 )}
               >
                 {tab.key === 'starred' && (
@@ -828,12 +825,12 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
             <span className="text-xs text-muted-foreground hidden sm:inline">
               {t('dashboard.sortBy', locale)}
             </span>
-            <div className="flex items-center bg-muted rounded-lg p-0.5">
+            <div className="flex items-center bg-background rounded-lg p-0.5 neu-flat !rounded-lg border-0">
               <Button
                 variant={sortOption === 'lastModified' ? 'secondary' : 'ghost'}
                 size="sm"
                 onClick={() => setSortOption('lastModified')}
-                className="text-xs h-7 px-2.5 rounded-md"
+                className={cn('text-xs h-7 px-2.5 rounded-md border-0 transition-all duration-200', sortOption === 'lastModified' ? 'neu-pressed !rounded-md bg-transparent' : 'bg-transparent')}
               >
                 {t('dashboard.lastModified', locale)}
               </Button>
@@ -841,7 +838,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                 variant={sortOption === 'name' ? 'secondary' : 'ghost'}
                 size="sm"
                 onClick={() => setSortOption('name')}
-                className="text-xs h-7 px-2.5 rounded-md"
+                className={cn('text-xs h-7 px-2.5 rounded-md border-0 transition-all duration-200', sortOption === 'name' ? 'neu-pressed !rounded-md bg-transparent' : 'bg-transparent')}
               >
                 {t('dashboard.nameSort', locale)}
               </Button>
@@ -849,19 +846,19 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                 variant={sortOption === 'created' ? 'secondary' : 'ghost'}
                 size="sm"
                 onClick={() => setSortOption('created')}
-                className="text-xs h-7 px-2.5 rounded-md"
+                className={cn('text-xs h-7 px-2.5 rounded-md border-0 transition-all duration-200', sortOption === 'created' ? 'neu-pressed !rounded-md bg-transparent' : 'bg-transparent')}
               >
                 {t('dashboard.createdSort', locale)}
               </Button>
             </div>
 
-            <Separator orientation="vertical" className="h-5 hidden sm:block" />
+            <div className="neu-divider--vertical h-5 hidden sm:block" />
 
             {/* Grid/List toggle */}
-            <div className="hidden sm:flex items-center bg-muted rounded-lg p-0.5">
+            <div className="hidden sm:flex items-center bg-background rounded-lg p-0.5 neu-flat !rounded-lg border-0">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="secondary" size="sm" className="text-xs h-7 px-2 rounded-md">
+                  <Button variant="secondary" size="sm" className="text-xs h-7 px-2 rounded-md neu-pressed !rounded-md border-0 bg-transparent">
                     <Grid className="size-3.5" />
                   </Button>
                 </TooltipTrigger>
@@ -869,7 +866,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="sm" className="text-xs h-7 px-2 rounded-md">
+                  <Button variant="ghost" size="sm" className="text-xs h-7 px-2 rounded-md bg-transparent border-0">
                     <List className="size-3.5" />
                   </Button>
                 </TooltipTrigger>
@@ -912,7 +909,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
         </ScrollArea>
 
         {/* Footer */}
-        <footer className="mt-auto shrink-0 flex items-center justify-center border-t border-border bg-card/50 px-4 py-2 pb-safe">
+        <footer className="mt-auto shrink-0 flex items-center justify-center border-0 bg-background px-4 py-2 pb-safe shadow-[0px_-4px_8px_rgba(0,0,0,0.06),0px_4px_8px_rgba(255,255,255,0.7)] dark:shadow-[0px_-4px_8px_rgba(0,0,0,0.35),0px_4px_8px_rgba(50,50,60,0.06)]">
           <p className="text-xs text-muted-foreground">{t('dashboard.footer', locale)}</p>
         </footer>
       </div>
@@ -920,7 +917,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
       {/* ─── Mobile Bottom Navigation Bar ───────────────────────────────── */}
       {isMobile && (
         <nav
-          className="fixed bottom-0 left-0 right-0 z-40 bg-background border-t border-border"
+          className="fixed bottom-0 left-0 right-0 z-40 bg-background border-0 neu-raised !rounded-none"
           style={{ height: 'calc(60px + env(safe-area-inset-bottom, 0px))', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
           aria-label={t('dashboard.mobileNav', locale)}
         >
@@ -933,10 +930,10 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                 setMobileSidebarOpen(false)
               }}
               className={cn(
-                'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-colors min-w-[56px]',
+                'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-all duration-200 min-w-[56px] border-0',
                 activeFilter === 'all' && activeSidebar !== 'starred'
-                  ? 'text-primary'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'neu-pressed !rounded-lg text-primary'
+                  : 'bg-transparent text-muted-foreground hover:text-foreground'
               )}
             >
               <LayoutDashboard className="size-5" />
@@ -950,10 +947,10 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                 setActiveSidebar(null)
               }}
               className={cn(
-                'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-colors min-w-[56px]',
+                'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-all duration-200 min-w-[56px] border-0',
                 activeFilter === 'starred'
-                  ? 'text-primary'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'neu-pressed !rounded-lg text-primary'
+                  : 'bg-transparent text-muted-foreground hover:text-foreground'
               )}
             >
               <Star className={cn('size-5', activeFilter === 'starred' && 'fill-current')} />
@@ -977,8 +974,8 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                 setMobileSidebarOpen(false)
               }}
               className={cn(
-                'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-colors min-w-[56px]',
-                'text-muted-foreground hover:text-foreground'
+                'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-all duration-200 min-w-[56px] border-0',
+                'bg-transparent text-muted-foreground hover:text-foreground'
               )}
             >
               <Users className="size-5" />
@@ -992,8 +989,8 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                 setMobileSidebarOpen(false)
               }}
               className={cn(
-                'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-colors min-w-[56px]',
-                'text-muted-foreground hover:text-foreground'
+                'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-all duration-200 min-w-[56px] border-0',
+                'bg-transparent text-muted-foreground hover:text-foreground'
               )}
             >
               <Wand2 className="size-5" />
@@ -1007,8 +1004,8 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                 onOpenSettings?.()
               }}
               className={cn(
-                'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-colors min-w-[56px]',
-                'text-muted-foreground hover:text-foreground'
+                'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-all duration-200 min-w-[56px] border-0',
+                'bg-transparent text-muted-foreground hover:text-foreground'
               )}
             >
               <Settings className="size-5" />
@@ -1047,10 +1044,10 @@ function SidebarItem({ name, active }: { name: string; active?: boolean }) {
   return (
     <button
       className={cn(
-        'flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors truncate w-full text-left',
+        'flex items-center gap-2 px-2 py-1.5 text-xs transition-all duration-200 truncate w-full text-left border-0',
         active
-          ? 'bg-primary/10 text-primary font-medium'
-          : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+          ? 'neu-pressed !rounded-md text-primary font-medium'
+          : 'bg-transparent text-muted-foreground hover:text-foreground'
       )}
     >
       <ChevronRight
@@ -1072,7 +1069,7 @@ function EmptyState({ onCreateBoard, searchQuery = '', locale }: { onCreateBoard
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-      className="flex flex-col items-center justify-center py-24 text-center"
+      className="neu-card flex flex-col items-center justify-center py-24 text-center"
     >
       {/* Illustration */}
       <div className="relative mb-6">
@@ -1096,7 +1093,7 @@ function EmptyState({ onCreateBoard, searchQuery = '', locale }: { onCreateBoard
           ? t('dashboard.noBoardsFoundSearch', locale, { query: searchQuery })
           : t('dashboard.noBoardsYet', locale)}
       </p>
-      <Button onClick={onCreateBoard} className={cn('gap-2 rounded-xl border-0 bg-background text-foreground font-medium', neuBtn, neuBtnHover, 'active:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.06),inset_-2px_-2px_4px_rgba(255,255,255,0.8)]')}>
+      <Button onClick={onCreateBoard} className="btn-neu gap-2 text-foreground font-medium">
         <FilePlus className="size-4" />
         {t('dashboard.createFirstBoard', locale)}
       </Button>

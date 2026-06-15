@@ -53,18 +53,13 @@ import { t, type Locale } from '@/lib/i18n';
 import { useAuthStore } from '@/store/auth-store';
 import type { BoardElement } from '@/lib/types';
 
-// ── Neumorphism helpers ──────────────────────────────────────────────────────
-
-const neuBtn =
-  'shadow-[4px_4px_8px_rgba(0,0,0,0.06),-4px_-4px_8px_rgba(255,255,255,0.8)] dark:shadow-[4px_4px_8px_rgba(0,0,0,0.35),-4px_-4px_8px_rgba(30,30,30,0.08)]';
-
 // ─── Loading skeleton ────────────────────────────────────────────────────────
 
 function EditorLoadingSkeleton() {
   const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-background">
-      <header className="h-12 border-b bg-background flex items-center px-4 gap-3 shrink-0">
+      <header className="h-12 neu-flat bg-background flex items-center px-4 gap-3 shrink-0">
         <Skeleton className="h-8 w-8 rounded-md" />
         <Skeleton className="h-6 w-px" />
         <Skeleton className="h-5 w-32" />
@@ -92,15 +87,15 @@ function EditorError({ message, onRetry }: { message: string; onRetry: () => voi
   const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-background">
-      <header className="h-12 border-b bg-background flex items-center px-4 gap-3 shrink-0">
+      <header className="h-12 neu-flat bg-background flex items-center px-4 gap-3 shrink-0">
         <Button variant="ghost" size="icon" onClick={() => useAppStore.getState().closeBoard()}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <Separator orientation="vertical" className="h-6" />
+        <Separator orientation="vertical" className="h-6 neu-divider" />
         <span className="text-sm font-medium text-muted-foreground">{t('editor.errorLoading', locale)}</span>
       </header>
       <div className="flex-1 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4 max-w-sm text-center">
+        <div className="flex flex-col items-center gap-4 max-w-sm text-center neu-card p-6">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-destructive/10">
             <AlertTriangle className="h-7 w-7 text-destructive" />
           </div>
@@ -108,7 +103,7 @@ function EditorError({ message, onRetry }: { message: string; onRetry: () => voi
             <p className="text-sm font-semibold">{t('editor.failedToLoad', locale)}</p>
             <p className="mt-1 text-sm text-muted-foreground">{message}</p>
           </div>
-          <Button variant="outline" onClick={onRetry} className="gap-2">
+          <Button variant="outline" onClick={onRetry} className="gap-2 btn-neu">
             <RotateCcw className="h-4 w-4" />
             {t('editor.tryAgain', locale)}
           </Button>
@@ -188,18 +183,18 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
   }, []);
 
   return (
-    <header className="h-12 border-b bg-background flex items-center px-2 md:px-3 gap-2 shrink-0">
+    <header className="h-12 neu-flat bg-background flex items-center px-2 md:px-3 gap-2 shrink-0">
       {/* Back button */}
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={closeBoard}>
+          <Button variant="ghost" size="icon" className="h-8 w-8 neu-icon-btn" onClick={closeBoard}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent side="bottom">{t('editor.backToDashboard', locale)}</TooltipContent>
       </Tooltip>
 
-      <Separator orientation="vertical" className="h-6" />
+      <Separator orientation="vertical" className="h-6 neu-divider" />
 
       {/* Left panel toggle */}
       <Tooltip>
@@ -207,7 +202,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8"
+            className="h-8 w-8 neu-icon-btn"
             onClick={() => setLeftPanelOpen(!leftPanelOpen)}
           >
             <PanelLeftOpen className="h-4 w-4" />
@@ -216,10 +211,10 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
         <TooltipContent side="bottom">{t('editor.toggleLayers', locale)}</TooltipContent>
       </Tooltip>
 
-      <Separator orientation="vertical" className="h-6" />
+      <Separator orientation="vertical" className="h-6 neu-divider" />
 
       {/* Board name */}
-      <span className="text-sm font-semibold truncate max-w-[120px] md:max-w-[200px]">
+      <span className="text-sm font-semibold truncate max-w-[120px] md:max-w-[200px] neu-flat rounded-full px-3 py-0.5">
         {boardName ?? t('editor.boardFallback', locale)}
       </span>
 
@@ -229,7 +224,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
           <Button
             variant="outline"
             size="sm"
-            className="gap-1.5 h-7 text-xs font-mono"
+            className="gap-1.5 h-7 text-xs font-mono btn-neu"
             onClick={() => setRightPanelTab('branches')}
           >
             <GitBranch className="h-3 w-3" />
@@ -240,13 +235,13 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
       </Tooltip>
 
       {/* Design / Prototype mode toggle */}
-      <div className="hidden md:flex items-center bg-muted rounded-lg p-0.5 ml-1">
+      <div className="hidden md:flex items-center neu-concave rounded-lg p-0.5 ml-1">
         <Button
           variant="ghost"
           size="sm"
           className={cn(
-            'h-7 px-3 text-xs rounded-md',
-            editorMode === 'design' && 'bg-background shadow-sm',
+            'h-7 px-3 text-xs rounded-md neu-flat',
+            editorMode === 'design' && 'neu-pressed bg-background',
           )}
           onClick={() => setEditorMode('design')}
         >
@@ -256,8 +251,8 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
           variant="ghost"
           size="sm"
           className={cn(
-            'h-7 px-3 text-xs rounded-md gap-1.5',
-            editorMode === 'prototype' && 'bg-background shadow-sm',
+            'h-7 px-3 text-xs rounded-md gap-1.5 neu-flat',
+            editorMode === 'prototype' && 'neu-pressed bg-background',
           )}
           onClick={() => setEditorMode('prototype')}
         >
@@ -273,7 +268,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
             <Tooltip key={user.id}>
               <TooltipTrigger asChild>
                 <div
-                  className="h-6 w-6 rounded-full border-2 border-background flex items-center justify-center text-[9px] font-bold text-white"
+                  className="h-6 w-6 rounded-full border-2 border-background flex items-center justify-center text-[9px] font-bold text-white neu-avatar"
                   style={{ backgroundColor: user.color }}
                 >
                   {user.name.slice(0, 1).toUpperCase()}
@@ -305,7 +300,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
       {/* Members button */}
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onOpenInviteDialog}>
+          <Button variant="ghost" size="icon" className="h-8 w-8 neu-icon-btn" onClick={onOpenInviteDialog}>
             <Users className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
@@ -316,7 +311,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
       <div className="hidden md:flex items-center gap-1">
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-amber-500 hover:text-amber-600" onClick={() => setAIDesignDialogOpen(true)}>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-amber-500 hover:text-amber-600 neu-icon-btn" onClick={() => setAIDesignDialogOpen(true)}>
               <Sparkles className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
@@ -324,7 +319,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setImportDialogOpen(true)}>
+            <Button variant="ghost" size="icon" className="h-8 w-8 neu-icon-btn" onClick={() => setImportDialogOpen(true)}>
               <Upload className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
@@ -332,13 +327,13 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleExport}>
+            <Button variant="ghost" size="icon" className="h-8 w-8 neu-icon-btn" onClick={handleExport}>
               <Download className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">{t('editor.exportSvg', locale)}</TooltipContent>
         </Tooltip>
-        <Separator orientation="vertical" className="h-6" />
+        <Separator orientation="vertical" className="h-6 neu-divider" />
       </div>
 
       {/* Right actions */}
@@ -350,7 +345,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
               <Button
                 variant="destructive"
                 size="sm"
-                className="gap-1.5 h-7 text-xs"
+                className="gap-1.5 h-7 text-xs btn-neu"
                 onClick={stopPlayback}
               >
                 <Square className="h-3 w-3" />
@@ -364,7 +359,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
         {/* New branch */}
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setBranchDialogOpen(true)}>
+            <Button variant="ghost" size="icon" className="h-8 w-8 neu-icon-btn" onClick={() => setBranchDialogOpen(true)}>
               <Plus className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
@@ -374,7 +369,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
         {/* Merge request */}
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="hidden md:flex h-8 w-8" onClick={() => setMergeDialogOpen(true)}>
+            <Button variant="ghost" size="icon" className="hidden md:flex h-8 w-8 neu-icon-btn" onClick={() => setMergeDialogOpen(true)}>
               <GitMerge className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
@@ -387,7 +382,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
             <Button
               variant={rightPanelOpen ? 'secondary' : 'ghost'}
               size="icon"
-              className="hidden md:flex h-8 w-8"
+              className="hidden md:flex h-8 w-8 neu-icon-btn"
               onClick={() => setRightPanelTab('history')}
             >
               <History className="h-4 w-4" />
@@ -399,19 +394,19 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
         {/* Toggle right panel */}
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setRightPanelOpen(!rightPanelOpen)}>
+            <Button variant="ghost" size="icon" className="h-8 w-8 neu-icon-btn" onClick={() => setRightPanelOpen(!rightPanelOpen)}>
               <PanelRightOpen className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">{t('editor.toggleProperties', locale)}</TooltipContent>
         </Tooltip>
 
-        <Separator orientation="vertical" className="h-6" />
+        <Separator orientation="vertical" className="h-6 neu-divider" />
 
         {/* Commit button */}
         <Button
           size="sm"
-          className={cn('gap-2 h-8 rounded-xl', neuBtn)}
+          className={cn('gap-2 h-8 rounded-xl btn-neu')}
           onClick={() => setCommitDialogOpen(true)}
         >
           <GitCommitHorizontal className="h-3.5 w-3.5" />

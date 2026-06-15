@@ -22,7 +22,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
-import { Separator } from '@/components/ui/separator'
+// Separator removed — using neu-divider via div
 import {
   Select,
   SelectContent,
@@ -39,13 +39,6 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { useAuthStore } from '@/store/auth-store'
 import { t } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
-
-// ── Neumorphism helpers ─────────────────────────────────────────────────────
-
-const neuLight = 'shadow-[6px_6px_12px_rgba(0,0,0,0.08),-6px_-6px_12px_rgba(255,255,255,0.9)]'
-const neuDark = 'dark:shadow-[6px_6px_12px_rgba(0,0,0,0.4),-6px_-6px_12px_rgba(30,30,30,0.1)]'
-const neuInput = 'shadow-[inset_3px_3px_6px_rgba(0,0,0,0.06),inset_-3px_-3px_6px_rgba(255,255,255,0.7)]'
-const neuInputDark = 'dark:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3),inset_-3px_-3px_6px_rgba(50,50,50,0.15)]'
 
 // ── Agent types ─────────────────────────────────────────────────────────────
 
@@ -439,7 +432,7 @@ export function AIAgentsSettings() {
           onClick={handleSave}
           disabled={saving}
           size="sm"
-          className="rounded-xl gap-1.5"
+          className="rounded-xl gap-1.5 btn-neu-primary border-0"
         >
           <Save className="h-3.5 w-3.5" />
           {saving ? t('settings.saving', locale) : t('settings.saveAll', locale)}
@@ -460,15 +453,11 @@ export function AIAgentsSettings() {
                 onOpenChange={() => toggleOpen(agent.id)}
               >
                 <div
-                  className={cn(
-                    'rounded-xl bg-card p-4 transition-shadow',
-                    neuLight,
-                    neuDark,
-                  )}
+                  className="rounded-[18px] bg-background p-4 transition-shadow neu-card border-0"
                 >
                   {/* Header */}
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-background neu-convex text-primary">
                       <Icon className="h-4.5 w-4.5" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -487,7 +476,7 @@ export function AIAgentsSettings() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 shrink-0"
+                        className="h-8 w-8 shrink-0 neu-icon-btn"
                       >
                         <ChevronDown
                           className={cn(
@@ -509,7 +498,7 @@ export function AIAgentsSettings() {
                           exit={{ opacity: 0, height: 0 }}
                           transition={{ duration: 0.2 }}
                         >
-                          <Separator className="my-3" />
+                          <div className="neu-divider my-3" />
 
                           {/* Model selector */}
                           {agent.modelOptions.length > 0 && (
@@ -522,7 +511,7 @@ export function AIAgentsSettings() {
                                 onValueChange={(v) => updateModel(agent.id, v)}
                               >
                                 <SelectTrigger
-                                  className={`mt-1.5 border-0 bg-muted/50 rounded-xl ${neuInput} ${neuInputDark}`}
+                                  className="mt-1.5 border-0 bg-background rounded-xl neu-input"
                                 >
                                   <SelectValue />
                                 </SelectTrigger>
@@ -573,7 +562,7 @@ export function AIAgentsSettings() {
                                     }
                                   >
                                     <SelectTrigger
-                                      className={`border-0 bg-muted/50 rounded-xl ${neuInput} ${neuInputDark}`}
+                                      className="border-0 bg-background rounded-xl neu-input"
                                     >
                                       <SelectValue />
                                     </SelectTrigger>
@@ -594,7 +583,7 @@ export function AIAgentsSettings() {
                                       updateSetting(agent.id, setting.key, e.target.value)
                                     }
                                     rows={3}
-                                    className={`border-0 bg-muted/50 rounded-xl resize-none ${neuInput} ${neuInputDark}`}
+                                    className="border-0 bg-background rounded-xl resize-none neu-input"
                                   />
                                 )}
 
@@ -616,7 +605,7 @@ export function AIAgentsSettings() {
                               variant="ghost"
                               size="sm"
                               onClick={() => resetAgent(agent)}
-                              className="text-xs text-muted-foreground gap-1.5"
+                              className="text-xs text-muted-foreground gap-1.5 btn-neu border-0"
                             >
                               <RotateCcw className="h-3 w-3" />
                               {t('settings.agents.resetToDefault', locale)}

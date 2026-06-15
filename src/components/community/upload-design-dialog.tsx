@@ -148,7 +148,7 @@ export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg neu-raised bg-background rounded-2xl border-0">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <div className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white">
@@ -168,7 +168,7 @@ export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogPro
             <div className="flex items-center gap-4">
               <div
                 className={cn(
-                  'relative w-32 h-20 rounded-lg bg-gradient-to-br overflow-hidden border border-border shadow-sm',
+                  'relative w-32 h-20 rounded-lg bg-gradient-to-br overflow-hidden neu-card',
                   THUMBNAIL_GRADIENTS[gradientIndex]
                 )}
               >
@@ -219,7 +219,7 @@ export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogPro
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               maxLength={100}
-              className="h-9"
+              className="h-9 neu-input border-0"
             />
             <p className="text-xs text-muted-foreground text-right">{title.length}/100</p>
           </div>
@@ -234,7 +234,7 @@ export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogPro
               onChange={(e) => setDescription(e.target.value)}
               maxLength={500}
               rows={3}
-              className="resize-none"
+              className="resize-none neu-input border-0"
             />
             <p className="text-xs text-muted-foreground text-right">{description.length}/500</p>
           </div>
@@ -244,7 +244,7 @@ export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogPro
             <div className="space-y-2">
               <Label>{t("community.categoryLabel", locale)}</Label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className="h-9">
+                <SelectTrigger className="h-9 neu-input border-0">
                   <SelectValue placeholder={t("community.selectCategory", locale)} />
                 </SelectTrigger>
                 <SelectContent>
@@ -260,7 +260,7 @@ export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogPro
             <div className="space-y-2">
               <Label>{t("community.linkToBoard", locale)}</Label>
               <Select value={selectedBoardId} onValueChange={setSelectedBoardId}>
-                <SelectTrigger className="h-9">
+                <SelectTrigger className="h-9 neu-input border-0">
                   <SelectValue placeholder={t("community.selectBoard", locale)} />
                 </SelectTrigger>
                 <SelectContent>
@@ -288,7 +288,7 @@ export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogPro
               placeholder={t('community.tagsPlaceholder', locale)}
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
-              className="h-9"
+              className="h-9 neu-input border-0"
             />
             {tagsArray.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
@@ -299,7 +299,7 @@ export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogPro
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.8 }}
-                      className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
+                      className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary neu-badge"
                     >
                       #{tag}
                     </motion.span>
@@ -314,7 +314,7 @@ export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogPro
             <Button
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="rounded-lg"
+              className="rounded-lg btn-neu border-0"
             >
               {t('common.cancel', locale)}
             </Button>
@@ -322,8 +322,7 @@ export function UploadDesignDialog({ open, onOpenChange }: UploadDesignDialogPro
               onClick={handleSubmit}
               disabled={!isValid || submitting}
               className={cn(
-                'gap-2 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600',
-                'hover:from-violet-700 hover:to-fuchsia-700 text-white border-0',
+                'gap-2 rounded-lg btn-neu-primary border-0',
                 'disabled:opacity-50 disabled:cursor-not-allowed'
               )}
             >

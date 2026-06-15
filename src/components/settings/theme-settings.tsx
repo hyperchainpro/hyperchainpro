@@ -12,13 +12,6 @@ import { useAuthStore } from '@/store/auth-store'
 import { t } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
-// ── Neumorphism helpers ─────────────────────────────────────────────────────
-
-const neuLight = 'shadow-[6px_6px_12px_rgba(0,0,0,0.08),-6px_-6px_12px_rgba(255,255,255,0.9)]'
-const neuDark = 'dark:shadow-[6px_6px_12px_rgba(0,0,0,0.4),-6px_-6px_12px_rgba(30,30,30,0.1)]'
-const neuInput = 'shadow-[inset_3px_3px_6px_rgba(0,0,0,0.06),inset_-3px_-3px_6px_rgba(255,255,255,0.7)]'
-const neuInputDark = 'dark:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3),inset_-3px_-3px_6px_rgba(50,50,50,0.15)]'
-
 // ── Preset colors ───────────────────────────────────────────────────────────
 
 const ACCENT_PRESETS = [
@@ -110,7 +103,7 @@ export function ThemeSettings() {
       className="space-y-6"
     >
       {/* Theme toggle */}
-      <div className={`rounded-xl bg-card p-6 ${neuLight} ${neuDark}`}>
+      <div className="rounded-2xl bg-background p-6 neu-card border-0">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">
           {t('settings.theme.mode', locale)}
         </h3>
@@ -120,12 +113,10 @@ export function ThemeSettings() {
               key={value}
               onClick={() => setTheme(value)}
               className={cn(
-                'flex flex-col items-center gap-2 rounded-xl p-4 transition-all border-2',
+                'flex flex-col items-center gap-2 rounded-xl p-4 transition-all bg-background border-0',
                 theme === value
-                  ? 'border-primary bg-primary/5 text-primary'
-                  : 'border-transparent bg-muted/50 hover:bg-muted text-muted-foreground',
-                neuLight,
-                neuDark,
+                  ? 'neu-pressed text-primary'
+                  : 'neu-flat text-muted-foreground hover:text-foreground',
               )}
             >
               <Icon className="h-5 w-5" />
@@ -138,7 +129,7 @@ export function ThemeSettings() {
       </div>
 
       {/* Accent color */}
-      <div className={`rounded-xl bg-card p-6 ${neuLight} ${neuDark}`}>
+      <div className="rounded-2xl bg-background p-6 neu-card border-0">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">
           {t('settings.theme.accentColor', locale)}
         </h3>
@@ -149,12 +140,10 @@ export function ThemeSettings() {
               onClick={() => handleAccentSelect(color)}
               title={name}
               className={cn(
-                'relative h-12 rounded-xl transition-all flex items-center justify-center',
+                'relative h-12 rounded-xl transition-all flex items-center justify-center bg-background border-0',
                 accentColor === color
-                  ? 'ring-2 ring-offset-2 ring-offset-background ring-foreground scale-105'
-                  : 'hover:scale-105',
-                neuLight,
-                neuDark,
+                  ? 'neu-pressed scale-105'
+                  : 'neu-flat hover:scale-105',
               )}
             >
               <div
@@ -173,7 +162,7 @@ export function ThemeSettings() {
         {/* Custom color input */}
         <button
           onClick={() => setShowCustomColor(!showCustomColor)}
-          className="w-full h-10 rounded-xl border-2 border-dashed border-muted-foreground/25 text-xs text-muted-foreground hover:border-muted-foreground/50 hover:text-muted-foreground transition-colors"
+          className="w-full h-10 rounded-xl border-0 bg-background neu-flat text-xs text-muted-foreground hover:text-muted-foreground transition-colors"
         >
           {t('settings.theme.customColor', locale)}
         </button>
@@ -188,14 +177,14 @@ export function ThemeSettings() {
               value={customColor}
               onChange={(e) => setCustomColor(e.target.value)}
               placeholder="#FF6600"
-              className={`border-0 bg-muted/50 rounded-xl ${neuInput} ${neuInputDark} font-mono text-sm`}
+              className="border-0 bg-background neu-input rounded-xl font-mono text-sm"
               onKeyDown={(e) => e.key === 'Enter' && handleCustomColorSubmit()}
             />
             <Button
               size="sm"
               variant="outline"
               onClick={handleCustomColorSubmit}
-              className="shrink-0 rounded-xl"
+              className="shrink-0 rounded-xl btn-neu border-0"
             >
               {t('settings.theme.apply', locale)}
             </Button>
@@ -204,7 +193,7 @@ export function ThemeSettings() {
       </div>
 
       {/* Font size */}
-      <div className={`rounded-xl bg-card p-6 ${neuLight} ${neuDark}`}>
+      <div className="rounded-2xl bg-background p-6 neu-card border-0">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">
           {t('settings.theme.fontSize', locale)}
         </h3>
@@ -214,10 +203,10 @@ export function ThemeSettings() {
               key={value}
               onClick={() => setFontSize(value)}
               className={cn(
-                'rounded-xl py-3 px-4 text-center text-sm font-medium transition-all border-2',
+                'rounded-xl py-3 px-4 text-center text-sm font-medium transition-all bg-background border-0',
                 fontSize === value
-                  ? 'border-primary bg-primary/5 text-primary'
-                  : 'border-transparent bg-muted/50 hover:bg-muted text-muted-foreground',
+                  ? 'neu-pressed text-primary'
+                  : 'neu-flat text-muted-foreground hover:text-foreground',
               )}
             >
               <span
@@ -238,18 +227,18 @@ export function ThemeSettings() {
       </div>
 
       {/* Toggles */}
-      <div className={`rounded-xl bg-card p-6 ${neuLight} ${neuDark}`}>
+      <div className="rounded-2xl bg-background p-6 neu-card border-0">
         <h3 className="text-sm font-medium text-muted-foreground mb-4">
           {t('settings.theme.preferences', locale)}
         </h3>
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between rounded-xl neu-flat bg-background p-3">
             <Label className="text-sm">
               {t('settings.theme.compactMode', locale)}
             </Label>
             <Switch checked={compactMode} onCheckedChange={setCompactMode} />
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between rounded-xl neu-flat bg-background p-3">
             <Label className="text-sm">
               {t('settings.theme.animations', locale)}
             </Label>
@@ -262,7 +251,7 @@ export function ThemeSettings() {
       </div>
 
       {/* Save */}
-      <Button onClick={handleSave} className="w-full rounded-xl">
+      <Button onClick={handleSave} className="w-full rounded-xl btn-neu-primary border-0">
         {t('settings.theme.saveAppearance', locale)}
       </Button>
     </motion.div>
