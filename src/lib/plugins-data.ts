@@ -1148,7 +1148,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     author: 'MathKit',
   },
   {
-    id: 'math-calculator',
+    id: 'math-design-calculator',
     name: 'Design Calculator',
     description: 'Quick calculator overlay for computing dimensions, spacing, and proportions.',
     category: 'math',
