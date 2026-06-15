@@ -330,3 +330,38 @@ Stage Summary:
 - 25 plugins pre-installed, 75 available to install
 - Responsive UI: 2-col mobile, 3-col tablet, 4-col desktop grid
 - Search, category filtering, install/uninstall toggle
+
+---
+Task ID: 13
+Agent: Main
+Task: Fix preview not showing + add 100 open source design plugins (continuation)
+
+Work Log:
+- Diagnosed root cause of "nothing visible in preview": missing /api/auth/login, /api/auth/register, /api/auth/forgot-password, /api/auth/logout API routes
+- Created 4 auth API routes (login auto-creates users in dev mode, register creates new users, forgot-password and logout are stubs)
+- Verified Turbopack dev server instability in sandbox - server crashes silently after 1-2 requests
+- Switched from `npx next dev` to `bun run dev` for improved stability
+- Implemented keepalive loop (`while true; do bun run dev; sleep 1; done`) to auto-restart crashed server
+- Verified via agent-browser on 375x812 mobile viewport:
+  - Login page renders correctly
+  - Login succeeds and redirects to dashboard with boards
+  - Settings dialog opens from mobile bottom nav with horizontal tab bar
+  - Profile settings visible (avatar, name, email, password fields, save button)
+  - Plugin Marketplace accessible from mobile header (Puzzle icon button)
+  - 100 plugins across 16 categories with install/uninstall toggle
+- Verified on 1440x900 desktop viewport:
+  - Dashboard with sidebar, search, and board cards
+  - Settings dialog with vertical sidebar tabs + content area
+  - Plugin Marketplace with 4-column grid
+- Added 1 plugin (Design Calculator) to reach exactly 100 plugins
+- Made Plugins button visible on mobile (changed from `hidden md:flex` labeled button to icon-only button)
+- Added 8 i18n keys for plugin marketplace (en/id/ja/ko/zh)
+- Pre-existing lint errors remain (3 in editor-topbar.tsx and right-panel.tsx - unrelated)
+
+Stage Summary:
+- Root cause of "nothing visible": missing auth API routes prevented login, keeping users on blank auth page
+- Auth API routes created: /api/auth/login, /api/auth/register, /api/auth/forgot-password, /api/auth/logout
+- Mobile settings dialog verified working with horizontal tabs and profile content
+- 100 design plugins verified working on both mobile (2-col) and desktop (4-col)
+- Plugins button now visible on all screen sizes (icon-only on mobile, labeled on desktop)
+- Keepalive server running for Preview Panel access

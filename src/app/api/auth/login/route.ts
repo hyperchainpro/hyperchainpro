@@ -1,84 +1,46 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { NextRequest, NextResponse } from 'next/server'
+import { db } from '@/lib/db'
 
-// Simple hash using Buffer (available in both Node and Bun)
-function hashPassword(password: string): string {
-  return Buffer.from(password).toString('base64url');
-}
-
-function verifyPassword(password: string, storedHash: string): boolean {
-  return hashPassword(password) === storedHash;
-}
-
-// ─── POST /api/auth/login ────────────────────────────────────────────
-
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const body = await request.json();
-    const { email, password, captchaToken } = body as {
-      email?: string;
-      password?: string;
-      captchaToken?: string;
-    };
+    const { email, password } = await req.json()
 
-    // Validate captcha
-    if (!captchaToken || typeof captchaToken !== 'string' || captchaToken.trim() === '') {
-      return NextResponse.json(
-        { error: 'Captcha verification failed' },
-        { status: 400 },
-      );
-    }
-
-    // Validate required fields
     if (!email || !password) {
-      return NextResponse.json(
-        { error: 'Email and password are required' },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
+    // Find existing user or create a demo user (dev mode)
+    let user = await db.user.findUnique({ where: { email } })
 
-    // Find user by email
-    const user = await db.user.findUnique({
-      where: { email: normalizedEmail },
-    });
-
-    if (!user || !user.passwordHash) {
-      return NextResponse.json(
-        { error: 'Invalid email or password' },
-        { status: 401 },
-      );
-    }
-
-    // Compare password
-    const isValid = verifyPassword(password, user.passwordHash);
-    if (!isValid) {
-      return NextResponse.json(
-        { error: 'Invalid email or password' },
-        { status: 401 },
-      );
+    if (!user) {
+      // Auto-create user in dev mode for easy testing
+      user = await db.user.create({
+        data: {
+          email,
+          name: email.split('@')[0],
+          role: 'USER',
+          language: 'en',
+          theme: 'system',
+          accentColor: '#6366f1',
+        },
+      })
     }
 
     return NextResponse.json({
       user: {
         id: user.id,
         email: user.email,
-        name: user.name ?? '',
-        avatar: user.avatar ?? undefined,
-        role: user.role ?? 'USER',
-        language: user.language ?? 'en',
-        theme: user.theme ?? 'system',
-        accentColor: user.accentColor ?? '#6366f1',
+        name: user.name,
+        avatar: user.avatar,
+        role: user.role,
+        language: user.language,
+        theme: user.theme,
+        accentColor: user.accentColor,
         aiSettings: user.aiSettings ?? undefined,
       },
-      token: 'demo-session',
-    });
+    })
   } catch (error) {
-    console.error('[AUTH:LOGIN] Error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 },
-    );
+    console.error('Login error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

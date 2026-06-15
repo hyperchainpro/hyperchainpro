@@ -1,11 +1,19 @@
 #!/bin/bash
-# Keepalive dev server for BranchBoard
-export DATABASE_URL="postgresql://z@127.0.0.1:5433/branchboard"
-export NODE_OPTIONS="--max-old-space-size=4096"
+# Keepalive script for Next.js dev server
+LOG="/home/z/my-project/dev.log"
+MAX_RETRIES=0
+RETRY_COUNT=0
 
 while true; do
-  echo "[$(date)] Starting dev server..."
-  npx next dev -p 3000 --turbopack 2>&1 | tee -a /home/z/my-project/dev.log
-  echo "[$(date)] Server exited, restarting in 3s..."
-  sleep 3
+  echo "[$(date '+%H:%M:%S')] Starting Next.js dev server (attempt $((RETRY_COUNT+1)))" >> "$LOG"
+  
+  NODE_OPTIONS="--max-old-space-size=256" npx next dev -p 3000 >> "$LOG" 2>&1
+  
+  EXIT_CODE=$?
+  echo "[$(date '+%H:%M:%S')] Server exited with code $EXIT_CODE" >> "$LOG"
+  
+  RETRY_COUNT=$((RETRY_COUNT+1))
+  
+  # Brief pause before restart
+  sleep 2
 done

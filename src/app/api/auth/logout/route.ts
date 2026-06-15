@@ -1,10 +1,5 @@
 import { NextResponse } from 'next/server'
 
 export async function POST() {
-  // In dev mode, just return success
-  return NextResponse.json({ success: true })
-}
-
-export async function GET() {
   return NextResponse.json({ success: true })
 }

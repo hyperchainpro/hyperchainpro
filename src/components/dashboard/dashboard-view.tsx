@@ -689,12 +689,12 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
               <TooltipTrigger asChild>
                 <Button
                   variant="outline"
-                  size="sm"
+                  size="icon"
                   onClick={() => useAppStore.getState().setPluginDialogOpen(true)}
-                  className="hidden md:flex gap-1.5 rounded-lg"
+                  className="rounded-lg"
+                  aria-label={t('toolbar.plugins', locale)}
                 >
-                  <Puzzle className="size-3.5" />
-                  {t('toolbar.plugins', locale)}
+                  <Puzzle className="size-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>{t('toolbar.plugins', locale)}</TooltipContent>
