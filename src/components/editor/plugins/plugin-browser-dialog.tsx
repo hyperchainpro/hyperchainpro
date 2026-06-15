@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useCallback, useRef } from 'react'
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import * as LucideIcons from 'lucide-react'
 import {
@@ -23,6 +23,8 @@ import { Search, X, Download, Trash2, Sparkles, Puzzle } from 'lucide-react'
 import { DESIGN_PLUGINS, type DesignPlugin, PLUGIN_CATEGORIES } from '@/lib/plugins-data'
 import { t } from '@/lib/i18n'
 import { useAuthStore } from '@/store/auth-store'
+import { useAppStore } from '@/store/app-store'
+import { toast } from 'sonner'
 
 const iconBgColors: Record<string, string> = {
   shapes: 'bg-foreground/5 text-foreground',
@@ -94,6 +96,7 @@ export function PluginBrowserDialog({
   const locale = useAuthStore((s) => s.user?.language ?? 'en')
   const [searchQuery, setSearchQuery] = useState('')
   const [activeCategory, setActiveCategory] = useState('all')
+  const autoInstallIds = useAppStore((s) => s.autoInstallPluginIds)
   const [installedMap, setInstalledMap] = useState<Record<string, boolean>>(() => {
     const map: Record<string, boolean> = {}
     for (const p of DESIGN_PLUGINS) {
@@ -102,6 +105,37 @@ export function PluginBrowserDialog({
     return map
   })
   const scrollRef = useRef<HTMLDivElement>(null)
+  const autoAppliedRef = useRef(false)
+
+  // Apply auto-install plugins when dialog opens
+  useEffect(() => {
+    if (open && autoInstallIds && autoInstallIds.length > 0 && !autoAppliedRef.current) {
+      autoAppliedRef.current = true
+      setInstalledMap((prev) => {
+        const next = { ...prev }
+        let newCount = 0
+        for (const id of autoInstallIds) {
+          if (!next[id]) {
+            next[id] = true
+            newCount++
+          }
+        }
+        if (newCount > 0) {
+          toast.success(
+            typeof locale === 'string'
+              ? `${newCount} plugins auto-installed for this board`
+              : `${newCount} plugins auto-installed for this board`
+          )
+        }
+        return next
+      })
+      // Clear auto-install IDs after applying
+      useAppStore.getState().setAutoInstallPluginIds(null)
+    }
+    if (!open) {
+      autoAppliedRef.current = false
+    }
+  }, [open, autoInstallIds, locale])
 
   const installedCount = Object.values(installedMap).filter(Boolean).length
   const totalPlugins = DESIGN_PLUGINS.length

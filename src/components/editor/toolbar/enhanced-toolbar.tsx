@@ -29,6 +29,7 @@ import {
   Presentation,
   Frame,
   Globe,
+  Trash2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { t, type Locale } from '@/lib/i18n';
@@ -398,7 +399,7 @@ function PopoverToolButton({
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function EnhancedToolbar() {
-  const { activeTool, snapToGrid, showMinimap, history, historyIndex, setTool, undo, redo, zoomIn, zoomOut, setSnapToGrid, toggleMinimap } = useCanvasStore();
+  const { activeTool, snapToGrid, showMinimap, history, historyIndex, selectedIds, setTool, undo, redo, zoomIn, zoomOut, deleteElements, setSnapToGrid, toggleMinimap } = useCanvasStore();
   const { editorMode, setEditorMode } = useAppStore();
   const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const pendingAIDesign = useAppStore((s) => s.pendingAIDesign);
@@ -563,6 +564,19 @@ export default function EnhancedToolbar() {
         <div className="flex-1" />
 
         {/* ── Bottom: Actions ────────────────────────────────────────────── */}
+        <Separator orientation="horizontal" className="mb-1.5 w-8" />
+
+        {/* Delete */}
+        <div className="flex flex-col items-center mb-2">
+          <ActionButton
+            icon={<Trash2 className="h-4 w-4" />}
+            label={t('toolbar.delete', locale)}
+            shortcut="Del"
+            disabled={selectedIds.length === 0}
+            onClick={() => deleteElements()}
+          />
+        </div>
+
         <Separator orientation="horizontal" className="mb-1.5 w-8" />
 
         {/* Undo / Redo */}

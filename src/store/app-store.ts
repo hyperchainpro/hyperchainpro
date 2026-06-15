@@ -18,6 +18,7 @@ interface AppState {
   importDialogOpen: boolean;
   pluginDialogOpen: boolean;
   exportDialogOpen: boolean;
+  autoInstallPluginIds: string[] | null;
 }
 
 // ─── Actions ─────────────────────────────────────────────────────────────────
@@ -41,6 +42,7 @@ interface AppActions {
   setImportDialogOpen: (v: boolean) => void;
   setPluginDialogOpen: (v: boolean) => void;
   setExportDialogOpen: (v: boolean) => void;
+  setAutoInstallPluginIds: (ids: string[] | null) => void;
   reset: () => void;
 }
 
@@ -61,6 +63,7 @@ const initialState: AppState = {
   importDialogOpen: false,
   pluginDialogOpen: false,
   exportDialogOpen: false,
+  autoInstallPluginIds: null,
 };
 
 // ─── Store ───────────────────────────────────────────────────────────────────
@@ -119,6 +122,8 @@ export const useAppStore = create<AppStore>((set) => ({
   setPluginDialogOpen: (v) => set({ pluginDialogOpen: v }),
 
   setExportDialogOpen: (v) => set({ exportDialogOpen: v }),
+
+  setAutoInstallPluginIds: (ids) => set({ autoInstallPluginIds: ids }),
 
   reset: () => set(initialState),
 }));

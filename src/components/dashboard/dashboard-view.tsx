@@ -64,6 +64,7 @@ import { t, LOCALES, type Locale } from '@/lib/i18n'
 import { useTheme } from 'next-themes'
 import { toast } from 'sonner'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { getAutoInstallPlugins } from '@/lib/auto-install-plugins'
 
 type FilterTab = 'all' | 'recent' | 'starred'
 type SortOption = 'lastModified' | 'name' | 'created'
@@ -575,6 +576,13 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
         deviceId: (b.deviceId as string) || null,
       }));
       setBoards(apiBoards);
+
+      // Auto-install relevant plugins based on device type
+      const autoIds = getAutoInstallPlugins(data.deviceType);
+      if (autoIds.length > 0) {
+        useAppStore.getState().setAutoInstallPluginIds(autoIds);
+      }
+
       toast.success(t('dashboard.boardCreated', locale))
       setMobileSidebarOpen(false)
     } catch (err) {

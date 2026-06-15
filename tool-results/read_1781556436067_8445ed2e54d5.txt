@@ -1,0 +1,1350 @@
+     1→'use client';
+     2→
+     3→import React, { useCallback, useRef, useEffect, useState, useMemo } from 'react';
+     4→import { motion, AnimatePresence } from 'framer-motion';
+     5→import { ChevronLeft, X, ZoomIn, ZoomOut, Maximize2, Puzzle } from 'lucide-react';
+     6→import { cn } from '@/lib/utils';
+     7→import { t, type Locale } from '@/lib/i18n';
+     8→import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+     9→import { useAuthStore } from '@/store/auth-store';
+    10→import { useCanvasStore } from '@/store/canvas-store';
+    11→import { usePrototypeStore } from '@/store/prototype-store';
+    12→import { usePresenceStore } from '@/store/presence-store';
+    13→import { useAppStore } from '@/store/app-store';
+    14→import {
+    15→  GRID_SIZE,
+    16→  SNAP_THRESHOLD,
+    17→  type BoardElement as BoardElementType,
+    18→  type ElementType,
+    19→  type CanvasTool,
+    20→  type AlignmentGuide,
+    21→} from '@/lib/types';
+    22→import { computeAlignmentGuides, snapToGuides } from '@/lib/canvas-utils';
+    23→import EnhancedBoardElement from './enhanced-board-element';
+    24→import Rulers from './rulers';
+    25→import AlignmentGuidesComponent from './alignment-guides';
+    26→import PrototypeFlowOverlay from './prototype-flow-overlay';
+    27→import Minimap from '@/components/canvas/minimap';
+    28→
+    29→const RULER_SIZE = 24;
+    30→
+    31→interface EnhancedCanvasAreaProps {
+    32→  onCursorMove?: (x: number, y: number) => void;
+    33→}
+    34→
+    35→// Tools that support drag-to-draw
+    36→const DRAW_TOOLS: CanvasTool[] = ['RECTANGLE', 'ELLIPSE', 'FRAME', 'STAR', 'POLYGON', 'LINE'];
+    37→
+    38→// Mapping from tool to element type
+    39→const TOOL_TO_ELEMENT: Record<string, ElementType> = {
+    40→  RECTANGLE: 'RECTANGLE',
+    41→  ELLIPSE: 'ELLIPSE',
+    42→  FRAME: 'FRAME',
+    43→  STAR: 'STAR',
+    44→  POLYGON: 'POLYGON',
+    45→  LINE: 'LINE',
+    46→  CIRCLE: 'CIRCLE',
+    47→  TEXT: 'TEXT',
+    48→  IMAGE: 'IMAGE',
+    49→  STICKY_NOTE: 'STICKY_NOTE',
+    50→  CONNECTOR: 'CONNECTOR',
+    51→  PEN_TOOL: 'PEN_PATH',
+    52→};
+    53→
+    54→export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaProps) {
+    55→  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+    56→  const store = useCanvasStore();
+    57→  const containerRef = useRef<HTMLDivElement>(null);
+    58→
+    59→  // Panning refs
+    60→  const isPanningRef = useRef(false);
+    61→  const panStartRef = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
+    62→
+    63→  // Dragging element refs
+    64→  const dragStartRef = useRef<{
+    65→    id: string;
+    66→    startX: number;
+    67→    startY: number;
+    68→    elX: number;
+    69→    elY: number;
+    70→    moved: boolean;
+    71→  } | null>(null);
+    72→
+    73→  // Selection box refs
+    74→  const selectionStartRef = useRef<{ startX: number; startY: number } | null>(null);
+    75→
+    76→  // Drawing refs (local state for drag-to-draw)
+    77→  const isDrawingRef = useRef(false);
+    78→  const drawStartRef = useRef<{ x: number; y: number } | null>(null);
+    79→  const drawingElementIdRef = useRef<string | null>(null);
+    80→  const shiftHeldRef = useRef(false);
+    81→
+    82→  // Resize refs
+    83→  const resizeHandleRef = useRef<string | null>(null);
+    84→  const resizeStartRef = useRef<{
+    85→    x: number;
+    86→    y: number;
+    87→    elX: number;
+    88→    elY: number;
+    89→    elW: number;
+    90→    elH: number;
+    91→  } | null>(null);
+    92→
+    93→  // Rotation ref
+    94→  const isRotatingRef = useRef(false);
+    95→  const rotatingElementIdRef = useRef<string | null>(null);
+    96→
+    97→  // Alignment guides state
+    98→  const [activeGuides, setActiveGuides] = useState<AlignmentGuide[]>([]);
+    99→
+   100→  // Cursor and UI state
+   101→  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
+   102→  const [isDragOver, setIsDragOver] = useState(false);
+   103→  const cursorThrottleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+   104→
+   105→  const {
+   106→    elements,
+   107→    selectedIds,
+   108→    activeTool,
+   109→    panX,
+   110→    panY,
+   111→    zoom,
+   112→    selectionBox,
+   113→    isDrawingSelection,
+   114→    spacePressed,
+   115→    snapToGrid,
+   116→  } = store;
+   117→
+   118→  const editorMode = useAppStore((s) => s.editorMode);
+   119→  const isPlaying = usePrototypeStore((s) => s.isPlaying);
+   120→  const currentPlayFrameId = usePrototypeStore((s) => s.currentPlayFrameId);
+   121→  const stopPlayback = usePrototypeStore((s) => s.stopPlayback);
+   122→  const goBack = usePrototypeStore((s) => s.goBack);
+   123→  const getInteractionsForFrame = usePrototypeStore((s) => s.getInteractionsForFrame);
+   124→  const navigateToFrame = usePrototypeStore((s) => s.navigateToFrame);
+   125→
+   126→  // Sort elements by z-index
+   127→  const sortedElements = useMemo(
+   128→    () => [...elements].sort((a, b) => a.zIndex - b.zIndex),
+   129→    [elements],
+   130→  );
+   131→
+   132→  // Filter out hidden elements for rendering
+   133→  const visibleElements = useMemo(
+   134→    () => sortedElements.filter((el) => el.visible !== false),
+   135→    [sortedElements],
+   136→  );
+   137→
+   138→  // ── Convert screen coords to canvas coords ──
+   139→  const screenToCanvas = useCallback(
+   140→    (screenX: number, screenY: number) => {
+   141→      const rect = containerRef.current?.getBoundingClientRect();
+   142→      if (!rect) return { x: 0, y: 0 };
+   143→      return {
+   144→        x: (screenX - rect.left - RULER_SIZE - panX) / zoom,
+   145→        y: (screenY - rect.top - RULER_SIZE - panY) / zoom,
+   146→      };
+   147→    },
+   148→    [panX, panY, zoom],
+   149→  );
+   150→
+   151→  // ── Check if a tool is a draw tool ──
+   152→  const isDrawTool = DRAW_TOOLS.includes(activeTool);
+   153→
+   154→  // ── Pointer down on canvas background ──
+   155→  const handleCanvasPointerDown = useCallback(
+   156→    (e: React.PointerEvent) => {
+   157→      // Middle mouse or space+left => pan
+   158→      if (e.button === 1 || (e.button === 0 && spacePressed) || activeTool === 'HAND') {
+   159→        e.preventDefault();
+   160→        isPanningRef.current = true;
+   161→        panStartRef.current = { x: e.clientX, y: e.clientY, panX, panY };
+   162→        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+   163→        return;
+   164→      }
+   165→
+   166→      // Left click
+   167→      if (e.button === 0) {
+   168→        const canvasPos = screenToCanvas(e.clientX, e.clientY);
+   169→
+   170→        // Drag-to-draw for shape tools
+   171→        if (isDrawTool) {
+   172→          e.preventDefault();
+   173→          const elementType = TOOL_TO_ELEMENT[activeTool];
+   174→          if (elementType) {
+   175→            const el = store.addElement(elementType, canvasPos.x, canvasPos.y, {
+   176→              width: 0,
+   177→              height: 0,
+   178→            });
+   179→            // Keep the drawing tool active during drag-to-draw
+   180→            // (addElement switches to SELECT, so we restore it)
+   181→            store.setTool(activeTool);
+   182→            isDrawingRef.current = true;
+   183→            drawStartRef.current = { x: canvasPos.x, y: canvasPos.y };
+   184→            drawingElementIdRef.current = el.id;
+   185→            (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+   186→          }
+   187→          return;
+   188→        }
+   189→
+   190→        // IMAGE tool: file picker
+   191→        if (activeTool === 'IMAGE') {
+   192→          const input = document.createElement('input');
+   193→          input.type = 'file';
+   194→          input.accept = 'image/*';
+   195→          input.onchange = (ev) => {
+   196→            const file = (ev.target as HTMLInputElement).files?.[0];
+   197→            if (file) {
+   198→              const reader = new FileReader();
+   199→              reader.onload = (re) => {
+   200→                store.addElement('IMAGE', canvasPos.x, canvasPos.y, {
+   201→                  styles: { src: re.target?.result as string },
+   202→                });
+   203→              };
+   204→              reader.readAsDataURL(file);
+   205→            }
+   206→          };
+   207→          input.click();
+   208→          return;
+   209→        }
+   210→
+   211→        // CONNECTOR: start from this point
+   212→        if (activeTool === 'CONNECTOR') {
+   213→          store.addElement('CONNECTOR', canvasPos.x, canvasPos.y);
+   214→          return;
+   215→        }
+   216→
+   217→        // SELECT tool: rubber band selection on empty space
+   218→        if (activeTool === 'SELECT') {
+   219→          store.deselectAll();
+   220→          selectionStartRef.current = { startX: e.clientX, startY: e.clientY };
+   221→          store.setIsDrawingSelection(true);
+   222→          store.setSelectionBox({
+   223→            startX: e.clientX,
+   224→            startY: e.clientY,
+   225→            endX: e.clientX,
+   226→            endY: e.clientY,
+   227→          });
+   228→          (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+   229→        }
+   230→      }
+   231→    },
+   232→    [activeTool, spacePressed, panX, panY, screenToCanvas, store, isDrawTool],
+   233→  );
+   234→
+   235→  // ── Pointer move ──
+   236→  const handleCanvasPointerMove = useCallback(
+   237→    (e: React.PointerEvent) => {
+   238→      const canvasPos = screenToCanvas(e.clientX, e.clientY);
+   239→      setCursorPos(canvasPos);
+   240→
+   241→      // Throttled cursor broadcasting
+   242→      if (onCursorMove && !cursorThrottleRef.current) {
+   243→        onCursorMove(canvasPos.x, canvasPos.y);
+   244→        cursorThrottleRef.current = setTimeout(() => {
+   245→          cursorThrottleRef.current = null;
+   246→        }, 50);
+   247→      }
+   248→
+   249→      // ── Panning ──
+   250→      if (isPanningRef.current) {
+   251→        const dx = e.clientX - panStartRef.current.x;
+   252→        const dy = e.clientY - panStartRef.current.y;
+   253→        store.setPan(panStartRef.current.panX + dx, panStartRef.current.panY + dy);
+   254→        return;
+   255→      }
+   256→
+   257→      // ── Drawing (drag-to-draw) ──
+   258→      if (isDrawingRef.current && drawStartRef.current && drawingElementIdRef.current) {
+   259→        const startX = drawStartRef.current.x;
+   260→        const startY = drawStartRef.current.y;
+   261→        let newW = canvasPos.x - startX;
+   262→        let newH = canvasPos.y - startY;
+   263→
+   264→        // Shift constrains to square/circle
+   265→        if (shiftHeldRef.current) {
+   266→          const size = Math.max(Math.abs(newW), Math.abs(newH));
+   267→          newW = newW < 0 ? -size : size;
+   268→          newH = newH < 0 ? -size : size;
+   269→        }
+   270→
+   271→        let finalX = newW < 0 ? startX + newW : startX;
+   272→        let finalY = newH < 0 ? startY + newH : startY;
+   273→        let finalW = Math.abs(newW);
+   274→        let finalH = Math.abs(newH);
+   275→
+   276→        // For LINE, store x2/y2 instead
+   277→        if (activeTool === 'LINE') {
+   278→          store.updateElement(drawingElementIdRef.current, {
+   279→            width: canvasPos.x - startX,
+   280→            height: 0,
+   281→            styles: { x2: canvasPos.x - startX, y2: canvasPos.y - startY },
+   282→          });
+   283→        } else {
+   284→          store.updateElement(drawingElementIdRef.current, {
+   285→            x: finalX,
+   286→            y: finalY,
+   287→            width: Math.max(1, finalW),
+   288→            height: Math.max(1, finalH),
+   289→          });
+   290→        }
+   291→        return;
+   292→      }
+   293→
+   294→      // ── Resizing ──
+   295→      if (resizeHandleRef.current && resizeStartRef.current) {
+   296→        const dx = (e.clientX - resizeStartRef.current.x) / zoom;
+   297→        const dy = (e.clientY - resizeStartRef.current.y) / zoom;
+   298→        const handle = resizeHandleRef.current;
+   299→        const orig = resizeStartRef.current;
+   300→
+   301→        let newX = orig.elX;
+   302→        let newY = orig.elY;
+   303→        let newW = orig.elW;
+   304→        let newH = orig.elH;
+   305→
+   306→        // Shift to constrain aspect ratio
+   307→        if (shiftHeldRef.current) {
+   308→          const aspect = orig.elW / orig.elH;
+   309→          if (handle.includes('w') || handle.includes('e')) {
+   310→            newH = newW / aspect;
+   311→          } else {
+   312→            newW = newH * aspect;
+   313→          }
+   314→        }
+   315→
+   316→        switch (handle) {
+   317→          case 'nw':
+   318→            newX = orig.elX + dx;
+   319→            newY = orig.elY + dy;
+   320→            newW = orig.elW - dx;
+   321→            newH = orig.elH - dy;
+   322→            break;
+   323→          case 'n':
+   324→            newY = orig.elY + dy;
+   325→            newH = orig.elH - dy;
+   326→            break;
+   327→          case 'ne':
+   328→            newY = orig.elY + dy;
+   329→            newW = orig.elW + dx;
+   330→            newH = orig.elH - dy;
+   331→            break;
+   332→          case 'e':
+   333→            newW = orig.elW + dx;
+   334→            break;
+   335→          case 'se':
+   336→            newW = orig.elW + dx;
+   337→            newH = orig.elH + dy;
+   338→            break;
+   339→          case 's':
+   340→            newH = orig.elH + dy;
+   341→            break;
+   342→          case 'sw':
+   343→            newX = orig.elX + dx;
+   344→            newW = orig.elW - dx;
+   345→            newH = orig.elH + dy;
+   346→            break;
+   347→          case 'w':
+   348→            newX = orig.elX + dx;
+   349→            newW = orig.elW - dx;
+   350→            break;
+   351→        }
+   352→
+   353→        // Minimum size enforcement
+   354→        if (newW < 10) {
+   355→          if (handle.includes('w')) newX = orig.elX + orig.elW - 10;
+   356→          newW = 10;
+   357→        }
+   358→        if (newH < 10) {
+   359→          if (handle.includes('n')) newY = orig.elY + orig.elH - 10;
+   360→          newH = 10;
+   361→        }
+   362→
+   363→        const elId = selectedIds[0];
+   364→        if (elId) {
+   365→          store.resizeElement(elId, newX, newY, newW, newH);
+   366→        }
+   367→        return;
+   368→      }
+   369→
+   370→      // ── Rotating ──
+   371→      if (isRotatingRef.current && rotatingElementIdRef.current) {
+   372→        const el = elements.find((e) => e.id === rotatingElementIdRef.current);
+   373→        if (el) {
+   374→          const centerX = el.x + el.width / 2;
+   375→          const centerY = el.y + el.height / 2;
+   376→          // Convert center to screen coords
+   377→          const screenCenterX = centerX * zoom + panX + RULER_SIZE;
+   378→          const screenCenterY = centerY * zoom + panY + RULER_SIZE;
+   379→          const angle = Math.atan2(e.clientY - screenCenterY, e.clientX - screenCenterX) * (180 / Math.PI) + 90;
+   380→          store.rotateElement(rotatingElementIdRef.current, Math.round(angle));
+   381→        }
+   382→        return;
+   383→      }
+   384→
+   385→      // ── Rubber band selection ──
+   386→      if (isDrawingSelection && selectionStartRef.current) {
+   387→        store.setSelectionBox({
+   388→          startX: selectionStartRef.current.startX,
+   389→          startY: selectionStartRef.current.startY,
+   390→          endX: e.clientX,
+   391→          endY: e.clientY,
+   392→        });
+   393→        return;
+   394→      }
+   395→
+   396→      // ── Dragging an element ──
+   397→      if (dragStartRef.current && !dragStartRef.current.moved) {
+   398→        const dx = Math.abs(e.clientX - dragStartRef.current.startX);
+   399→        const dy = Math.abs(e.clientY - dragStartRef.current.startY);
+   400→        if (dx > 3 || dy > 3) {
+   401→          dragStartRef.current.moved = true;
+   402→        }
+   403→      }
+   404→      if (dragStartRef.current && dragStartRef.current.moved) {
+   405→        const dx = (e.clientX - dragStartRef.current.startX) / zoom;
+   406→        const dy = (e.clientY - dragStartRef.current.startY) / zoom;
+   407→        const rawX = dragStartRef.current.elX + dx;
+   408→        const rawY = dragStartRef.current.elY + dy;
+   409→
+   410→        // Compute alignment guides while dragging
+   411→        const draggingEl = elements.find((el) => el.id === dragStartRef.current?.id);
+   412→        if (draggingEl) {
+   413→          const movedEl = { ...draggingEl, x: rawX, y: rawY };
+   414→          const guides = computeAlignmentGuides([movedEl], elements, SNAP_THRESHOLD);
+   415→          const snapped = snapToGuides(rawX, rawY, guides, SNAP_THRESHOLD);
+   416→          setActiveGuides(snapped.guides);
+   417→
+   418→          const finalX = snapToGrid ? Math.round(snapped.x / SNAP_THRESHOLD) * SNAP_THRESHOLD : snapped.x;
+   419→          const finalY = snapToGrid ? Math.round(snapped.y / SNAP_THRESHOLD) * SNAP_THRESHOLD : snapped.y;
+   420→          store.moveElement(dragStartRef.current.id, finalX, finalY);
+   421→        }
+   422→      }
+   423→    },
+   424→    [
+   425→      isDrawingSelection,
+   426→      screenToCanvas,
+   427→      zoom,
+   428→      panX,
+   429→      panY,
+   430→      store,
+   431→      onCursorMove,
+   432→      elements,
+   433→      selectedIds,
+   434→      activeTool,
+   435→      snapToGrid,
+   436→    ],
+   437→  );
+   438→
+   439→  // ── Pointer up ──
+   440→  const handleCanvasPointerUp = useCallback(
+   441→    (e: React.PointerEvent) => {
+   442→      // End panning
+   443→      if (isPanningRef.current) {
+   444→        isPanningRef.current = false;
+   445→        return;
+   446→      }
+   447→
+   448→      // End drawing
+   449→      if (isDrawingRef.current) {
+   450→        isDrawingRef.current = false;
+   451→        // If element is too small, delete it
+   452→        if (drawingElementIdRef.current) {
+   453→          const el = store.elements.find((e) => e.id === drawingElementIdRef.current);
+   454→          if (el && el.width < 5 && el.height < 5 && el.type !== 'LINE') {
+   455→            store.deleteElements([drawingElementIdRef.current]);
+   456→          }
+   457→          store.pushHistory();
+   458→        }
+   459→        drawStartRef.current = null;
+   460→        drawingElementIdRef.current = null;
+   461→        return;
+   462→      }
+   463→
+   464→      // End resizing
+   465→      if (resizeHandleRef.current) {
+   466→        resizeHandleRef.current = null;
+   467→        resizeStartRef.current = null;
+   468→        store.pushHistory();
+   469→        return;
+   470→      }
+   471→
+   472→      // End rotating
+   473→      if (isRotatingRef.current) {
+   474→        isRotatingRef.current = false;
+   475→        rotatingElementIdRef.current = null;
+   476→        store.pushHistory();
+   477→        return;
+   478→      }
+   479→
+   480→      // End rubber band selection
+   481→      if (isDrawingSelection && selectionBox) {
+   482→        const rect = containerRef.current?.getBoundingClientRect();
+   483→        if (rect && selectionBox) {
+   484→          const x1 = Math.min(selectionBox.startX, selectionBox.endX) - rect.left - RULER_SIZE;
+   485→          const y1 = Math.min(selectionBox.startY, selectionBox.endY) - rect.top - RULER_SIZE;
+   486→          const x2 = Math.max(selectionBox.startX, selectionBox.endX) - rect.left - RULER_SIZE;
+   487→          const y2 = Math.max(selectionBox.startY, selectionBox.endY) - rect.top - RULER_SIZE;
+   488→
+   489→          const canvasX1 = (x1 - panX) / zoom;
+   490→          const canvasY1 = (y1 - panY) / zoom;
+   491→          const canvasX2 = (x2 - panX) / zoom;
+   492→          const canvasY2 = (y2 - panY) / zoom;
+   493→
+   494→          const intersecting = visibleElements.filter((el) => {
+   495→            if (el.type === 'LINE' || el.type === 'CONNECTOR') return false;
+   496→            return (
+   497→              el.x < canvasX2 &&
+   498→              el.x + el.width > canvasX1 &&
+   499→              el.y < canvasY2 &&
+   500→              el.y + el.height > canvasY1
+   501→            );
+   502→          });
+   503→
+   504→          if (intersecting.length > 0) {
+   505→            store.deselectAll();
+   506→            intersecting.forEach((el) => store.selectElement(el.id, true));
+   507→          }
+   508→        }
+   509→        store.setSelectionBox(null);
+   510→        store.setIsDrawingSelection(false);
+   511→        selectionStartRef.current = null;
+   512→        return;
+   513→      }
+   514→
+   515→      // End element drag
+   516→      if (dragStartRef.current) {
+   517→        if (dragStartRef.current.moved) {
+   518→          store.pushHistory();
+   519→        }
+   520→        dragStartRef.current = null;
+   521→        setActiveGuides([]);
+   522→      }
+   523→    },
+   524→    [isDrawingSelection, selectionBox, panX, panY, zoom, visibleElements, store, activeTool],
+   525→  );
+   526→
+   527→  // ── Element pointer down (start drag or select) ──
+   528→  const handleElementPointerDown = useCallback(
+   529→    (e: React.PointerEvent, id: string) => {
+   530→      if (activeTool !== 'SELECT') return;
+   531→      e.stopPropagation();
+   532→
+   533→      const el = elements.find((el) => el.id === id);
+   534→      if (!el || el.locked) {
+   535→        if (el?.locked) store.selectElement(id, e.shiftKey);
+   536→        return;
+   537→      }
+   538→
+   539→      // Select
+   540→      store.selectElement(id, e.shiftKey);
+   541→
+   542→      // Start drag
+   543→      dragStartRef.current = {
+   544→        id,
+   545→        startX: e.clientX,
+   546→        startY: e.clientY,
+   547→        elX: el.x,
+   548→        elY: el.y,
+   549→        moved: false,
+   550→      };
+   551→
+   552→      containerRef.current?.setPointerCapture(e.pointerId);
+   553→    },
+   554→    [activeTool, elements, store],
+   555→  );
+   556→
+   557→  // ── Resize start (called from EnhancedBoardElement) ──
+   558→  const handleResizeStart = useCallback(
+   559→    (handle: string, e: React.PointerEvent) => {
+   560→      const elId = selectedIds[0];
+   561→      if (!elId) return;
+   562→      const el = elements.find((el) => el.id === elId);
+   563→      if (!el) return;
+   564→
+   565→      resizeHandleRef.current = handle;
+   566→      resizeStartRef.current = {
+   567→        x: e.clientX,
+   568→        y: e.clientY,
+   569→        elX: el.x,
+   570→        elY: el.y,
+   571→        elW: el.width,
+   572→        elH: el.height,
+   573→      };
+   574→
+   575→      containerRef.current?.setPointerCapture(e.pointerId);
+   576→    },
+   577→    [selectedIds, elements],
+   578→  );
+   579→
+   580→  // ── Rotation start (called from EnhancedBoardElement) ──
+   581→  const handleRotateStart = useCallback(
+   582→    (e: React.PointerEvent) => {
+   583→      const elId = selectedIds[0];
+   584→      if (!elId) return;
+   585→
+   586→      isRotatingRef.current = true;
+   587→      rotatingElementIdRef.current = elId;
+   588→
+   589→      containerRef.current?.setPointerCapture(e.pointerId);
+   590→    },
+   591→    [selectedIds],
+   592→  );
+   593→
+   594→  // ── Double click on empty space to create text ──
+   595→  const handleCanvasDoubleClick = useCallback(
+   596→    (e: React.MouseEvent) => {
+   597→      if (activeTool !== 'SELECT') return;
+   598→      const canvasPos = screenToCanvas(e.clientX, e.clientY);
+   599→      const el = store.addElement('TEXT', canvasPos.x, canvasPos.y, {
+   600→        width: 200,
+   601→        height: 40,
+   602→      });
+   603→      setTimeout(() => {
+   604→        const textarea = document.querySelector(`[data-element-id="${el.id}"] textarea`);
+   605→        if (textarea) (textarea as HTMLTextAreaElement).focus();
+   606→      }, 100);
+   607→    },
+   608→    [activeTool, screenToCanvas, store],
+   609→  );
+   610→
+   611→  // ── Mouse wheel for zoom ──
+   612→  const handleWheel = useCallback(
+   613→    (e: React.WheelEvent) => {
+   614→      if (e.ctrlKey || e.metaKey) {
+   615→        e.preventDefault();
+   616→        const rect = containerRef.current?.getBoundingClientRect();
+   617→        if (!rect) return;
+   618→
+   619→        const mouseX = e.clientX - rect.left;
+   620→        const mouseY = e.clientY - rect.top;
+   621→
+   622→        const direction = e.deltaY > 0 ? -1 : 1;
+   623→        const factor = 1 + direction * 0.08;
+   624→        const newZoom = Math.min(5, Math.max(0.1, zoom * factor));
+   625→
+   626→        const newPanX = mouseX - (mouseX - panX) * (newZoom / zoom);
+   627→        const newPanY = mouseY - (mouseY - panY) * (newZoom / zoom);
+   628→
+   629→        store.setZoom(newZoom);
+   630→        store.setPan(newPanX, newPanY);
+   631→      } else {
+   632→        e.preventDefault();
+   633→        store.setPan(panX - e.deltaX, panY - e.deltaY);
+   634→      }
+   635→    },
+   636→    [zoom, panX, panY, store],
+   637→  );
+   638→
+   639→  // ── Keyboard shortcuts ──
+   640→  useEffect(() => {
+   641→    const handleKeyDown = (e: KeyboardEvent) => {
+   642→      const target = e.target as HTMLElement;
+   643→      if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT' || target.isContentEditable) {
+   644→        if (e.key === 'Escape') target.blur();
+   645→        return;
+   646→      }
+   647→
+   648→      // Track shift for constraining
+   649→      if (e.key === 'Shift') {
+   650→        shiftHeldRef.current = true;
+   651→      }
+   652→
+   653→      if (e.key === ' ') {
+   654→        e.preventDefault();
+   655→        store.setSpacePressed(true);
+   656→        return;
+   657→      }
+   658→
+   659→      // Ctrl/Cmd shortcuts
+   660→      if (e.ctrlKey || e.metaKey) {
+   661→        switch (e.key) {
+   662→          case '=':
+   663→          case '+':
+   664→            e.preventDefault();
+   665→            store.zoomIn();
+   666→            return;
+   667→          case '-':
+   668→          case '_':
+   669→            e.preventDefault();
+   670→            store.zoomOut();
+   671→            return;
+   672→          case '0':
+   673→            e.preventDefault();
+   674→            store.zoomToFit();
+   675→            return;
+   676→          case 'z':
+   677→            if (e.shiftKey) {
+   678→              e.preventDefault();
+   679→              store.redo();
+   680→            } else {
+   681→              e.preventDefault();
+   682→              store.undo();
+   683→            }
+   684→            return;
+   685→          case 'y':
+   686→            e.preventDefault();
+   687→            store.redo();
+   688→            return;
+   689→          case 'c':
+   690→            e.preventDefault();
+   691→            store.copySelected();
+   692→            return;
+   693→          case 'v':
+   694→            e.preventDefault();
+   695→            store.pasteClipboard();
+   696→            return;
+   697→          case 'a':
+   698→            e.preventDefault();
+   699→            store.selectAll();
+   700→            return;
+   701→          case 'g':
+   702→            e.preventDefault();
+   703→            if (e.shiftKey) {
+   704→              const selectedEls = store.elements.filter((el) => store.selectedIds.includes(el.id));
+   705→              const groups = new Set(selectedEls.map((el) => el.groupId).filter(Boolean));
+   706→              groups.forEach((g) => store.ungroupElements(g as string));
+   707→            } else {
+   708→              if (store.selectedIds.length >= 2) {
+   709→                store.groupElements(store.selectedIds);
+   710→              }
+   711→            }
+   712→            return;
+   713→        }
+   714→      }
+   715→
+   716→      // Single key shortcuts
+   717→      switch (e.key) {
+   718→        case 'Delete':
+   719→        case 'Backspace':
+   720→          e.preventDefault();
+   721→          store.deleteElements();
+   722→          return;
+   723→        case 'v':
+   724→        case 'V':
+   725→          if (!e.ctrlKey && !e.metaKey) store.setTool('SELECT');
+   726→          return;
+   727→        case 'h':
+   728→        case 'H':
+   729→          store.setTool('HAND');
+   730→          return;
+   731→        case 's':
+   732→        case 'S':
+   733→          if (!e.ctrlKey && !e.metaKey) store.setTool('STICKY_NOTE');
+   734→          return;
+   735→        case 'r':
+   736→        case 'R':
+   737→          if (!e.ctrlKey && !e.metaKey) store.setTool('RECTANGLE');
+   738→          return;
+   739→        case 'c':
+   740→        case 'C':
+   741→          if (!e.ctrlKey && !e.metaKey) store.setTool('CIRCLE');
+   742→          return;
+   743→        case 'l':
+   744→        case 'L':
+   745→          store.setTool('LINE');
+   746→          return;
+   747→        case 't':
+   748→        case 'T':
+   749→          store.setTool('TEXT');
+   750→          return;
+   751→        case 'i':
+   752→        case 'I':
+   753→          if (!e.ctrlKey && !e.metaKey) store.setTool('IMAGE');
+   754→          return;
+   755→        case 'o':
+   756→        case 'O':
+   757→          if (!e.ctrlKey && !e.metaKey) store.setTool('ELLIPSE');
+   758→          return;
+   759→        case 'f':
+   760→        case 'F':
+   761→          if (!e.ctrlKey && !e.metaKey) store.setTool('FRAME');
+   762→          return;
+   763→        case 'p':
+   764→        case 'P':
+   765→          if (!e.ctrlKey && !e.metaKey) store.setTool('PEN_TOOL');
+   766→          return;
+   767→        case 'Escape':
+   768→          store.deselectAll();
+   769→          store.setTool('SELECT');
+   770→          return;
+   771→        case '/':
+   772→          useAppStore.getState().setPluginDialogOpen(true);
+   773→          return;
+   774→      }
+   775→    };
+   776→
+   777→    const handleKeyUp = (e: KeyboardEvent) => {
+   778→      if (e.key === ' ') {
+   779→        store.setSpacePressed(false);
+   780→      }
+   781→      if (e.key === 'Shift') {
+   782→        shiftHeldRef.current = false;
+   783→      }
+   784→    };
+   785→
+   786→    window.addEventListener('keydown', handleKeyDown);
+   787→    window.addEventListener('keyup', handleKeyUp);
+   788→    return () => {
+   789→      window.removeEventListener('keydown', handleKeyDown);
+   790→      window.removeEventListener('keyup', handleKeyUp);
+   791→    };
+   792→  }, [store]);
+   793→
+   794→  // ── File drop ──
+   795→  const handleDragOver = useCallback((e: React.DragEvent) => {
+   796→    e.preventDefault();
+   797→    setIsDragOver(true);
+   798→  }, []);
+   799→
+   800→  const handleDragLeave = useCallback((e: React.DragEvent) => {
+   801→    e.preventDefault();
+   802→    setIsDragOver(false);
+   803→  }, []);
+   804→
+   805→  const handleDrop = useCallback(
+   806→    (e: React.DragEvent) => {
+   807→      e.preventDefault();
+   808→      setIsDragOver(false);
+   809→
+   810→      const files = Array.from(e.dataTransfer.files);
+   811→      const canvasPos = screenToCanvas(e.clientX, e.clientY);
+   812→
+   813→      files.forEach((file) => {
+   814→        if (!file.type.startsWith('image/')) return;
+   815→        const reader = new FileReader();
+   816→        reader.onload = (ev) => {
+   817→          store.addElement('IMAGE', canvasPos.x, canvasPos.y, {
+   818→            styles: { src: ev.target?.result as string },
+   819→            content: file.name,
+   820→          });
+   821→        };
+   822→        reader.readAsDataURL(file);
+   823→      });
+   824→    },
+   825→    [screenToCanvas, store],
+   826→  );
+   827→
+   828→  // ── Compute grid background ──
+   829→  const gridBg = {
+   830→    backgroundImage: `
+   831→      linear-gradient(to right, hsl(var(--border) / 0.3) 1px, transparent 1px),
+   832→      linear-gradient(to bottom, hsl(var(--border) / 0.3) 1px, transparent 1px)
+   833→    `,
+   834→    backgroundSize: `${GRID_SIZE * zoom}px ${GRID_SIZE * zoom}px`,
+   835→    backgroundPosition: `${panX + RULER_SIZE}px ${panY + RULER_SIZE}px`,
+   836→  };
+   837→
+   838→  // ── Selection box style ──
+   839→  const selectionBoxStyle = selectionBox
+   840→    ? {
+   841→        left: Math.min(selectionBox.startX, selectionBox.endX),
+   842→        top: Math.min(selectionBox.startY, selectionBox.endY),
+   843→        width: Math.abs(selectionBox.endX - selectionBox.startX),
+   844→        height: Math.abs(selectionBox.endY - selectionBox.startY),
+   845→      }
+   846→    : null;
+   847→
+   848→  // ── Canvas cursor ──
+   849→  const canvasCursor = spacePressed || activeTool === 'HAND'
+   850→    ? 'grab'
+   851→    : activeTool === 'TEXT'
+   852→      ? 'text'
+   853→      : activeTool === 'PEN_TOOL'
+   854→        ? 'crosshair'
+   855→        : isDrawTool
+   856→          ? 'crosshair'
+   857→          : 'default';
+   858→
+   859→  // ── Connector SVG layer ──
+   860→  const connectorElements = visibleElements.filter((el) => el.type === 'CONNECTOR');
+   861→
+   862→  // ── Presence users ──
+   863→  const presenceUsers = usePresenceStore((s) => s.users);
+   864→
+   865→  // ── Prototype player data ──
+   866→  const currentFrame = useMemo(
+   867→    () => elements.find((el) => el.id === currentPlayFrameId),
+   868→    [elements, currentPlayFrameId],
+   869→  );
+   870→
+   871→  // ── Single selection for resize/rotate ──
+   872→  const isSingleSelected = selectedIds.length === 1;
+   873→
+   874→  // ═══════════════════════════════════════════════════════════════════════════════
+   875→  // RENDER
+   876→  // ═══════════════════════════════════════════════════════════════════════════════
+   877→
+   878→  // Prototype Player overlay
+   879→  if (isPlaying && currentFrame) {
+   880→    return <PrototypePlayer frame={currentFrame} />;
+   881→  }
+   882→
+   883→  return (
+   884→    <div className="relative flex h-full w-full flex-1 overflow-hidden bg-background">
+   885→      {/* Canvas Container (full size, includes ruler area) */}
+   886→      <div
+   887→        ref={containerRef}
+   888→        className="relative flex-1 overflow-hidden"
+   889→        style={{
+   890→          cursor: canvasCursor,
+   891→          ...gridBg,
+   892→        }}
+   893→        onPointerDown={handleCanvasPointerDown}
+   894→        onPointerMove={handleCanvasPointerMove}
+   895→        onPointerUp={handleCanvasPointerUp}
+   896→        onDoubleClick={handleCanvasDoubleClick}
+   897→        onWheel={handleWheel}
+   898→        onDragOver={handleDragOver}
+   899→        onDragLeave={handleDragLeave}
+   900→        onDrop={handleDrop}
+   901→        onContextMenu={(e) => e.preventDefault()}
+   902→      >
+   903→        {/* Rulers (rendered in screen space, not canvas transform space) */}
+   904→        <Rulers />
+   905→
+   906→        {/* Canvas transform layer — offset by RULER_SIZE */}
+   907→        <div
+   908→          className="absolute origin-top-left"
+   909→          style={{
+   910→            left: RULER_SIZE,
+   911→            top: RULER_SIZE,
+   912→            transform: `translate(${panX}px, ${panY}px) scale(${zoom})`,
+   913→            width: 1,
+   914→            height: 1,
+   915→          }}
+   916→        >
+   917→          {/* SVG Layer for connectors */}
+   918→          <svg
+   919→            className="pointer-events-none absolute top-0 left-0"
+   920→            style={{ overflow: 'visible', zIndex: 0 }}
+   921→          >
+   922→            {connectorElements.map((el) => {
+   923→              const s = el.styles ?? {};
+   924→              const x2 = s.x2 ?? el.width;
+   925→              const y2 = s.y2 ?? el.height;
+   926→              const showArrow = s.arrowHead ?? true;
+   927→              const style = s.connectorStyle || 'curve';
+   928→
+   929→              let d: string;
+   930→              if (style === 'curve') {
+   931→                const cx = Math.abs(x2) / 2;
+   932→                d = `M ${el.x} ${el.y} C ${el.x + cx} ${el.y}, ${el.x + cx} ${el.y + y2}, ${el.x + x2} ${el.y + y2}`;
+   933→              } else {
+   934→                d = `M ${el.x} ${el.y} L ${el.x + x2} ${el.y + y2}`;
+   935→              }
+   936→
+   937→              const midX = el.x + x2 / 2;
+   938→              const midY = el.y + y2 / 2;
+   939→              const angle = Math.atan2(y2, x2);
+   940→
+   941→              return (
+   942→                <g key={el.id}>
+   943→                  <path
+   944→                    d={d}
+   945→                    fill="none"
+   946→                    stroke={el.color}
+   947→                    strokeWidth={2 / zoom}
+   948→                    strokeDasharray={s.lineStyle === 'dashed' ? '6,4' : undefined}
+   949→                  />
+   950→                  {showArrow && (
+   951→                    <polygon
+   952→                      points={getArrowPoints(el.x + x2, el.y + y2, 12 / zoom, angle)}
+   953→                      fill={el.color}
+   954→                    />
+   955→                  )}
+   956→                  {el.content && (
+   957→                    <text
+   958→                      x={midX}
+   959→                      y={midY - 8 / zoom}
+   960→                      textAnchor="middle"
+   961→                      className="fill-gray-600"
+   962→                      style={{ fontSize: `${12 / zoom}px` }}
+   963→                    >
+   964→                      {el.content}
+   965→                    </text>
+   966→                  )}
+   967→                </g>
+   968→              );
+   969→            })}
+   970→          </svg>
+   971→
+   972→          {/* Board Elements (all types rendered with EnhancedBoardElement) */}
+   973→          {visibleElements
+   974→            .filter((el) => el.type !== 'CONNECTOR')
+   975→            .map((el) => (
+   976→              <div key={el.id} data-element-id={el.id}>
+   977→                <EnhancedBoardElement
+   978→                  element={el}
+   979→                  isSelected={selectedIds.includes(el.id)}
+   980→                  zoom={zoom}
+   981→                  onPointerDown={handleElementPointerDown}
+   982→                  onResizeStart={isSingleSelected ? handleResizeStart : undefined}
+   983→                  onRotateStart={isSingleSelected ? handleRotateStart : undefined}
+   984→                />
+   985→              </div>
+   986→            ))}
+   987→
+   988→          {/* Remote User Cursors (collaboration) */}
+   989→          {presenceUsers
+   990→            .filter((u) => u.cursor)
+   991→            .map((user) => {
+   992→              const cursor = user.cursor!;
+   993→              return (
+   994→                <div
+   995→                  key={user.id}
+   996→                  className="pointer-events-none absolute z-[9990] transition-transform duration-75"
+   997→                  style={{
+   998→                    left: cursor.x,
+   999→                    top: cursor.y,
+  1000→                  }}
+  1001→                >
+  1002→                  <svg
+  1003→                    width="20"
+  1004→                    height="20"
+  1005→                    viewBox="0 0 20 20"
+  1006→                    fill="none"
+  1007→                    style={{ transform: 'translate(-2px, -2px)' }}
+  1008→                  >
+  1009→                    <path
+  1010→                      d="M3 1L7 18L10 10L18 7L3 1Z"
+  1011→                      fill={user.color}
+  1012→                      stroke="white"
+  1013→                      strokeWidth="1.5"
+  1014→                      strokeLinejoin="round"
+  1015→                    />
+  1016→                  </svg>
+  1017→                  <div
+  1018→                    className="mt-0.5 rounded px-1.5 py-0.5 text-[10px] font-medium leading-none text-white whitespace-nowrap shadow-sm"
+  1019→                    style={{ backgroundColor: user.color }}
+  1020→                  >
+  1021→                    {user.name}
+  1022→                  </div>
+  1023→                </div>
+  1024→              );
+  1025→            })}
+  1026→        </div>
+  1027→
+  1028→        {/* Alignment Guides (screen space overlay) */}
+  1029→        <AlignmentGuidesComponent
+  1030→          guides={activeGuides}
+  1031→          panX={panX + RULER_SIZE}
+  1032→          panY={panY + RULER_SIZE}
+  1033→          zoom={zoom}
+  1034→        />
+  1035→
+  1036→        {/* Prototype Flow Overlay (when in prototype mode) */}
+  1037→        {editorMode === 'prototype' && (
+  1038→          <PrototypeFlowOverlay
+  1039→            panX={panX + RULER_SIZE}
+  1040→            panY={panY + RULER_SIZE}
+  1041→            zoom={zoom}
+  1042→          />
+  1043→        )}
+  1044→
+  1045→        {/* Selection Box (screen coordinates) */}
+  1046→        <AnimatePresence>
+  1047→          {selectionBoxStyle && isDrawingSelection && (
+  1048→            <motion.div
+  1049→              initial={{ opacity: 0 }}
+  1050→              animate={{ opacity: 1 }}
+  1051→              exit={{ opacity: 0 }}
+  1052→              className="absolute z-[9999] rounded-sm border-2 border-blue-500/60 bg-blue-500/10"
+  1053→              style={selectionBoxStyle}
+  1054→            />
+  1055→          )}
+  1056→        </AnimatePresence>
+  1057→
+  1058→        {/* File Drop Overlay */}
+  1059→        <AnimatePresence>
+  1060→          {isDragOver && (
+  1061→            <motion.div
+  1062→              initial={{ opacity: 0 }}
+  1063→              animate={{ opacity: 1 }}
+  1064→              exit={{ opacity: 0 }}
+  1065→              className="absolute inset-0 z-[9998] flex items-center justify-center bg-background/80 backdrop-blur-sm"
+  1066→            >
+  1067→              <div className="rounded-2xl border-2 border-dashed border-primary/50 bg-card/80 px-12 py-8 text-center">
+  1068→                <p className="text-lg font-medium text-primary">{t('canvas.dropImages', locale)}</p>
+  1069→                <p className="mt-1 text-sm text-muted-foreground">{t('canvas.supportedFormats', locale)}</p>
+  1070→              </div>
+  1071→            </motion.div>
+  1072→          )}
+  1073→        </AnimatePresence>
+  1074→
+  1075→        {/* Bottom-Left: Zoom Controls */}
+  1076→        <div className="absolute left-3 bottom-3 z-50 flex items-center gap-1 rounded-xl border bg-card/90 px-1.5 py-1 shadow-sm backdrop-blur-sm">
+  1077→          <button
+  1078→            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-accent/50 text-foreground"
+  1079→            onClick={() => store.zoomOut()}
+  1080→            title="Zoom Out (Ctrl+-)"
+  1081→          >
+  1082→            <ZoomOut className="h-4 w-4" />
+  1083→          </button>
+  1084→          <button
+  1085→            className="flex h-8 min-w-[56px] items-center justify-center rounded-lg px-2 text-xs font-mono font-medium text-foreground transition-colors hover:bg-accent/50"
+  1086→            onClick={() => {
+  1087→              // Prompt-free: cycle through common zoom levels
+  1088→              const zoomLevels = [0.1, 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 5];
+  1089→              const nextZoom = zoomLevels.find((z) => z > zoom + 0.01) ?? 1;
+  1090→              store.setZoom(nextZoom);
+  1091→            }}
+  1092→            title="Click to set zoom level"
+  1093→          >
+  1094→            {Math.round(zoom * 100)}%
+  1095→          </button>
+  1096→          <button
+  1097→            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-accent/50 text-foreground"
+  1098→            onClick={() => store.zoomIn()}
+  1099→            title="Zoom In (Ctrl++)"
+  1100→          >
+  1101→            <ZoomIn className="h-4 w-4" />
+  1102→          </button>
+  1103→          <div className="mx-0.5 h-5 w-px bg-border" />
+  1104→          <button
+  1105→            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-accent/50 text-foreground"
+  1106→            onClick={() => store.zoomToFit()}
+  1107→            title="Zoom to Fit (Ctrl+0)"
+  1108→          >
+  1109→            <Maximize2 className="h-4 w-4" />
+  1110→          </button>
+  1111→        </div>
+  1112→
+  1113→        {/* Bottom-Left: Plugin Button (below zoom controls on desktop) */}
+  1114→        <div className="absolute left-3 bottom-14 z-50">
+  1115→          <TooltipProvider delayDuration={200}>
+  1116→            <Tooltip>
+  1117→              <TooltipTrigger asChild>
+  1118→                <button
+  1119→                  className="flex h-10 w-10 items-center justify-center rounded-xl border bg-card/90 shadow-sm backdrop-blur-sm transition-colors hover:bg-accent/50 text-foreground"
+  1120→                  onClick={() => useAppStore.getState().setPluginDialogOpen(true)}
+  1121→                >
+  1122→                  <Puzzle className="h-4 w-4" />
+  1123→                </button>
+  1124→              </TooltipTrigger>
+  1125→              <TooltipContent side="right">
+  1126→                <span className="font-medium">{t('toolbar.plugins', locale)}</span>
+  1127→                <kbd className="ml-2 rounded border bg-muted px-1.5 py-0.5 text-[10px] font-mono">/</kbd>
+  1128→              </TooltipContent>
+  1129→            </Tooltip>
+  1130→          </TooltipProvider>
+  1131→        </div>
+  1132→
+  1133→        {/* Bottom-Right: Status Bar */}
+  1134→        <div className="absolute right-3 bottom-3 z-50 flex items-center gap-3 rounded-lg border bg-card/90 px-3 py-1.5 text-xs text-muted-foreground shadow-sm backdrop-blur-sm">
+  1135→          <span>
+  1136→            X: <span className="font-mono text-foreground">{Math.round(cursorPos.x)}</span>
+  1137→          </span>
+  1138→          <span>
+  1139→            Y: <span className="font-mono text-foreground">{Math.round(cursorPos.y)}</span>
+  1140→          </span>
+  1141→          <span className="text-border">|</span>
+  1142→          <span>
+  1143→            {Math.round(zoom * 100)}%
+  1144→          </span>
+  1145→          {snapToGrid && (
+  1146→            <>
+  1147→              <span className="text-border">|</span>
+  1148→              <span className="text-emerald-600">{t('canvas.gridOn', locale)}</span>
+  1149→            </>
+  1150→          )}
+  1151→        </div>
+  1152→
+  1153→        {/* Minimap */}
+  1154→        <Minimap />
+  1155→      </div>
+  1156→    </div>
+  1157→  );
+  1158→}
+  1159→
+  1160→/* ═══════════════════════════════════════════════════════════════════════════════
+  1161→   Prototype Player — full-screen overlay showing current frame
+  1162→   ═══════════════════════════════════════════════════════════════════════════════ */
+  1163→
+  1164→function PrototypePlayer({ frame }: { frame: BoardElementType }) {
+  1165→  const containerRef = useRef<HTMLDivElement>(null);
+  1166→  const [scale, setScale] = useState(1);
+  1167→  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  1168→
+  1169→  const elements = useCanvasStore((s) => s.elements);
+  1170→  const stopPlayback = usePrototypeStore((s) => s.stopPlayback);
+  1171→  const goBack = usePrototypeStore((s) => s.goBack);
+  1172→  const getInteractionsForFrame = usePrototypeStore((s) => s.getInteractionsForFrame);
+  1173→  const navigateToFrame = usePrototypeStore((s) => s.navigateToFrame);
+  1174→
+  1175→  // Compute scale to fit frame in viewport
+  1176→  useEffect(() => {
+  1177→    const computeFit = () => {
+  1178→      const vw = window.innerWidth;
+  1179→      const vh = window.innerHeight - 60; // bottom nav space
+  1180→      const scaleX = vw / frame.width;
+  1181→      const scaleY = vh / frame.height;
+  1182→      const s = Math.min(scaleX, scaleY, 1);
+  1183→      setScale(s);
+  1184→      setOffset({
+  1185→        x: (vw - frame.width * s) / 2,
+  1186→        y: (vh - frame.height * s) / 2,
+  1187→      });
+  1188→    };
+  1189→    computeFit();
+  1190→    window.addEventListener('resize', computeFit);
+  1191→    return () => window.removeEventListener('resize', computeFit);
+  1192→  }, [frame.width, frame.height]);
+  1193→
+  1194→  // Frame children elements
+  1195→  const children = useMemo(
+  1196→    () =>
+  1197→      elements.filter(
+  1198→        (el) => el.parentId === frame.id && el.visible !== false,
+  1199→      ),
+  1200→    [elements, frame.id],
+  1201→  );
+  1202→
+  1203→  // Handle interaction triggers on child elements
+  1204→  const handleChildClick = useCallback(
+  1205→    (childId: string) => {
+  1206→      const interactions = getInteractionsForFrame(frame.id);
+  1207→      const interaction = interactions.find((i) => i.triggerElementId === childId);
+  1208→      if (interaction) {
+  1209→        navigateToFrame(interaction.targetFrameId);
+  1210→      }
+  1211→    },
+  1212→    [frame.id, getInteractionsForFrame, navigateToFrame],
+  1213→  );
+  1214→
+  1215→  return (
+  1216→    <div className="flex h-screen w-screen flex-col overflow-hidden bg-black/90">
+  1217→      {/* Close button */}
+  1218→      <div className="flex items-center justify-between px-4 py-2">
+  1219→        <div className="flex items-center gap-2">
+  1220→          <button
+  1221→            onClick={stopPlayback}
+  1222→            className="flex items-center gap-1 rounded-md bg-white/10 px-3 py-1.5 text-sm text-white hover:bg-white/20"
+  1223→          >
+  1224→            <X className="h-4 w-4" />
+  1225→            Close
+  1226→          </button>
+  1227→          <span className="text-sm text-white/60">
+  1228→            {frame.name || frame.content || 'Frame'}
+  1229→          </span>
+  1230→        </div>
+  1231→      </div>
+  1232→
+  1233→      {/* Frame display area */}
+  1234→      <div ref={containerRef} className="relative flex-1 overflow-hidden">
+  1235→        <div
+  1236→          className="absolute bg-white shadow-2xl"
+  1237→          style={{
+  1238→            left: offset.x,
+  1239→            top: offset.y,
+  1240→            width: frame.width * scale,
+  1241→            height: frame.height * scale,
+  1242→            transformOrigin: 'top left',
+  1243→          }}
+  1244→        >
+  1245→          {children.map((child) => {
+  1246→            const screenX = child.x * scale;
+  1247→            const screenY = child.y * scale;
+  1248→            return (
+  1249→              <div
+  1250→                key={child.id}
+  1251→                className="absolute cursor-pointer"
+  1252→                style={{
+  1253→                  left: screenX,
+  1254→                  top: screenY,
+  1255→                  width: child.width * scale,
+  1256→                  height: child.height * scale,
+  1257→                }}
+  1258→                onClick={() => handleChildClick(child.id)}
+  1259→              >
+  1260→                <div className="h-full w-full">
+  1261→                  {child.type === 'TEXT' && (
+  1262→                    <div
+  1263→                      className="h-full w-full overflow-hidden"
+  1264→                      style={{
+  1265→                        fontSize: (child.styles?.typography?.fontSize || 16) * scale,
+  1266→                        color: child.styles?.typography?.color || child.color,
+  1267→                        fontWeight: child.styles?.typography?.fontWeight || 'normal',
+  1268→                      }}
+  1269→                    >
+  1270→                      {child.content}
+  1271→                    </div>
+  1272→                  )}
+  1273→                  {child.type === 'RECTANGLE' && (
+  1274→                    <div
+  1275→                      className="h-full w-full"
+  1276→                      style={{ backgroundColor: child.color || '#fff' }}
+  1277→                    />
+  1278→                  )}
+  1279→                  {child.type === 'IMAGE' && (
+  1280→                    <img
+  1281→                      src={child.styles?.src}
+  1282→                      alt={child.content || ''}
+  1283→                      className="h-full w-full object-cover"
+  1284→                      draggable={false}
+  1285→                    />
+  1286→                  )}
+  1287→                  {child.type === 'STICKY_NOTE' && (
+  1288→                    <div
+  1289→                      className="h-full w-full p-2"
+  1290→                      style={{
+  1291→                        backgroundColor: child.color,
+  1292→                        fontSize: 12 * scale,
+  1293→                      }}
+  1294→                    >
+  1295→                      {child.content}
+  1296→                    </div>
+  1297→                  )}
+  1298→                  {/* Fallback for other types */}
+  1299→                  {child.type === 'ELLIPSE' && (
+  1300→                    <div
+  1301→                      className="h-full w-full"
+  1302→                      style={{
+  1303→                        backgroundColor: child.color || '#fff',
+  1304→                        borderRadius: '50%',
+  1305→                      }}
+  1306→                    />
+  1307→                  )}
+  1308→                  {(child.type === 'STAR' || child.type === 'POLYGON' || child.type === 'LINE' || child.type === 'CONNECTOR' || child.type === 'CIRCLE' || child.type === 'FRAME' || child.type === 'PEN_PATH') && (
+  1309→                    <div
+  1310→                      className="h-full w-full"
+  1311→                      style={{
+  1312→                        backgroundColor: child.color || 'transparent',
+  1313→                        borderRadius: child.type === 'CIRCLE' ? '50%' : undefined,
+  1314→                      }}
+  1315→                    />
+  1316→                  )}
+  1317→                </div>
+  1318→              </div>
+  1319→            );
+  1320→          })}
+  1321→        </div>
+  1322→      </div>
+  1323→
+  1324→      {/* Bottom navigation bar */}
+  1325→      <div className="flex items-center justify-center gap-3 px-4 py-3">
+  1326→        <button
+  1327→          onClick={goBack}
+  1328→          className="flex items-center gap-1 rounded-md bg-white/10 px-3 py-1.5 text-sm text-white hover:bg-white/20"
+  1329→        >
+  1330→          <ChevronLeft className="h-4 w-4" />
+  1331→          Back
+  1332→        </button>
+  1333→      </div>
+  1334→    </div>
+  1335→  );
+  1336→}
+  1337→
+  1338→/* ═══════════════════════════════════════════════════════════════════════════════
+  1339→   Helpers
+  1340→   ═══════════════════════════════════════════════════════════════════════════════ */
+  1341→
+  1342→function getArrowPoints(tipX: number, tipY: number, size: number, angle: number): string {
+  1343→  const a1 = angle + Math.PI * 0.85;
+  1344→  const a2 = angle - Math.PI * 0.85;
+  1345→  const p1x = tipX + Math.cos(a1) * size;
+  1346→  const p1y = tipY + Math.sin(a1) * size;
+  1347→  const p2x = tipX + Math.cos(a2) * size;
+  1348→  const p2y = tipY + Math.sin(a2) * size;
+  1349→  return `${tipX},${tipY} ${p1x},${p1y} ${p2x},${p2y}`;
+  1350→}

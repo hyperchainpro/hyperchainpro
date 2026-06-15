@@ -1760,6 +1760,7 @@ const translations: TranslationMap = {
   'toolbar.summarizeBoard': { en: 'Summarize Board', id: 'Ringkas Papan', ja: 'ボードを要約', ko: '보드 요약', zh: '总结白板' },
   'toolbar.zoomToFit': { en: 'Zoom to Fit', id: 'Perbesar untuk Muat', ja: 'フィットにズーム', ko: '맞춤 확대', zh: '缩放至适合' },
   'toolbar.snapToGrid': { en: 'Snap to Grid', id: 'Kunci ke Grid', ja: 'グリッドにスナップ', ko: '그리드 스냅', zh: '对齐网格' },
+  'toolbar.delete': { en: 'Delete', id: 'Hapus', ja: '削除', ko: '삭제', zh: '删除' },
   'toolbar.minimap': { en: 'Minimap', id: 'Peta Mini', ja: 'ミニマップ', ko: '미니맵', zh: '小地图' },
   'toolbar.plugins': { en: 'Plugins', id: 'Plugin', ja: 'プラグイン', ko: '플러그인', zh: '插件' },
   'plugin_marketplace': { en: 'Plugin Marketplace', id: 'Marketplace Plugin', ja: 'プラグインマーケットプレイス', ko: '플러그인 마켓플레이스', zh: '插件市场' },

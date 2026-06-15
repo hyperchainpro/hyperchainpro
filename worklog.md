@@ -658,3 +658,42 @@ Work Log:
 Stage Summary:
 - Merge Request and History buttons now visible on all screen sizes
 - All editor features accessible in both mobile and desktop browser modes
+---
+Task ID: 1
+Agent: Main
+Task: Fix missing delete button, remove minimap black square, verify invite feature, auto-install plugins per device type
+
+Work Log:
+- Added Trash2 (Delete) button to the EnhancedToolbar component in `src/components/editor/toolbar/enhanced-toolbar.tsx`
+  - Button is disabled when no elements are selected, enabled when elements are selected
+  - Placed between the connector section and undo/redo in the bottom actions area
+  - Added `deleteElements` and `selectedIds` from canvas store
+  - Added `toolbar.delete` i18n key (en: "Delete", id: "Hapus", ja: "削除", ko: "삭제", zh: "删除")
+- Changed `showMinimap` default from `true` to `false` in `src/store/canvas-store.ts`
+  - This removes the small black square (minimap) that appeared above the "Grid: Aktif" status text
+  - Users can still toggle the minimap via the toolbar Map button
+- Verified invite member feature works end-to-end:
+  - POST /api/invites creates invite with email, role, expiry
+  - GET /api/invites lists pending invites
+  - DELETE /api/invites revokes invite
+  - GET /api/boards/[id]/members lists members with owner flag
+  - DELETE /api/boards/[id]/members removes member
+  - POST /api/invites/accept accepts invite by token
+  - InviteDialog UI verified: email input, role selector (Editor/Viewer/Reviewer), send button, members list, pending invites list
+- Created `src/lib/auto-install-plugins.ts` with device-type → plugin ID mappings:
+  - iPhone: 25 plugins (wireframe, mobile, responsive, touch targets, etc.)
+  - Android: 25 plugins (similar + Material icons)
+  - Website: 30 plugins (layout, responsive, code-gen, SEO, etc.)
+  - Tablet: 26 plugins (mobile + layout + responsive)
+  - Presentation: 21 plugins (typography, colors, branding, export)
+  - Social: 16 plugins (branding, photo editing, social media)
+- Added `autoInstallPluginIds` state and `setAutoInstallPluginIds` action to app-store
+- Updated `dashboard-view.tsx` handleCreateBoard to set auto-install IDs when board has device type
+- Updated `plugin-browser-dialog.tsx` to auto-apply installed plugins on first open when auto-install IDs are set
+  - Shows toast notification with count of newly auto-installed plugins
+
+Stage Summary:
+- Delete button now visible in workspace toolbar (Trash2 icon, shortcut: Del)
+- Minimap hidden by default (no more confusing black square)
+- Invite member feature confirmed working
+- Auto-install plugins: when creating a board with iPhone/Android/Website/Tablet/Presentation/Social device type, relevant plugins are pre-installed automatically

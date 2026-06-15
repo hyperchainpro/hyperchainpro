@@ -115,7 +115,7 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
   selectionBox: null,
   isDrawingSelection: false,
   spacePressed: false,
-  showMinimap: true,
+  showMinimap: false,
   stickyColor: 'yellow',
   connectorStyle: 'curve',
 
