@@ -365,3 +365,25 @@ Stage Summary:
 - 100 design plugins verified working on both mobile (2-col) and desktop (4-col)
 - Plugins button now visible on all screen sizes (icon-only on mobile, labeled on desktop)
 - Keepalive server running for Preview Panel access
+
+---
+Task ID: 14
+Agent: Main
+Task: Fix "locale is not defined" runtime error
+
+Work Log:
+- User reported ErrorBoundary catching "locale is not defined" ReferenceError
+- Used Explore agent to systematically search all 47 component files for undefined `locale` references
+- Found 3 root cause files in src/components/editor/ai/ (eagerly imported by editor-view.tsx → page.tsx):
+  1. ai-design-dialog.tsx: AIDesignDialog function used `locale` in 15 t() calls but never defined it
+  2. ai-agent-manager.tsx: AgentCard function used `locale` in 4 t() calls but never defined it; also 4 t() calls missing locale argument
+  3. ai-agent-editor.tsx: 2 t() calls missing locale argument
+- Fixed ai-design-dialog.tsx: Added `const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en'`
+- Fixed ai-agent-manager.tsx: Added locale to AgentCard, fixed 4 missing locale arguments in t() calls
+- Fixed ai-agent-editor.tsx: Fixed 2 missing locale arguments in t() calls
+- Verified fix via agent-browser: dashboard loads correctly, mobile settings dialog opens with all profile fields, no errors in console
+
+Stage Summary:
+- Root cause: ai-design-dialog.tsx and ai-agent-manager.tsx used `locale` variable without defining it; these modules are eagerly imported through editor-view.tsx
+- Fixed 3 files with a total of 21 locale-related issues
+- ErrorBoundary no longer triggers; app renders correctly on both mobile and desktop

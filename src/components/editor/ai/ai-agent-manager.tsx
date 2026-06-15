@@ -203,7 +203,7 @@ export function AIAgentManager({ open, onOpenChange, onGenerated }: AIAgentManag
                     <div className="flex items-center gap-2 mb-3">
                       <Shield className="w-3.5 h-3.5 text-muted-foreground" />
                       <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                        {t('ai.builtIn')} Agents
+                        {t('ai.builtIn', locale)} Agents
                       </h3>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -225,7 +225,7 @@ export function AIAgentManager({ open, onOpenChange, onGenerated }: AIAgentManag
                     <div className="flex items-center gap-2 mb-3">
                       <Sparkles className="w-3.5 h-3.5 text-muted-foreground" />
                       <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                        {t('ai.customAgents')}
+                        {t('ai.customAgents', locale)}
                       </h3>
                       <Badge variant="secondary" className="ml-1 text-[10px] px-1.5">
                         {customAgents.length}
@@ -321,6 +321,7 @@ function AgentCard({
   onEdit?: () => void;
   onDelete?: () => void;
 }) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const isCustom = !agent.isBuiltIn;
 
   return (
@@ -353,7 +354,7 @@ function AgentCard({
                 variant="outline"
                 className="text-[9px] px-1.5 py-0 h-4 shrink-0 border-purple-300 text-purple-600"
               >
-                {t('ai.builtIn')}
+                {t('ai.builtIn', locale)}
               </Badge>
             )}
           </div>
@@ -365,7 +366,7 @@ function AgentCard({
           <div className="flex items-center gap-3 mt-2">
             <span className="text-[10px] text-muted-foreground flex items-center gap-1">
               <Zap className="w-2.5 h-2.5" />
-              {agent.usageCount} {t('ai.uses')}
+              {agent.usageCount} {t('ai.uses', locale)}
             </span>
           </div>
         </div>

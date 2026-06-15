@@ -160,6 +160,7 @@ export function AIDesignDialog({
   const [colorScheme, setColorScheme] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
 
   // Reset prompt when dialog opens with new initial prompt
   React.useEffect(() => {

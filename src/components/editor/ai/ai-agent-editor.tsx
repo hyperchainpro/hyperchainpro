@@ -398,11 +398,11 @@ function PreviewCard({ agent }: { agent: AgentData }) {
 
         <div className="space-y-2">
           <Badge variant="outline" className="text-[10px]">
-            {t("ai.customAgent")}
+            {t("ai.customAgent", locale)}
           </Badge>
           {agent.isPublic && (
             <Badge variant="secondary" className="text-[10px] ml-1">
-              {t("ai.public")}
+              {t("ai.public", locale)}
             </Badge>
           )}
         </div>
