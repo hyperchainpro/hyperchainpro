@@ -15,7 +15,6 @@ import {
   RotateCcw,
   Play,
   Square,
-  Sparkles,
   Upload,
   Download,
   Users,
@@ -307,16 +306,8 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
         <TooltipContent side="bottom">{t('collab.members', locale)}</TooltipContent>
       </Tooltip>
 
-      {/* AI & Import actions */}
+      {/* Import & Export actions */}
       <div className="flex items-center gap-1">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-foreground hover:text-foreground/70 neu-icon-btn" onClick={() => setAIDesignDialogOpen(true)}>
-              <Sparkles className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">{t('editor.aiDesign', locale)}</TooltipContent>
-        </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant="ghost" size="icon" className="h-8 w-8 neu-icon-btn" onClick={() => setImportDialogOpen(true)}>

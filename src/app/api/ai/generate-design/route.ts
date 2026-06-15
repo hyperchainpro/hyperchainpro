@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createLLM } from 'z-ai-web-dev-sdk';
+import ZAI from 'z-ai-web-dev-sdk';
 import { db } from '@/lib/db';
 import type { BoardElement, ElementStyles } from '@/lib/types';
 
@@ -108,21 +108,16 @@ Use these colors throughout the design.`;
     const fullSystemPrompt = systemPrompt + styleContext;
 
     // Call LLM
-    const llm = createLLM({
-      baseURL: process.env.ZAI_BASE_URL || '',
-      apiKey: process.env.ZAI_API_KEY || '',
-    });
+    const zai = await ZAI.create();
 
-    const response = await llm.chat.completions.create({
-      model: 'default',
+    const response = await zai.chat.completions.create({
       messages: [
-        { role: 'system', content: fullSystemPrompt },
+        { role: 'assistant', content: fullSystemPrompt },
         {
           role: 'user',
           content: prompt,
         },
       ],
-      response_format: { type: 'json_object' },
     });
 
     const aiResponse = response.choices?.[0]?.message?.content?.trim() || '';
