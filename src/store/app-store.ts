@@ -16,6 +16,7 @@ interface AppState {
   pendingAIDesign: boolean;
   aiDesignDialogOpen: boolean;
   importDialogOpen: boolean;
+  pluginDialogOpen: boolean;
 }
 
 // ─── Actions ─────────────────────────────────────────────────────────────────
@@ -37,6 +38,7 @@ interface AppActions {
   setPendingAIDesign: (v: boolean) => void;
   setAIDesignDialogOpen: (v: boolean) => void;
   setImportDialogOpen: (v: boolean) => void;
+  setPluginDialogOpen: (v: boolean) => void;
   reset: () => void;
 }
 
@@ -55,6 +57,7 @@ const initialState: AppState = {
   pendingAIDesign: false,
   aiDesignDialogOpen: false,
   importDialogOpen: false,
+  pluginDialogOpen: false,
 };
 
 // ─── Store ───────────────────────────────────────────────────────────────────
@@ -109,6 +112,8 @@ export const useAppStore = create<AppStore>((set) => ({
   setAIDesignDialogOpen: (v) => set({ aiDesignDialogOpen: v }),
 
   setImportDialogOpen: (v) => set({ importDialogOpen: v }),
+
+  setPluginDialogOpen: (v) => set({ pluginDialogOpen: v }),
 
   reset: () => set(initialState),
 }));

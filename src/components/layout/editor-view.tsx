@@ -48,6 +48,7 @@ import { MergeRequestDialog } from '@/components/version-control/merge-request-p
 import { ImportDialog } from '@/components/editor/import/import-dialog';
 import { AIDesignDialog } from '@/components/editor/ai';
 import { InviteDialog } from '@/components/collab/invite-dialog';
+import { PluginBrowserDialog } from '@/components/editor/plugins/plugin-browser-dialog';
 import { t, type Locale } from '@/lib/i18n';
 import { useAuthStore } from '@/store/auth-store';
 import type { BoardElement } from '@/lib/types';
@@ -432,8 +433,10 @@ export default function EditorView() {
   const isMobile = useIsMobile();
   const aiDesignOpen = useAppStore((s) => s.aiDesignDialogOpen);
   const importOpen = useAppStore((s) => s.importDialogOpen);
+  const pluginDialogOpen = useAppStore((s) => s.pluginDialogOpen);
   const setAIDesignOpen = useAppStore((s) => s.setAIDesignDialogOpen);
   const setImportOpen = useAppStore((s) => s.setImportDialogOpen);
+  const setPluginDialogOpen = useAppStore((s) => s.setPluginDialogOpen);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
 
   const handleImportElements = useCallback((elements: BoardElement[]) => {
@@ -550,6 +553,10 @@ export default function EditorView() {
         <ImportDialog open={importOpen} onOpenChange={setImportOpen} onImport={handleImportElements} />
         <AIDesignDialog open={aiDesignOpen} onOpenChange={setAIDesignOpen} onGenerated={handleAIGenerated} />
         <InviteDialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen} boardId={currentBoardId} />
+        <PluginBrowserDialog
+          open={pluginDialogOpen}
+          onOpenChange={setPluginDialogOpen}
+        />
       </div>
     </TooltipProvider>
   );

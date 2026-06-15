@@ -3,6 +3,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import {
   MousePointer2,
+  Puzzle,
   Hand,
   Layout,
   Square,
@@ -610,6 +611,17 @@ export default function EnhancedToolbar() {
             label={t('toolbar.minimap', locale)}
             active={showMinimap}
             onClick={toggleMinimap}
+          />
+        </div>
+
+        <Separator orientation="horizontal" className="my-1.5 w-8" />
+
+        {/* Plugins */}
+        <div className="flex flex-col items-center mb-2">
+          <ActionButton
+            icon={<Puzzle className="h-4 w-4" />}
+            label={t('toolbar.plugins', locale)}
+            onClick={() => useAppStore.getState().setPluginDialogOpen(true)}
           />
         </div>
       </div>

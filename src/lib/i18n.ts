@@ -1752,6 +1752,7 @@ const translations: TranslationMap = {
   'toolbar.zoomToFit': { en: 'Zoom to Fit', id: 'Perbesar untuk Muat', ja: 'フィットにズーム', ko: '맞춤 확대', zh: '缩放至适合' },
   'toolbar.snapToGrid': { en: 'Snap to Grid', id: 'Kunci ke Grid', ja: 'グリッドにスナップ', ko: '그리드 스냅', zh: '对齐网格' },
   'toolbar.minimap': { en: 'Minimap', id: 'Peta Mini', ja: 'ミニマップ', ko: '미니맵', zh: '小地图' },
+  'toolbar.plugins': { en: 'Plugins', id: 'Plugin', ja: 'プラグイン', ko: '플러그인', zh: '插件' },
   'toolbar.undo': { en: 'Undo', id: 'Batalkan', ja: '元に戻す', ko: '실행 취소', zh: '撤销' },
   'toolbar.redo': { en: 'Redo', id: 'Ulangi', ja: 'やり直す', ko: '다시 실행', zh: '重做' },
   'toolbar.zoomIn': { en: 'Zoom In', id: 'Perbesar', ja: 'ズームイン', ko: '확대', zh: '放大' },

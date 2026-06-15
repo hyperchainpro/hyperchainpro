@@ -302,3 +302,31 @@ Stage Summary:
 - Root cause 2: Settings dialog body used flex-row on mobile → 0px content width (fixed in previous session)
 - Root cause 3: Bottom nav Profile tab opened sidebar instead of Settings (fixed in previous session)
 - All 3 fixes verified working on mobile viewport (375x812 iPhone X)
+
+---
+Task ID: 12
+Agent: Main
+Task: Fix preview not showing + add 100 open source plugins
+
+Work Log:
+- Switched Prisma from PostgreSQL to SQLite (PostgreSQL unavailable in sandbox)
+- Simplified db.ts to use DATABASE_URL from .env directly (file: SQLite path)
+- Used keepalive loop for dev server stability: `(while true; do ... done)`
+- Created /src/lib/plugins-data.ts with exactly 100 design plugins across 15 categories
+- Created /src/components/editor/plugins/plugin-browser-dialog.tsx - responsive plugin marketplace UI
+- Added pluginDialogOpen state to app-store.ts
+- Added Puzzle icon button to EnhancedToolbar (editor left toolbar)
+- Added "Plugins" button to dashboard header (desktop)
+- Added PluginBrowserDialog to editor-view.tsx and dashboard-view.tsx
+- Added i18n key toolbar.plugins (en/id/ja/ko/zh)
+- Fixed UploadDesignDialog import missing in dashboard-view
+- Fixed conditional React Hook call in editor-view
+- Verified app loads and dashboard is visible in preview panel
+
+Stage Summary:
+- App now visible in preview panel (SQLite + keepalive server)
+- 100 design plugins across 15 categories: shapes, charts, icons, layout, wireframe, diagrams, text, images, colors, export, templates, ai-tools, collaboration, accessibility, math
+- Plugin marketplace accessible from editor toolbar (Puzzle icon) and dashboard header
+- 25 plugins pre-installed, 75 available to install
+- Responsive UI: 2-col mobile, 3-col tablet, 4-col desktop grid
+- Search, category filtering, install/uninstall toggle

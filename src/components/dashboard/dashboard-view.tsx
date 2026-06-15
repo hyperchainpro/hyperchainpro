@@ -29,6 +29,7 @@ import {
   User,
   Upload,
   Wand2,
+  Puzzle,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -57,11 +58,12 @@ import {
 import { cn } from '@/lib/utils'
 import { useAppStore } from '@/store/app-store'
 import { useAuthStore } from '@/store/auth-store'
+import { PluginBrowserDialog } from '@/components/editor/plugins/plugin-browser-dialog'
+import { UploadDesignDialog } from '@/components/community/upload-design-dialog'
 import { t, LOCALES, type Locale } from '@/lib/i18n'
 import { useTheme } from 'next-themes'
 import { toast } from 'sonner'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { UploadDesignDialog } from '@/components/community/upload-design-dialog'
 
 type FilterTab = 'all' | 'recent' | 'starred'
 type SortOption = 'lastModified' | 'name' | 'created'
@@ -682,6 +684,22 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
               <TooltipContent>{t('dashboard.aiDesign', locale)}</TooltipContent>
             </Tooltip>
 
+            {/* Plugins button */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => useAppStore.getState().setPluginDialogOpen(true)}
+                  className="hidden md:flex gap-1.5 rounded-lg"
+                >
+                  <Puzzle className="size-3.5" />
+                  {t('toolbar.plugins', locale)}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('toolbar.plugins', locale)}</TooltipContent>
+            </Tooltip>
+
             {/* Community button */}
             <Tooltip>
               <TooltipTrigger asChild>
@@ -1012,6 +1030,12 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
       <UploadDesignDialog
         open={uploadDialogOpen}
         onOpenChange={setUploadDialogOpen}
+      />
+
+      {/* Plugin Marketplace Dialog */}
+      <PluginBrowserDialog
+        open={useAppStore((s) => s.pluginDialogOpen)}
+        onOpenChange={(v) => useAppStore.getState().setPluginDialogOpen(v)}
       />
     </div>
   )
