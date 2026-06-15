@@ -286,6 +286,8 @@ function SidebarContent({
   userName,
   userInitials,
   locale,
+  boards,
+  onOpenBoard,
 }: {
   sidebarSections: { id: SidebarSection; labelKey: string; icon: React.ElementType; count: number }[]
   activeSidebar: SidebarSection | null
@@ -295,12 +297,14 @@ function SidebarContent({
   userName: string
   userInitials: string
   locale: Locale
+  boards: BoardCardData[]
+  onOpenBoard: (boardId: string) => void
 }) {
   return (
     <>
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-4 py-4">
-        <div className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white shadow-sm">
+        <div className="flex size-8 items-center justify-center rounded-lg bg-foreground text-background shadow-sm">
           <GitBranch className="size-4" />
         </div>
         <span className="text-base font-bold tracking-tight">BranchBoard</span>
@@ -377,36 +381,35 @@ function SidebarContent({
                         className="overflow-hidden"
                       >
                         <div className="ml-4 mt-0.5 flex flex-col gap-0.5 pb-1">
-                          {section.id === 'my-boards' && (
-                            <>
-                              <SidebarItem name="Product Roadmap Q4" active />
-                              <SidebarItem name="Sprint Planning" />
-                              <SidebarItem name="Design System" />
-                              <SidebarItem name="API Workshop" />
-                            </>
-                          )}
-                          {section.id === 'shared' && (
-                            <>
-                              <SidebarItem name="User Research" />
-                              <SidebarItem name="Brand Identity" />
-                              <SidebarItem name="Journey Map" />
-                            </>
-                          )}
-                          {section.id === 'starred' && (
-                            <>
-                              <SidebarItem name="Product Roadmap Q4" />
-                              <SidebarItem name="Architecture ADRs" />
-                              <SidebarItem name="Design System" />
-                              <SidebarItem name="Brand Identity" />
-                            </>
-                          )}
-                          {section.id === 'recent' && (
-                            <>
-                              <SidebarItem name="Product Roadmap Q4" />
-                              <SidebarItem name="Sprint Planning" />
-                              <SidebarItem name="API Workshop" />
-                            </>
-                          )}
+                          {(() => {
+                            let filteredBoards: BoardCardData[] = []
+                            if (section.id === 'my-boards') {
+                              filteredBoards = boards.slice(0, 8)
+                            } else if (section.id === 'shared') {
+                              filteredBoards = boards.filter(b => b.isPublic).slice(0, 8)
+                            } else if (section.id === 'starred') {
+                              filteredBoards = boards.filter(b => b.isStarred).slice(0, 8)
+                            } else if (section.id === 'recent') {
+                              filteredBoards = [...boards]
+                                .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+                                .slice(0, 8)
+                            }
+                            if (filteredBoards.length === 0) {
+                              return (
+                                <span className="text-[11px] text-muted-foreground px-2 py-1">
+                                  {t('dashboard.noBoardsYet', locale)}
+                                </span>
+                              )
+                            }
+                            return filteredBoards.map((board) => (
+                              <SidebarItem
+                                key={board.id}
+                                name={board.name}
+                                boardId={board.id}
+                                onClick={() => onOpenBoard(board.id)}
+                              />
+                            ))
+                          })()}
                         </div>
                       </motion.div>
                     </CollapsibleContent>
@@ -423,7 +426,7 @@ function SidebarContent({
       <div className="p-3">
         <div className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm text-muted-foreground">
           <Avatar className="size-6 neu-avatar">
-            <AvatarFallback className="bg-violet-500 text-[10px] text-white font-medium">
+            <AvatarFallback className="bg-foreground text-[10px] text-background font-medium">
               {userInitials}
             </AvatarFallback>
           </Avatar>
@@ -587,6 +590,8 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
           userName={userName}
           userInitials={userInitials}
           locale={locale}
+          boards={boards}
+          onOpenBoard={(boardId) => useAppStore.getState().openBoard(boardId)}
         />
       </aside>
 
@@ -611,6 +616,11 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                 userName={userName}
                 userInitials={userInitials}
                 locale={locale}
+                boards={boards}
+                onOpenBoard={(boardId) => {
+                  useAppStore.getState().openBoard(boardId)
+                  setMobileSidebarOpen(false)
+                }}
               />
             </div>
           </SheetContent>
@@ -634,7 +644,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
 
           {/* Mobile logo */}
           <div className="flex items-center gap-2.5 md:hidden">
-            <div className="flex size-7 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white">
+            <div className="flex size-7 items-center justify-center rounded-lg bg-foreground text-background">
               <GitBranch className="size-3.5" />
             </div>
             <span className="text-sm font-bold tracking-tight">BranchBoard</span>
@@ -757,7 +767,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
             {/* User avatar / Logout */}
             <div className="flex items-center gap-1">
               <Avatar className="size-8 neu-avatar cursor-pointer" onClick={() => onOpenSettings?.()}>
-                <AvatarFallback className="bg-violet-500 text-xs text-white font-medium">
+                <AvatarFallback className="bg-foreground text-xs text-background font-medium">
                   {userInitials}
                 </AvatarFallback>
               </Avatar>
@@ -1040,11 +1050,12 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
 
 // ─── Sidebar item ────────────────────────────────────────────────────────────
 
-function SidebarItem({ name, active }: { name: string; active?: boolean }) {
+function SidebarItem({ name, boardId, onClick, active }: { name: string; boardId: string; onClick: () => void; active?: boolean }) {
   return (
     <button
+      onClick={onClick}
       className={cn(
-        'flex items-center gap-2 px-2 py-1.5 text-xs transition-all duration-200 truncate w-full text-left border-0',
+        'flex items-center gap-2 px-2 py-1.5 text-xs transition-all duration-200 truncate w-full text-left border-0 cursor-pointer',
         active
           ? 'neu-pressed !rounded-md text-primary font-medium'
           : 'bg-transparent text-muted-foreground hover:text-foreground'
@@ -1073,13 +1084,13 @@ function EmptyState({ onCreateBoard, searchQuery = '', locale }: { onCreateBoard
     >
       {/* Illustration */}
       <div className="relative mb-6">
-        <div className="flex size-24 items-center justify-center rounded-3xl bg-gradient-to-br from-violet-100 to-fuchsia-100 dark:from-violet-950/40 dark:to-fuchsia-950/40">
-          <div className="flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-lg">
+        <div className="flex size-24 items-center justify-center rounded-3xl bg-neutral-200 dark:bg-neutral-800">
+          <div className="flex size-14 items-center justify-center rounded-2xl bg-foreground text-background shadow-lg">
             <GitBranch className="size-7" />
           </div>
         </div>
         <motion.div
-          className="absolute -top-1 -right-1 flex size-7 items-center justify-center rounded-full bg-amber-400 text-white shadow-md"
+          className="absolute -top-1 -right-1 flex size-7 items-center justify-center rounded-full bg-foreground text-background shadow-md"
           animate={{ rotate: [0, 15, -15, 0] }}
           transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
         >

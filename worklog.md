@@ -474,3 +474,30 @@ Stage Summary:
 - PLUGIN_CATEGORIES import error: fixed (was Turbopack cache, cleared .next)
 - Color change buttons: fixed (now modifies --primary CSS variable instead of --accent)
 - No runtime errors in dev.log
+
+---
+Task ID: 2
+Agent: Main Agent
+Task: Fix sidebar board navigation, AI button, and apply black & white color scheme
+
+Work Log:
+- Fixed sidebar board navigation: replaced hardcoded board names with dynamic board data from API
+- Added onClick handlers to SidebarItem components that call useAppStore.getState().openBoard(boardId)
+- SidebarContent now receives boards and onOpenBoard props
+- Both desktop and mobile SidebarContent instances pass real board data
+- Fixed AI design dialog: added missing JSX expression braces on lines 141 and 316
+- Made AI button visible on all screen sizes (removed hidden md:flex)
+- Changed AI button color from amber-500 to foreground for B&W theme
+- Applied clean black & white color scheme to globals.css
+- Changed --neu-bg to oklch(0.97 0 0) light / oklch(0.15 0 0) dark
+- Changed --primary to black (light) / white (dark)
+- All neumorphism shadows now use pure black/white (oklch(0 0 0) / oklch(1 0 0))
+- Removed all violet/fuchsia/amber/purple/indigo/blue colors from 8 component files
+- Changed logo, empty state, board cards, plugin badges, canvas selection to monochrome
+- Verified via browser: sidebar boards clickable, editor opens, no console errors
+
+Stage Summary:
+- Sidebar navigation: fully functional, dynamic boards from API
+- AI button: visible on all screen sizes, opens AI design dialog
+- Color scheme: clean black & white neumorphism
+- All API calls return 200, zero console errors

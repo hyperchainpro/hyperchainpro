@@ -395,8 +395,8 @@ export default function AuthView() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#e0e5ec] dark:bg-[#2d2d3a] p-4">
       {/* Subtle decorative blurs */}
-      <div className="pointer-events-none absolute top-[-20%] left-[-10%] h-[500px] w-[500px] rounded-full bg-violet-300/8 blur-3xl dark:bg-violet-800/5" />
-      <div className="pointer-events-none absolute bottom-[-20%] right-[-10%] h-[500px] w-[500px] rounded-full bg-amber-300/8 blur-3xl dark:bg-amber-800/5" />
+      <div className="pointer-events-none absolute top-[-20%] left-[-10%] h-[500px] w-[500px] rounded-full bg-foreground/5 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-[-20%] right-[-10%] h-[500px] w-[500px] rounded-full bg-foreground/5 blur-3xl" />
 
       <div className="relative w-full max-w-md">
         <AnimatePresence mode="wait" custom={direction}>
@@ -424,8 +424,8 @@ export default function AuthView() {
                 )}
 
                 {/* Logo */}
-                <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-[5px_5px_10px_rgba(0,0,0,0.08),-5px_-5px_10px_rgba(255,255,255,0.85)] dark:shadow-[5px_5px_10px_rgba(0,0,0,0.4),-5px_-5px_10px_rgba(50,50,60,0.08)]">
-                  <GitBranch className="h-6 w-6 text-white" />
+                <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-foreground shadow-[5px_5px_10px_rgba(0,0,0,0.08),-5px_-5px_10px_rgba(255,255,255,0.85)] dark:shadow-[5px_5px_10px_rgba(0,0,0,0.4),-5px_-5px_10px_rgba(50,50,60,0.08)]">
+                  <GitBranch className="h-6 w-6 text-background" />
                 </div>
                 <CardTitle className="text-2xl font-bold tracking-tight">
                   BranchBoard
@@ -473,7 +473,7 @@ export default function AuthView() {
                     <Button
                       type="submit"
                       variant="neu"
-                      className="w-full h-11 !bg-violet-500 hover:!bg-violet-600 !text-white rounded-2xl transition-all duration-200"
+                      className="w-full h-11 !bg-foreground hover:!bg-foreground/90 !text-background rounded-2xl transition-all duration-200"
                       disabled={isLoading}
                     >
                       {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -498,7 +498,7 @@ export default function AuthView() {
                       <button
                         type="button"
                         onClick={() => setAuthView('register')}
-                        className="font-medium text-violet-600 hover:text-violet-500 dark:text-violet-400 dark:hover:text-violet-300 transition-all duration-200 neu-flat !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-xl px-3 py-1.5"
+                        className="font-medium text-foreground transition-all duration-200 neu-flat !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-xl px-3 py-1.5"
                       >
                         {t('auth.signUp', locale)}
                       </button>
@@ -511,7 +511,7 @@ export default function AuthView() {
                     <button
                       type="button"
                       onClick={() => setAuthView('login')}
-                      className="font-medium text-violet-600 hover:text-violet-500 dark:text-violet-400 dark:hover:text-violet-300 transition-all duration-200 neu-flat !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-xl px-3 py-1.5"
+                      className="font-medium text-foreground transition-all duration-200 neu-flat !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-xl px-3 py-1.5"
                     >
                       {t('auth.login', locale)}
                     </button>

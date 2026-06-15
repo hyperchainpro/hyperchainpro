@@ -52,35 +52,35 @@
  */
 
 :root {
-  /* #e0e5ec → soft gray-blue — the single neumorphic surface color */
-  --neu-bg: oklch(0.905 0.008 248);
+  /* Pure monochrome surface — near white */
+  --neu-bg: oklch(0.97 0 0);
   --radius: 0.875rem;
 
   --background: var(--neu-bg);
-  --foreground: oklch(0.22 0.01 250);
+  --foreground: oklch(0.15 0 0);
 
   /* All surfaces share the same background — shadows provide depth */
   --card: var(--neu-bg);
-  --card-foreground: oklch(0.22 0.01 250);
+  --card-foreground: oklch(0.15 0 0);
   --popover: var(--neu-bg);
-  --popover-foreground: oklch(0.22 0.01 250);
+  --popover-foreground: oklch(0.15 0 0);
   --secondary: var(--neu-bg);
-  --secondary-foreground: oklch(0.22 0.01 250);
+  --secondary-foreground: oklch(0.15 0 0);
   --muted: var(--neu-bg);
-  --muted-foreground: oklch(0.50 0.006 250);
+  --muted-foreground: oklch(0.45 0 0);
   --accent: var(--neu-bg);
-  --accent-foreground: oklch(0.22 0.01 250);
+  --accent-foreground: oklch(0.15 0 0);
 
-  /* Primary is a distinct accent (blue) for interactive highlights */
-  --primary: oklch(0.55 0.18 260);
-  --primary-foreground: oklch(0.97 0.005 260);
+  /* Primary is black — for buttons, active states */
+  --primary: oklch(0.15 0 0);
+  --primary-foreground: oklch(0.97 0 0);
 
-  --destructive: oklch(0.577 0.245 27.325);
+  --destructive: oklch(0.55 0.2 25);
 
-  /* Border & input are intentionally very subtle — neumorphism avoids hard borders */
-  --border: oklch(0.905 0.008 248 / 45%);
-  --input: oklch(0.905 0.008 248 / 50%);
-  --ring: oklch(0.55 0.18 260);
+  /* Border & input are intentionally very subtle */
+  --border: oklch(0.97 0 0 / 45%);
+  --input: oklch(0.97 0 0 / 50%);
+  --ring: oklch(0.15 0 0);
 
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
@@ -90,44 +90,44 @@
 
   /* Sidebar shares the same surface color */
   --sidebar: var(--neu-bg);
-  --sidebar-foreground: oklch(0.22 0.01 250);
-  --sidebar-primary: oklch(0.55 0.18 260);
-  --sidebar-primary-foreground: oklch(0.97 0.005 260);
+  --sidebar-foreground: oklch(0.15 0 0);
+  --sidebar-primary: oklch(0.15 0 0);
+  --sidebar-primary-foreground: oklch(0.97 0 0);
   --sidebar-accent: var(--neu-bg);
-  --sidebar-accent-foreground: oklch(0.22 0.01 250);
-  --sidebar-border: oklch(0.905 0.008 248 / 45%);
-  --sidebar-ring: oklch(0.55 0.18 260);
+  --sidebar-accent-foreground: oklch(0.15 0 0);
+  --sidebar-border: oklch(0.97 0 0 / 45%);
+  --sidebar-ring: oklch(0.15 0 0);
 }
 
 .dark {
-  /* #2d2d3a → deep gray-blue — the single neumorphic surface color in dark mode */
-  --neu-bg: oklch(0.235 0.018 280);
+  /* Pure monochrome surface — near black */
+  --neu-bg: oklch(0.15 0 0);
 
   --background: var(--neu-bg);
-  --foreground: oklch(0.90 0.008 250);
+  --foreground: oklch(0.92 0 0);
 
   /* All surfaces share the same background */
   --card: var(--neu-bg);
-  --card-foreground: oklch(0.90 0.008 250);
+  --card-foreground: oklch(0.92 0 0);
   --popover: var(--neu-bg);
-  --popover-foreground: oklch(0.90 0.008 250);
+  --popover-foreground: oklch(0.92 0 0);
   --secondary: var(--neu-bg);
-  --secondary-foreground: oklch(0.90 0.008 250);
+  --secondary-foreground: oklch(0.92 0 0);
   --muted: var(--neu-bg);
-  --muted-foreground: oklch(0.60 0.01 250);
+  --muted-foreground: oklch(0.55 0 0);
   --accent: var(--neu-bg);
-  --accent-foreground: oklch(0.90 0.008 250);
+  --accent-foreground: oklch(0.92 0 0);
 
-  /* Primary is a lighter blue for dark mode */
-  --primary: oklch(0.68 0.17 260);
-  --primary-foreground: oklch(0.15 0.02 260);
+  /* Primary is white — for buttons in dark mode */
+  --primary: oklch(0.92 0 0);
+  --primary-foreground: oklch(0.15 0 0);
 
   --destructive: oklch(0.704 0.191 22.216);
 
   /* Very subtle border — nearly invisible */
-  --border: oklch(0.235 0.018 280 / 35%);
-  --input: oklch(0.235 0.018 280 / 40%);
-  --ring: oklch(0.68 0.17 260);
+  --border: oklch(0.15 0 0 / 35%);
+  --input: oklch(0.15 0 0 / 40%);
+  --ring: oklch(0.92 0 0);
 
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
@@ -137,13 +137,13 @@
 
   /* Sidebar shares the same surface color */
   --sidebar: var(--neu-bg);
-  --sidebar-foreground: oklch(0.90 0.008 250);
-  --sidebar-primary: oklch(0.68 0.17 260);
-  --sidebar-primary-foreground: oklch(0.15 0.02 260);
+  --sidebar-foreground: oklch(0.92 0 0);
+  --sidebar-primary: oklch(0.92 0 0);
+  --sidebar-primary-foreground: oklch(0.15 0 0);
   --sidebar-accent: var(--neu-bg);
-  --sidebar-accent-foreground: oklch(0.90 0.008 250);
-  --sidebar-border: oklch(0.235 0.018 280 / 35%);
-  --sidebar-ring: oklch(0.68 0.17 260);
+  --sidebar-accent-foreground: oklch(0.92 0 0);
+  --sidebar-border: oklch(0.15 0 0 / 35%);
+  --sidebar-ring: oklch(0.92 0 0);
 }
 
 @layer base {
@@ -162,7 +162,7 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    Neumorphism Design System — Light Mode (default)
    ═══════════════════════════════════════════════════════════════════════════
-   Every element sits on the same #e0e5ec surface. Dual-direction shadows
+   Every element sits on the same near-white surface. Dual-direction shadows
    create the illusion of extrusion or recession.
    ═══════════════════════════════════════════════════════════════════════════ */
 
@@ -170,8 +170,8 @@
 .neu-raised {
   background: var(--background);
   box-shadow:
-    8px 8px 16px oklch(0.68 0.01 250 / 25%),
-    -8px -8px 16px oklch(1 0 0 / 75%);
+    8px 8px 16px oklch(0 0 0 / 10%),
+    -8px -8px 16px oklch(1 0 0 / 80%);
   border-radius: 16px;
   border: none;
   transition: box-shadow 0.2s ease, transform 0.2s ease;
@@ -179,8 +179,8 @@
 
 .neu-raised:hover {
   box-shadow:
-    10px 10px 20px oklch(0.68 0.01 250 / 30%),
-    -10px -10px 20px oklch(1 0 0 / 80%);
+    10px 10px 20px oklch(0 0 0 / 13%),
+    -10px -10px 20px oklch(1 0 0 / 85%);
   transform: translateY(-1px);
 }
 
@@ -188,8 +188,8 @@
 .neu-pressed {
   background: var(--background);
   box-shadow:
-    inset 5px 5px 10px oklch(0.68 0.01 250 / 22%),
-    inset -5px -5px 10px oklch(1 0 0 / 70%);
+    inset 5px 5px 10px oklch(0 0 0 / 8%),
+    inset -5px -5px 10px oklch(1 0 0 / 75%);
   border-radius: 16px;
   border: none;
   transition: box-shadow 0.2s ease;
@@ -199,8 +199,8 @@
 .neu-flat {
   background: var(--background);
   box-shadow:
-    4px 4px 8px oklch(0.68 0.01 250 / 20%),
-    -4px -4px 8px oklch(1 0 0 / 72%);
+    4px 4px 8px oklch(0 0 0 / 8%),
+    -4px -4px 8px oklch(1 0 0 / 75%);
   border-radius: 14px;
   border: none;
   transition: box-shadow 0.2s ease, transform 0.2s ease;
@@ -208,8 +208,8 @@
 
 .neu-flat:hover {
   box-shadow:
-    6px 6px 12px oklch(0.68 0.01 250 / 25%),
-    -6px -6px 12px oklch(1 0 0 / 78%);
+    6px 6px 12px oklch(0 0 0 / 10%),
+    -6px -6px 12px oklch(1 0 0 / 80%);
   transform: translateY(-1px);
 }
 
@@ -217,8 +217,8 @@
 .neu-input {
   background: var(--background);
   box-shadow:
-    inset 3px 3px 6px oklch(0.68 0.01 250 / 20%),
-    inset -3px -3px 6px oklch(1 0 0 / 70%);
+    inset 3px 3px 6px oklch(0 0 0 / 7%),
+    inset -3px -3px 6px oklch(1 0 0 / 75%);
   border: 1px solid transparent;
   border-radius: 14px;
   padding: 10px 14px;
@@ -232,9 +232,9 @@
 
 .neu-input:focus {
   box-shadow:
-    inset 2px 2px 4px oklch(0.68 0.01 250 / 15%),
-    inset -2px -2px 4px oklch(1 0 0 / 65%),
-    0 0 0 2px oklch(0.55 0.18 260 / 40%);
+    inset 2px 2px 4px oklch(0 0 0 / 5%),
+    inset -2px -2px 4px oklch(1 0 0 / 70%),
+    0 0 0 2px oklch(0 0 0 / 15%);
   border-color: transparent;
   outline: none;
 }
@@ -243,12 +243,12 @@
 .neu-concave {
   background: linear-gradient(
     145deg,
-    oklch(0.87 0.008 248),
-    oklch(0.935 0.008 248)
+    oklch(0.94 0 0),
+    oklch(0.99 0 0)
   );
   box-shadow:
-    6px 6px 12px oklch(0.68 0.01 250 / 25%),
-    -6px -6px 12px oklch(1 0 0 / 75%);
+    6px 6px 12px oklch(0 0 0 / 10%),
+    -6px -6px 12px oklch(1 0 0 / 80%);
   border-radius: 16px;
   border: none;
   transition: box-shadow 0.2s ease;
@@ -258,12 +258,12 @@
 .neu-convex {
   background: linear-gradient(
     145deg,
-    oklch(0.935 0.008 248),
-    oklch(0.87 0.008 248)
+    oklch(0.99 0 0),
+    oklch(0.94 0 0)
   );
   box-shadow:
-    4px 4px 8px oklch(0.68 0.01 250 / 20%),
-    -4px -4px 8px oklch(1 0 0 / 72%);
+    4px 4px 8px oklch(0 0 0 / 8%),
+    -4px -4px 8px oklch(1 0 0 / 75%);
   border-radius: 50px;
   border: none;
   transition: box-shadow 0.2s ease, transform 0.2s ease;
@@ -271,8 +271,8 @@
 
 .neu-convex:hover {
   box-shadow:
-    6px 6px 12px oklch(0.68 0.01 250 / 25%),
-    -6px -6px 12px oklch(1 0 0 / 78%);
+    6px 6px 12px oklch(0 0 0 / 10%),
+    -6px -6px 12px oklch(1 0 0 / 80%);
   transform: translateY(-1px);
 }
 
@@ -280,8 +280,8 @@
 .neu-card {
   background: var(--background);
   box-shadow:
-    8px 8px 16px oklch(0.68 0.01 250 / 25%),
-    -8px -8px 16px oklch(1 0 0 / 75%);
+    8px 8px 16px oklch(0 0 0 / 10%),
+    -8px -8px 16px oklch(1 0 0 / 80%);
   border-radius: 18px;
   border: none;
   padding: 24px;
@@ -290,8 +290,8 @@
 
 .neu-card:hover {
   box-shadow:
-    10px 10px 20px oklch(0.68 0.01 250 / 30%),
-    -10px -10px 20px oklch(1 0 0 / 80%);
+    10px 10px 20px oklch(0 0 0 / 13%),
+    -10px -10px 20px oklch(1 0 0 / 85%);
   transform: translateY(-2px);
 }
 
@@ -299,8 +299,8 @@
 .btn-neu {
   background: var(--background);
   box-shadow:
-    6px 6px 12px oklch(0.68 0.01 250 / 22%),
-    -6px -6px 12px oklch(1 0 0 / 72%);
+    6px 6px 12px oklch(0 0 0 / 8%),
+    -6px -6px 12px oklch(1 0 0 / 75%);
   border-radius: 14px;
   border: none;
   padding: 10px 24px;
@@ -312,15 +312,15 @@
 
 .btn-neu:hover {
   box-shadow:
-    8px 8px 16px oklch(0.68 0.01 250 / 28%),
+    8px 8px 16px oklch(0 0 0 / 10%),
     -8px -8px 16px oklch(1 0 0 / 80%);
   transform: translateY(-1px);
 }
 
 .btn-neu:active {
   box-shadow:
-    inset 4px 4px 8px oklch(0.68 0.01 250 / 22%),
-    inset -4px -4px 8px oklch(1 0 0 / 70%);
+    inset 4px 4px 8px oklch(0 0 0 / 8%),
+    inset -4px -4px 8px oklch(1 0 0 / 75%);
   transform: translateY(0);
 }
 
@@ -329,7 +329,7 @@
   background: var(--primary);
   color: var(--primary-foreground);
   box-shadow:
-    6px 6px 12px oklch(0.68 0.01 250 / 25%),
+    6px 6px 12px oklch(0 0 0 / 15%),
     -3px -3px 8px oklch(1 0 0 / 40%);
   border-radius: 14px;
   border: none;
@@ -341,15 +341,15 @@
 
 .btn-neu-primary:hover {
   box-shadow:
-    8px 8px 16px oklch(0.68 0.01 250 / 30%),
+    8px 8px 16px oklch(0 0 0 / 18%),
     -4px -4px 10px oklch(1 0 0 / 45%);
   transform: translateY(-1px);
 }
 
 .btn-neu-primary:active {
   box-shadow:
-    inset 3px 3px 6px oklch(0.35 0.1 260 / 30%),
-    inset -3px -3px 6px oklch(0.75 0.2 260 / 20%);
+    inset 3px 3px 6px oklch(0 0 0 / 20%),
+    inset -3px -3px 6px oklch(1 0 0 / 15%);
   transform: translateY(0);
 }
 
@@ -357,8 +357,8 @@
 .neu-icon-btn {
   background: var(--background);
   box-shadow:
-    4px 4px 8px oklch(0.68 0.01 250 / 20%),
-    -4px -4px 8px oklch(1 0 0 / 72%);
+    4px 4px 8px oklch(0 0 0 / 8%),
+    -4px -4px 8px oklch(1 0 0 / 75%);
   border-radius: 14px;
   border: none;
   width: 40px;
@@ -373,15 +373,15 @@
 
 .neu-icon-btn:hover {
   box-shadow:
-    6px 6px 12px oklch(0.68 0.01 250 / 25%),
-    -6px -6px 12px oklch(1 0 0 / 78%);
+    6px 6px 12px oklch(0 0 0 / 10%),
+    -6px -6px 12px oklch(1 0 0 / 80%);
   transform: translateY(-1px);
 }
 
 .neu-icon-btn:active {
   box-shadow:
-    inset 3px 3px 6px oklch(0.68 0.01 250 / 22%),
-    inset -3px -3px 6px oklch(1 0 0 / 70%);
+    inset 3px 3px 6px oklch(0 0 0 / 8%),
+    inset -3px -3px 6px oklch(1 0 0 / 75%);
   transform: translateY(0);
 }
 
@@ -389,8 +389,8 @@
 .neu-badge {
   background: var(--background);
   box-shadow:
-    3px 3px 6px oklch(0.68 0.01 250 / 18%),
-    -3px -3px 6px oklch(1 0 0 / 70%);
+    3px 3px 6px oklch(0 0 0 / 7%),
+    -3px -3px 6px oklch(1 0 0 / 75%);
   border-radius: 50px;
   border: none;
   padding: 4px 12px;
@@ -409,7 +409,7 @@
   background: linear-gradient(
     90deg,
     transparent,
-    oklch(0.68 0.01 250 / 15%),
+    oklch(0 0 0 / 10%),
     transparent
   );
   border: none;
@@ -422,7 +422,7 @@
   background: linear-gradient(
     180deg,
     transparent,
-    oklch(0.68 0.01 250 / 15%),
+    oklch(0 0 0 / 10%),
     transparent
   );
   margin: 0 16px;
@@ -431,8 +431,8 @@
 /* ── Avatar (ring shadow around circular image) ──────────────────────── */
 .neu-avatar {
   box-shadow:
-    4px 4px 8px oklch(0.68 0.01 250 / 22%),
-    -4px -4px 8px oklch(1 0 0 / 72%);
+    4px 4px 8px oklch(0 0 0 / 8%),
+    -4px -4px 8px oklch(1 0 0 / 75%);
   border-radius: 50%;
   border: none;
   object-fit: cover;
@@ -441,7 +441,7 @@
 
 .neu-avatar:hover {
   box-shadow:
-    6px 6px 12px oklch(0.68 0.01 250 / 28%),
+    6px 6px 12px oklch(0 0 0 / 10%),
     -6px -6px 12px oklch(1 0 0 / 80%);
   transform: translateY(-1px);
 }
@@ -457,170 +457,170 @@
 }
 
 .neu-scroll::-webkit-scrollbar-thumb {
-  background: oklch(0.68 0.01 250 / 30%);
+  background: oklch(0 0 0 / 15%);
   border-radius: 3px;
 }
 
 .neu-scroll::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.55 0.01 250 / 40%);
+  background: oklch(0 0 0 / 25%);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Neumorphism Design System — Dark Mode
    ═══════════════════════════════════════════════════════════════════════════
-   Surface is #2d2d3a. Dark shadows use pure black; light shadows use a
-   slightly brighter gray-blue highlight.
+   Surface is near-black. Dark shadows use pure black; light shadows use a
+   slightly brighter black highlight.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .dark .neu-raised {
   box-shadow:
-    8px 8px 16px oklch(0.10 0.02 280 / 60%),
-    -8px -8px 16px oklch(0.35 0.015 280 / 18%);
+    8px 8px 16px oklch(0 0 0 / 50%),
+    -8px -8px 16px oklch(0.25 0 0 / 12%);
 }
 
 .dark .neu-raised:hover {
   box-shadow:
-    10px 10px 20px oklch(0.10 0.02 280 / 65%),
-    -10px -10px 20px oklch(0.35 0.015 280 / 22%);
+    10px 10px 20px oklch(0 0 0 / 55%),
+    -10px -10px 20px oklch(0.25 0 0 / 15%);
 }
 
 .dark .neu-pressed {
   box-shadow:
-    inset 5px 5px 10px oklch(0.10 0.02 280 / 50%),
-    inset -5px -5px 10px oklch(0.35 0.015 280 / 12%);
+    inset 5px 5px 10px oklch(0 0 0 / 45%),
+    inset -5px -5px 10px oklch(0.25 0 0 / 8%);
 }
 
 .dark .neu-flat {
   box-shadow:
-    4px 4px 8px oklch(0.10 0.02 280 / 50%),
-    -4px -4px 8px oklch(0.35 0.015 280 / 15%);
+    4px 4px 8px oklch(0 0 0 / 40%),
+    -4px -4px 8px oklch(0.25 0 0 / 10%);
 }
 
 .dark .neu-flat:hover {
   box-shadow:
-    6px 6px 12px oklch(0.10 0.02 280 / 55%),
-    -6px -6px 12px oklch(0.35 0.015 280 / 20%);
+    6px 6px 12px oklch(0 0 0 / 45%),
+    -6px -6px 12px oklch(0.25 0 0 / 13%);
 }
 
 .dark .neu-input {
   box-shadow:
-    inset 3px 3px 6px oklch(0.10 0.02 280 / 45%),
-    inset -3px -3px 6px oklch(0.35 0.015 280 / 10%);
+    inset 3px 3px 6px oklch(0 0 0 / 40%),
+    inset -3px -3px 6px oklch(0.25 0 0 / 8%);
   color: var(--foreground);
 }
 
 .dark .neu-input:focus {
   box-shadow:
-    inset 2px 2px 4px oklch(0.10 0.02 280 / 35%),
-    inset -2px -2px 4px oklch(0.35 0.015 280 / 8%),
-    0 0 0 2px oklch(0.68 0.17 260 / 35%);
+    inset 2px 2px 4px oklch(0 0 0 / 30%),
+    inset -2px -2px 4px oklch(0.25 0 0 / 6%),
+    0 0 0 2px oklch(1 0 0 / 20%);
 }
 
 .dark .neu-concave {
   background: linear-gradient(
     145deg,
-    oklch(0.21 0.018 280),
-    oklch(0.26 0.018 280)
+    oklch(0.12 0 0),
+    oklch(0.18 0 0)
   );
   box-shadow:
-    6px 6px 12px oklch(0.10 0.02 280 / 55%),
-    -6px -6px 12px oklch(0.35 0.015 280 / 18%);
+    6px 6px 12px oklch(0 0 0 / 45%),
+    -6px -6px 12px oklch(0.25 0 0 / 12%);
 }
 
 .dark .neu-convex {
   background: linear-gradient(
     145deg,
-    oklch(0.26 0.018 280),
-    oklch(0.21 0.018 280)
+    oklch(0.18 0 0),
+    oklch(0.12 0 0)
   );
   box-shadow:
-    4px 4px 8px oklch(0.10 0.02 280 / 50%),
-    -4px -4px 8px oklch(0.35 0.015 280 / 15%);
+    4px 4px 8px oklch(0 0 0 / 40%),
+    -4px -4px 8px oklch(0.25 0 0 / 10%);
 }
 
 .dark .neu-convex:hover {
   box-shadow:
-    6px 6px 12px oklch(0.10 0.02 280 / 55%),
-    -6px -6px 12px oklch(0.35 0.015 280 / 20%);
+    6px 6px 12px oklch(0 0 0 / 45%),
+    -6px -6px 12px oklch(0.25 0 0 / 13%);
 }
 
 .dark .neu-card {
   box-shadow:
-    8px 8px 16px oklch(0.10 0.02 280 / 60%),
-    -8px -8px 16px oklch(0.35 0.015 280 / 18%);
+    8px 8px 16px oklch(0 0 0 / 50%),
+    -8px -8px 16px oklch(0.25 0 0 / 12%);
 }
 
 .dark .neu-card:hover {
   box-shadow:
-    10px 10px 20px oklch(0.10 0.02 280 / 65%),
-    -10px -10px 20px oklch(0.35 0.015 280 / 22%);
+    10px 10px 20px oklch(0 0 0 / 55%),
+    -10px -10px 20px oklch(0.25 0 0 / 15%);
 }
 
 .dark .btn-neu {
   box-shadow:
-    6px 6px 12px oklch(0.10 0.02 280 / 55%),
-    -6px -6px 12px oklch(0.35 0.015 280 / 15%);
+    6px 6px 12px oklch(0 0 0 / 45%),
+    -6px -6px 12px oklch(0.25 0 0 / 10%);
 }
 
 .dark .btn-neu:hover {
   box-shadow:
-    8px 8px 16px oklch(0.10 0.02 280 / 60%),
-    -8px -8px 16px oklch(0.35 0.015 280 / 20%);
+    8px 8px 16px oklch(0 0 0 / 50%),
+    -8px -8px 16px oklch(0.25 0 0 / 13%);
 }
 
 .dark .btn-neu:active {
   box-shadow:
-    inset 4px 4px 8px oklch(0.10 0.02 280 / 50%),
-    inset -4px -4px 8px oklch(0.35 0.015 280 / 10%);
+    inset 4px 4px 8px oklch(0 0 0 / 40%),
+    inset -4px -4px 8px oklch(0.25 0 0 / 8%);
 }
 
 .dark .btn-neu-primary {
   box-shadow:
-    6px 6px 12px oklch(0.10 0.02 280 / 55%),
-    -3px -3px 8px oklch(0.35 0.015 280 / 12%);
+    6px 6px 12px oklch(0 0 0 / 45%),
+    -3px -3px 8px oklch(0.25 0 0 / 8%);
 }
 
 .dark .btn-neu-primary:hover {
   box-shadow:
-    8px 8px 16px oklch(0.10 0.02 280 / 60%),
-    -4px -4px 10px oklch(0.35 0.015 280 / 15%);
+    8px 8px 16px oklch(0 0 0 / 50%),
+    -4px -4px 10px oklch(0.25 0 0 / 10%);
 }
 
 .dark .btn-neu-primary:active {
   box-shadow:
-    inset 3px 3px 6px oklch(0.25 0.1 260 / 35%),
-    inset -3px -3px 6px oklch(0.55 0.15 260 / 15%);
+    inset 3px 3px 6px oklch(0 0 0 / 25%),
+    inset -3px -3px 6px oklch(1 0 0 / 8%);
 }
 
 .dark .neu-icon-btn {
   box-shadow:
-    4px 4px 8px oklch(0.10 0.02 280 / 50%),
-    -4px -4px 8px oklch(0.35 0.015 280 / 15%);
+    4px 4px 8px oklch(0 0 0 / 40%),
+    -4px -4px 8px oklch(0.25 0 0 / 10%);
 }
 
 .dark .neu-icon-btn:hover {
   box-shadow:
-    6px 6px 12px oklch(0.10 0.02 280 / 55%),
-    -6px -6px 12px oklch(0.35 0.015 280 / 20%);
+    6px 6px 12px oklch(0 0 0 / 45%),
+    -6px -6px 12px oklch(0.25 0 0 / 13%);
 }
 
 .dark .neu-icon-btn:active {
   box-shadow:
-    inset 3px 3px 6px oklch(0.10 0.02 280 / 50%),
-    inset -3px -3px 6px oklch(0.35 0.015 280 / 10%);
+    inset 3px 3px 6px oklch(0 0 0 / 40%),
+    inset -3px -3px 6px oklch(0.25 0 0 / 8%);
 }
 
 .dark .neu-badge {
   box-shadow:
-    3px 3px 6px oklch(0.10 0.02 280 / 45%),
-    -3px -3px 6px oklch(0.35 0.015 280 / 12%);
+    3px 3px 6px oklch(0 0 0 / 35%),
+    -3px -3px 6px oklch(0.25 0 0 / 8%);
 }
 
 .dark .neu-divider {
   background: linear-gradient(
     90deg,
     transparent,
-    oklch(0.45 0.01 280 / 20%),
+    oklch(1 0 0 / 8%),
     transparent
   );
 }
@@ -629,27 +629,27 @@
   background: linear-gradient(
     180deg,
     transparent,
-    oklch(0.45 0.01 280 / 20%),
+    oklch(1 0 0 / 8%),
     transparent
   );
 }
 
 .dark .neu-avatar {
   box-shadow:
-    4px 4px 8px oklch(0.10 0.02 280 / 55%),
-    -4px -4px 8px oklch(0.35 0.015 280 / 18%);
+    4px 4px 8px oklch(0 0 0 / 45%),
+    -4px -4px 8px oklch(0.25 0 0 / 12%);
 }
 
 .dark .neu-avatar:hover {
   box-shadow:
-    6px 6px 12px oklch(0.10 0.02 280 / 60%),
-    -6px -6px 12px oklch(0.35 0.015 280 / 22%);
+    6px 6px 12px oklch(0 0 0 / 50%),
+    -6px -6px 12px oklch(0.25 0 0 / 15%);
 }
 
 .dark .neu-scroll::-webkit-scrollbar-thumb {
-  background: oklch(0.40 0.01 280 / 35%);
+  background: oklch(1 0 0 / 18%);
 }
 
 .dark .neu-scroll::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.50 0.01 280 / 45%);
+  background: oklch(1 0 0 / 28%);
 }

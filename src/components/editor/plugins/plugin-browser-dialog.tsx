@@ -25,59 +25,59 @@ import { t } from '@/lib/i18n'
 import { useAuthStore } from '@/store/auth-store'
 
 const iconBgColors: Record<string, string> = {
-  shapes: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-  charts: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-  icons: 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
-  layout: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-  wireframe: 'bg-slate-500/10 text-slate-600 dark:text-slate-400',
-  diagrams: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
-  text: 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
-  images: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400',
-  colors: 'bg-pink-500/10 text-pink-600 dark:text-pink-400',
-  export: 'bg-teal-500/10 text-teal-600 dark:text-teal-400',
-  templates: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
-  'ai-tools': 'bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400',
-  collaboration: 'bg-sky-500/10 text-sky-600 dark:text-sky-400',
-  accessibility: 'bg-lime-500/10 text-lime-600 dark:text-lime-400',
-  math: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400',
-  typography: 'bg-red-500/10 text-red-600 dark:text-red-400',
-  branding: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
-  animation: 'bg-cyan-600/10 text-cyan-700 dark:text-cyan-300',
-  prototyping: 'bg-emerald-600/10 text-emerald-700 dark:text-emerald-300',
-  '3d': 'bg-violet-600/10 text-violet-700 dark:text-violet-300',
-  illustration: 'bg-pink-600/10 text-pink-700 dark:text-pink-300',
-  'photo-editing': 'bg-orange-600/10 text-orange-700 dark:text-orange-300',
-  responsive: 'bg-teal-600/10 text-teal-700 dark:text-teal-300',
-  'code-gen': 'bg-blue-600/10 text-blue-700 dark:text-blue-300',
-  handoff: 'bg-amber-600/10 text-amber-700 dark:text-amber-300',
+  shapes: 'bg-foreground/5 text-foreground',
+  charts: 'bg-foreground/5 text-foreground',
+  icons: 'bg-foreground/5 text-foreground',
+  layout: 'bg-foreground/5 text-foreground',
+  wireframe: 'bg-foreground/5 text-foreground',
+  diagrams: 'bg-foreground/5 text-foreground',
+  text: 'bg-foreground/5 text-foreground',
+  images: 'bg-foreground/5 text-foreground',
+  colors: 'bg-foreground/5 text-foreground',
+  export: 'bg-foreground/5 text-foreground',
+  templates: 'bg-foreground/5 text-foreground',
+  'ai-tools': 'bg-foreground/5 text-foreground',
+  collaboration: 'bg-foreground/5 text-foreground',
+  accessibility: 'bg-foreground/5 text-foreground',
+  math: 'bg-foreground/5 text-foreground',
+  typography: 'bg-foreground/5 text-foreground',
+  branding: 'bg-foreground/5 text-foreground',
+  animation: 'bg-foreground/5 text-foreground',
+  prototyping: 'bg-foreground/5 text-foreground',
+  '3d': 'bg-foreground/5 text-foreground',
+  illustration: 'bg-foreground/5 text-foreground',
+  'photo-editing': 'bg-foreground/5 text-foreground',
+  responsive: 'bg-foreground/5 text-foreground',
+  'code-gen': 'bg-foreground/5 text-foreground',
+  handoff: 'bg-foreground/5 text-foreground',
 }
 
 const categoryBadgeColors: Record<string, string> = {
-  shapes: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-  charts: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-  icons: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
-  layout: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-  wireframe: 'bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-400',
-  diagrams: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
-  text: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
-  images: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400',
-  colors: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400',
-  export: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
-  templates: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
-  'ai-tools': 'bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-900/30 dark:text-fuchsia-400',
-  collaboration: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400',
-  accessibility: 'bg-lime-100 text-lime-700 dark:bg-lime-900/30 dark:text-lime-400',
-  math: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-  typography: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-  branding: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-  animation: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400',
-  prototyping: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-  '3d': 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
-  illustration: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400',
-  'photo-editing': 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
-  responsive: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
-  'code-gen': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-  handoff: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  shapes: 'bg-foreground/10 text-foreground',
+  charts: 'bg-foreground/10 text-foreground',
+  icons: 'bg-foreground/10 text-foreground',
+  layout: 'bg-foreground/10 text-foreground',
+  wireframe: 'bg-foreground/10 text-foreground',
+  diagrams: 'bg-foreground/10 text-foreground',
+  text: 'bg-foreground/10 text-foreground',
+  images: 'bg-foreground/10 text-foreground',
+  colors: 'bg-foreground/10 text-foreground',
+  export: 'bg-foreground/10 text-foreground',
+  templates: 'bg-foreground/10 text-foreground',
+  'ai-tools': 'bg-foreground/10 text-foreground',
+  collaboration: 'bg-foreground/10 text-foreground',
+  accessibility: 'bg-foreground/10 text-foreground',
+  math: 'bg-foreground/10 text-foreground',
+  typography: 'bg-foreground/10 text-foreground',
+  branding: 'bg-foreground/10 text-foreground',
+  animation: 'bg-foreground/10 text-foreground',
+  prototyping: 'bg-foreground/10 text-foreground',
+  '3d': 'bg-foreground/10 text-foreground',
+  illustration: 'bg-foreground/10 text-foreground',
+  'photo-editing': 'bg-foreground/10 text-foreground',
+  responsive: 'bg-foreground/10 text-foreground',
+  'code-gen': 'bg-foreground/10 text-foreground',
+  handoff: 'bg-foreground/10 text-foreground',
 }
 
 interface PluginBrowserDialogProps {
@@ -164,7 +164,7 @@ export function PluginBrowserDialog({
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0 flex-1">
               <DialogTitle className="flex items-center gap-2 text-lg font-semibold">
-                <Sparkles className="size-5 text-amber-500" />
+                <Sparkles className="size-5 text-foreground" />
                 {t('plugin_marketplace', locale) || 'Plugin Marketplace'}
               </DialogTitle>
               <DialogDescription className="mt-0.5 text-sm text-muted-foreground">
@@ -270,7 +270,7 @@ export function PluginBrowserDialog({
                           {plugin.isPopular && (
                             <Badge
                               variant="secondary"
-                              className="gap-1 rounded-full px-1.5 py-0 text-[10px] font-semibold leading-4 text-amber-700 dark:text-amber-400 neu-badge border-0"
+                              className="gap-1 rounded-full px-1.5 py-0 text-[10px] font-semibold leading-4 text-foreground neu-badge border-0"
                             >
                               <Sparkles className="size-2.5" />
                               Popular

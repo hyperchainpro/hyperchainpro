@@ -490,7 +490,7 @@ export default function Toolbar() {
               onClick={handleGenerateLayout}
               disabled={!!aiLoading}
             >
-              <LayoutGrid className="h-4 w-4 shrink-0 text-amber-500" />
+              <LayoutGrid className="h-4 w-4 shrink-0 text-foreground" />
               <span>{t('toolbar.generateLayout', locale)}</span>
             </button>
             <button
@@ -498,7 +498,7 @@ export default function Toolbar() {
               onClick={handleAutoArrange}
               disabled={!!aiLoading}
             >
-              <AlignHorizontalSpaceAround className="h-4 w-4 shrink-0 text-emerald-500" />
+              <AlignHorizontalSpaceAround className="h-4 w-4 shrink-0 text-foreground" />
               <span>{t('toolbar.autoArrange', locale)}</span>
             </button>
             <button
@@ -506,7 +506,7 @@ export default function Toolbar() {
               onClick={handleSummarizeBoard}
               disabled={!!aiLoading || elements.length === 0}
             >
-              <FileText className="h-4 w-4 shrink-0 text-sky-500" />
+              <FileText className="h-4 w-4 shrink-0 text-foreground" />
               <span className={cn(elements.length === 0 && 'opacity-40')}>{t('toolbar.summarizeBoard', locale)}</span>
             </button>
           </PopoverContent>

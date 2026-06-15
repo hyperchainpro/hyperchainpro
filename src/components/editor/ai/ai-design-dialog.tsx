@@ -107,8 +107,8 @@ function GeneratingAnimation() {
         animate={{ rotate: 360 }}
         transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
       >
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-purple-500/25">
-          <Sparkles className="w-8 h-8 text-white" />
+        <div className="w-16 h-16 rounded-2xl bg-foreground flex items-center justify-center shadow-lg shadow-black/20">
+          <Sparkles className="w-8 h-8 text-background" />
         </div>
       </motion.div>
       <div className="text-center space-y-2">
@@ -122,23 +122,23 @@ function GeneratingAnimation() {
           transition={{ duration: 1, repeat: Infinity, repeatType: 'reverse' }}
         >
           <motion.span
-            className="w-1.5 h-1.5 rounded-full bg-purple-500"
+            className="w-1.5 h-1.5 rounded-full bg-foreground"
             animate={{ y: [0, -6, 0] }}
             transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
           />
           <motion.span
-            className="w-1.5 h-1.5 rounded-full bg-purple-400"
+            className="w-1.5 h-1.5 rounded-full bg-foreground/70"
             animate={{ y: [0, -6, 0] }}
             transition={{ duration: 0.6, repeat: Infinity, delay: 0.15 }}
           />
           <motion.span
-            className="w-1.5 h-1.5 rounded-full bg-purple-300"
+            className="w-1.5 h-1.5 rounded-full bg-foreground/40"
             animate={{ y: [0, -6, 0] }}
             transition={{ duration: 0.6, repeat: Infinity, delay: 0.3 }}
           />
         </motion.div>
         <p className="text-xs text-muted-foreground">
-          t('ai.craftingElements', locale)
+          {t('ai.craftingElements', locale)}
         </p>
       </div>
     </div>
@@ -224,29 +224,29 @@ export function AIDesignDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[560px] gap-0 p-0 overflow-hidden">
         {/* Gradient Header */}
-        <div className="relative bg-gradient-to-br from-violet-500 via-purple-600 to-fuchsia-500 px-6 pt-6 pb-8">
+        <div className="relative bg-foreground/5 px-6 pt-6 pb-8">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIxIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiLz48L3N2Zz4=')] opacity-50" />
           <DialogHeader className="relative">
             <div className="flex items-center gap-3 mb-1">
-              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-foreground/10 backdrop-blur-sm flex items-center justify-center">
                 {agentName ? (
-                  <Wand2 className="w-5 h-5 text-white" />
+                  <Wand2 className="w-5 h-5 text-foreground" />
                 ) : (
-                  <Sparkles className="w-5 h-5 text-white" />
+                  <Sparkles className="w-5 h-5 text-foreground" />
                 )}
               </div>
               <div>
-                <DialogTitle className="text-white text-lg">
+                <DialogTitle className="text-foreground text-lg">
                   {agentName ? `AI Design: ${agentName}` : t('ai.designGenerator', locale)}
                 </DialogTitle>
-                <DialogDescription className="text-white/70 text-xs mt-0.5">
+                <DialogDescription className="text-muted-foreground text-xs mt-0.5">
                   {t('ai.describeAndGenerate', locale)}
                 </DialogDescription>
               </div>
             </div>
           </DialogHeader>
           {agentName && (
-            <Badge className="absolute top-6 right-6 bg-white/20 text-white border-white/30 backdrop-blur-sm text-xs">
+            <Badge className="absolute top-6 right-6 bg-foreground/10 text-foreground border-foreground/20 backdrop-blur-sm text-xs">
               {t('ai.agent', locale)} Mode
             </Badge>
           )}
@@ -313,7 +313,7 @@ export function AIDesignDialog({
                 <div className="space-y-2">
                   <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
                     <Wand2 className="w-3 h-3" />
-                    t('ai.stylePreset', locale)
+                    {t('ai.stylePreset', locale)}
                   </Label>
                   <Select value={style} onValueChange={setStyle}>
                     <SelectTrigger className="w-full h-9 text-sm">
@@ -384,7 +384,7 @@ export function AIDesignDialog({
                 <Button
                   onClick={handleGenerate}
                   disabled={!prompt.trim() || isGenerating}
-                  className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-md shadow-purple-500/20"
+                  className="bg-foreground hover:bg-foreground/90 text-background shadow-md shadow-black/10"
                 >
                   {isGenerating ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />

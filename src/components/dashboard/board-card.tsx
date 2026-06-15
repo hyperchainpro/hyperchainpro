@@ -63,14 +63,14 @@ interface BoardCardProps {
 }
 
 const gradients = [
-  'from-rose-400 via-fuchsia-500 to-purple-600',
-  'from-amber-400 via-orange-500 to-red-500',
-  'from-emerald-400 via-teal-500 to-cyan-600',
-  'from-violet-400 via-purple-500 to-indigo-600',
-  'from-pink-400 via-rose-500 to-red-500',
-  'from-lime-400 via-emerald-500 to-teal-600',
-  'from-orange-400 via-amber-500 to-yellow-500',
-  'from-sky-400 via-cyan-500 to-teal-500',
+  'from-zinc-400 via-zinc-500 to-zinc-700 dark:from-zinc-500 dark:via-zinc-600 dark:to-zinc-800',
+  'from-zinc-300 via-zinc-400 to-zinc-600 dark:from-zinc-400 dark:via-zinc-500 dark:to-zinc-700',
+  'from-zinc-500 via-zinc-600 to-zinc-700 dark:from-zinc-600 dark:via-zinc-700 dark:to-zinc-800',
+  'from-zinc-400 via-zinc-500 to-zinc-700 dark:from-zinc-500 dark:via-zinc-600 dark:to-zinc-800',
+  'from-zinc-300 via-zinc-400 to-zinc-600 dark:from-zinc-400 dark:via-zinc-500 dark:to-zinc-700',
+  'from-zinc-500 via-zinc-600 to-zinc-700 dark:from-zinc-600 dark:via-zinc-700 dark:to-zinc-800',
+  'from-zinc-400 via-zinc-500 to-zinc-600 dark:from-zinc-500 dark:via-zinc-600 dark:to-zinc-700',
+  'from-zinc-300 via-zinc-400 to-zinc-600 dark:from-zinc-400 dark:via-zinc-500 dark:to-zinc-700',
 ]
 
 function getGradient(id: string) {
@@ -108,14 +108,14 @@ function getInitials(name: string): string {
 }
 
 const avatarColors = [
-  'bg-rose-500',
-  'bg-amber-500',
-  'bg-emerald-500',
-  'bg-violet-500',
-  'bg-cyan-500',
-  'bg-orange-500',
-  'bg-pink-500',
-  'bg-teal-500',
+  'bg-foreground',
+  'bg-foreground',
+  'bg-foreground',
+  'bg-foreground',
+  'bg-foreground',
+  'bg-foreground',
+  'bg-foreground',
+  'bg-foreground',
 ]
 
 function getAvatarColor(id: string): string {
@@ -191,7 +191,7 @@ export function BoardCard({
               className={cn(
                 'neu-icon-btn !size-8 !rounded-full !p-0 transition-colors',
                 isStarred
-                  ? 'text-amber-500'
+                  ? 'text-foreground'
                   : 'text-muted-foreground'
               )}
             >
@@ -246,7 +246,7 @@ export function BoardCard({
           {/* Always-visible star on non-hover (only when starred) */}
           {isStarred && (
             <div className="absolute top-2 right-2 flex items-center gap-1 transition-opacity duration-200 md:group-hover:opacity-0">
-              <div className="neu-icon-btn !size-8 !rounded-full !p-0 text-amber-500">
+              <div className="neu-icon-btn !size-8 !rounded-full !p-0 text-foreground">
                 <Star className="size-4 fill-current" />
               </div>
             </div>

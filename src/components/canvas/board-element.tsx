@@ -233,7 +233,7 @@ export default function BoardElement({ element, isSelected, zoom, onPointerDown 
           initial={false}
           className={cn(
             'pointer-events-none absolute inset-0 rounded-sm',
-            'ring-2 ring-blue-500/80 ring-offset-0',
+            'ring-2 ring-foreground/80 ring-offset-0',
           )}
           style={{ zIndex: 100 }}
         />
@@ -295,7 +295,7 @@ export default function BoardElement({ element, isSelected, zoom, onPointerDown 
             }}
             onPointerDown={(e) => handleResizePointerDown(e, handle)}
           >
-            <div className="h-full w-full rounded-sm border border-blue-500 bg-white shadow-sm" />
+            <div className="h-full w-full rounded-sm border border-foreground bg-background shadow-sm" />
           </div>
         ))}
 
@@ -308,10 +308,10 @@ export default function BoardElement({ element, isSelected, zoom, onPointerDown 
             style={{ top: -ROTATION_HANDLE_OFFSET, transform: 'translateX(-50%)' }}
             onPointerDown={handleRotationPointerDown}
           >
-            <div className="flex h-3 w-3 items-center justify-center rounded-full border border-blue-500 bg-white shadow-sm">
-              <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+            <div className="flex h-3 w-3 items-center justify-center rounded-full border border-foreground bg-background shadow-sm">
+              <div className="h-1.5 w-1.5 rounded-full bg-foreground" />
             </div>
-            <div className="mx-auto h-5 w-px bg-blue-500/40" />
+            <div className="mx-auto h-5 w-px bg-foreground/40" />
           </div>
           {/* Right rotation handle */}
           <div
@@ -319,10 +319,10 @@ export default function BoardElement({ element, isSelected, zoom, onPointerDown 
             style={{ right: -ROTATION_HANDLE_OFFSET, transform: 'translateY(-50%)' }}
             onPointerDown={handleRotationPointerDown}
           >
-            <div className="flex h-3 w-3 items-center justify-center rounded-full border border-blue-500 bg-white shadow-sm">
-              <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+            <div className="flex h-3 w-3 items-center justify-center rounded-full border border-foreground bg-background shadow-sm">
+              <div className="h-1.5 w-1.5 rounded-full bg-foreground" />
             </div>
-            <div className="my-auto h-px w-5 bg-blue-500/40" />
+            <div className="my-auto h-px w-5 bg-foreground/40" />
           </div>
           {/* Bottom rotation handle */}
           <div
@@ -330,9 +330,9 @@ export default function BoardElement({ element, isSelected, zoom, onPointerDown 
             style={{ bottom: -ROTATION_HANDLE_OFFSET, transform: 'translateX(-50%)' }}
             onPointerDown={handleRotationPointerDown}
           >
-            <div className="h-5 w-px bg-blue-500/40" />
-            <div className="flex h-3 w-3 items-center justify-center rounded-full border border-blue-500 bg-white shadow-sm">
-              <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+            <div className="h-5 w-px bg-foreground/40" />
+            <div className="flex h-3 w-3 items-center justify-center rounded-full border border-foreground bg-background shadow-sm">
+              <div className="h-1.5 w-1.5 rounded-full bg-foreground" />
             </div>
           </div>
           {/* Left rotation handle */}
@@ -341,9 +341,9 @@ export default function BoardElement({ element, isSelected, zoom, onPointerDown 
             style={{ left: -ROTATION_HANDLE_OFFSET, transform: 'translateY(-50%)' }}
             onPointerDown={handleRotationPointerDown}
           >
-            <div className="my-auto h-px w-5 bg-blue-500/40" />
-            <div className="flex h-3 w-3 items-center justify-center rounded-full border border-blue-500 bg-white shadow-sm">
-              <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+            <div className="my-auto h-px w-5 bg-foreground/40" />
+            <div className="flex h-3 w-3 items-center justify-center rounded-full border border-foreground bg-background shadow-sm">
+              <div className="h-1.5 w-1.5 rounded-full bg-foreground" />
             </div>
           </div>
         </>

@@ -307,11 +307,11 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
         <TooltipContent side="bottom">{t('collab.members', locale)}</TooltipContent>
       </Tooltip>
 
-      {/* AI & Import actions (desktop) */}
-      <div className="hidden md:flex items-center gap-1">
+      {/* AI & Import actions */}
+      <div className="flex items-center gap-1">
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-amber-500 hover:text-amber-600 neu-icon-btn" onClick={() => setAIDesignDialogOpen(true)}>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-foreground hover:text-foreground/70 neu-icon-btn" onClick={() => setAIDesignDialogOpen(true)}>
               <Sparkles className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
@@ -333,7 +333,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
           </TooltipTrigger>
           <TooltipContent side="bottom">{t('editor.exportSvg', locale)}</TooltipContent>
         </Tooltip>
-        <Separator orientation="vertical" className="h-6 neu-divider" />
+        <Separator orientation="vertical" className="h-6 neu-divider hidden md:block" />
       </div>
 
       {/* Right actions */}
