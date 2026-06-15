@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { Sun, Moon, Monitor, Check } from 'lucide-react'
 import { useTheme } from 'next-themes'
@@ -25,6 +25,31 @@ const ACCENT_PRESETS = [
   { color: '#f97316', name: 'Orange' },
 ]
 
+// ── Helpers ─────────────────────────────────────────────────────────────────
+
+/** Convert hex (#RRGGBB) to relative luminance (0–1) */
+function hexLuminance(hex: string): number {
+  const r = parseInt(hex.slice(1, 3), 16) / 255
+  const g = parseInt(hex.slice(3, 5), 16) / 255
+  const b = parseInt(hex.slice(5, 7), 16) / 255
+  const toLinear = (c: number) => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4))
+  return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b)
+}
+
+/** Apply primary color to all relevant CSS custom properties */
+function applyPrimaryColor(color: string, isDark: boolean) {
+  const root = document.documentElement
+  const lum = hexLuminance(color)
+  // Foreground: white on dark colors, dark on light colors
+  const fg = lum < 0.4 ? '#ffffff' : '#1a1a2e'
+  root.style.setProperty('--primary', color)
+  root.style.setProperty('--primary-foreground', fg)
+  root.style.setProperty('--ring', color)
+  root.style.setProperty('--sidebar-primary', color)
+  root.style.setProperty('--sidebar-primary-foreground', fg)
+  root.style.setProperty('--sidebar-ring', color)
+}
+
 // ── Font sizes ──────────────────────────────────────────────────────────────
 
 type FontSize = 'small' | 'medium' | 'large'
@@ -38,7 +63,7 @@ const FONT_SIZES: { value: FontSize; labelKey: string }[] = [
 // ── Component ───────────────────────────────────────────────────────────────
 
 export function ThemeSettings() {
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme, resolvedTheme } = useTheme()
   const user = useAuthStore((s) => s.user)
   const setUser = useAuthStore((s) => s.setUser)
   const locale = useAuthStore((s) => s.user?.language ?? 'en')
@@ -49,6 +74,19 @@ export function ThemeSettings() {
   const [fontSize, setFontSize] = useState<FontSize>('medium')
   const [compactMode, setCompactMode] = useState(false)
   const [enableAnimations, setEnableAnimations] = useState(true)
+
+  // Apply saved accent color on mount
+  useEffect(() => {
+    const savedColor = user?.accentColor
+    if (savedColor) {
+      applyPrimaryColor(savedColor, resolvedTheme === 'dark')
+    }
+  }, [user?.accentColor, resolvedTheme])
+
+  // Re-apply when theme changes (to adjust foreground)
+  useEffect(() => {
+    applyPrimaryColor(accentColor, resolvedTheme === 'dark')
+  }, [resolvedTheme, accentColor])
 
   const handleSave = async () => {
     try {
@@ -75,12 +113,11 @@ export function ThemeSettings() {
     }
   }
 
-  const handleAccentSelect = (color: string) => {
+  const handleAccentSelect = useCallback((color: string) => {
     setAccentColor(color)
     setShowCustomColor(false)
-    // Apply CSS variable
-    document.documentElement.style.setProperty('--accent', color)
-  }
+    applyPrimaryColor(color, document.documentElement.classList.contains('dark'))
+  }, [])
 
   const handleCustomColorSubmit = () => {
     if (/^#[0-9A-Fa-f]{6}$/.test(customColor)) {
@@ -111,9 +148,10 @@ export function ThemeSettings() {
           {themes.map(({ value, icon: Icon, labelKey }) => (
             <button
               key={value}
+              type="button"
               onClick={() => setTheme(value)}
               className={cn(
-                'flex flex-col items-center gap-2 rounded-xl p-4 transition-all bg-background border-0',
+                'flex flex-col items-center gap-2 rounded-xl p-4 transition-all bg-background border-0 cursor-pointer',
                 theme === value
                   ? 'neu-pressed text-primary'
                   : 'neu-flat text-muted-foreground hover:text-foreground',
@@ -137,22 +175,25 @@ export function ThemeSettings() {
           {ACCENT_PRESETS.map(({ color, name }) => (
             <button
               key={color}
+              type="button"
               onClick={() => handleAccentSelect(color)}
               title={name}
               className={cn(
-                'relative h-12 rounded-xl transition-all flex items-center justify-center bg-background border-0',
+                'relative h-12 rounded-xl transition-all flex items-center justify-center bg-background border-0 cursor-pointer',
                 accentColor === color
                   ? 'neu-pressed scale-105'
                   : 'neu-flat hover:scale-105',
               )}
             >
               <div
-                className="h-8 w-8 rounded-lg"
+                className="h-8 w-8 rounded-lg pointer-events-none"
                 style={{ backgroundColor: color }}
               />
               {accentColor === color && (
-                <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-                  <Check className="h-2.5 w-2.5" />
+                <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full flex items-center justify-center pointer-events-none z-10"
+                  style={{ backgroundColor: color, color: hexLuminance(color) < 0.4 ? '#ffffff' : '#1a1a2e' }}
+                >
+                  <Check className="h-3 w-3" strokeWidth={3} />
                 </div>
               )}
             </button>
@@ -161,8 +202,9 @@ export function ThemeSettings() {
 
         {/* Custom color input */}
         <button
+          type="button"
           onClick={() => setShowCustomColor(!showCustomColor)}
-          className="w-full h-10 rounded-xl border-0 bg-background neu-flat text-xs text-muted-foreground hover:text-muted-foreground transition-colors"
+          className="w-full h-10 rounded-xl border-0 bg-background neu-flat text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
         >
           {t('settings.theme.customColor', locale)}
         </button>
@@ -181,10 +223,11 @@ export function ThemeSettings() {
               onKeyDown={(e) => e.key === 'Enter' && handleCustomColorSubmit()}
             />
             <Button
+              type="button"
               size="sm"
               variant="outline"
               onClick={handleCustomColorSubmit}
-              className="shrink-0 rounded-xl btn-neu border-0"
+              className="shrink-0 rounded-xl btn-neu border-0 cursor-pointer"
             >
               {t('settings.theme.apply', locale)}
             </Button>
@@ -201,9 +244,10 @@ export function ThemeSettings() {
           {FONT_SIZES.map(({ value, labelKey }) => (
             <button
               key={value}
+              type="button"
               onClick={() => setFontSize(value)}
               className={cn(
-                'rounded-xl py-3 px-4 text-center text-sm font-medium transition-all bg-background border-0',
+                'rounded-xl py-3 px-4 text-center text-sm font-medium transition-all bg-background border-0 cursor-pointer',
                 fontSize === value
                   ? 'neu-pressed text-primary'
                   : 'neu-flat text-muted-foreground hover:text-foreground',
@@ -233,13 +277,13 @@ export function ThemeSettings() {
         </h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between rounded-xl neu-flat bg-background p-3">
-            <Label className="text-sm">
+            <Label className="text-sm cursor-pointer">
               {t('settings.theme.compactMode', locale)}
             </Label>
             <Switch checked={compactMode} onCheckedChange={setCompactMode} />
           </div>
           <div className="flex items-center justify-between rounded-xl neu-flat bg-background p-3">
-            <Label className="text-sm">
+            <Label className="text-sm cursor-pointer">
               {t('settings.theme.animations', locale)}
             </Label>
             <Switch
@@ -251,7 +295,11 @@ export function ThemeSettings() {
       </div>
 
       {/* Save */}
-      <Button onClick={handleSave} className="w-full rounded-xl btn-neu-primary border-0">
+      <Button
+        type="button"
+        onClick={handleSave}
+        className="w-full rounded-xl btn-neu-primary border-0 cursor-pointer"
+      >
         {t('settings.theme.saveAppearance', locale)}
       </Button>
     </motion.div>
