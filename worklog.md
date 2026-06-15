@@ -520,3 +520,25 @@ Stage Summary:
 - Build error fixed: generate-design API route now uses correct ZAI SDK import
 - Duplicate AI button removed from editor header (AI Assist still available in canvas toolbar sidebar)
 - Board card navigation confirmed working
+
+---
+Task ID: 4
+Agent: Main + subagents
+Task: Expand import/export to support ALL design file formats from ALL UI/UX design applications
+
+Work Log:
+- Created `/home/z/my-project/src/lib/design-formats.ts` — comprehensive format registry with 94+ design formats across 10 categories (Professional Design, Prototyping, Diagramming, Presentation, Vector & Image, Raster Image, Code & Web, 3D & Motion, Data & Config, Document)
+- Rewrote `/home/z/my-project/src/app/api/import/route.ts` — expanded from 7 extensions to 85+, added new parsers: parseDrawIO(), parseExcalidraw(), parseBalsamiq(), parseHTML(), parseEPS(), parseZipBased(), parseText()
+- Rebuilt `/home/z/my-project/src/components/editor/import/import-dialog.tsx` — shows 94+ formats organized by categories with search, collapsible sections, format chips
+- Created `/home/z/my-project/src/app/api/export/route.ts` — POST API supporting 27+ export formats (SVG, PNG, JPG, WebP, JSON, Figma, Sketch, Draw.io, Excalidraw, HTML, CSS, React, Vue, Svelte, PPTX, PDF, CSV, YAML, XML, Markdown, Balsamiq, Lottie, etc.)
+- Created `/home/z/my-project/src/components/editor/export/export-dialog.tsx` — full export dialog with format search, categorized format selection, file name input, export status states
+- Added `exportDialogOpen`/`setExportDialogOpen` to app-store.ts
+- Updated editor-view.tsx: replaced old SVG-only export button with export dialog, fixed missing `setImportOpen` and `setPluginDialogOpen` store subscriptions, added `setExportOpen` to EditorTopBar component
+- Added i18n key `editor.export`
+- Fixed bug: `setExportOpen` was used in EditorTopBar but only defined in EditorView (separate components)
+
+Stage Summary:
+- Import supports 94+ file extensions across all major design applications
+- Export supports 27+ output formats with proper API route
+- Both import and export dialogs show formats organized by category with search
+- Format registry provides metadata: extension, name, application, category, import/export support level

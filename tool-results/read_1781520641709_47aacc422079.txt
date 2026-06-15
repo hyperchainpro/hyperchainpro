@@ -1,0 +1,1210 @@
+     1→// Design format registry for BranchBoard
+     2→// Covers all UI/UX design applications and their file formats as of 2026
+     3→
+     4→export interface DesignFormat {
+     5→  extension: string;
+     6→  name: string;
+     7→  application: string;
+     8→  category: FormatCategory;
+     9→  importSupport: 'full' | 'partial' | 'image';
+    10→  exportSupport: 'full' | 'partial' | 'image';
+    11→  mimeType: string[];
+    12→  icon: string; // lucide icon name
+    13→  description: string;
+    14→}
+    15→
+    16→export type FormatCategory =
+    17→  | 'professional-design'
+    18→  | 'prototyping'
+    19→  | 'diagramming'
+    20→  | 'presentation'
+    21→  | 'vector-image'
+    22→  | 'raster-image'
+    23→  | 'code-web'
+    24→  | '3d-motion'
+    25→  | 'data-config'
+    26→  | 'document';
+    27→
+    28→export const FORMAT_CATEGORIES: { id: FormatCategory; label: string; icon: string }[] = [
+    29→  { id: 'professional-design', label: 'Professional Design', icon: 'Palette' },
+    30→  { id: 'prototyping', label: 'Prototyping & Interaction', icon: 'MousePointerClick' },
+    31→  { id: 'diagramming', label: 'Diagramming & Whiteboard', icon: 'GitBranch' },
+    32→  { id: 'presentation', label: 'Presentation', icon: 'Presentation' },
+    33→  { id: 'vector-image', label: 'Vector & Image', icon: 'Image' },
+    34→  { id: 'raster-image', label: 'Raster Image', icon: 'Camera' },
+    35→  { id: 'code-web', label: 'Code & Web', icon: 'Code' },
+    36→  { id: '3d-motion', label: '3D & Motion', icon: 'Box' },
+    37→  { id: 'data-config', label: 'Data & Config', icon: 'Database' },
+    38→  { id: 'document', label: 'Document', icon: 'FileText' },
+    39→];
+    40→
+    41→export type ImportMethod = 'svg' | 'json' | 'image' | 'drawio' | 'excalidraw' | 'balsamiq' | 'html' | 'zip-based' | 'text';
+    42→
+    43→export const ALL_DESIGN_FORMATS: DesignFormat[] = [
+    44→  // ──────────────────────────────────────────────
+    45→  // Professional Design Tools
+    46→  // ──────────────────────────────────────────────
+    47→  {
+    48→    extension: '.fig',
+    49→    name: 'Figma Design',
+    50→    application: 'Figma',
+    51→    category: 'professional-design',
+    52→    importSupport: 'full',
+    53→    exportSupport: 'partial',
+    54→    mimeType: ['application/x-figma', 'application/octet-stream'],
+    55→    icon: 'Figma',
+    56→    description: 'Figma native design file. Supports full import with layers, components, styles, and auto-layout. Exports as Figma-compatible JSON.',
+    57→  },
+    58→  {
+    59→    extension: '.figma',
+    60→    name: 'Figma Backup',
+    61→    application: 'Figma',
+    62→    category: 'professional-design',
+    63→    importSupport: 'full',
+    64→    exportSupport: 'partial',
+    65→    mimeType: ['application/x-figma-backup', 'application/octet-stream'],
+    66→    icon: 'Figma',
+    67→    description: 'Figma backup/offline file format. Full import with all design data preserved.',
+    68→  },
+    69→  {
+    70→    extension: '.sketch',
+    71→    name: 'Sketch Document',
+    72→    application: 'Sketch',
+    73→    category: 'professional-design',
+    74→    importSupport: 'partial',
+    75→    exportSupport: 'partial',
+    76→    mimeType: ['application/x-sketch', 'application/octet-stream'],
+    77→    icon: 'PenTool',
+    78→    description: 'Sketch native format. Imports page structure, artboards, layers, and styles. Exports as Sketch-compatible JSON.',
+    79→  },
+    80→  {
+    81→    extension: '.xd',
+    82→    name: 'Adobe XD Document',
+    83→    application: 'Adobe XD',
+    84→    category: 'professional-design',
+    85→    importSupport: 'partial',
+    86→    exportSupport: 'partial',
+    87→    mimeType: ['application/adobe.xd', 'application/octet-stream'],
+    88→    icon: 'Sparkles',
+    89→    description: 'Adobe XD design file. Imports layers, artboards, and basic interactions.',
+    90→  },
+    91→  {
+    92→    extension: '.psd',
+    93→    name: 'Adobe Photoshop Document',
+    94→    application: 'Adobe Photoshop',
+    95→    category: 'professional-design',
+    96→    importSupport: 'partial',
+    97→    exportSupport: 'image',
+    98→    mimeType: ['image/vnd.adobe.photoshop'],
+    99→    icon: 'Layers',
+   100→    description: 'Adobe Photoshop design file. Imports layer structure and metadata. Exports as flattened image.',
+   101→  },
+   102→  {
+   103→    extension: '.psb',
+   104→    name: 'Photoshop Large Document',
+   105→    application: 'Adobe Photoshop',
+   106→    category: 'professional-design',
+   107→    importSupport: 'partial',
+   108→    exportSupport: 'image',
+   109→    mimeType: ['image/vnd.adobe.photoshop.large'],
+   110→    icon: 'Layers',
+   111→    description: 'Adobe Photoshop large document format (beyond 30,000 pixels). Imports layer structure.',
+   112→  },
+   113→  {
+   114→    extension: '.ai',
+   115→    name: 'Adobe Illustrator File',
+   116→    application: 'Adobe Illustrator',
+   117→    category: 'professional-design',
+   118→    importSupport: 'partial',
+   119→    exportSupport: 'partial',
+   120→    mimeType: ['application/postscript', 'application/illustrator'],
+   121→    icon: 'PenTool',
+   122→    description: 'Adobe Illustrator vector file. Imports artboards, paths, and text. Exports as SVG-compatible structure.',
+   123→  },
+   124→  {
+   125→    extension: '.indd',
+   126→    name: 'Adobe InDesign Document',
+   127→    application: 'Adobe InDesign',
+   128→    category: 'professional-design',
+   129→    importSupport: 'image',
+   130→    exportSupport: 'image',
+   131→    mimeType: ['application/x-indesign'],
+   132→    icon: 'BookOpen',
+   133→    description: 'Adobe InDesign layout file. Imports as rendered preview image.',
+   134→  },
+   135→  {
+   136→    extension: '.idml',
+   137→    name: 'InDesign Markup',
+   138→    application: 'Adobe InDesign',
+   139→    category: 'professional-design',
+   140→    importSupport: 'partial',
+   141→    exportSupport: 'partial',
+   142→    mimeType: ['application/vnd.adobe.indesign-idml-package'],
+   143→    icon: 'BookOpen',
+   144→    description: 'Adobe InDesign Markup Language. Imports page structure, text frames, and linked assets.',
+   145→  },
+   146→  {
+   147→    extension: '.aep',
+   148→    name: 'After Effects Project',
+   149→    application: 'Adobe After Effects',
+   150→    category: 'professional-design',
+   151→    importSupport: 'image',
+   152→    exportSupport: 'image',
+   153→    mimeType: ['application/x-aftereffects'],
+   154→    icon: 'Film',
+   155→    description: 'Adobe After Effects motion graphics project. Imports as preview frame image.',
+   156→  },
+   157→  {
+   158→    extension: '.prproj',
+   159→    name: 'Premiere Pro Project',
+   160→    application: 'Adobe Premiere Pro',
+   161→    category: 'professional-design',
+   162→    importSupport: 'image',
+   163→    exportSupport: 'image',
+   164→    mimeType: ['application/x-premierepro'],
+   165→    icon: 'Film',
+   166→    description: 'Adobe Premiere Pro video editing project. Imports as thumbnail/preview image.',
+   167→  },
+   168→  {
+   169→    extension: '.afdesign',
+   170→    name: 'Affinity Designer File',
+   171→    application: 'Affinity Designer',
+   172→    category: 'professional-design',
+   173→    importSupport: 'partial',
+   174→    exportSupport: 'partial',
+   175→    mimeType: ['application/x-affinity-designer'],
+   176→    icon: 'PenTool',
+   177→    description: 'Affinity Designer native file. Imports vector layers, artboards, and styles.',
+   178→  },
+   179→  {
+   180→    extension: '.afphoto',
+   181→    name: 'Affinity Photo File',
+   182→    application: 'Affinity Photo',
+   183→    category: 'professional-design',
+   184→    importSupport: 'image',
+   185→    exportSupport: 'image',
+   186→    mimeType: ['application/x-affinity-photo'],
+   187→    icon: 'Camera',
+   188→    description: 'Affinity Photo native file. Imports as rendered image with layer metadata.',
+   189→  },
+   190→  {
+   191→    extension: '.afpub',
+   192→    name: 'Affinity Publisher File',
+   193→    application: 'Affinity Publisher',
+   194→    category: 'professional-design',
+   195→    importSupport: 'image',
+   196→    exportSupport: 'image',
+   197→    mimeType: ['application/x-affinity-publisher'],
+   198→    icon: 'BookOpen',
+   199→    description: 'Affinity Publisher native file. Imports as rendered page preview.',
+   200→  },
+   201→  {
+   202→    extension: '.cdr',
+   203→    name: 'CorelDRAW File',
+   204→    application: 'CorelDRAW',
+   205→    category: 'professional-design',
+   206→    importSupport: 'image',
+   207→    exportSupport: 'image',
+   208→    mimeType: ['application/x-coreldraw', 'image/x-coreldraw'],
+   209→    icon: 'PenTool',
+   210→    description: 'CorelDRAW vector graphic file. Imports as rendered image.',
+   211→  },
+   212→  {
+   213→    extension: '.gvdesign',
+   214→    name: 'Gravit Designer File',
+   215→    application: 'Gravit Designer',
+   216→    category: 'professional-design',
+   217→    importSupport: 'partial',
+   218→    exportSupport: 'partial',
+   219→    mimeType: ['application/x-gravit-designer', 'application/json'],
+   220→    icon: 'PenTool',
+   221→    description: 'Gravit Designer (now Corel Vector) native file. Imports vector layers and styles.',
+   222→  },
+   223→
+   224→  // ──────────────────────────────────────────────
+   225→  // Prototyping & Interaction
+   226→  // ──────────────────────────────────────────────
+   227→  {
+   228→    extension: '.framer',
+   229→    name: 'Framer Project',
+   230→    application: 'Framer',
+   231→    category: 'prototyping',
+   232→    importSupport: 'partial',
+   233→    exportSupport: 'partial',
+   234→    mimeType: ['application/x-framer', 'application/json'],
+   235→    icon: 'MousePointerClick',
+   236→    description: 'Framer design and prototyping file. Imports layout, components, and animation metadata.',
+   237→  },
+   238→  {
+   239→    extension: '.principle',
+   240→    name: 'Principle File',
+   241→    application: 'Principle',
+   242→    category: 'prototyping',
+   243→    importSupport: 'image',
+   244→    exportSupport: 'image',
+   245→    mimeType: ['application/x-principle'],
+   246→    icon: 'Play',
+   247→    description: 'Principle interaction design file. Imports as preview image.',
+   248→  },
+   249→  {
+   250→    extension: '.pie',
+   251→    name: 'ProtoPie File',
+   252→    application: 'ProtoPie',
+   253→    category: 'prototyping',
+   254→    importSupport: 'partial',
+   255→    exportSupport: 'partial',
+   256→    mimeType: ['application/x-protopie', 'application/json'],
+   257→    icon: 'MousePointerClick',
+   258→    description: 'ProtoPie interactive prototype. Imports layer structure and interaction triggers.',
+   259→  },
+   260→  {
+   261→    extension: '.inv',
+   262→    name: 'InVision Studio File',
+   263→    application: 'InVision',
+   264→    category: 'prototyping',
+   265→    importSupport: 'partial',
+   266→    exportSupport: 'partial',
+   267→    mimeType: ['application/x-invision-studio', 'application/json'],
+   268→    icon: 'Monitor',
+   269→    description: 'InVision Studio design file. Imports screens, components, and transition metadata.',
+   270→  },
+   271→  {
+   272→    extension: '.invd',
+   273→    name: 'InVision DSM Package',
+   274→    application: 'InVision',
+   275→    category: 'prototyping',
+   276→    importSupport: 'partial',
+   277→    exportSupport: 'partial',
+   278→    mimeType: ['application/x-invision-dsm', 'application/json'],
+   279→    icon: 'Package',
+   280→    description: 'InVision Design System Manager package. Imports design tokens and component specs.',
+   281→  },
+   282→  {
+   283→    extension: '.rp',
+   284→    name: 'Axure RP File',
+   285→    application: 'Axure',
+   286→    category: 'prototyping',
+   287→    importSupport: 'partial',
+   288→    exportSupport: 'partial',
+   289→    mimeType: ['application/x-axure-rp'],
+   290→    icon: 'Sitemap',
+   291→    description: 'Axure RP prototyping file. Imports pages, widgets, and interaction flows.',
+   292→  },
+   293→  {
+   294→    extension: '.jm',
+   295→    name: 'Justinmind File',
+   296→    application: 'Justinmind',
+   297→    category: 'prototyping',
+   298→    importSupport: 'image',
+   299→    exportSupport: 'image',
+   300→    mimeType: ['application/x-justinmind'],
+   301→    icon: 'Smartphone',
+   302→    description: 'Justinmind prototype file. Imports as rendered screen preview.',
+   303→  },
+   304→  {
+   305→    extension: '.mp',
+   306→    name: 'Mockplus File',
+   307→    application: 'Mockplus',
+   308→    category: 'prototyping',
+   309→    importSupport: 'image',
+   310→    exportSupport: 'image',
+   311→    mimeType: ['application/x-mockplus'],
+   312→    icon: 'Layout',
+   313→    description: 'Mockplus prototyping file. Imports as rendered preview image.',
+   314→  },
+   315→  {
+   316→    extension: '.penpot',
+   317→    name: 'Penpot File',
+   318→    application: 'Penpot',
+   319→    category: 'prototyping',
+   320→    importSupport: 'partial',
+   321→    exportSupport: 'partial',
+   322→    mimeType: ['application/x-penpot', 'application/json'],
+   323→    icon: 'PenTool',
+   324→    description: 'Penpot open-source design file. Imports layers, components, and layout data.',
+   325→  },
+   326→
+   327→  // ──────────────────────────────────────────────
+   328→  // Diagramming & Whiteboard
+   329→  // ──────────────────────────────────────────────
+   330→  {
+   331→    extension: '.drawio',
+   332→    name: 'Draw.io Diagram',
+   333→    application: 'Draw.io (diagrams.net)',
+   334→    category: 'diagramming',
+   335→    importSupport: 'full',
+   336→    exportSupport: 'full',
+   337→    mimeType: ['application/x-drawio', 'text/xml'],
+   338→    icon: 'GitBranch',
+   339→    description: 'Draw.io (diagrams.net) diagram. Full import/export of shapes, connectors, and styling.',
+   340→  },
+   341→  {
+   342→    extension: '.dio',
+   343→    name: 'Draw.io Compressed Diagram',
+   344→    application: 'Draw.io (diagrams.net)',
+   345→    category: 'diagramming',
+   346→    importSupport: 'full',
+   347→    exportSupport: 'full',
+   348→    mimeType: ['application/x-drawio-compressed', 'application/octet-stream'],
+   349→    icon: 'GitBranch',
+   350→    description: 'Compressed Draw.io diagram. Same full support as .drawio format.',
+   351→  },
+   352→  {
+   353→    extension: '.vsdx',
+   354→    name: 'Visio Drawing',
+   355→    application: 'Microsoft Visio',
+   356→    category: 'diagramming',
+   357→    importSupport: 'partial',
+   358→    exportSupport: 'partial',
+   359→    mimeType: ['application/vnd.ms-visio.drawing.main+xml'],
+   360→    icon: 'GitBranch',
+   361→    description: 'Microsoft Visio 2013+ drawing. Imports page structure, shapes, and connectors.',
+   362→  },
+   363→  {
+   364→    extension: '.vsd',
+   365→    name: 'Visio Legacy Drawing',
+   366→    application: 'Microsoft Visio',
+   367→    category: 'diagramming',
+   368→    importSupport: 'partial',
+   369→    exportSupport: 'partial',
+   370→    mimeType: ['application/vnd.ms-visio'],
+   371→    icon: 'GitBranch',
+   372→    description: 'Microsoft Visio legacy binary drawing format. Imports basic shape data.',
+   373→  },
+   374→  {
+   375→    extension: '.graffle',
+   376→    name: 'OmniGraffle Document',
+   377→    application: 'OmniGraffle',
+   378→    category: 'diagramming',
+   379→    importSupport: 'partial',
+   380→    exportSupport: 'partial',
+   381→    mimeType: ['application/x-omnigraffle'],
+   382→    icon: 'GitBranch',
+   383→    description: 'OmniGraffle diagram document. Imports canvas layers, shapes, and connections.',
+   384→  },
+   385→  {
+   386→    extension: '.bmpr',
+   387→    name: 'Balsamiq Project',
+   388→    application: 'Balsamiq',
+   389→    category: 'diagramming',
+   390→    importSupport: 'full',
+   391→    exportSupport: 'partial',
+   392→    mimeType: ['application/x-balsamiq', 'application/xml'],
+   393→    icon: 'Layout',
+   394→    description: 'Balsamiq wireframe project. Full import of wireframe controls, layout, and notes.',
+   395→  },
+   396→  {
+   397→    extension: '.pencil',
+   398→    name: 'Pencil Project File',
+   399→    application: 'Pencil Project',
+   400→    category: 'diagramming',
+   401→    importSupport: 'partial',
+   402→    exportSupport: 'partial',
+   403→    mimeType: ['application/x-pencil-project', 'application/xml'],
+   404→    icon: 'Pencil',
+   405→    description: 'Pencil Project open-source wireframing tool file. Imports shapes and stencils.',
+   406→  },
+   407→  {
+   408→    extension: '.excalidraw',
+   409→    name: 'Excalidraw Drawing',
+   410→    application: 'Excalidraw',
+   411→    category: 'diagramming',
+   412→    importSupport: 'full',
+   413→    exportSupport: 'full',
+   414→    mimeType: ['application/x-excalidraw', 'application/json'],
+   415→    icon: 'Pencil',
+   416→    description: 'Excalidraw hand-drawn style diagram. Full import/export of elements, text, and styling.',
+   417→  },
+   418→  {
+   419→    extension: '.miro',
+   420→    name: 'Miro Board Export',
+   421→    application: 'Miro',
+   422→    category: 'diagramming',
+   423→    importSupport: 'partial',
+   424→    exportSupport: 'partial',
+   425→    mimeType: ['application/x-miro', 'application/json'],
+   426→    icon: 'LayoutDashboard',
+   427→    description: 'Miro collaborative whiteboard export. Imports sticky notes, shapes, and connections.',
+   428→  },
+   429→  {
+   430→    extension: '.rtb',
+   431→    name: 'Miro Board Archive',
+   432→    application: 'Miro',
+   433→    category: 'diagramming',
+   434→    importSupport: 'image',
+   435→    exportSupport: 'image',
+   436→    mimeType: ['application/x-miro-board', 'application/octet-stream'],
+   437→    icon: 'LayoutDashboard',
+   438→    description: 'Miro board binary archive. Imports as rendered board preview image.',
+   439→  },
+   440→  {
+   441→    extension: '.figjam',
+   442→    name: 'FigJam Board',
+   443→    application: 'FigJam',
+   444→    category: 'diagramming',
+   445→    importSupport: 'partial',
+   446→    exportSupport: 'partial',
+   447→    mimeType: ['application/x-figjam', 'application/octet-stream'],
+   448→    icon: 'StickyNote',
+   449→    description: 'FigJam collaborative whiteboard. Imports sticky notes, connectors, and stamps.',
+   450→  },
+   451→  {
+   452→    extension: '.whimsical',
+   453→    name: 'Whimsical Board',
+   454→    application: 'Whimsical',
+   455→    category: 'diagramming',
+   456→    importSupport: 'partial',
+   457→    exportSupport: 'partial',
+   458→    mimeType: ['application/x-whimsical', 'application/json'],
+   459→    icon: 'Sparkles',
+   460→    description: 'Whimsical flowchart and wireframe board. Imports flowchart nodes and wireframe components.',
+   461→  },
+   462→  {
+   463→    extension: '.lucid',
+   464→    name: 'Lucidchart Diagram',
+   465→    application: 'Lucidchart',
+   466→    category: 'diagramming',
+   467→    importSupport: 'partial',
+   468→    exportSupport: 'partial',
+   469→    mimeType: ['application/x-lucidchart', 'application/json'],
+   470→    icon: 'GitBranch',
+   471→    description: 'Lucidchart diagram export. Imports shapes, groups, and connection metadata.',
+   472→  },
+   473→  {
+   474→    extension: '.gliffy',
+   475→    name: 'Gliffy Diagram',
+   476→    application: 'Gliffy',
+   477→    category: 'diagramming',
+   478→    importSupport: 'partial',
+   479→    exportSupport: 'partial',
+   480→    mimeType: ['application/x-gliffy', 'application/json'],
+   481→    icon: 'GitBranch',
+   482→    description: 'Gliffy diagram export. Imports shape hierarchy and connector data.',
+   483→  },
+   484→  {
+   485→    extension: '.canva',
+   486→    name: 'Canva Design',
+   487→    application: 'Canva',
+   488→    category: 'diagramming',
+   489→    importSupport: 'partial',
+   490→    exportSupport: 'partial',
+   491→    mimeType: ['application/x-canva', 'application/octet-stream'],
+   492→    icon: 'Palette',
+   493→    description: 'Canva design export. Imports page elements, text, and image placements.',
+   494→  },
+   495→
+   496→  // ──────────────────────────────────────────────
+   497→  // Presentation
+   498→  // ──────────────────────────────────────────────
+   499→  {
+   500→    extension: '.pptx',
+   501→    name: 'PowerPoint Presentation',
+   502→    application: 'Microsoft PowerPoint',
+   503→    category: 'presentation',
+   504→    importSupport: 'partial',
+   505→    exportSupport: 'full',
+   506→    mimeType: ['application/vnd.openxmlformats-officedocument.presentationml.presentation'],
+   507→    icon: 'Presentation',
+   508→    description: 'Microsoft PowerPoint 2007+ presentation. Imports slides, layouts, and text. Full export with themes and transitions.',
+   509→  },
+   510→  {
+   511→    extension: '.ppt',
+   512→    name: 'PowerPoint Legacy',
+   513→    application: 'Microsoft PowerPoint',
+   514→    category: 'presentation',
+   515→    importSupport: 'partial',
+   516→    exportSupport: 'partial',
+   517→    mimeType: ['application/vnd.ms-powerpoint'],
+   518→    icon: 'Presentation',
+   519→    description: 'Legacy PowerPoint binary format. Imports slide content and basic layout.',
+   520→  },
+   521→  {
+   522→    extension: '.key',
+   523→    name: 'Apple Keynote',
+   524→    application: 'Apple Keynote',
+   525→    category: 'presentation',
+   526→    importSupport: 'image',
+   527→    exportSupport: 'image',
+   528→    mimeType: ['application/x-iwork-keynote-sffkey'],
+   529→    icon: 'Presentation',
+   530→    description: 'Apple Keynote presentation. Imports as rendered slide images.',
+   531→  },
+   532→  {
+   533→    extension: '.gslides',
+   534→    name: 'Google Slides',
+   535→    application: 'Google Slides',
+   536→    category: 'presentation',
+   537→    importSupport: 'image',
+   538→    exportSupport: 'image',
+   539→    mimeType: ['application/vnd.google-apps.presentation'],
+   540→    icon: 'Presentation',
+   541→    description: 'Google Slides presentation. Imports as rendered slide images.',
+   542→  },
+   543→  {
+   544→    extension: '.odp',
+   545→    name: 'LibreOffice Impress',
+   546→    application: 'LibreOffice Impress',
+   547→    category: 'presentation',
+   548→    importSupport: 'partial',
+   549→    exportSupport: 'partial',
+   550→    mimeType: ['application/vnd.oasis.opendocument.presentation'],
+   551→    icon: 'Presentation',
+   552→    description: 'OpenDocument presentation format. Imports slides, shapes, and text content.',
+   553→  },
+   554→  {
+   555→    extension: '.pez',
+   556→    name: 'Prezi Presentation',
+   557→    application: 'Prezi',
+   558→    category: 'presentation',
+   559→    importSupport: 'image',
+   560→    exportSupport: 'image',
+   561→    mimeType: ['application/x-prezi'],
+   562→    icon: 'Presentation',
+   563→    description: 'Prezi presentation file. Imports as preview frame image.',
+   564→  },
+   565→
+   566→  // ──────────────────────────────────────────────
+   567→  // Vector & Image
+   568→  // ──────────────────────────────────────────────
+   569→  {
+   570→    extension: '.svg',
+   571→    name: 'Scalable Vector Graphics',
+   572→    application: 'W3C Standard',
+   573→    category: 'vector-image',
+   574→    importSupport: 'full',
+   575→    exportSupport: 'full',
+   576→    mimeType: ['image/svg+xml'],
+   577→    icon: 'Image',
+   578→    description: 'SVG vector format. Full import/export of paths, shapes, text, gradients, and filters.',
+   579→  },
+   580→  {
+   581→    extension: '.svgz',
+   582→    name: 'Compressed SVG',
+   583→    application: 'W3C Standard',
+   584→    category: 'vector-image',
+   585→    importSupport: 'full',
+   586→    exportSupport: 'full',
+   587→    mimeType: ['image/svg+xml-compressed', 'application/gzip'],
+   588→    icon: 'Image',
+   589→    description: 'Gzip-compressed SVG. Same full support as .svg with smaller file size.',
+   590→  },
+   591→  {
+   592→    extension: '.eps',
+   593→    name: 'Encapsulated PostScript',
+   594→    application: 'Adobe',
+   595→    category: 'vector-image',
+   596→    importSupport: 'partial',
+   597→    exportSupport: 'full',
+   598→    mimeType: ['application/postscript', 'image/x-eps'],
+   599→    icon: 'Image',
+   600→    description: 'Encapsulated PostScript vector format. Imports basic paths and text. Full SVG export.',
+   601→  },
+   602→  {
+   603→    extension: '.png',
+   604→    name: 'PNG Image',
+   605→    application: 'PNG Standard',
+   606→    category: 'raster-image',
+   607→    importSupport: 'image',
+   608→    exportSupport: 'full',
+   609→    mimeType: ['image/png'],
+   610→    icon: 'Camera',
+   611→    description: 'Portable Network Graphics. Imports as image element with transparency support. Full export.',
+   612→  },
+   613→  {
+   614→    extension: '.jpg',
+   615→    name: 'JPEG Image',
+   616→    application: 'JPEG Standard',
+   617→    category: 'raster-image',
+   618→    importSupport: 'image',
+   619→    exportSupport: 'full',
+   620→    mimeType: ['image/jpeg'],
+   621→    icon: 'Camera',
+   622→    description: 'JPEG compressed image. Imports as image element. Full export with quality control.',
+   623→  },
+   624→  {
+   625→    extension: '.jpeg',
+   626→    name: 'JPEG Image (alt extension)',
+   627→    application: 'JPEG Standard',
+   628→    category: 'raster-image',
+   629→    importSupport: 'image',
+   630→    exportSupport: 'full',
+   631→    mimeType: ['image/jpeg'],
+   632→    icon: 'Camera',
+   633→    description: 'JPEG image with .jpeg extension. Same format as .jpg.',
+   634→  },
+   635→  {
+   636→    extension: '.webp',
+   637→    name: 'WebP Image',
+   638→    application: 'Google',
+   639→    category: 'raster-image',
+   640→    importSupport: 'image',
+   641→    exportSupport: 'full',
+   642→    mimeType: ['image/webp'],
+   643→    icon: 'Camera',
+   644→    description: 'WebP modern image format with lossy/lossless support. Imports as image element. Full export.',
+   645→  },
+   646→  {
+   647→    extension: '.gif',
+   648→    name: 'GIF Image',
+   649→    application: 'GIF Standard',
+   650→    category: 'raster-image',
+   651→    importSupport: 'image',
+   652→    exportSupport: 'full',
+   653→    mimeType: ['image/gif'],
+   654→    icon: 'Camera',
+   655→    description: 'Graphics Interchange Format. Imports as image element (first frame). Full export.',
+   656→  },
+   657→  {
+   658→    extension: '.bmp',
+   659→    name: 'BMP Image',
+   660→    application: 'BMP Standard',
+   661→    category: 'raster-image',
+   662→    importSupport: 'image',
+   663→    exportSupport: 'full',
+   664→    mimeType: ['image/bmp', 'image/x-bmp'],
+   665→    icon: 'Camera',
+   666→    description: 'Windows Bitmap image. Imports as image element. Full export.',
+   667→  },
+   668→  {
+   669→    extension: '.tiff',
+   670→    name: 'TIFF Image',
+   671→    application: 'TIFF Standard',
+   672→    category: 'raster-image',
+   673→    importSupport: 'image',
+   674→    exportSupport: 'full',
+   675→    mimeType: ['image/tiff'],
+   676→    icon: 'Camera',
+   677→    description: 'Tagged Image File Format. Imports as image element with multi-page support. Full export.',
+   678→  },
+   679→  {
+   680→    extension: '.tif',
+   681→    name: 'TIFF Image (alt extension)',
+   682→    application: 'TIFF Standard',
+   683→    category: 'raster-image',
+   684→    importSupport: 'image',
+   685→    exportSupport: 'full',
+   686→    mimeType: ['image/tiff'],
+   687→    icon: 'Camera',
+   688→    description: 'TIFF image with .tif extension. Same format as .tiff.',
+   689→  },
+   690→  {
+   691→    extension: '.ico',
+   692→    name: 'Icon File',
+   693→    application: 'ICO Standard',
+   694→    category: 'raster-image',
+   695→    importSupport: 'image',
+   696→    exportSupport: 'image',
+   697→    mimeType: ['image/x-icon', 'image/vnd.microsoft.icon'],
+   698→    icon: 'Star',
+   699→    description: 'Windows icon file with multiple sizes. Imports as image element.',
+   700→  },
+   701→  {
+   702→    extension: '.avif',
+   703→    name: 'AVIF Image',
+   704→    application: 'AOMedia',
+   705→    category: 'raster-image',
+   706→    importSupport: 'image',
+   707→    exportSupport: 'full',
+   708→    mimeType: ['image/avif'],
+   709→    icon: 'Camera',
+   710→    description: 'AV1 Image File Format. Next-gen compression with excellent quality. Imports as image. Full export.',
+   711→  },
+   712→  {
+   713→    extension: '.heic',
+   714→    name: 'HEIC Image',
+   715→    application: 'Apple / MPEG',
+   716→    category: 'raster-image',
+   717→    importSupport: 'image',
+   718→    exportSupport: 'full',
+   719→    mimeType: ['image/heic'],
+   720→    icon: 'Camera',
+   721→    description: 'High Efficiency Image Container. Apple and MPEG standard. Imports as image. Full export.',
+   722→  },
+   723→  {
+   724→    extension: '.heif',
+   725→    name: 'HEIF Image',
+   726→    application: 'MPEG',
+   727→    category: 'raster-image',
+   728→    importSupport: 'image',
+   729→    exportSupport: 'full',
+   730→    mimeType: ['image/heif'],
+   731→    icon: 'Camera',
+   732→    description: 'High Efficiency Image Format. MPEG standard container. Imports as image. Full export.',
+   733→  },
+   734→  {
+   735→    extension: '.tga',
+   736→    name: 'Targa Image',
+   737→    application: 'TGA Standard',
+   738→    category: 'raster-image',
+   739→    importSupport: 'image',
+   740→    exportSupport: 'image',
+   741→    mimeType: ['image/x-targa', 'image/tga'],
+   742→    icon: 'Camera',
+   743→    description: 'Truevision Targa raster format. Common in game textures. Imports as image element.',
+   744→  },
+   745→  {
+   746→    extension: '.hdr',
+   747→    name: 'HDR Image',
+   748→    application: 'HDR Standard',
+   749→    category: 'raster-image',
+   750→    importSupport: 'image',
+   751→    exportSupport: 'image',
+   752→    mimeType: ['image/vnd.radiance'],
+   753→    icon: 'Camera',
+   754→    description: 'High Dynamic Range image format. Imports as tone-mapped image element.',
+   755→  },
+   756→  {
+   757→    extension: '.pdf',
+   758→    name: 'PDF Document',
+   759→    application: 'Adobe',
+   760→    category: 'vector-image',
+   761→    importSupport: 'partial',
+   762→    exportSupport: 'full',
+   763→    mimeType: ['application/pdf'],
+   764→    icon: 'FileText',
+   765→    description: 'Portable Document Format. Imports pages as vector/raster elements. Full PDF export.',
+   766→  },
+   767→  {
+   768→    extension: '.icns',
+   769→    name: 'macOS Icon',
+   770→    application: 'Apple',
+   771→    category: 'raster-image',
+   772→    importSupport: 'image',
+   773→    exportSupport: 'image',
+   774→    mimeType: ['image/x-icns'],
+   775→    icon: 'Apple',
+   776→    description: 'macOS application icon bundle. Imports as image element.',
+   777→  },
+   778→  {
+   779→    extension: '.wbmp',
+   780→    name: 'Wireless Bitmap',
+   781→    application: 'WAP Standard',
+   782→    category: 'raster-image',
+   783→    importSupport: 'image',
+   784→    exportSupport: 'image',
+   785→    mimeType: ['image/vnd.wap.wbmp'],
+   786→    icon: 'Smartphone',
+   787→    description: 'Wireless Bitmap for mobile devices. Monochrome format. Imports as image element.',
+   788→  },
+   789→  {
+   790→    extension: '.jxr',
+   791→    name: 'JPEG XR Image',
+   792→    application: 'Microsoft',
+   793→    category: 'raster-image',
+   794→    importSupport: 'image',
+   795→    exportSupport: 'image',
+   796→    mimeType: ['image/jxr'],
+   797→    icon: 'Camera',
+   798→    description: 'JPEG XR (HD Photo) extended range format. Imports as image element.',
+   799→  },
+   800→  {
+   801→    extension: '.dds',
+   802→    name: 'DirectDraw Surface',
+   803→    application: 'Microsoft',
+   804→    category: 'raster-image',
+   805→    importSupport: 'image',
+   806→    exportSupport: 'image',
+   807→    mimeType: ['image/vnd-ms.dds', 'image/x-dds'],
+   808→    icon: 'Box',
+   809→    description: 'DirectDraw Surface texture format. Common in game development. Imports as image element.',
+   810→  },
+   811→
+   812→  // ──────────────────────────────────────────────
+   813→  // Code & Web
+   814→  // ──────────────────────────────────────────────
+   815→  {
+   816→    extension: '.html',
+   817→    name: 'HTML Document',
+   818→    application: 'W3C Standard',
+   819→    category: 'code-web',
+   820→    importSupport: 'full',
+   821→    exportSupport: 'full',
+   822→    mimeType: ['text/html'],
+   823→    icon: 'Code',
+   824→    description: 'HTML web page. Full import as editable canvas with DOM structure. Full HTML export.',
+   825→  },
+   826→  {
+   827→    extension: '.htm',
+   828→    name: 'HTML Document (alt extension)',
+   829→    application: 'W3C Standard',
+   830→    category: 'code-web',
+   831→    importSupport: 'full',
+   832→    exportSupport: 'full',
+   833→    mimeType: ['text/html'],
+   834→    icon: 'Code',
+   835→    description: 'HTML document with .htm extension. Same format as .html.',
+   836→  },
+   837→  {
+   838→    extension: '.css',
+   839→    name: 'CSS Stylesheet',
+   840→    application: 'W3C Standard',
+   841→    category: 'code-web',
+   842→    importSupport: 'partial',
+   843→    exportSupport: 'full',
+   844→    mimeType: ['text/css'],
+   845→    icon: 'Code',
+   846→    description: 'Cascading Style Sheets. Imports as style tokens and variables. Full CSS export.',
+   847→  },
+   848→  {
+   849→    extension: '.jsx',
+   850→    name: 'JSX Component',
+   851→    application: 'React',
+   852→    category: 'code-web',
+   853→    importSupport: 'partial',
+   854→    exportSupport: 'full',
+   855→    mimeType: ['text/javascript', 'text/jsx'],
+   856→    icon: 'Code',
+   857→    description: 'React JSX component. Imports component structure and props. Full JSX export.',
+   858→  },
+   859→  {
+   860→    extension: '.tsx',
+   861→    name: 'TypeScript JSX Component',
+   862→    application: 'React',
+   863→    category: 'code-web',
+   864→    importSupport: 'partial',
+   865→    exportSupport: 'full',
+   866→    mimeType: ['text/typescript', 'text/tsx'],
+   867→    icon: 'Code',
+   868→    description: 'React TypeScript component. Imports typed component structure. Full TSX export.',
+   869→  },
+   870→  {
+   871→    extension: '.vue',
+   872→    name: 'Vue Single File Component',
+   873→    application: 'Vue.js',
+   874→    category: 'code-web',
+   875→    importSupport: 'partial',
+   876→    exportSupport: 'full',
+   877→    mimeType: ['text/x-vue'],
+   878→    icon: 'Code',
+   879→    description: 'Vue.js single file component. Imports template, script, and style sections.',
+   880→  },
+   881→  {
+   882→    extension: '.svelte',
+   883→    name: 'Svelte Component',
+   884→    application: 'Svelte',
+   885→    category: 'code-web',
+   886→    importSupport: 'partial',
+   887→    exportSupport: 'full',
+   888→    mimeType: ['text/x-svelte'],
+   889→    icon: 'Code',
+   890→    description: 'Svelte component file. Imports markup, script, and style blocks.',
+   891→  },
+   892→  {
+   893→    extension: '.dart',
+   894→    name: 'Dart File',
+   895→    application: 'Flutter',
+   896→    category: 'code-web',
+   897→    importSupport: 'partial',
+   898→    exportSupport: 'partial',
+   899→    mimeType: ['application/dart', 'text/x-dart'],
+   900→    icon: 'Smartphone',
+   901→    description: 'Dart/Flutter UI code. Imports widget tree structure. Partial Dart export.',
+   902→  },
+   903→
+   904→  // ──────────────────────────────────────────────
+   905→  // 3D & Motion
+   906→  // ──────────────────────────────────────────────
+   907→  {
+   908→    extension: '.blend',
+   909→    name: 'Blender Project',
+   910→    application: 'Blender',
+   911→    category: '3d-motion',
+   912→    importSupport: 'image',
+   913→    exportSupport: 'image',
+   914→    mimeType: ['application/x-blender'],
+   915→    icon: 'Box',
+   916→    description: 'Blender 3D project file. Imports as rendered preview image.',
+   917→  },
+   918→  {
+   919→    extension: '.c4d',
+   920→    name: 'Cinema 4D Project',
+   921→    application: 'Cinema 4D',
+   922→    category: '3d-motion',
+   923→    importSupport: 'image',
+   924→    exportSupport: 'image',
+   925→    mimeType: ['application/x-cinema4d'],
+   926→    icon: 'Box',
+   927→    description: 'Cinema 4D 3D project file. Imports as rendered preview image.',
+   928→  },
+   929→  {
+   930→    extension: '.riv',
+   931→    name: 'Rive Animation',
+   932→    application: 'Rive',
+   933→    category: '3d-motion',
+   934→    importSupport: 'partial',
+   935→    exportSupport: 'partial',
+   936→    mimeType: ['application/x-rive', 'application/octet-stream'],
+   937→    icon: 'Play',
+   938→    description: 'Rive interactive animation. Imports state machines, animations, and nested artboards.',
+   939→  },
+   940→  {
+   941→    extension: '.lottie',
+   942→    name: 'Lottie Animation',
+   943→    application: 'Lottie',
+   944→    category: '3d-motion',
+   945→    importSupport: 'partial',
+   946→    exportSupport: 'full',
+   947→    mimeType: ['application/json+Lottie'],
+   948→    icon: 'Play',
+   949→    description: 'Lottie/Bodymovin animation JSON. Imports keyframes, shapes, and transforms. Full Lottie export.',
+   950→  },
+   951→
+   952→  // ──────────────────────────────────────────────
+   953→  // Data & Config
+   954→  // ──────────────────────────────────────────────
+   955→  {
+   956→    extension: '.json',
+   957→    name: 'JSON File',
+   958→    application: 'JSON Standard',
+   959→    category: 'data-config',
+   960→    importSupport: 'full',
+   961→    exportSupport: 'full',
+   962→    mimeType: ['application/json'],
+   963→    icon: 'Braces',
+   964→    description: 'JavaScript Object Notation. Full import/export as structured data or design tokens.',
+   965→  },
+   966→  {
+   967→    extension: '.yaml',
+   968→    name: 'YAML File',
+   969→    application: 'YAML Standard',
+   970→    category: 'data-config',
+   971→    importSupport: 'partial',
+   972→    exportSupport: 'full',
+   973→    mimeType: ['application/x-yaml', 'text/yaml'],
+   974→    icon: 'Braces',
+   975→    description: 'YAML data serialization. Imports as configuration or design token values. Full export.',
+   976→  },
+   977→  {
+   978→    extension: '.yml',
+   979→    name: 'YAML File (alt extension)',
+   980→    application: 'YAML Standard',
+   981→    category: 'data-config',
+   982→    importSupport: 'partial',
+   983→    exportSupport: 'full',
+   984→    mimeType: ['application/x-yaml', 'text/yaml'],
+   985→    icon: 'Braces',
+   986→    description: 'YAML file with .yml extension. Same format as .yaml.',
+   987→  },
+   988→  {
+   989→    extension: '.xml',
+   990→    name: 'XML File',
+   991→    application: 'W3C Standard',
+   992→    category: 'data-config',
+   993→    importSupport: 'partial',
+   994→    exportSupport: 'full',
+   995→    mimeType: ['application/xml', 'text/xml'],
+   996→    icon: 'Braces',
+   997→    description: 'Extensible Markup Language. Imports as structured data. Full XML export.',
+   998→  },
+   999→  {
+  1000→    extension: '.csv',
+  1001→    name: 'CSV File',
+  1002→    application: 'CSV Standard',
+  1003→    category: 'data-config',
+  1004→    importSupport: 'partial',
+  1005→    exportSupport: 'full',
+  1006→    mimeType: ['text/csv'],
+  1007→    icon: 'Table',
+  1008→    description: 'Comma-Separated Values. Imports as tabular data for data-driven design. Full export.',
+  1009→  },
+  1010→  {
+  1011→    extension: '.md',
+  1012→    name: 'Markdown File',
+  1013→    application: 'Markdown Standard',
+  1014→    category: 'data-config',
+  1015→    importSupport: 'partial',
+  1016→    exportSupport: 'full',
+  1017→    mimeType: ['text/markdown'],
+  1018→    icon: 'FileText',
+  1019→    description: 'Markdown document. Imports as text content with basic formatting. Full Markdown export.',
+  1020→  },
+  1021→  {
+  1022→    extension: '.toml',
+  1023→    name: 'TOML File',
+  1024→    application: 'TOML Standard',
+  1025→    category: 'data-config',
+  1026→    importSupport: 'partial',
+  1027→    exportSupport: 'full',
+  1028→    mimeType: ['application/toml', 'text/x-toml'],
+  1029→    icon: 'Braces',
+  1030→    description: "Tom's Obvious Minimal Language. Imports as configuration data. Full export.",
+  1031→  },
+  1032→  {
+  1033→    extension: '.env',
+  1034→    name: 'Environment File',
+  1035→    application: 'dotenv',
+  1036→    category: 'data-config',
+  1037→    importSupport: 'partial',
+  1038→    exportSupport: 'partial',
+  1039→    mimeType: ['text/plain'],
+  1040→    icon: 'Settings',
+  1041→    description: 'Environment variable file. Imports as key-value configuration pairs.',
+  1042→  },
+  1043→
+  1044→  // ──────────────────────────────────────────────
+  1045→  // Document
+  1046→  // ──────────────────────────────────────────────
+  1047→  {
+  1048→    extension: '.docx',
+  1049→    name: 'Word Document',
+  1050→    application: 'Microsoft Word',
+  1051→    category: 'document',
+  1052→    importSupport: 'image',
+  1053→    exportSupport: 'image',
+  1054→    mimeType: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+  1055→    icon: 'FileText',
+  1056→    description: 'Microsoft Word 2007+ document. Imports as rendered page image.',
+  1057→  },
+  1058→  {
+  1059→    extension: '.doc',
+  1060→    name: 'Word Legacy Document',
+  1061→    application: 'Microsoft Word',
+  1062→    category: 'document',
+  1063→    importSupport: 'image',
+  1064→    exportSupport: 'image',
+  1065→    mimeType: ['application/msword'],
+  1066→    icon: 'FileText',
+  1067→    description: 'Legacy Microsoft Word binary document. Imports as rendered page image.',
+  1068→  },
+  1069→  {
+  1070→    extension: '.rtf',
+  1071→    name: 'Rich Text Format',
+  1072→    application: 'RTF Standard',
+  1073→    category: 'document',
+  1074→    importSupport: 'image',
+  1075→    exportSupport: 'image',
+  1076→    mimeType: ['application/rtf', 'text/rtf'],
+  1077→    icon: 'FileText',
+  1078→    description: 'Rich Text Format document. Imports as rendered content image.',
+  1079→  },
+  1080→  {
+  1081→    extension: '.txt',
+  1082→    name: 'Plain Text',
+  1083→    application: 'Text Standard',
+  1084→    category: 'document',
+  1085→    importSupport: 'partial',
+  1086→    exportSupport: 'full',
+  1087→    mimeType: ['text/plain'],
+  1088→    icon: 'FileText',
+  1089→    description: 'Plain text file. Imports as text content. Full text export.',
+  1090→  },
+  1091→  {
+  1092→    extension: '.pages',
+  1093→    name: 'Apple Pages Document',
+  1094→    application: 'Apple Pages',
+  1095→    category: 'document',
+  1096→    importSupport: 'image',
+  1097→    exportSupport: 'image',
+  1098→    mimeType: ['application/x-iwork-pages-sffpages'],
+  1099→    icon: 'FileText',
+  1100→    description: 'Apple Pages document. Imports as rendered page image.',
+  1101→  },
+  1102→  {
+  1103→    extension: '.numbers',
+  1104→    name: 'Apple Numbers Spreadsheet',
+  1105→    application: 'Apple Numbers',
+  1106→    category: 'document',
+  1107→    importSupport: 'image',
+  1108→    exportSupport: 'image',
+  1109→    mimeType: ['application/x-iwork-numbers-sffnumbers'],
+  1110→    icon: 'Table',
+  1111→    description: 'Apple Numbers spreadsheet. Imports as rendered sheet image.',
+  1112→  },
+  1113→];
+  1114→
+  1115→// ──────────────────────────────────────────────
+  1116→// Helper Functions
+  1117→// ──────────────────────────────────────────────
+  1118→
+  1119→/** Comma-separated string of all supported extensions for file input accept attribute */
+  1120→export const ALL_EXTENSIONS: string = ALL_DESIGN_FORMATS.map(f => f.extension).join(',');
+  1121→
+  1122→/** Comma-separated string of all importable extensions */
+  1123→export const IMPORTABLE_EXTENSIONS: string = ALL_DESIGN_FORMATS
+  1124→  .filter(f => f.importSupport !== 'none' as never)
+  1125→  .map(f => f.extension)
+  1126→  .join(',');
+  1127→
+  1128→/** Array of all formats that support export */
+  1129→export const EXPORTABLE_FORMATS: DesignFormat[] = ALL_DESIGN_FORMATS
+  1130→  .filter(f => f.exportSupport !== 'none' as never);
+  1131→
+  1132→/** Lookup a format by its file extension (case-insensitive) */
+  1133→export function getFormatByExtension(ext: string): DesignFormat | undefined {
+  1134→  const normalized = ext.startsWith('.') ? ext.toLowerCase() : `.${ext.toLowerCase()}`;
+  1135→  return ALL_DESIGN_FORMATS.find(f => f.extension.toLowerCase() === normalized);
+  1136→}
+  1137→
+  1138→/** Get all formats in a specific category */
+  1139→export function getFormatsByCategory(category: FormatCategory): DesignFormat[] {
+  1140→  return ALL_DESIGN_FORMATS.filter(f => f.category === category);
+  1141→}
+  1142→
+  1143→/**
+  1144→ * Determine the import method/pipeline for a given file extension.
+  1145→ * Returns the most specific parser to use for the file.
+  1146→ */
+  1147→export function getImportMethod(ext: string): ImportMethod {
+  1148→  const normalized = ext.startsWith('.') ? ext.toLowerCase() : `.${ext.toLowerCase()}`;
+  1149→
+  1150→  // SVG-based formats
+  1151→  if (['.svg', '.svgz', '.eps'].includes(normalized)) {
+  1152→    return 'svg';
+  1153→  }
+  1154→
+  1155→  // Draw.io (specific parser for mxGraph XML)
+  1156→  if (['.drawio', '.dio'].includes(normalized)) {
+  1157→    return 'drawio';
+  1158→  }
+  1159→
+  1160→  // Excalidraw (specific parser for Excalidraw JSON schema)
+  1161→  if (normalized === '.excalidraw') {
+  1162→    return 'excalidraw';
+  1163→  }
+  1164→
+  1165→  // Balsamiq (specific parser for Balsamiq XML)
+  1166→  if (normalized === '.bmpr') {
+  1167→    return 'balsamiq';
+  1168→  }
+  1169→
+  1170→  // HTML (specific DOM parser)
+  1171→  if (['.html', '.htm'].includes(normalized)) {
+  1172→    return 'html';
+  1173→  }
+  1174→
+  1175→  // Zip-based packages (contain embedded XML/JSON resources)
+  1176→  if (
+  1177→    [
+  1178→      '.sketch', '.pptx', '.key', '.odp', '.vsdx', '.graffle',
+  1179→      '.idml', '.canva', '.figjam', '.figma',
+  1180→    ].includes(normalized)
+  1181→  ) {
+  1182→    return 'zip-based';
+  1183→  }
+  1184→
+  1185→  // Text-based formats
+  1186→  if (
+  1187→    [
+  1188→      '.txt', '.md', '.css', '.csv', '.yaml', '.yml', '.xml',
+  1189→      '.toml', '.env', '.jsx', '.tsx', '.vue', '.svelte', '.dart',
+  1190→      '.ppt', '.doc', '.docx', '.rtf', '.pages', '.numbers', '.indd', '.mp',
+  1191→    ].includes(normalized)
+  1192→  ) {
+  1193→    return 'text';
+  1194→  }
+  1195→
+  1196→  // JSON-based formats (design tool JSON exports)
+  1197→  if (
+  1198→    [
+  1199→      '.json', '.fig', '.xd', '.framer', '.penpot', '.lottie',
+  1200→      '.whimsical', '.miro', '.lucid', '.gliffy',
+  1201→      '.inv', '.invd', '.rp', '.pie', '.afdesign', '.gvdesign',
+  1202→      '.pencil', '.vsd', '.riv',
+  1203→    ].includes(normalized)
+  1204→  ) {
+  1205→    return 'json';
+  1206→  }
+  1207→
+  1208→  // Default: image import (raster fallback)
+  1209→  return 'image';
+  1210→}

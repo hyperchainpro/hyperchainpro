@@ -45,6 +45,7 @@ import { CommitDialog } from '@/components/version-control/commit-dialog';
 import { BranchDialog } from '@/components/version-control/branch-panel';
 import { MergeRequestDialog } from '@/components/version-control/merge-request-panel';
 import { ImportDialog } from '@/components/editor/import/import-dialog';
+import { ExportDialog } from '@/components/editor/export/export-dialog';
 import { AIDesignDialog } from '@/components/editor/ai';
 import { InviteDialog } from '@/components/collab/invite-dialog';
 import { PluginBrowserDialog } from '@/components/editor/plugins/plugin-browser-dialog';
@@ -123,6 +124,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
   const setMergeDialogOpen = useVersionStore((s) => s.setMergeDialogOpen);
   const leftPanelOpen = useAppStore((s) => s.leftPanelOpen);
   const setLeftPanelOpen = useAppStore((s) => s.setLeftPanelOpen);
+  const setExportOpen = useAppStore((s) => s.setExportDialogOpen);
   const rightPanelOpen = useAppStore((s) => s.rightPanelOpen);
   const setRightPanelOpen = useAppStore((s) => s.setRightPanelOpen);
   const setRightPanelTab = useAppStore((s) => s.setRightPanelTab);
@@ -318,11 +320,11 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8 neu-icon-btn" onClick={handleExport}>
+            <Button variant="ghost" size="icon" className="h-8 w-8 neu-icon-btn" onClick={() => setExportOpen(true)}>
               <Download className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="bottom">{t('editor.exportSvg', locale)}</TooltipContent>
+          <TooltipContent side="bottom">{t('editor.export', locale)}</TooltipContent>
         </Tooltip>
         <Separator orientation="vertical" className="h-6 neu-divider hidden md:block" />
       </div>
@@ -419,10 +421,12 @@ export default function EditorView() {
   const isMobile = useIsMobile();
   const aiDesignOpen = useAppStore((s) => s.aiDesignDialogOpen);
   const importOpen = useAppStore((s) => s.importDialogOpen);
-  const pluginDialogOpen = useAppStore((s) => s.pluginDialogOpen);
-  const setAIDesignOpen = useAppStore((s) => s.setAIDesignDialogOpen);
   const setImportOpen = useAppStore((s) => s.setImportDialogOpen);
+  const pluginDialogOpen = useAppStore((s) => s.pluginDialogOpen);
   const setPluginDialogOpen = useAppStore((s) => s.setPluginDialogOpen);
+  const setAIDesignOpen = useAppStore((s) => s.setAIDesignDialogOpen);
+  const exportOpen = useAppStore((s) => s.exportDialogOpen);
+  const setExportOpen = useAppStore((s) => s.setExportDialogOpen);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
 
   const handleImportElements = useCallback((elements: BoardElement[]) => {
@@ -543,6 +547,7 @@ export default function EditorView() {
           open={pluginDialogOpen}
           onOpenChange={setPluginDialogOpen}
         />
+        <ExportDialog open={exportOpen} onOpenChange={setExportOpen} boardName={boardName} />
       </div>
     </TooltipProvider>
   );

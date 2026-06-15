@@ -1,10 +1,37 @@
 'use client';
 
-import { t, type Locale } from '@/lib/i18n';import { useAuthStore } from '@/store/auth-store';
-import { useCallback, useRef, useState } from 'react';
+import { t, type Locale } from '@/lib/i18n';
+import { useAuthStore } from '@/store/auth-store';
+import {
+  ALL_DESIGN_FORMATS,
+  FORMAT_CATEGORIES,
+  ALL_EXTENSIONS,
+  IMPORTABLE_EXTENSIONS,
+  getFormatsByCategory,
+  type DesignFormat,
+  type FormatCategory,
+} from '@/lib/design-formats';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, FileJson, ImageIcon, FileType, X, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
-
+import {
+  Upload,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  X,
+  Search,
+  Palette,
+  MousePointerClick,
+  GitBranch,
+  Presentation,
+  Image,
+  Camera,
+  Code,
+  Box,
+  Database,
+  FileText,
+  type LucideIcon,
+} from 'lucide-react';
 import type { BoardElement } from '@/lib/types';
 import {
   Dialog,
@@ -15,8 +42,25 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 
-// ─── Types ──────────────────────────────────────────────────────────────────
+// ─── Icon map ────────────────────────────────────────────────────────────
+
+const ICON_MAP: Record<string, LucideIcon> = {
+  Palette,
+  MousePointerClick,
+  GitBranch,
+  Presentation,
+  Image,
+  Camera,
+  Code,
+  Box,
+  Database,
+  FileText,
+};
+
+// ─── Types ──────────────────────────────────────────────────────────────
 
 type ImportStatus = 'idle' | 'uploading' | 'parsing' | 'done' | 'error';
 
@@ -27,40 +71,13 @@ interface ImportDialogProps {
   boardId?: string;
 }
 
-interface FormatInfo {
-  label: string;
-  ext: string[];
-  icon: React.ReactNode;
-  color: string;
-}
+// ─── Constants ──────────────────────────────────────────────────────────
 
-// ─── Constants ──────────────────────────────────────────────────────────────
-
-const FORMATS: FormatInfo[] = [
-  {
-    label: 'SVG',
-    ext: ['.svg'],
-    icon: <FileType className="size-5" />,
-    color: 'text-amber-600',
-  },
-  {
-    label: 'Figma JSON',
-    ext: ['.json'],
-    icon: <FileJson className="size-5" />,
-    color: 'text-violet-600',
-  },
-  {
-    label: 'Images',
-    ext: ['.png', '.jpg', '.jpeg', '.webp'],
-    icon: <ImageIcon className="size-5" />,
-    color: 'text-emerald-600',
-  },
-];
-
-const ACCEPTED_EXTENSIONS = '.svg,.json,.png,.jpg,.jpeg,.webp';
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
+const TOTAL_FORMATS = ALL_DESIGN_FORMATS.length;
+const TOTAL_CATEGORIES = FORMAT_CATEGORIES.length;
 
-// ─── Component ──────────────────────────────────────────────────────────────
+// ─── Component ──────────────────────────────────────────────────────────
 
 export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDialogProps) {
   const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
@@ -71,6 +88,32 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
   const [dragOver, setDragOver] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [elementCount, setElementCount] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Group formats by category, filtered by search query
+  const groupedFormats = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim();
+
+    return FORMAT_CATEGORIES.map((cat) => {
+      let formats = getFormatsByCategory(cat.id);
+
+      if (query) {
+        formats = formats.filter(
+          (f) =>
+            f.extension.toLowerCase().includes(query) ||
+            f.application.toLowerCase().includes(query) ||
+            f.name.toLowerCase().includes(query),
+        );
+      }
+
+      return { ...cat, formats };
+    }).filter((cat) => cat.formats.length > 0);
+  }, [searchQuery]);
+
+  const totalFilteredFormats = useMemo(
+    () => groupedFormats.reduce((sum, cat) => sum + cat.formats.length, 0),
+    [groupedFormats],
+  );
 
   const reset = useCallback(() => {
     setStatus('idle');
@@ -79,11 +122,12 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
     setFileName(null);
     setElementCount(0);
     setDragOver(false);
+    setSearchQuery('');
   }, []);
 
   const handleClose = useCallback(
     (nextOpen: boolean) => {
-      if (status === 'uploading' || status === 'parsing') return; // prevent closing during upload
+      if (status === 'uploading' || status === 'parsing') return;
       if (!nextOpen) reset();
       onOpenChange(nextOpen);
     },
@@ -92,7 +136,6 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
 
   const processFile = useCallback(
     async (file: File) => {
-      // Validate size
       if (file.size > MAX_FILE_SIZE) {
         setError(t('import.fileTooLarge', locale, { size: MAX_FILE_SIZE / (1024 * 1024) }));
         setStatus('error');
@@ -129,7 +172,6 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
         setStatus('done');
         setElementCount(data.elements?.length ?? 0);
 
-        // Call callback after a short delay so the user sees success state
         if (data.elements?.length) {
           setTimeout(() => {
             onImport(data.elements);
@@ -142,7 +184,7 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
         setProgress(0);
       }
     },
-    [boardId, onImport, reset, handleClose],
+    [boardId, locale, onImport, reset, handleClose],
   );
 
   const handleDrop = useCallback(
@@ -169,7 +211,6 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) processFile(file);
-      // Reset input so the same file can be re-selected
       if (inputRef.current) inputRef.current.value = '';
     },
     [processFile],
@@ -181,16 +222,23 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[520px] gap-0 p-0 overflow-hidden">
-        {/* Header */}
+      <DialogContent className="sm:max-w-[640px] gap-0 p-0 overflow-hidden">
+        {/* ── Header ─────────────────────────────────────────────────── */}
         <DialogHeader className="p-6 pb-4">
-          <DialogTitle className="text-xl">{t("import.title", locale)}</DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground">
-            {t("import.description", locale)}
+          <div className="flex items-center gap-3">
+            <DialogTitle className="text-xl">{t('import.title', locale)}</DialogTitle>
+            <Badge variant="secondary" className="text-[10px] font-medium px-2 py-0 h-5 shrink-0">
+              {TOTAL_FORMATS}+ {locale === 'zh' ? '格式' : 'formats'}
+            </Badge>
+          </div>
+          <DialogDescription className="text-sm text-muted-foreground mt-1">
+            {locale === 'zh'
+              ? `支持 ${TOTAL_FORMATS}+ 种设计文件格式，横跨 ${TOTAL_CATEGORIES} 个类别`
+              : `${TOTAL_FORMATS}+ design file formats across ${TOTAL_CATEGORIES} categories`}
           </DialogDescription>
         </DialogHeader>
 
-        {/* Body */}
+        {/* ── Body ──────────────────────────────────────────────────── */}
         <div className="px-6 pb-6">
           {/* Drop Zone */}
           <motion.div
@@ -200,8 +248,9 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
             onClick={handleBrowse}
             whileTap={{ scale: 0.98 }}
             className={`
-              relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed
-              px-6 py-10 cursor-pointer transition-colors duration-200
+              neu-raised relative flex flex-col items-center justify-center gap-3
+              rounded-xl border-2 border-dashed px-6 py-10 cursor-pointer
+              transition-colors duration-200
               ${
                 dragOver
                   ? 'border-primary bg-primary/5'
@@ -226,7 +275,9 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
                   <div className="text-center">
                     <p className="text-sm font-medium">
                       {t('import.dragDrop', locale)}{' '}
-                      <span className="text-primary underline underline-offset-2">{t('import.browse', locale)}</span>
+                      <span className="text-primary underline underline-offset-2">
+                        {t('import.browse', locale)}
+                      </span>
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {t('import.maxSize', locale, { size: MAX_FILE_SIZE / (1024 * 1024) })}
@@ -249,10 +300,12 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
                   </div>
                   <div className="text-center w-full">
                     <p className="text-sm font-medium">
-                      {status === 'uploading' ? t('import.uploading', locale) : t('import.parsingElements', locale)}
+                      {status === 'uploading'
+                        ? t('import.uploading', locale)
+                        : t('import.parsingElements', locale)}
                     </p>
                     {fileName && (
-                      <p className="mt-0.5 text-xs text-muted-foreground truncate max-w-[220px] mx-auto">
+                      <p className="mt-0.5 text-xs text-muted-foreground truncate max-w-[320px] mx-auto">
                         {fileName}
                       </p>
                     )}
@@ -279,7 +332,9 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
                     <CheckCircle2 className="size-6 text-emerald-500" />
                   </motion.div>
                   <div className="text-center">
-                    <p className="text-sm font-medium text-emerald-600">{t("import.successful", locale)}</p>
+                    <p className="text-sm font-medium text-emerald-600">
+                      {t('import.successful', locale)}
+                    </p>
                     <p className="mt-0.5 text-xs text-muted-foreground">
                       {t('import.elementsImported', locale, { count: elementCount })}
                     </p>
@@ -299,8 +354,8 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
                   <div className="flex size-14 items-center justify-center rounded-full bg-destructive/10">
                     <AlertCircle className="size-6 text-destructive" />
                   </div>
-                  <div className="text-center max-w-[280px]">
-                    <p className="text-sm font-medium text-destructive">{t("import.failed", locale)}</p>
+                  <div className="text-center max-w-[320px]">
+                    <p className="text-sm font-medium text-destructive">{t('import.failed', locale)}</p>
                     <p className="mt-0.5 text-xs text-muted-foreground break-words">{error}</p>
                   </div>
                   <Button
@@ -323,32 +378,76 @@ export function ImportDialog({ open, onOpenChange, onImport, boardId }: ImportDi
             <input
               ref={inputRef}
               type="file"
-              accept={ACCEPTED_EXTENSIONS}
+              accept={IMPORTABLE_EXTENSIONS}
               className="sr-only"
               onChange={handleInputChange}
             />
           </motion.div>
 
-          {/* Supported Formats */}
+          {/* ── Format Browser ─────────────────────────────────────── */}
           <div className="mt-5">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
-              {t('import.supportedFormats', locale)}
-            </p>
-            <div className="flex gap-3">
-              {FORMATS.map((fmt) => (
-                <motion.div
-                  key={fmt.label}
-                  whileHover={{ y: -2 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                  className="flex items-center gap-2 rounded-lg border bg-muted/50 px-3 py-2.5 text-xs"
-                >
-                  <span className={fmt.color}>{fmt.icon}</span>
-                  <div>
-                    <p className="font-medium">{fmt.label}</p>
-                    <p className="text-muted-foreground">{fmt.ext.join(', ')}</p>
+            {/* Section header with search */}
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider shrink-0">
+                {t('import.supportedFormats', locale)}
+                {searchQuery && (
+                  <span className="ml-1.5 text-primary font-normal normal-case">
+                    ({totalFilteredFormats})
+                  </span>
+                )}
+              </p>
+              <div className="relative w-48 shrink-0">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground/60 pointer-events-none" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={locale === 'zh' ? '搜索格式...' : 'Search formats...'}
+                  className="h-7 text-xs pl-7 pr-3 rounded-lg"
+                />
+              </div>
+            </div>
+
+            {/* Categorized format list */}
+            <div className="neu-flat rounded-xl p-3 max-h-48 overflow-y-auto neu-scroll">
+              {groupedFormats.length === 0 && (
+                <div className="flex items-center justify-center py-6 text-xs text-muted-foreground">
+                  {locale === 'zh' ? '未找到匹配的格式' : 'No matching formats found'}
+                </div>
+              )}
+
+              {groupedFormats.map((cat, catIdx) => {
+                const CatIcon = ICON_MAP[cat.icon] ?? FileText;
+
+                return (
+                  <div key={cat.id} className={catIdx > 0 ? 'mt-3 pt-3 border-t border-border/50' : ''}>
+                    {/* Category header */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <CatIcon className="size-3.5 text-muted-foreground shrink-0" />
+                      <span className="text-xs font-semibold text-foreground/80">
+                        {cat.label}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground/70 tabular-nums">
+                        ({cat.formats.length} {locale === 'zh' ? '种格式' : cat.formats.length === 1 ? 'format' : 'formats'})
+                      </span>
+                    </div>
+
+                    {/* Format chips grid */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                      {cat.formats.map((fmt: DesignFormat) => (
+                        <div
+                          key={fmt.extension}
+                          className="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2 py-1 text-[11px] leading-tight hover:bg-muted transition-colors"
+                        >
+                          <span className="font-semibold text-foreground/90 shrink-0">
+                            {fmt.extension}
+                          </span>
+                          <span className="text-muted-foreground truncate">{fmt.application}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </motion.div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

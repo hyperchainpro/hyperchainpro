@@ -1609,6 +1609,7 @@ const translations: TranslationMap = {
   'editor.aiDesign': { en: 'AI Design', id: 'Desain AI', ja: 'AIデザイン', ko: 'AI 디자인', zh: 'AI 设计' },
   'editor.importFile': { en: 'Import File', id: 'Impor File', ja: 'ファイルインポート', ko: '파일 가져오기', zh: '导入文件' },
   'editor.exportSvg': { en: 'Export SVG', id: 'Ekspor SVG', ja: 'SVGエクスポート', ko: 'SVG 내보내기', zh: '导出 SVG' },
+  'editor.export': { en: 'Export', id: 'Ekspor', ja: 'エクスポート', ko: '내보내기', zh: '导出' },
   'editor.stop': { en: 'Stop', id: 'Berhenti', ja: '停止', ko: '중지', zh: '停止' },
   'editor.stopPrototype': { en: 'Stop prototype', id: 'Hentikan prototipe', ja: 'プロトタイプを停止', ko: '프로토타입 중지', zh: '停止原型' },
   'editor.newMergeRequest': { en: 'New merge request', id: 'Permintaan merge baru', ja: '新しいマージリクエスト', ko: '새 병합 요청', zh: '新建合并请求' },
@@ -2210,6 +2211,17 @@ const translations: TranslationMap = {
   'ai.agentNamePlaceholder': { en: 'e.g. E-commerce Designer', id: 'mis. Desainer E-commerce', ja: '例：ECサイトデザイナー', ko: '예: 이커머스 디자이너', zh: '例如：电商设计师' },
   'design.dropShadow': { en: 'Drop Shadow', id: 'Bayangan Jatuh', ja: 'ドロップシャドウ', ko: '드롭 그림자', zh: '投影' },
   'design.innerShadow': { en: 'Inner Shadow', id: 'Bayangan Dalam', ja: 'インナーシャドウ', ko: '내부 그림자', zh: '内阴影' },
+
+  // ── Export Dialog ──
+  'export.title': { en: 'Export Design', id: 'Ekspor Desain', ja: 'デザインをエクスポート', ko: '디자인 내보내기', zh: '导出设计' },
+  'export.description': { en: 'Choose a format and download your design.', id: 'Pilih format dan unduh desain Anda.', ja: 'フォーマットを選択してデザインをダウンロード。', ko: '형식을 선택하고 디자인을 다운로드하세요.', zh: '选择格式并下载您的设计。' },
+  'export.fileName': { en: 'File name', id: 'Nama file', ja: 'ファイル名', ko: '파일 이름', zh: '文件名' },
+  'export.selected': { en: 'Selected', id: 'Dipilih', ja: '選択中', ko: '선택됨', zh: '已选择' },
+  'export.searchFormats': { en: 'Search formats...', id: 'Cari format...', ja: 'フォーマットを検索...', ko: '형식 검색...', zh: '搜索格式...' },
+  'export.noFormats': { en: 'No formats match your search.', id: 'Tidak ada format yang cocok.', ja: '検索に一致するフォーマットがありません。', ko: '검색과 일치하는 형식이 없습니다.', zh: '没有与搜索匹配的格式。' },
+  'export.exporting': { en: 'Exporting...', id: 'Mengekspor...', ja: 'エクスポート中...', ko: '내보내는 중...', zh: '导出中...' },
+  'export.done': { en: 'Downloaded!', id: 'Diunduh!', ja: 'ダウンロード完了！', ko: '다운로드 완료!', zh: '下载完成！' },
+  'export.button': { en: 'Export', id: 'Ekspor', ja: 'エクスポート', ko: '내보내기', zh: '导出' },
 };
 
 // ─── Translation Function ─────────────────────────────────────────────────────
