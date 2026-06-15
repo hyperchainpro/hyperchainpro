@@ -426,3 +426,26 @@ Stage Summary:
 - Both light and dark mode supported
 - Agent-browser verification: no JS errors, dashboard/settings/plugins/auth all work correctly
 - Mobile responsive layout verified
+---
+Task ID: 2
+Agent: main
+Task: Fix plugin errors and expand to 200 plugins
+
+Work Log:
+- Fixed duplicate key error: `math-calculator` → `math-design-calculator`
+- Fixed invalid icon: `Bootstrap` → `Grid3X3` (not in lucide-react)
+- Rewrote plugin-browser-dialog.tsx: removed nested Tabs pattern (caused React reconciliation issues), replaced with simple button-based category filter + single ScrollArea
+- Made icon rendering defensive (try/catch with Puzzle fallback)
+- Removed AnimatePresence mode="popLayout" (caused layout thrashing with 200+ items)
+- Updated DesignPlugin type to include 10 new categories: typography, branding, animation, prototyping, 3d, illustration, photo-editing, responsive, code-gen, handoff
+- Added PLUGIN_CATEGORIES export (25 categories with id + label)
+- Expanded DESIGN_PLUGINS from 101 → exactly 200 plugins (8 per category, 9 for export, 7 for handoff)
+- Added color/icon maps for all 25 categories in plugin-browser-dialog.tsx
+- All 105 unique Lucide icon names validated
+- All 200 plugin IDs verified unique
+- All 200 plugin names verified unique
+
+Stage Summary:
+- Plugin dialog zero errors, smooth scrolling, fast category switching
+- Search works correctly across all categories and tags
+- 200 plugins across 25 categories fully functional
