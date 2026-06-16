@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAppStore } from '@/store/app-store';
 import { DESIGN_PLUGINS, PLUGIN_CATEGORIES, type DesignPlugin } from '@/lib/plugins-data';
 import { Puzzle } from 'lucide-react';
+import { executePluginAction } from '@/lib/plugin-actions';
 
 function PluginIcon({ name }: { name: string }) {
   let IconComponent: React.ElementType | null = null;
@@ -97,8 +98,7 @@ export function PluginsPanel() {
 
 function PluginItem({ plugin }: { plugin: DesignPlugin }) {
   const handleUsePlugin = () => {
-    // Plugins in this context show a toast indicating usage
-    // Real plugin actions would be connected here
+    executePluginAction(plugin);
   };
 
   return (

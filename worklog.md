@@ -756,3 +756,65 @@ Stage Summary:
 - Installed plugins displayed organized by category with icons, names, descriptions
 - All 27 installed plugins visible in sidebar without errors
 - Lint passes clean, no console errors
+
+---
+Task ID: 3
+Agent: Main Agent
+Task: Create plugin action system - make installed plugins functional on canvas
+
+Work Log:
+- Created /src/lib/plugin-actions.ts with executePluginAction() function
+- Maps all 26 plugin categories to canvas actions (insert shapes, create layouts, open dialogs, etc.)
+- Calculates viewport center for element placement
+- Updated PluginsPanel to call executePluginAction on click
+- Lint passes clean
+
+Stage Summary:
+- All 26 plugin categories now have functional canvas actions
+- Clicking a plugin in sidebar inserts elements or opens relevant dialog
+- Actions include: shape insertion, chart creation, layout generation, wireframe templates, diagram creation, typography preview, responsive breakpoint frames, code editor mockup, etc.
+
+---
+Task ID: 3
+Agent: Main Agent (with full-stack-developer subagent)
+Task: Make installed plugins functional - insert elements and perform actions on canvas
+
+Work Log:
+- Created /src/lib/plugin-actions.ts (1276 lines) with executePluginAction() function
+- Maps all 26 plugin categories to canvas actions:
+  - shapes: inserts shape elements based on tags (rectangle, circle, star, polygon, etc.)
+  - charts: creates FRAME container + colored bar chart bars
+  - icons: inserts 48x48 icon placeholder + label
+  - layout: creates FRAME with header/sidebar/content/footer blocks
+  - wireframe: creates FRAME with gray placeholder blocks
+  - diagrams: creates 3 flowchart nodes + 2 connector arrows
+  - text: inserts heading, body, caption text elements
+  - images: inserts image placeholder
+  - colors: creates 6 color swatch rectangles
+  - export: opens export dialog
+  - templates: creates iPhone template with hero, cards, tab bar
+  - ai-tools: opens AI design dialog
+  - collaboration: shows informational toast
+  - accessibility: inserts alt text labels + contrast checker
+  - math: inserts math equation text elements
+  - typography: inserts H1, H2, Body text
+  - branding: creates brand board with logo + color swatches
+  - animation: creates colored elements + note
+  - prototyping: switches to prototype mode
+  - 3d: creates rectangle with layered shadows
+  - illustration: composes landscape shapes
+  - photo-editing: edits selected or inserts image placeholder
+  - responsive: creates 3 device FRAMEs (mobile, tablet, desktop)
+  - code-gen: creates dark code editor frame with syntax text
+  - handoff: opens export dialog
+- Updated PluginsPanel to call executePluginAction on plugin click
+- Helper functions: getViewportCenter(), insertElementsBatch(), makeElement()
+- Tested: Basic Shapes, Bar Chart, Landing Page, 3D Primitives, UML Diagram, Typography Scale
+- All work without console errors on both desktop and mobile
+- Lint passes clean
+
+Stage Summary:
+- 26 plugin categories fully mapped to canvas actions
+- Clicking any installed plugin in sidebar now inserts elements or opens relevant dialog
+- Tested 6 different plugin categories successfully
+- Works on both mobile (Sheet) and desktop (sidebar) without errors
