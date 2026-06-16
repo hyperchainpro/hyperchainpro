@@ -55,7 +55,9 @@ function tryCreateClient(): PrismaClient | null {
     }
 
     // Skip placeholder/unreachable hosts only in development
-    if (process.env.NODE_ENV === 'development' && (url.includes('123456') || url.includes('localhost'))) {
+    if (process.env.NODE_ENV === 'development' && (
+      url.includes('123456') || url.includes('localhost') || url.includes('placeholder')
+    )) {
       return null;
     }
 
