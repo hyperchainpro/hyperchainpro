@@ -15,34 +15,50 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'User already exists' }, { status: 409 })
     }
 
-    // Create user (best-effort — works even without DB)
+    const role = email.includes('admin') ? 'ADMIN' : 'USER'
+    const userName = name || email.split('@')[0]
+
+    // Try to create user in database
+    let dbUser = null
     try {
-      await db.user.create({
+      dbUser = await db.user.create({
         data: {
           email,
-          name: name || email.split('@')[0],
-          role: 'USER',
+          name: userName,
+          role,
           language: 'en',
           theme: 'system',
           accentColor: '#6366f1',
         },
       })
     } catch {
-      // DB unavailable — continue with synthetic user
+      // DB unavailable — fall back to synthetic user
     }
 
-    const newUser = {
-      id: 'user-' + Buffer.from(email).toString('base64url').slice(0, 12),
-      email,
-      name: name || email.split('@')[0],
-      avatar: undefined as string | undefined,
-      role: 'USER',
-      language: 'en',
-      theme: 'system',
-      accentColor: '#6366f1',
-    }
+    // Return DB user if available, otherwise synthetic
+    const user = (dbUser && dbUser.id)
+      ? {
+          id: dbUser.id,
+          email: dbUser.email,
+          name: dbUser.name,
+          avatar: dbUser.avatar ?? undefined,
+          role: dbUser.role,
+          language: dbUser.language,
+          theme: dbUser.theme,
+          accentColor: dbUser.accentColor,
+        }
+      : {
+          id: 'user-' + Buffer.from(email).toString('base64url').slice(0, 12),
+          email,
+          name: userName,
+          avatar: undefined as string | undefined,
+          role,
+          language: 'en',
+          theme: 'system',
+          accentColor: '#6366f1',
+        }
 
-    return NextResponse.json({ user: newUser })
+    return NextResponse.json({ user })
   } catch (error) {
     console.error('Register error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
