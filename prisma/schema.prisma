@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:/home/z/my-project/db/custom.db"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -14,12 +15,14 @@ model User {
   avatar          String?
   passwordHash    String?
   role            String           @default("USER")
+  isActive        Boolean          @default(true)
   resetToken      String?
   resetTokenExpiry DateTime?
   language        String           @default("en")
   theme           String           @default("system")
   accentColor     String           @default("#6366f1")
   aiSettings      String?
+  lastLoginAt     DateTime?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   boardMembers      BoardMember[]
@@ -30,6 +33,10 @@ model User {
   communityDesigns  CommunityDesign[]
   aiAgents          AIAgent[]
   sentInvites       BoardInvite[]    @relation("SentInvites")
+
+  @@index([role])
+  @@index([isActive])
+  @@index([createdAt])
 }
 
 model Board {
@@ -42,8 +49,8 @@ model Board {
   defaultBranch     String           @default("main")
   branchProtection  Boolean          @default(false)
   minReviewers      Int              @default(1)
-  deviceType        String?          // 'iphone', 'android', 'website', 'tablet', 'presentation', 'social'
-  deviceId          String?          // e.g. 'iphone-15-pro', 'pixel-8', 'desktop-1920'
+  deviceType        String?
+  deviceId          String?
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   members           BoardMember[]
@@ -53,6 +60,9 @@ model Board {
   comments          BoardComment[]
   elements          BoardElement[]
   invites           BoardInvite[]
+
+  @@index([ownerId])
+  @@index([createdAt])
 }
 
 model BoardMember {
@@ -245,8 +255,6 @@ model ImportJob {
   @@index([boardId])
 }
 
-// ─── Collaboration: Invites & Board Access ──────────────────────────────────
-
 model BoardInvite {
   id          String   @id @default(cuid())
   boardId     String
@@ -264,4 +272,36 @@ model BoardInvite {
   @@index([token])
   @@index([email])
   @@index([boardId])
+}
+
+// ─── Admin: Ad Script Management ──────────────────────────────────────────────
+
+model AdScript {
+  id          String   @id @default(cuid())
+  name        String
+  platform    String                    @default("custom")  // google-adsense, meta, taboola, outbrain, mgid, propellerads, custom
+  description String?
+  scriptCode  String                    @db.Text
+  position    String                    @default("head")   // head, body-start, body-end
+  isActive    Boolean                   @default(false)
+  priority    Int                       @default(0)
+  targeting   String?                   @db.Text           // JSON: { pages: [], countries: [], devices: [] }
+  createdAt   DateTime                  @default(now())
+  updatedAt   DateTime                  @updatedAt
+
+  @@index([isActive])
+  @@index([platform])
+  @@index([priority])
+}
+
+// ─── Admin: System Settings ───────────────────────────────────────────────────
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  type      String   @default("string")   // string, number, boolean, json
+  group     String   @default("general")  // general, security, features, branding
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
 }

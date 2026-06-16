@@ -30,6 +30,7 @@ import {
   Upload,
   Wand2,
   Puzzle,
+  Shield,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -780,6 +781,22 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
 
             {/* User avatar / Logout */}
             <div className="flex items-center gap-1">
+              {/* Admin Panel button - only for ADMIN users */}
+              {user?.role === 'ADMIN' && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-8 hidden md:flex neu-icon-btn"
+                      onClick={() => useAppStore.getState().setViewMode('admin')}
+                    >
+                      <Shield className="size-4 text-emerald-600" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Admin Panel</TooltipContent>
+                </Tooltip>
+              )}
               <Avatar className="size-8 neu-avatar cursor-pointer" onClick={() => onOpenSettings?.()}>
                 <AvatarFallback className="bg-foreground text-xs text-background font-medium">
                   {userInitials}
@@ -1020,6 +1037,23 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
               <Wand2 className="size-5" />
               <span className="text-[10px] font-medium">{t('dashboard.aiTab', locale)}</span>
             </button>
+
+            {/* Admin tab (mobile) - only for ADMIN users */}
+            {user?.role === 'ADMIN' && (
+              <button
+                onClick={() => {
+                  setMobileSidebarOpen(false)
+                  useAppStore.getState().setViewMode('admin')
+                }}
+                className={cn(
+                  'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-all duration-200 min-w-[56px] border-0',
+                  'bg-transparent text-emerald-600 hover:text-emerald-700'
+                )}
+              >
+                <Shield className="size-5" />
+                <span className="text-[10px] font-medium">Admin</span>
+              </button>
+            )}
 
             {/* Profile / Settings tab */}
             <button

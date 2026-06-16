@@ -1,0 +1,1127 @@
+     1→'use client'
+     2→
+     3→import { useState, useMemo, useEffect } from 'react'
+     4→import { motion, AnimatePresence } from 'framer-motion'
+     5→import {
+     6→  Search,
+     7→  Plus,
+     8→  LayoutDashboard,
+     9→  Star,
+    10→  Clock,
+    11→  Users,
+    12→  Bell,
+    13→  ChevronDown,
+    14→  Grid,
+    15→  List,
+    16→  SlidersHorizontal,
+    17→  GitBranch,
+    18→  ChevronRight,
+    19→  Sparkles,
+    20→  FilePlus,
+    21→  Settings,
+    22→  Moon,
+    23→  Sun,
+    24→  Monitor,
+    25→  LogOut,
+    26→  Share2,
+    27→  Menu,
+    28→  Home,
+    29→  User,
+    30→  Upload,
+    31→  Wand2,
+    32→  Puzzle,
+    33→} from 'lucide-react'
+    34→import { Button } from '@/components/ui/button'
+    35→import { Input } from '@/components/ui/input'
+    36→import { Badge } from '@/components/ui/badge'
+    37→import { ScrollArea } from '@/components/ui/scroll-area'
+    38→import { Separator } from '@/components/ui/separator'
+    39→import {
+    40→  Tooltip,
+    41→  TooltipContent,
+    42→  TooltipTrigger,
+    43→} from '@/components/ui/tooltip'
+    44→import {
+    45→  Collapsible,
+    46→  CollapsibleContent,
+    47→  CollapsibleTrigger,
+    48→} from '@/components/ui/collapsible'
+    49→import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+    50→import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
+    51→import {
+    52→  BoardCard,
+    53→  type BoardCardData,
+    54→} from '@/components/dashboard/board-card'
+    55→import {
+    56→  CreateBoardDialog,
+    57→} from '@/components/dashboard/create-board-dialog'
+    58→import { cn } from '@/lib/utils'
+    59→import { useAppStore } from '@/store/app-store'
+    60→import { useAuthStore } from '@/store/auth-store'
+    61→import { PluginBrowserDialog } from '@/components/editor/plugins/plugin-browser-dialog'
+    62→import { UploadDesignDialog } from '@/components/community/upload-design-dialog'
+    63→import { t, LOCALES, type Locale } from '@/lib/i18n'
+    64→import { useTheme } from 'next-themes'
+    65→import { toast } from 'sonner'
+    66→import { useIsMobile } from '@/hooks/use-mobile'
+    67→import { getAutoInstallPlugins } from '@/lib/auto-install-plugins'
+    68→
+    69→type FilterTab = 'all' | 'recent' | 'starred'
+    70→type SortOption = 'lastModified' | 'name' | 'created'
+    71→type SidebarSection = 'my-boards' | 'shared' | 'starred' | 'recent'
+    72→
+    73→// ── Demo data ──────────────────────────────────────────────────────────────
+    74→
+    75→const demoBoards: BoardCardData[] = [
+    76→  {
+    77→    id: 'b1',
+    78→    name: 'Product Roadmap Q4',
+    79→    description: 'High-level product roadmap for Q4 with key milestones and deliverables.',
+    80→    members: [
+    81→      { id: 'u1', name: 'Alex Chen' },
+    82→      { id: 'u2', name: 'Sarah Kim' },
+    83→      { id: 'u3', name: 'Jordan Lee' },
+    84→      { id: 'u4', name: 'Mike Wu' },
+    85→      { id: 'u5', name: 'Nora Patel' },
+    86→    ],
+    87→    branchCount: 5,
+    88→    commitCount: 42,
+    89→    isStarred: true,
+    90→    updatedAt: new Date(Date.now() - 1000 * 60 * 30),
+    91→    isPublic: false,
+    92→  },
+    93→  {
+    94→    id: 'b2',
+    95→    name: 'User Research Synthesis',
+    96→    description: 'Mapping user interview findings and insights from Q3 research.',
+    97→    members: [
+    98→      { id: 'u6', name: 'Emily Zhang' },
+    99→      { id: 'u2', name: 'Sarah Kim' },
+   100→    ],
+   101→    branchCount: 3,
+   102→    commitCount: 18,
+   103→    isStarred: false,
+   104→    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 3),
+   105→    isPublic: true,
+   106→  },
+   107→  {
+   108→    id: 'b3',
+   109→    name: 'Architecture Decision Records',
+   110→    description: 'ADR board for tracking technical architecture decisions.',
+   111→    members: [
+   112→      { id: 'u1', name: 'Alex Chen' },
+   113→      { id: 'u7', name: 'Dev Sharma' },
+   114→      { id: 'u8', name: 'Chris Park' },
+   115→    ],
+   116→    branchCount: 8,
+   117→    commitCount: 67,
+   118→    isStarred: true,
+   119→    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
+   120→    isPublic: false,
+   121→  },
+   122→  {
+   123→    id: 'b4',
+   124→    name: 'Sprint Planning Board',
+   125→    description: 'Weekly sprint planning with tasks, stories, and blockers.',
+   126→    members: [
+   127→      { id: 'u3', name: 'Jordan Lee' },
+   128→      { id: 'u4', name: 'Mike Wu' },
+   129→      { id: 'u9', name: 'Rina Takahashi' },
+   130→      { id: 'u10', name: 'Luis Garcia' },
+   131→    ],
+   132→    branchCount: 12,
+   133→    commitCount: 156,
+   134→    isStarred: false,
+   135→    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 6),
+   136→    isPublic: false,
+   137→  },
+   138→  {
+   139→    id: 'b5',
+   140→    name: 'Brand Identity Exploration',
+   141→    description: 'Visual mood boards and brand exploration for the new identity.',
+   142→    members: [
+   143→      { id: 'u5', name: 'Nora Patel' },
+   144→    ],
+   145→    branchCount: 2,
+   146→    commitCount: 9,
+   147→    isStarred: true,
+   148→    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5),
+   149→    isPublic: true,
+   150→  },
+   151→  {
+   152→    id: 'b6',
+   153→    name: 'API Design Workshop',
+   154→    description: 'Collaborative API endpoint design and data model diagrams.',
+   155→    members: [
+   156→      { id: 'u1', name: 'Alex Chen' },
+   157→      { id: 'u7', name: 'Dev Sharma' },
+   158→      { id: 'u2', name: 'Sarah Kim' },
+   159→      { id: 'u6', name: 'Emily Zhang' },
+   160→      { id: 'u3', name: 'Jordan Lee' },
+   161→      { id: 'u4', name: 'Mike Wu' },
+   162→    ],
+   163→    branchCount: 6,
+   164→    commitCount: 34,
+   165→    isStarred: false,
+   166→    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
+   167→    isPublic: false,
+   168→  },
+   169→  {
+   170→    id: 'b7',
+   171→    name: 'Customer Journey Map',
+   172→    description: 'End-to-end customer experience mapping for the onboarding flow.',
+   173→    members: [
+   174→      { id: 'u8', name: 'Chris Park' },
+   175→      { id: 'u9', name: 'Rina Takahashi' },
+   176→    ],
+   177→    branchCount: 1,
+   178→    commitCount: 5,
+   179→    isStarred: false,
+   180→    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7),
+   181→    isPublic: true,
+   182→  },
+   183→  {
+   184→    id: 'b8',
+   185→    name: 'Design System Components',
+   186→    description: 'Shared component library documentation and usage guidelines.',
+   187→    members: [
+   188→      { id: 'u5', name: 'Nora Patel' },
+   189→      { id: 'u10', name: 'Luis Garcia' },
+   190→      { id: 'u6', name: 'Emily Zhang' },
+   191→    ],
+   192→    branchCount: 15,
+   193→    commitCount: 203,
+   194→    isStarred: true,
+   195→    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 12),
+   196→    isPublic: true,
+   197→  },
+   198→]
+   199→
+   200→const sidebarSectionsTemplate = [
+   201→  { id: 'my-boards' as SidebarSection, labelKey: 'dashboard.myBoards', icon: LayoutDashboard },
+   202→  { id: 'shared' as SidebarSection, labelKey: 'dashboard.sharedWithMe', icon: Users },
+   203→  { id: 'starred' as SidebarSection, labelKey: 'dashboard.starred', icon: Star },
+   204→  { id: 'recent' as SidebarSection, labelKey: 'dashboard.recent', icon: Clock },
+   205→]
+   206→
+   207→// ── Animation variants ──────────────────────────────────────────────────────
+   208→
+   209→const boardContainerVariants = {
+   210→  hidden: { opacity: 0 },
+   211→  show: {
+   212→    opacity: 1,
+   213→    transition: { staggerChildren: 0.06 },
+   214→  },
+   215→}
+   216→
+   217→const boardItemVariants = {
+   218→  hidden: { opacity: 0, y: 20 },
+   219→  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } },
+   220→}
+   221→
+   222→// ── Small helper components ──────────────────────────────────────────────
+   223→
+   224→function ThemeToggle() {
+   225→  const { theme, setTheme } = useTheme()
+   226→  const user = useAuthStore((s) => s.user)
+   227→  const locale = (user?.language as Locale) ?? 'en'
+   228→
+   229→  const cycleTheme = () => {
+   230→    const next = theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light'
+   231→    setTheme(next)
+   232→  }
+   233→
+   234→  return (
+   235→    <Tooltip>
+   236→      <TooltipTrigger asChild>
+   237→        <Button variant="ghost" size="icon" className="neu-icon-btn" onClick={cycleTheme}>
+   238→          {theme === 'dark' ? <Moon className="size-4" /> : theme === 'light' ? <Sun className="size-4" /> : <Monitor className="size-4" />}
+   239→        </Button>
+   240→      </TooltipTrigger>
+   241→      <TooltipContent>{t('settings.theme.mode', locale)}: {theme === 'light' ? t('settings.light', locale) : theme === 'dark' ? t('settings.dark', locale) : t('settings.system', locale)}</TooltipContent>
+   242→    </Tooltip>
+   243→  )
+   244→}
+   245→
+   246→function LanguageSwitcher() {
+   247→  const user = useAuthStore((s) => s.user)
+   248→  const setUser = useAuthStore((s) => s.setUser)
+   249→  const currentLocale = (user?.language as Locale) ?? 'en'
+   250→  const current = LOCALES.find(l => l.code === currentLocale)
+   251→
+   252→  const handleCycle = () => {
+   253→    const idx = LOCALES.findIndex(l => l.code === currentLocale)
+   254→    const next = LOCALES[(idx + 1) % LOCALES.length]
+   255→    if (user) {
+   256→      setUser({ ...user, language: next.code })
+   257→      // Persist to API
+   258→      fetch('/api/user/settings', {
+   259→        method: 'POST',
+   260→        headers: { 'Content-Type': 'application/json' },
+   261→        body: JSON.stringify({ userId: user.id, language: next.code }),
+   262→      }).catch(() => {})
+   263→    }
+   264→  }
+   265→
+   266→  return (
+   267→    <Tooltip>
+   268→      <TooltipTrigger asChild>
+   269→        <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-8 px-2" onClick={handleCycle}>
+   270→          <span className="text-base leading-none">{current?.flag ?? '🌐'}</span>
+   271→          <span className="hidden sm:inline">{current?.name ?? 'English'}</span>
+   272→        </Button>
+   273→      </TooltipTrigger>
+   274→      <TooltipContent>{t('settings.tabs.language', currentLocale)}</TooltipContent>
+   275→    </Tooltip>
+   276→  )
+   277→}
+   278→
+   279→// ── Sidebar content (shared between desktop aside & mobile Sheet) ──────────
+   280→
+   281→function SidebarContent({
+   282→  sidebarSections,
+   283→  activeSidebar,
+   284→  setActiveSidebar,
+   285→  setActiveFilter,
+   286→  onCreateBoard,
+   287→  userName,
+   288→  userInitials,
+   289→  locale,
+   290→  boards,
+   291→  onOpenBoard,
+   292→}: {
+   293→  sidebarSections: { id: SidebarSection; labelKey: string; icon: React.ElementType; count: number }[]
+   294→  activeSidebar: SidebarSection | null
+   295→  setActiveSidebar: (v: SidebarSection | null) => void
+   296→  setActiveFilter: (v: FilterTab) => void
+   297→  onCreateBoard: () => void
+   298→  userName: string
+   299→  userInitials: string
+   300→  locale: Locale
+   301→  boards: BoardCardData[]
+   302→  onOpenBoard: (boardId: string) => void
+   303→}) {
+   304→  return (
+   305→    <>
+   306→      {/* Logo */}
+   307→      <div className="flex items-center gap-2.5 px-4 py-4">
+   308→        <div className="flex size-8 items-center justify-center rounded-lg bg-foreground text-background shadow-sm">
+   309→          <GitBranch className="size-4" />
+   310→        </div>
+   311→        <span className="text-base font-bold tracking-tight">BranchBoard</span>
+   312→      </div>
+   313→
+   314→      <div className="neu-divider" />
+   315→
+   316→      {/* New Board button */}
+   317→      <div className="p-3">
+   318→        <Button
+   319→          onClick={onCreateBoard}
+   320→          className="btn-neu w-full gap-2 text-foreground font-medium"
+   321→        >
+   322→          <Plus className="size-4" />
+   323→          {t('dashboard.newBoard', locale)}
+   324→        </Button>
+   325→      </div>
+   326→
+   327→      <div className="neu-divider" />
+   328→
+   329→      {/* Navigation sections */}
+   330→      <ScrollArea className="flex-1 px-2 py-1">
+   331→        <nav className="flex flex-col gap-0.5" aria-label={t('dashboard.boardNavigation', locale)}>
+   332→          {sidebarSections.map((section) => {
+   333→            const Icon = section.icon
+   334→            const isActive = activeSidebar === section.id
+   335→
+   336→            return (
+   337→              <Collapsible
+   338→                key={section.id}
+   339→                open={isActive}
+   340→                onOpenChange={(open) => {
+   341→                  if (open) {
+   342→                    setActiveSidebar(section.id)
+   343→                    setActiveFilter('all')
+   344→                  } else {
+   345→                    setActiveSidebar(null)
+   346→                  }
+   347→                }}
+   348→              >
+   349→                <CollapsibleTrigger asChild>
+   350→                  <button
+   351→                    className={cn(
+   352→                      'flex w-full items-center gap-2.5 px-3 py-2 text-sm font-medium transition-all duration-200 border-0',
+   353→                      isActive
+   354→                        ? 'neu-pressed !rounded-lg text-foreground'
+   355→                        : 'bg-transparent text-muted-foreground hover:shadow-[4px_4px_8px_rgba(0,0,0,0.07),-4px_-4px_8px_rgba(255,255,255,0.85)] dark:hover:shadow-[4px_4px_8px_rgba(0,0,0,0.4),-4px_-4px_8px_rgba(50,50,60,0.1)] hover:text-foreground'
+   356→                    )}
+   357→                  >
+   358→                    <Icon className="size-4 shrink-0" />
+   359→                    <span className="flex-1 text-left">{t(section.labelKey, locale)}</span>
+   360→                    <Badge
+   361→                      variant="secondary"
+   362→                      className="text-[10px] px-1.5 py-0 h-5 font-normal border-0"
+   363→                    >
+   364→                      {section.count}
+   365→                    </Badge>
+   366→                    <ChevronDown
+   367→                      className={cn(
+   368→                        'size-3.5 shrink-0 transition-transform duration-200',
+   369→                        isActive && 'rotate-180'
+   370→                      )}
+   371→                    />
+   372→                  </button>
+   373→                </CollapsibleTrigger>
+   374→                <AnimatePresence>
+   375→                  {isActive && (
+   376→                    <CollapsibleContent forceMount>
+   377→                      <motion.div
+   378→                        initial={{ height: 0, opacity: 0 }}
+   379→                        animate={{ height: 'auto', opacity: 1 }}
+   380→                        exit={{ height: 0, opacity: 0 }}
+   381→                        transition={{ duration: 0.2 }}
+   382→                        className="overflow-hidden"
+   383→                      >
+   384→                        <div className="ml-4 mt-0.5 flex flex-col gap-0.5 pb-1">
+   385→                          {(() => {
+   386→                            let filteredBoards: BoardCardData[] = []
+   387→                            if (section.id === 'my-boards') {
+   388→                              filteredBoards = boards.slice(0, 8)
+   389→                            } else if (section.id === 'shared') {
+   390→                              filteredBoards = boards.filter(b => b.isPublic).slice(0, 8)
+   391→                            } else if (section.id === 'starred') {
+   392→                              filteredBoards = boards.filter(b => b.isStarred).slice(0, 8)
+   393→                            } else if (section.id === 'recent') {
+   394→                              filteredBoards = [...boards]
+   395→                                .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+   396→                                .slice(0, 8)
+   397→                            }
+   398→                            if (filteredBoards.length === 0) {
+   399→                              return (
+   400→                                <span className="text-[11px] text-muted-foreground px-2 py-1">
+   401→                                  {t('dashboard.noBoardsYet', locale)}
+   402→                                </span>
+   403→                              )
+   404→                            }
+   405→                            return filteredBoards.map((board) => (
+   406→                              <SidebarItem
+   407→                                key={board.id}
+   408→                                name={board.name}
+   409→                                boardId={board.id}
+   410→                                onClick={() => onOpenBoard(board.id)}
+   411→                              />
+   412→                            ))
+   413→                          })()}
+   414→                        </div>
+   415→                      </motion.div>
+   416→                    </CollapsibleContent>
+   417→                  )}
+   418→                </AnimatePresence>
+   419→              </Collapsible>
+   420→            )
+   421→          })}
+   422→        </nav>
+   423→      </ScrollArea>
+   424→
+   425→      {/* Sidebar footer */}
+   426→      <div className="neu-divider" />
+   427→      <div className="p-3">
+   428→        <div className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm text-muted-foreground">
+   429→          <Avatar className="size-6 neu-avatar">
+   430→            <AvatarFallback className="bg-foreground text-[10px] text-background font-medium">
+   431→              {userInitials}
+   432→            </AvatarFallback>
+   433→          </Avatar>
+   434→          <span className="text-xs font-medium truncate">{userName}</span>
+   435→        </div>
+   436→      </div>
+   437→    </>
+   438→  )
+   439→}
+   440→
+   441→// ── Component ──────────────────────────────────────────────────────────────
+   442→
+   443→interface DashboardViewProps {
+   444→  onOpenSettings?: () => void
+   445→  onOpenShare?: () => void
+   446→}
+   447→
+   448→export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProps) {
+   449→  const [searchQuery, setSearchQuery] = useState('')
+   450→  const [activeFilter, setActiveFilter] = useState<FilterTab>('all')
+   451→  const [sortOption, setSortOption] = useState<SortOption>('lastModified')
+   452→  const [activeSidebar, setActiveSidebar] = useState<SidebarSection | null>('my-boards')
+   453→  const [createDialogOpen, setCreateDialogOpen] = useState(false)
+   454→  const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
+   455→  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
+   456→  const [boards, setBoards] = useState<BoardCardData[]>([])
+   457→  const [loading, setLoading] = useState(true)
+   458→
+   459→  const isMobile = useIsMobile()
+   460→  const user = useAuthStore((s) => s.user)
+   461→  const logout = useAuthStore((s) => s.logout)
+   462→  const locale = (user?.language as Locale) ?? 'en'
+   463→  const handleLogout = () => { logout() }
+   464→
+   465→  const userInitials = user?.name
+   466→    ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+   467→    : 'U'
+   468→  const userName = user?.name ?? 'Alex Chen'
+   469→
+   470→  useEffect(() => {
+   471→    fetch('/api/boards')
+   472→      .then(r => r.json())
+   473→      .then(data => {
+   474→        const apiBoards: BoardCardData[] = (data.boards || []).map((b: Record<string, unknown>) => ({
+   475→          id: b.id as string,
+   476→          name: b.name as string,
+   477→          description: b.description as string | undefined,
+   478→          members: [{ id: 'u1', name: 'Demo User' }],
+   479→          branchCount: (b.branchCount as number) || 0,
+   480→          commitCount: (b.commitCount as number) || 0,
+   481→          isStarred: false,
+   482→          updatedAt: b.updatedAt as string,
+   483→          isPublic: b.isPublic as boolean,
+   484→          deviceType: (b.deviceType as string) || null,
+   485→          deviceId: (b.deviceId as string) || null,
+   486→        }))
+   487→        setBoards(apiBoards)
+   488→      })
+   489→      .catch(() => { /* keep empty */ })
+   490→      .finally(() => setLoading(false))
+   491→  }, [])
+   492→
+   493→  const sidebarSections = useMemo(() => [
+   494→    { ...sidebarSectionsTemplate[0], count: boards.length },
+   495→    { ...sidebarSectionsTemplate[1], count: boards.filter(b => b.isPublic).length },
+   496→    { ...sidebarSectionsTemplate[2], count: boards.filter(b => b.isStarred).length },
+   497→    { ...sidebarSectionsTemplate[3], count: boards.length },
+   498→  ], [boards])
+   499→
+   500→  const filteredBoards = useMemo(() => {
+   501→    let items = [...boards]
+   502→
+   503→    // Search
+   504→    if (searchQuery.trim()) {
+   505→      const q = searchQuery.toLowerCase()
+   506→      items = items.filter(
+   507→        (b) =>
+   508→          b.name.toLowerCase().includes(q) ||
+   509→          b.description?.toLowerCase().includes(q)
+   510→      )
+   511→    }
+   512→
+   513→    // Filter
+   514→    if (activeFilter === 'starred') {
+   515→      items = items.filter((b) => b.isStarred)
+   516→    } else if (activeFilter === 'recent') {
+   517→      const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
+   518→      items = items.filter((b) => new Date(b.updatedAt).getTime() > oneWeekAgo)
+   519→    }
+   520→
+   521→    // Sidebar filter
+   522→    if (activeSidebar === 'starred') {
+   523→      items = items.filter((b) => b.isStarred)
+   524→    } else if (activeSidebar === 'shared') {
+   525→      items = items.filter((b) => b.isPublic)
+   526→    } else if (activeSidebar === 'recent') {
+   527→      const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
+   528→      items = items.filter((b) => new Date(b.updatedAt).getTime() > oneWeekAgo)
+   529→    }
+   530→
+   531→    // Sort
+   532→    items.sort((a, b) => {
+   533→      switch (sortOption) {
+   534→        case 'name':
+   535→          return a.name.localeCompare(b.name)
+   536→        case 'created':
+   537→          return 0
+   538→        case 'lastModified':
+   539→        default:
+   540→          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+   541→      }
+   542→    })
+   543→
+   544→    return items
+   545→  }, [searchQuery, activeFilter, sortOption, activeSidebar, boards])
+   546→
+   547→  const handleCreateBoard = async (data: { name: string; description?: string; isPublic: boolean; templateId?: string; deviceType?: string; deviceId?: string }) => {
+   548→    try {
+   549→      const res = await fetch('/api/boards', {
+   550→        method: 'POST',
+   551→        headers: { 'Content-Type': 'application/json' },
+   552→        body: JSON.stringify({
+   553→          name: data.name,
+   554→          description: data.description || undefined,
+   555→          isPublic: data.isPublic,
+   556→          templateId: data.templateId,
+   557→          deviceType: data.deviceType,
+   558→          deviceId: data.deviceId,
+   559→        }),
+   560→      });
+   561→      if (!res.ok) throw new Error('Failed to create board');
+   562→      // Refresh the board list
+   563→      const listRes = await fetch('/api/boards');
+   564→      const listData = await listRes.json();
+   565→      const apiBoards: BoardCardData[] = (listData.boards || []).map((b: Record<string, unknown>) => ({
+   566→        id: b.id as string,
+   567→        name: b.name as string,
+   568→        description: b.description as string | undefined,
+   569→        members: [{ id: 'u1', name: 'Demo User' }],
+   570→        branchCount: (b.branchCount as number) || 0,
+   571→        commitCount: (b.commitCount as number) || 0,
+   572→        isStarred: false,
+   573→        updatedAt: b.updatedAt as string,
+   574→        isPublic: b.isPublic as boolean,
+   575→        deviceType: (b.deviceType as string) || null,
+   576→        deviceId: (b.deviceId as string) || null,
+   577→      }));
+   578→      setBoards(apiBoards);
+   579→
+   580→      // Auto-install relevant plugins based on device type
+   581→      const autoIds = getAutoInstallPlugins(data.deviceType);
+   582→      if (autoIds.length > 0) {
+   583→        useAppStore.getState().setAutoInstallPluginIds(autoIds);
+   584→      }
+   585→
+   586→      toast.success(t('dashboard.boardCreated', locale))
+   587→      setMobileSidebarOpen(false)
+   588→    } catch (err) {
+   589→      console.error('Failed to create board:', err)
+   590→      toast.error(t('dashboard.boardCreatedFailed', locale))
+   591→    }
+   592→  }
+   593→
+   594→  return (
+   595→    <div className="flex h-screen overflow-hidden bg-background">
+   596→      {/* ─── Desktop Sidebar ────────────────────────────────────────────── */}
+   597→      <aside className="hidden md:flex w-64 flex-col border-0 bg-background shadow-[6px_6px_14px_rgba(0,0,0,0.07),-6px_-6px_14px_rgba(255,255,255,0.85)] dark:shadow-[6px_6px_14px_rgba(0,0,0,0.4),-6px_-6px_14px_rgba(50,50,60,0.1)]">
+   598→        <SidebarContent
+   599→          sidebarSections={sidebarSections}
+   600→          activeSidebar={activeSidebar}
+   601→          setActiveSidebar={setActiveSidebar}
+   602→          setActiveFilter={setActiveFilter}
+   603→          onCreateBoard={() => setCreateDialogOpen(true)}
+   604→          userName={userName}
+   605→          userInitials={userInitials}
+   606→          locale={locale}
+   607→          boards={boards}
+   608→          onOpenBoard={(boardId) => useAppStore.getState().openBoard(boardId)}
+   609→        />
+   610→      </aside>
+   611→
+   612→      {/* ─── Mobile Sidebar (Sheet) ─────────────────────────────────────── */}
+   613→      {isMobile && (
+   614→        <Sheet open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen}>
+   615→          <SheetContent side="left" className="w-72 p-0 !bg-background !border-0 shadow-[6px_6px_14px_rgba(0,0,0,0.07),-6px_-6px_14px_rgba(255,255,255,0.85)] dark:shadow-[6px_6px_14px_rgba(0,0,0,0.4),-6px_-6px_14px_rgba(50,50,60,0.1)]">
+   616→            <SheetTitle className="sr-only">{t('dashboard.navMenu', locale)}</SheetTitle>
+   617→            <div className="flex h-full flex-col">
+   618→              <SidebarContent
+   619→                sidebarSections={sidebarSections}
+   620→                activeSidebar={activeSidebar}
+   621→                setActiveSidebar={(v) => {
+   622→                  setActiveSidebar(v)
+   623→                  setMobileSidebarOpen(false)
+   624→                }}
+   625→                setActiveFilter={setActiveFilter}
+   626→                onCreateBoard={() => {
+   627→                  setCreateDialogOpen(true)
+   628→                  setMobileSidebarOpen(false)
+   629→                }}
+   630→                userName={userName}
+   631→                userInitials={userInitials}
+   632→                locale={locale}
+   633→                boards={boards}
+   634→                onOpenBoard={(boardId) => {
+   635→                  useAppStore.getState().openBoard(boardId)
+   636→                  setMobileSidebarOpen(false)
+   637→                }}
+   638→              />
+   639→            </div>
+   640→          </SheetContent>
+   641→        </Sheet>
+   642→      )}
+   643→
+   644→      {/* ─── Main content ──────────────────────────────────────────────── */}
+   645→      <div className="flex flex-1 flex-col overflow-hidden">
+   646→        {/* Header */}
+   647→        <header className="flex items-center justify-between gap-4 border-0 bg-background neu-flat !rounded-none px-4 py-3 lg:px-6">
+   648→          {/* Hamburger menu (mobile) */}
+   649→          <Button
+   650→            variant="ghost"
+   651→            size="icon"
+   652→            className="md:hidden shrink-0 neu-icon-btn"
+   653→            onClick={() => setMobileSidebarOpen(true)}
+   654→            aria-label={t('dashboard.openMenu', locale)}
+   655→          >
+   656→            <Menu className="size-5" />
+   657→          </Button>
+   658→
+   659→          {/* Mobile logo */}
+   660→          <div className="flex items-center gap-2.5 md:hidden">
+   661→            <div className="flex size-7 items-center justify-center rounded-lg bg-foreground text-background">
+   662→              <GitBranch className="size-3.5" />
+   663→            </div>
+   664→            <span className="text-sm font-bold tracking-tight">BranchBoard</span>
+   665→          </div>
+   666→
+   667→          {/* Search bar */}
+   668→          <div className="relative flex-1 max-w-md hidden md:block">
+   669→            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+   670→            <Input
+   671→              placeholder={t('dashboard.search', locale)}
+   672→              value={searchQuery}
+   673→              onChange={(e) => setSearchQuery(e.target.value)}
+   674→              className="neu-input !pl-9 h-9 border-0"
+   675→            />
+   676→          </div>
+   677→
+   678→          <div className="flex items-center gap-2">
+   679→            {/* Mobile new board button */}
+   680→            <Button
+   681→              variant="default"
+   682→              size="sm"
+   683→              className="md:hidden gap-1.5 btn-neu"
+   684→              onClick={() => setCreateDialogOpen(true)}
+   685→            >
+   686→              <Plus className="size-4" />
+   687→              {t('dashboard.newBoard', locale).split(' ').pop()}
+   688→            </Button>
+   689→
+   690→            {/* AI Design button */}
+   691→            <Tooltip>
+   692→              <TooltipTrigger asChild>
+   693→                <Button
+   694→                  variant="outline"
+   695→                  size="sm"
+   696→                  onClick={() => useAppStore.getState().setViewMode('ai-design')}
+   697→                  className="hidden md:flex gap-1.5 rounded-lg btn-neu bg-background border-0"
+   698→                >
+   699→                  <Wand2 className="size-3.5" />
+   700→                  {t('dashboard.aiDesign', locale)}
+   701→                </Button>
+   702→              </TooltipTrigger>
+   703→              <TooltipContent>{t('dashboard.aiDesign', locale)}</TooltipContent>
+   704→            </Tooltip>
+   705→
+   706→            {/* Plugins button */}
+   707→            <Tooltip>
+   708→              <TooltipTrigger asChild>
+   709→                <Button
+   710→                  variant="outline"
+   711→                  size="icon"
+   712→                  onClick={() => useAppStore.getState().setPluginDialogOpen(true)}
+   713→                  className="rounded-lg neu-icon-btn bg-background border-0"
+   714→                  aria-label={t('toolbar.plugins', locale)}
+   715→                >
+   716→                  <Puzzle className="size-4" />
+   717→                </Button>
+   718→              </TooltipTrigger>
+   719→              <TooltipContent>{t('toolbar.plugins', locale)}</TooltipContent>
+   720→            </Tooltip>
+   721→
+   722→            {/* Community button */}
+   723→            <Tooltip>
+   724→              <TooltipTrigger asChild>
+   725→                <Button
+   726→                  variant="outline"
+   727→                  size="sm"
+   728→                  onClick={() => useAppStore.getState().setViewMode('community')}
+   729→                  className="hidden md:flex gap-1.5 rounded-lg btn-neu bg-background border-0"
+   730→                >
+   731→                  <Users className="size-3.5" />
+   732→                  {t('dashboard.community', locale)}
+   733→                </Button>
+   734→              </TooltipTrigger>
+   735→              <TooltipContent>{t('dashboard.exploreCommunity', locale)}</TooltipContent>
+   736→            </Tooltip>
+   737→
+   738→            {/* Upload Design button */}
+   739→            <Tooltip>
+   740→              <TooltipTrigger asChild>
+   741→                <Button
+   742→                  variant="outline"
+   743→                  size="sm"
+   744→                  onClick={() => setUploadDialogOpen(true)}
+   745→                  className="hidden md:flex gap-1.5 rounded-lg btn-neu bg-background border-0"
+   746→                >
+   747→                  <Upload className="size-3.5" />
+   748→                  {t('dashboard.upload', locale)}
+   749→                </Button>
+   750→              </TooltipTrigger>
+   751→              <TooltipContent>{t('dashboard.shareYourDesign', locale)}</TooltipContent>
+   752→            </Tooltip>
+   753→
+   754→            {/* Theme toggle */}
+   755→            <ThemeToggle />
+   756→
+   757→            {/* Language switcher (flag only on mobile) */}
+   758→            <LanguageSwitcher />
+   759→
+   760→            {/* Settings - hidden on mobile */}
+   761→            <Tooltip>
+   762→              <TooltipTrigger asChild>
+   763→                <Button variant="ghost" size="icon" onClick={() => onOpenSettings?.()} className="hidden md:flex neu-icon-btn">
+   764→                  <Settings className="size-4" />
+   765→                </Button>
+   766→              </TooltipTrigger>
+   767→              <TooltipContent>{t('settings.title', locale)}</TooltipContent>
+   768→            </Tooltip>
+   769→
+   770→            {/* Notification bell - hidden on mobile */}
+   771→            <Tooltip>
+   772→              <TooltipTrigger asChild>
+   773→                <Button variant="ghost" size="icon" className="relative hidden md:flex neu-icon-btn">
+   774→                  <Bell className="size-4" />
+   775→                  <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-rose-500 ring-2 ring-background" />
+   776→                </Button>
+   777→              </TooltipTrigger>
+   778→              <TooltipContent>{t('dashboard.notifications', locale)}</TooltipContent>
+   779→            </Tooltip>
+   780→
+   781→            {/* User avatar / Logout */}
+   782→            <div className="flex items-center gap-1">
+   783→              <Avatar className="size-8 neu-avatar cursor-pointer" onClick={() => onOpenSettings?.()}>
+   784→                <AvatarFallback className="bg-foreground text-xs text-background font-medium">
+   785→                  {userInitials}
+   786→                </AvatarFallback>
+   787→              </Avatar>
+   788→              {/* Logout - hidden on mobile */}
+   789→              <Tooltip>
+   790→                <TooltipTrigger asChild>
+   791→                  <Button variant="ghost" size="icon" className="size-8 hidden md:flex neu-icon-btn" onClick={handleLogout}>
+   792→                    <LogOut className="size-3.5" />
+   793→                  </Button>
+   794→                </TooltipTrigger>
+   795→                <TooltipContent>{t('settings.account.logout', locale)}</TooltipContent>
+   796→              </Tooltip>
+   797→            </div>
+   798→          </div>
+   799→        </header>
+   800→
+   801→        {/* Mobile search bar (below header, above filter bar) */}
+   802→        <div className="md:hidden border-0 bg-background px-4 py-2">
+   803→          <div className="relative w-full">
+   804→            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+   805→            <Input
+   806→              placeholder={t('dashboard.search', locale)}
+   807→              value={searchQuery}
+   808→              onChange={(e) => setSearchQuery(e.target.value)}
+   809→              className="neu-input !pl-9 h-9 border-0"
+   810→            />
+   811→          </div>
+   812→        </div>
+   813→
+   814→        {/* Filter / Sort bar */}
+   815→        <div className="flex items-center justify-between gap-3 border-0 px-4 py-2.5 lg:px-6 bg-background">
+   816→          <div className="flex items-center gap-1 flex-1 md:flex-none justify-center md:justify-start">
+   817→            {(
+   818→              [
+   819→                { key: 'all', label: t('dashboard.all', locale) },
+   820→                { key: 'recent', label: t('dashboard.recent', locale) },
+   821→                { key: 'starred', label: t('dashboard.starred', locale) },
+   822→              ] as const
+   823→            ).map((tab) => (
+   824→              <Button
+   825→                key={tab.key}
+   826→                variant={activeFilter === tab.key ? 'secondary' : 'ghost'}
+   827→                size="sm"
+   828→                onClick={() => setActiveFilter(tab.key)}
+   829→                className={cn(
+   830→                  'text-xs h-8 px-3 rounded-full border-0 transition-all duration-200',
+   831→                  activeFilter === tab.key
+   832→                    ? 'neu-pressed !rounded-full font-semibold text-foreground'
+   833→                    : 'bg-transparent text-muted-foreground hover:text-foreground'
+   834→                )}
+   835→              >
+   836→                {tab.key === 'starred' && (
+   837→                  <Star className={cn('size-3 mr-1', activeFilter === tab.key && 'fill-current')} />
+   838→                )}
+   839→                {tab.key === 'recent' && (
+   840→                  <Clock className="size-3 mr-1" />
+   841→                )}
+   842→                {tab.label}
+   843→              </Button>
+   844→            ))}
+   845→          </div>
+   846→
+   847→          {/* Sort controls - hidden on mobile */}
+   848→          <div className="hidden md:flex items-center gap-2">
+   849→            <span className="text-xs text-muted-foreground hidden sm:inline">
+   850→              {t('dashboard.sortBy', locale)}
+   851→            </span>
+   852→            <div className="flex items-center bg-background rounded-lg p-0.5 neu-flat !rounded-lg border-0">
+   853→              <Button
+   854→                variant={sortOption === 'lastModified' ? 'secondary' : 'ghost'}
+   855→                size="sm"
+   856→                onClick={() => setSortOption('lastModified')}
+   857→                className={cn('text-xs h-7 px-2.5 rounded-md border-0 transition-all duration-200', sortOption === 'lastModified' ? 'neu-pressed !rounded-md bg-transparent' : 'bg-transparent')}
+   858→              >
+   859→                {t('dashboard.lastModified', locale)}
+   860→              </Button>
+   861→              <Button
+   862→                variant={sortOption === 'name' ? 'secondary' : 'ghost'}
+   863→                size="sm"
+   864→                onClick={() => setSortOption('name')}
+   865→                className={cn('text-xs h-7 px-2.5 rounded-md border-0 transition-all duration-200', sortOption === 'name' ? 'neu-pressed !rounded-md bg-transparent' : 'bg-transparent')}
+   866→              >
+   867→                {t('dashboard.nameSort', locale)}
+   868→              </Button>
+   869→              <Button
+   870→                variant={sortOption === 'created' ? 'secondary' : 'ghost'}
+   871→                size="sm"
+   872→                onClick={() => setSortOption('created')}
+   873→                className={cn('text-xs h-7 px-2.5 rounded-md border-0 transition-all duration-200', sortOption === 'created' ? 'neu-pressed !rounded-md bg-transparent' : 'bg-transparent')}
+   874→              >
+   875→                {t('dashboard.createdSort', locale)}
+   876→              </Button>
+   877→            </div>
+   878→
+   879→            <div className="neu-divider--vertical h-5 hidden sm:block" />
+   880→
+   881→            {/* Grid/List toggle */}
+   882→            <div className="hidden sm:flex items-center bg-background rounded-lg p-0.5 neu-flat !rounded-lg border-0">
+   883→              <Tooltip>
+   884→                <TooltipTrigger asChild>
+   885→                  <Button variant="secondary" size="sm" className="text-xs h-7 px-2 rounded-md neu-pressed !rounded-md border-0 bg-transparent">
+   886→                    <Grid className="size-3.5" />
+   887→                  </Button>
+   888→                </TooltipTrigger>
+   889→                <TooltipContent>{t('dashboard.gridView', locale)}</TooltipContent>
+   890→              </Tooltip>
+   891→              <Tooltip>
+   892→                <TooltipTrigger asChild>
+   893→                  <Button variant="ghost" size="sm" className="text-xs h-7 px-2 rounded-md bg-transparent border-0">
+   894→                    <List className="size-3.5" />
+   895→                  </Button>
+   896→                </TooltipTrigger>
+   897→                <TooltipContent>{t('dashboard.listView', locale)}</TooltipContent>
+   898→              </Tooltip>
+   899→            </div>
+   900→          </div>
+   901→        </div>
+   902→
+   903→        {/* Board grid */}
+   904→        <ScrollArea className="flex-1">
+   905→          <main className="p-3 sm:p-4 lg:p-6 pb-16 md:pb-0">
+   906→            {loading ? (
+   907→              <div className="flex items-center justify-center py-24">
+   908→                <div className="flex flex-col items-center gap-3 text-muted-foreground">
+   909→                  <div className="size-8 animate-spin rounded-full border-2 border-current border-t-transparent" />
+   910→                  <p className="text-sm">{t('dashboard.loadingBoards', locale)}</p>
+   911→                </div>
+   912→              </div>
+   913→            ) : filteredBoards.length > 0 ? (
+   914→              <motion.div
+   915→                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5"
+   916→                variants={boardContainerVariants}
+   917→                initial="hidden"
+   918→                animate="show"
+   919→                key={`${activeFilter}-${sortOption}-${searchQuery}`}
+   920→              >
+   921→                <AnimatePresence mode="popLayout">
+   922→                  {filteredBoards.map((board) => (
+   923→                    <motion.div key={board.id} variants={boardItemVariants} layout>
+   924→                      <BoardCard board={board} onOpen={(id) => useAppStore.getState().openBoard(id)} />
+   925→                    </motion.div>
+   926→                  ))}
+   927→                </AnimatePresence>
+   928→              </motion.div>
+   929→            ) : (
+   930→              <EmptyState onCreateBoard={() => setCreateDialogOpen(true)} searchQuery={searchQuery} locale={locale} />
+   931→            )}
+   932→          </main>
+   933→        </ScrollArea>
+   934→
+   935→        {/* Footer */}
+   936→        <footer className="mt-auto shrink-0 flex items-center justify-center border-0 bg-background px-4 py-2 pb-safe shadow-[0px_-4px_8px_rgba(0,0,0,0.06),0px_4px_8px_rgba(255,255,255,0.7)] dark:shadow-[0px_-4px_8px_rgba(0,0,0,0.35),0px_4px_8px_rgba(50,50,60,0.06)]">
+   937→          <p className="text-xs text-muted-foreground">{t('dashboard.footer', locale)}</p>
+   938→        </footer>
+   939→      </div>
+   940→
+   941→      {/* ─── Mobile Bottom Navigation Bar ───────────────────────────────── */}
+   942→      {isMobile && (
+   943→        <nav
+   944→          className="fixed bottom-0 left-0 right-0 z-40 bg-background border-0 neu-raised !rounded-none"
+   945→          style={{ height: 'calc(60px + env(safe-area-inset-bottom, 0px))', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+   946→          aria-label={t('dashboard.mobileNav', locale)}
+   947→        >
+   948→          <div className="flex items-center justify-around h-[60px]">
+   949→            {/* Boards tab */}
+   950→            <button
+   951→              onClick={() => {
+   952→                setActiveFilter('all')
+   953→                setActiveSidebar('my-boards')
+   954→                setMobileSidebarOpen(false)
+   955→              }}
+   956→              className={cn(
+   957→                'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-all duration-200 min-w-[56px] border-0',
+   958→                activeFilter === 'all' && activeSidebar !== 'starred'
+   959→                  ? 'neu-pressed !rounded-lg text-primary'
+   960→                  : 'bg-transparent text-muted-foreground hover:text-foreground'
+   961→              )}
+   962→            >
+   963→              <LayoutDashboard className="size-5" />
+   964→              <span className="text-[10px] font-medium">{t('dashboard.boards', locale)}</span>
+   965→            </button>
+   966→
+   967→            {/* Starred tab */}
+   968→            <button
+   969→              onClick={() => {
+   970→                setActiveFilter('starred')
+   971→                setActiveSidebar(null)
+   972→              }}
+   973→              className={cn(
+   974→                'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-all duration-200 min-w-[56px] border-0',
+   975→                activeFilter === 'starred'
+   976→                  ? 'neu-pressed !rounded-lg text-primary'
+   977→                  : 'bg-transparent text-muted-foreground hover:text-foreground'
+   978→              )}
+   979→            >
+   980→              <Star className={cn('size-5', activeFilter === 'starred' && 'fill-current')} />
+   981→              <span className="text-[10px] font-medium">{t('dashboard.starred', locale)}</span>
+   982→            </button>
+   983→
+   984→            {/* New board FAB */}
+   985→            <button
+   986→              onClick={() => setCreateDialogOpen(true)}
+   987→              className="flex flex-col items-center justify-center gap-0.5 px-3 py-1 min-w-[56px]"
+   988→            >
+   989→              <div className="flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg">
+   990→                <Plus className="size-5" />
+   991→              </div>
+   992→            </button>
+   993→
+   994→            {/* Community tab */}
+   995→            <button
+   996→              onClick={() => {
+   997→                useAppStore.getState().setViewMode('community')
+   998→                setMobileSidebarOpen(false)
+   999→              }}
+  1000→              className={cn(
+  1001→                'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-all duration-200 min-w-[56px] border-0',
+  1002→                'bg-transparent text-muted-foreground hover:text-foreground'
+  1003→              )}
+  1004→            >
+  1005→              <Users className="size-5" />
+  1006→              <span className="text-[10px] font-medium">{t('dashboard.community', locale)}</span>
+  1007→            </button>
+  1008→
+  1009→            {/* AI Design tab (mobile) */}
+  1010→            <button
+  1011→              onClick={() => {
+  1012→                useAppStore.getState().setViewMode('ai-design')
+  1013→                setMobileSidebarOpen(false)
+  1014→              }}
+  1015→              className={cn(
+  1016→                'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-all duration-200 min-w-[56px] border-0',
+  1017→                'bg-transparent text-muted-foreground hover:text-foreground'
+  1018→              )}
+  1019→            >
+  1020→              <Wand2 className="size-5" />
+  1021→              <span className="text-[10px] font-medium">{t('dashboard.aiTab', locale)}</span>
+  1022→            </button>
+  1023→
+  1024→            {/* Profile / Settings tab */}
+  1025→            <button
+  1026→              onClick={() => {
+  1027→                setMobileSidebarOpen(false)
+  1028→                onOpenSettings?.()
+  1029→              }}
+  1030→              className={cn(
+  1031→                'flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-lg transition-all duration-200 min-w-[56px] border-0',
+  1032→                'bg-transparent text-muted-foreground hover:text-foreground'
+  1033→              )}
+  1034→            >
+  1035→              <Settings className="size-5" />
+  1036→              <span className="text-[10px] font-medium">{t('settings.title', locale)}</span>
+  1037→            </button>
+  1038→          </div>
+  1039→        </nav>
+  1040→      )}
+  1041→
+  1042→      {/* Create Board Dialog */}
+  1043→      <CreateBoardDialog
+  1044→        open={createDialogOpen}
+  1045→        onOpenChange={setCreateDialogOpen}
+  1046→        onCreateBoard={handleCreateBoard}
+  1047→        locale={locale}
+  1048→      />
+  1049→
+  1050→      {/* Upload Design Dialog */}
+  1051→      <UploadDesignDialog
+  1052→        open={uploadDialogOpen}
+  1053→        onOpenChange={setUploadDialogOpen}
+  1054→      />
+  1055→
+  1056→      {/* Plugin Marketplace Dialog */}
+  1057→      <PluginBrowserDialog
+  1058→        open={useAppStore((s) => s.pluginDialogOpen)}
+  1059→        onOpenChange={(v) => useAppStore.getState().setPluginDialogOpen(v)}
+  1060→      />
+  1061→    </div>
+  1062→  )
+  1063→}
+  1064→
+  1065→// ─── Sidebar item ────────────────────────────────────────────────────────────
+  1066→
+  1067→function SidebarItem({ name, boardId, onClick, active }: { name: string; boardId: string; onClick: () => void; active?: boolean }) {
+  1068→  return (
+  1069→    <button
+  1070→      onClick={onClick}
+  1071→      className={cn(
+  1072→        'flex items-center gap-2 px-2 py-1.5 text-xs transition-all duration-200 truncate w-full text-left border-0 cursor-pointer',
+  1073→        active
+  1074→          ? 'neu-pressed !rounded-md text-primary font-medium'
+  1075→          : 'bg-transparent text-muted-foreground hover:text-foreground'
+  1076→      )}
+  1077→    >
+  1078→      <ChevronRight
+  1079→        className={cn(
+  1080→          'size-3 shrink-0 transition-transform',
+  1081→          active && 'rotate-90'
+  1082→        )}
+  1083→      />
+  1084→      <span className="truncate">{name}</span>
+  1085→    </button>
+  1086→  )
+  1087→}
+  1088→
+  1089→// ─── Empty state ─────────────────────────────────────────────────────────────
+  1090→
+  1091→function EmptyState({ onCreateBoard, searchQuery = '', locale }: { onCreateBoard: () => void; searchQuery?: string; locale: Locale }) {
+  1092→  return (
+  1093→    <motion.div
+  1094→      initial={{ opacity: 0, scale: 0.95 }}
+  1095→      animate={{ opacity: 1, scale: 1 }}
+  1096→      transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+  1097→      className="neu-card flex flex-col items-center justify-center py-24 text-center"
+  1098→    >
+  1099→      {/* Illustration */}
+  1100→      <div className="relative mb-6">
+  1101→        <div className="flex size-24 items-center justify-center rounded-3xl bg-neutral-200 dark:bg-neutral-800">
+  1102→          <div className="flex size-14 items-center justify-center rounded-2xl bg-foreground text-background shadow-lg">
+  1103→            <GitBranch className="size-7" />
+  1104→          </div>
+  1105→        </div>
+  1106→        <motion.div
+  1107→          className="absolute -top-1 -right-1 flex size-7 items-center justify-center rounded-full bg-foreground text-background shadow-md"
+  1108→          animate={{ rotate: [0, 15, -15, 0] }}
+  1109→          transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
+  1110→        >
+  1111→          <Sparkles className="size-3.5" />
+  1112→        </motion.div>
+  1113→      </div>
+  1114→
+  1115→      <h2 className="text-lg font-semibold mb-2">{t('dashboard.noBoardsFound', locale)}</h2>
+  1116→      <p className="text-sm text-muted-foreground max-w-sm mb-6 leading-relaxed">
+  1117→        {searchQuery
+  1118→          ? t('dashboard.noBoardsFoundSearch', locale, { query: searchQuery })
+  1119→          : t('dashboard.noBoardsYet', locale)}
+  1120→      </p>
+  1121→      <Button onClick={onCreateBoard} className="btn-neu gap-2 text-foreground font-medium">
+  1122→        <FilePlus className="size-4" />
+  1123→        {t('dashboard.createFirstBoard', locale)}
+  1124→      </Button>
+  1125→    </motion.div>
+  1126→  )
+  1127→}

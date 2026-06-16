@@ -12,6 +12,7 @@ import { ShareDialog } from '@/components/stitch/share-dialog';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CommunityBrowse } from '@/components/community';
 import { AIDesignPage } from '@/components/ai-design/ai-design-page';
+import AdminLayout from '@/components/admin/admin-layout';
 
 export default function HomePage() {
   const { viewMode } = useAppStore();
@@ -121,6 +122,17 @@ export default function HomePage() {
             <AIDesignPage
               onBack={() => useAppStore.getState().setViewMode('dashboard')}
             />
+          </motion.div>
+        )}
+        {viewMode === 'admin' && (
+          <motion.div
+            key="admin"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <AdminLayout />
           </motion.div>
         )}
       </AnimatePresence>
