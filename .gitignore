@@ -30,25 +30,74 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files (all .env files are ignored, except .env.example for documentation)
 .env*
+!.env.example
 
 # vercel
 .vercel
 
-
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# logs
+*.log
+
+# local / sandbox specific
 local-*
 .claude
 .z-ai-config
-*.log
-dev.log
-dev.out.log
 test
 prompt
 
-server.log
 # Skills directory
 /skills/
+
+# Local database (SQLite — not used in production with Neon)
+/db/
+
+# Tool results from development
+/tool-results/
+
+# Screenshots and images created during development
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.svg
+!public/**/*.svg
+
+# .deb installers
+*.deb
+
+# Mini-services lockfiles and node_modules (each has its own package.json)
+mini-services/*/node_modules
+mini-services/*.lock
+
+# Shell scripts used only in sandbox
+keep-alive.sh
+keepalive.sh
+start-dev.sh
+launcher.sh
+run-dev.sh
+
+# Caddyfile (used only in sandbox, not for Vercel)
+Caddyfile
+
+# 3000 file (port marker used in sandbox)
+3000
+
+# Worklogs (development artifacts)
+worklog.md
+worklog-2.md
+
+# download directory
+/download/
+
+# agent context
+/agent-ctx/
+
+# Backup files
+*.backup

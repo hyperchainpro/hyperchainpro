@@ -3,6 +3,9 @@ import { PrismaClient } from '@prisma/client'
 /**
  * Database client with graceful fallback.
  * Returns empty results when database is not available.
+ * 
+ * For Vercel deployment: standard PrismaClient works with Neon PostgreSQL
+ * via the pgbouncer connection URL set in DATABASE_URL.
  */
 
 // ─── No-op handler that mimics Prisma model methods ─────────────────────────
@@ -51,8 +54,8 @@ function tryCreateClient(): PrismaClient | null {
       return null;
     }
 
-    // Skip placeholder/unreachable hosts
-    if (url.includes('123456') || url.includes('localhost')) {
+    // Skip placeholder/unreachable hosts only in development
+    if (process.env.NODE_ENV === 'development' && (url.includes('123456') || url.includes('localhost'))) {
       return null;
     }
 
