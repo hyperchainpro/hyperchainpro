@@ -1,5 +1,4 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import { useAppStore } from '@/store/app-store';
 import { useAuthStore } from '@/store/auth-store';
@@ -21,31 +20,20 @@ export default function HomePage() {
   const [shareOpen, setShareOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // Initialize auth from localStorage on mount
   useEffect(() => {
     initialize();
     setMounted(true);
   }, [initialize]);
 
-  // Show nothing until hydrated (prevents flash)
   if (!mounted || isLoading) {
     return (
       <div className="flex min-h-screen w-full items-center justify-center bg-background">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center gap-4"
-        >
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center gap-4">
           <div className="neu-card flex items-center gap-3 px-5 py-3">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-foreground text-background shadow-[3px_3px_6px_rgba(0,0,0,0.07),-3px_-3px_6px_rgba(255,255,255,0.85)] dark:shadow-[3px_3px_6px_rgba(0,0,0,0.4),-3px_-3px_6px_rgba(50,50,60,0.08)]">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="6" x2="6" y1="3" y2="15" /><circle cx="18" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><path d="M18 9a9 9 0 0 1-9 9" />
-              </svg>
-            </div>
             <span className="text-lg font-semibold tracking-tight">BranchBoard</span>
           </div>
           <div className="neu-pressed flex gap-2 px-4 py-2.5 rounded-full">
-            <div className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0ms' }} />
+            <div className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" />
             <div className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms' }} />
             <div className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '300ms' }} />
           </div>
@@ -54,84 +42,37 @@ export default function HomePage() {
     );
   }
 
-  // Not authenticated → show auth view
   if (!isAuthenticated) {
     return <AuthView />;
   }
 
   return (
     <ErrorBoundary>
-      {/* Settings Dialog (accessible from dashboard) */}
       <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
-
-      {/* Share Dialog (accessible from editor) */}
-      <ShareDialog
-        open={shareOpen}
-        onOpenChange={setShareOpen}
-        boardId={useAppStore.getState().currentBoardId ?? ''}
-        boardName=""
-      />
-
+      <ShareDialog open={shareOpen} onOpenChange={setShareOpen} boardId={useAppStore.getState().currentBoardId ?? ''} boardName="" />
       <AnimatePresence mode="wait">
         {viewMode === 'dashboard' && (
-          <motion.div
-            key="dashboard"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <DashboardView
-              onOpenSettings={() => setSettingsOpen(true)}
-              onOpenShare={() => setShareOpen(true)}
-            />
+          <motion.div key="dashboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+            <DashboardView onOpenSettings={() => setSettingsOpen(true)} onOpenShare={() => setShareOpen(true)} />
           </motion.div>
         )}
         {viewMode === 'editor' && (
-          <motion.div
-            key="editor"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
+          <motion.div key="editor" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
             <EditorView />
           </motion.div>
         )}
         {viewMode === 'community' && (
-          <motion.div
-            key="community"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <CommunityBrowse
-              onBack={() => useAppStore.getState().setViewMode('dashboard')}
-            />
+          <motion.div key="community" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+            <CommunityBrowse onBack={() => useAppStore.getState().setViewMode('dashboard')} />
           </motion.div>
         )}
         {viewMode === 'ai-design' && (
-          <motion.div
-            key="ai-design"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <AIDesignPage
-              onBack={() => useAppStore.getState().setViewMode('dashboard')}
-            />
+          <motion.div key="ai-design" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+            <AIDesignPage onBack={() => useAppStore.getState().setViewMode('dashboard')} />
           </motion.div>
         )}
         {viewMode === 'admin' && (
-          <motion.div
-            key="admin"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
+          <motion.div key="admin" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
             <AdminLayout />
           </motion.div>
         )}
