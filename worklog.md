@@ -729,3 +729,30 @@ Stage Summary:
 - 4 lint errors resolved across 3 files
 - Plugin marketplace opens without any console errors
 - Install/uninstall, category filtering, and search all work correctly
+
+---
+Task ID: 2
+Agent: Main Agent
+Task: Fix plugin install persistence across views + show installed plugins in sidebar
+
+Work Log:
+- Identified root cause: PluginBrowserDialog used local useState for installedMap, which reset on unmount (view mode change)
+- Added `installedPluginIds: string[]` to Zustand app-store with localStorage persistence
+- Added `togglePluginInstalled(id)` and `isPluginInstalled(id)` actions to store
+- Created `loadInstalledIds()` helper that reads from localStorage, falling back to default isInstalled plugins
+- Created `saveInstalledIds()` helper that writes to localStorage on every toggle
+- Updated PluginBrowserDialog to read from store instead of local state
+- Added 'plugins' to LeftPanelTab type in types.ts
+- Created new PluginsPanel component (src/components/editor/left-panel/plugins-panel.tsx)
+- PluginsPanel groups installed plugins by category with count badges
+- PluginsPanel has "Browse Marketplace" button at bottom for easy access
+- Updated LeftPanel index.tsx to include third "Plugins" tab
+- Fixed lint error: JSX construction in try/catch in PluginIcon component
+
+Stage Summary:
+- Plugin install state now persists via localStorage in Zustand store
+- Verified: install on mobile → count persists on desktop, and vice versa
+- New "Plugins" tab added to left panel sidebar (Layers | Assets | Plugins)
+- Installed plugins displayed organized by category with icons, names, descriptions
+- All 27 installed plugins visible in sidebar without errors
+- Lint passes clean, no console errors

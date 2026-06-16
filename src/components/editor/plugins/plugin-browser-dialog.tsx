@@ -26,34 +26,6 @@ import { useAuthStore } from '@/store/auth-store'
 import { useAppStore } from '@/store/app-store'
 import { toast } from 'sonner'
 
-const iconBgColors: Record<string, string> = {
-  shapes: 'bg-foreground/5 text-foreground',
-  charts: 'bg-foreground/5 text-foreground',
-  icons: 'bg-foreground/5 text-foreground',
-  layout: 'bg-foreground/5 text-foreground',
-  wireframe: 'bg-foreground/5 text-foreground',
-  diagrams: 'bg-foreground/5 text-foreground',
-  text: 'bg-foreground/5 text-foreground',
-  images: 'bg-foreground/5 text-foreground',
-  colors: 'bg-foreground/5 text-foreground',
-  export: 'bg-foreground/5 text-foreground',
-  templates: 'bg-foreground/5 text-foreground',
-  'ai-tools': 'bg-foreground/5 text-foreground',
-  collaboration: 'bg-foreground/5 text-foreground',
-  accessibility: 'bg-foreground/5 text-foreground',
-  math: 'bg-foreground/5 text-foreground',
-  typography: 'bg-foreground/5 text-foreground',
-  branding: 'bg-foreground/5 text-foreground',
-  animation: 'bg-foreground/5 text-foreground',
-  prototyping: 'bg-foreground/5 text-foreground',
-  '3d': 'bg-foreground/5 text-foreground',
-  illustration: 'bg-foreground/5 text-foreground',
-  'photo-editing': 'bg-foreground/5 text-foreground',
-  responsive: 'bg-foreground/5 text-foreground',
-  'code-gen': 'bg-foreground/5 text-foreground',
-  handoff: 'bg-foreground/5 text-foreground',
-}
-
 const categoryBadgeColors: Record<string, string> = {
   shapes: 'bg-foreground/10 text-foreground',
   charts: 'bg-foreground/10 text-foreground',
@@ -97,15 +69,16 @@ export function PluginBrowserDialog({
   const [searchQuery, setSearchQuery] = useState('')
   const [activeCategory, setActiveCategory] = useState('all')
   const autoInstallIds = useAppStore((s) => s.autoInstallPluginIds)
-  const [installedMap, setInstalledMap] = useState<Record<string, boolean>>(() => {
-    const map: Record<string, boolean> = {}
-    for (const p of DESIGN_PLUGINS) {
-      map[p.id] = p.isInstalled
-    }
-    return map
-  })
+  const installedPluginIds = useAppStore((s) => s.installedPluginIds)
+  const togglePluginInstalled = useAppStore((s) => s.togglePluginInstalled)
   const scrollRef = useRef<HTMLDivElement>(null)
   const autoAppliedRef = useRef(false)
+
+  // Build a lookup set from the store for O(1) checks
+  const installedSet = useMemo(
+    () => new Set(installedPluginIds),
+    [installedPluginIds],
+  )
 
   // Apply auto-install plugins when dialog opens
   useEffect(() => {
@@ -115,35 +88,26 @@ export function PluginBrowserDialog({
     }
     if (!autoInstallIds || autoInstallIds.length === 0 || autoAppliedRef.current) return
     autoAppliedRef.current = true
-    // Use a microtask to avoid synchronous setState in effect
-    queueMicrotask(() => {
-      setInstalledMap((prev) => {
-        const next = { ...prev }
-        let newCount = 0
-        for (const id of autoInstallIds) {
-          if (!next[id]) {
-            next[id] = true
-            newCount++
-          }
-        }
-        if (newCount > 0) {
-          toast.success(`${newCount} plugins auto-installed for this board`)
-        }
-        return next
-      })
-      useAppStore.getState().setAutoInstallPluginIds(null)
-    })
+    const current = useAppStore.getState().installedPluginIds
+    const toAdd = autoInstallIds.filter((id) => !current.includes(id))
+    if (toAdd.length > 0) {
+      for (const id of toAdd) {
+        useAppStore.getState().togglePluginInstalled(id)
+      }
+      toast.success(`${toAdd.length} plugins auto-installed for this board`)
+    }
+    useAppStore.getState().setAutoInstallPluginIds(null)
   }, [open, autoInstallIds])
 
-  const installedCount = Object.values(installedMap).filter(Boolean).length
+  const installedCount = installedPluginIds.length
   const totalPlugins = DESIGN_PLUGINS.length
 
   const handleToggleInstall = useCallback(
     (plugin: DesignPlugin) => {
-      setInstalledMap((prev) => ({ ...prev, [plugin.id]: !prev[plugin.id] }))
+      togglePluginInstalled(plugin.id)
       onInstallPlugin?.(plugin.id)
     },
-    [onInstallPlugin],
+    [togglePluginInstalled, onInstallPlugin],
   )
 
   const filteredPlugins = useMemo(() => {
@@ -170,7 +134,6 @@ export function PluginBrowserDialog({
 
   const handleCategoryChange = useCallback((cat: string) => {
     setActiveCategory(cat)
-    // Scroll to top of plugin grid
     if (scrollRef.current) {
       scrollRef.current.scrollTop = 0
     }
@@ -236,7 +199,7 @@ export function PluginBrowserDialog({
           </div>
         </DialogHeader>
 
-        {/* ── Category Tabs (simple buttons, no nested Tabs) ── */}
+        {/* ── Category Tabs ── */}
         <div className="shrink-0 border-b border-border/30 px-2 sm:px-4">
           <ScrollArea orientation="horizontal" className="w-full">
             <div className="flex gap-1 py-2">
@@ -282,89 +245,90 @@ export function PluginBrowserDialog({
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4">
-                {filteredPlugins.map((plugin) => (
-                  <motion.div
-                    key={plugin.id}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="group"
-                  >
-                    <div className="flex h-full flex-col rounded-xl neu-card bg-background p-3 transition-all duration-200 sm:p-4">
-                      {/* Top row: icon + badges */}
-                      <div className="flex items-start justify-between gap-2">
-                        <div
-                          className={`flex size-9 shrink-0 items-center justify-center rounded-full sm:size-10 ${iconBgColors[plugin.category] ?? 'bg-muted text-muted-foreground'}`}
-                        >
-                          {renderPluginIcon(plugin.icon)}
-                        </div>
-                        <div className="flex shrink-0 flex-col items-end gap-1">
-                          {plugin.isPopular && (
+                {filteredPlugins.map((plugin) => {
+                  const isInstalled = installedSet.has(plugin.id)
+                  return (
+                    <motion.div
+                      key={plugin.id}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="group"
+                    >
+                      <div className="flex h-full flex-col rounded-xl neu-card bg-background p-3 transition-all duration-200 sm:p-4">
+                        {/* Top row: icon + badges */}
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex size-9 shrink-0 items-center justify-center rounded-full sm:size-10 bg-foreground/5 text-foreground">
+                            {renderPluginIcon(plugin.icon)}
+                          </div>
+                          <div className="flex shrink-0 flex-col items-end gap-1">
+                            {plugin.isPopular && (
+                              <Badge
+                                variant="secondary"
+                                className="gap-1 rounded-full px-1.5 py-0 text-[10px] font-semibold leading-4 text-foreground neu-badge border-0"
+                              >
+                                <Sparkles className="size-2.5" />
+                                Popular
+                              </Badge>
+                            )}
                             <Badge
                               variant="secondary"
-                              className="gap-1 rounded-full px-1.5 py-0 text-[10px] font-semibold leading-4 text-foreground neu-badge border-0"
+                              className={`rounded-full px-1.5 py-0 text-[10px] font-medium capitalize leading-4 border-0 neu-badge ${categoryBadgeColors[plugin.category] ?? 'bg-muted text-muted-foreground'}`}
                             >
-                              <Sparkles className="size-2.5" />
-                              Popular
+                              {plugin.category.replace(/-/g, ' ')}
                             </Badge>
-                          )}
-                          <Badge
-                            variant="secondary"
-                            className={`rounded-full px-1.5 py-0 text-[10px] font-medium capitalize leading-4 border-0 neu-badge ${categoryBadgeColors[plugin.category] ?? 'bg-muted text-muted-foreground'}`}
-                          >
-                            {plugin.category.replace(/-/g, ' ')}
-                          </Badge>
+                          </div>
                         </div>
+
+                        {/* Name */}
+                        <h3 className="mt-2.5 text-sm font-semibold leading-tight tracking-tight">
+                          {plugin.name}
+                        </h3>
+
+                        {/* Description */}
+                        <p className="mt-1 line-clamp-2 flex-1 text-xs leading-relaxed text-muted-foreground sm:text-[13px]">
+                          {plugin.description}
+                        </p>
+
+                        {/* Meta */}
+                        <p className="mt-2 text-[10px] leading-none text-muted-foreground/60 sm:text-xs">
+                          v{plugin.version} &middot; {plugin.author}
+                        </p>
+
+                        {/* Install button */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant={isInstalled ? 'secondary' : 'default'}
+                              size="sm"
+                              className={`mt-2.5 h-9 min-h-[44px] w-full gap-1.5 text-xs font-medium sm:text-sm border-0 ${
+                                isInstalled ? 'btn-neu' : 'btn-neu-primary'
+                              }`}
+                              onClick={() => handleToggleInstall(plugin)}
+                            >
+                              {isInstalled ? (
+                                <>
+                                  <Trash2 className="size-3.5" />
+                                  Uninstall
+                                </>
+                              ) : (
+                                <>
+                                  <Download className="size-3.5" />
+                                  Install
+                                </>
+                              )}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom">
+                            {isInstalled
+                              ? `Remove ${plugin.name}`
+                              : `Add ${plugin.name} to your workspace`}
+                          </TooltipContent>
+                        </Tooltip>
                       </div>
-
-                      {/* Name */}
-                      <h3 className="mt-2.5 text-sm font-semibold leading-tight tracking-tight">
-                        {plugin.name}
-                      </h3>
-
-                      {/* Description */}
-                      <p className="mt-1 line-clamp-2 flex-1 text-xs leading-relaxed text-muted-foreground sm:text-[13px]">
-                        {plugin.description}
-                      </p>
-
-                      {/* Meta */}
-                      <p className="mt-2 text-[10px] leading-none text-muted-foreground/60 sm:text-xs">
-                        v{plugin.version} &middot; {plugin.author}
-                      </p>
-
-                      {/* Install button */}
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant={installedMap[plugin.id] ? 'secondary' : 'default'}
-                            size="sm"
-                            className={`mt-2.5 h-9 min-h-[44px] w-full gap-1.5 text-xs font-medium sm:text-sm border-0 ${
-                              installedMap[plugin.id] ? 'btn-neu' : 'btn-neu-primary'
-                            }`}
-                            onClick={() => handleToggleInstall(plugin)}
-                          >
-                            {installedMap[plugin.id] ? (
-                              <>
-                                <Trash2 className="size-3.5" />
-                                Uninstall
-                              </>
-                            ) : (
-                              <>
-                                <Download className="size-3.5" />
-                                Install
-                              </>
-                            )}
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom">
-                          {installedMap[plugin.id]
-                            ? `Remove ${plugin.name}`
-                            : `Add ${plugin.name} to your workspace`}
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  )
+                })}
               </div>
             )}
           </div>
@@ -372,4 +336,13 @@ export function PluginBrowserDialog({
       </DialogContent>
     </Dialog>
   )
+}
+
+// ─── Storage helper (must be outside component) ──────────────────────────────
+
+function saveInstalledIdsToStorage(ids: string[]) {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.setItem('branchboard:installedPlugins', JSON.stringify(ids))
+  } catch { /* ignore */ }
 }

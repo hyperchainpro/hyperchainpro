@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Layers, Package } from 'lucide-react';
+import { Layers, Package, Puzzle } from 'lucide-react';
 import { useAppStore } from '@/store/app-store';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/sheet';
 import { LayersPanel } from './layers-panel';
 import { AssetsPanel } from './assets-panel';
+import { PluginsPanel } from './plugins-panel';
 import { cn } from '@/lib/utils';
 import type { LeftPanelTab } from '@/lib/types';
 
@@ -61,13 +62,43 @@ function TabButton({
   );
 }
 
+// ─── Tab bar (shared) ────────────────────────────────────────────────────────
+
+function TabBar({ currentTab, onTabChange }: { currentTab: LeftPanelTab; onTabChange: (tab: LeftPanelTab) => void }) {
+  return (
+    <div className="flex items-center gap-1.5 px-2 py-2 border-b border-border/40">
+      <TabButton
+        tab="layers"
+        currentTab={currentTab}
+        onClick={onTabChange}
+        icon={Layers}
+        label="Layers"
+      />
+      <TabButton
+        tab="assets"
+        currentTab={currentTab}
+        onClick={onTabChange}
+        icon={Package}
+        label="Assets"
+      />
+      <TabButton
+        tab="plugins"
+        currentTab={currentTab}
+        onClick={onTabChange}
+        icon={Puzzle}
+        label="Plugins"
+      />
+    </div>
+  );
+}
+
 // ─── Panel content (shared between desktop and mobile) ────────────────────────
 
 function PanelContent({ tab }: { tab: LeftPanelTab }) {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <div className="flex-1 min-h-0">
-        {tab === 'layers' ? <LayersPanel /> : <AssetsPanel />}
+        {tab === 'layers' ? <LayersPanel /> : tab === 'plugins' ? <PluginsPanel /> : <AssetsPanel />}
       </div>
     </div>
   );
@@ -91,25 +122,7 @@ function DesktopLeftPanel() {
           transition={{ type: 'spring', stiffness: 350, damping: 30 }}
           style={{ minWidth: 0 }}
         >
-          {/* Tab bar */}
-          <div className="flex items-center gap-1.5 px-2 py-2 border-b border-border/40">
-            <TabButton
-              tab="layers"
-              currentTab={leftPanelTab}
-              onClick={setLeftPanelTab}
-              icon={Layers}
-              label="Layers"
-            />
-            <TabButton
-              tab="assets"
-              currentTab={leftPanelTab}
-              onClick={setLeftPanelTab}
-              icon={Package}
-              label="Assets"
-            />
-          </div>
-
-          {/* Panel body */}
+          <TabBar currentTab={leftPanelTab} onTabChange={setLeftPanelTab} />
           <div className="flex-1 min-h-0">
             <PanelContent tab={leftPanelTab} />
           </div>
@@ -131,28 +144,10 @@ function MobileLeftPanel() {
     <Sheet open={leftPanelOpen} onOpenChange={setLeftPanelOpen}>
       <SheetContent side="left" className="w-[280px] p-0">
         <SheetTitle className="sr-only">
-          {leftPanelTab === 'layers' ? 'Layers' : 'Assets'}
+          {leftPanelTab === 'layers' ? 'Layers' : leftPanelTab === 'plugins' ? 'Plugins' : 'Assets'}
         </SheetTitle>
 
-        {/* Tab bar */}
-        <div className="flex items-center gap-1.5 px-2 py-2 border-b border-border/40">
-          <TabButton
-            tab="layers"
-            currentTab={leftPanelTab}
-            onClick={setLeftPanelTab}
-            icon={Layers}
-            label="Layers"
-          />
-          <TabButton
-            tab="assets"
-            currentTab={leftPanelTab}
-            onClick={setLeftPanelTab}
-            icon={Package}
-            label="Assets"
-          />
-        </div>
-
-        {/* Panel body */}
+        <TabBar currentTab={leftPanelTab} onTabChange={setLeftPanelTab} />
         <div className="flex-1 min-h-0 h-[calc(100vh-56px)]">
           <PanelContent tab={leftPanelTab} />
         </div>

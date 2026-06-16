@@ -1,5 +1,28 @@
 import { create } from 'zustand';
 import type { ViewMode, RightPanelTab, EditorMode, LeftPanelTab } from '@/lib/types';
+import { DESIGN_PLUGINS } from '@/lib/plugins-data';
+
+// ─── Persistent helpers ──────────────────────────────────────────────────────
+
+function loadInstalledIds(): string[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem('branchboard:installedPlugins');
+    if (raw) {
+      const parsed = JSON.parse(raw) as string[];
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch { /* ignore */ }
+  // Default: plugins that have isInstalled: true in the data
+  return DESIGN_PLUGINS.filter((p) => p.isInstalled).map((p) => p.id);
+}
+
+function saveInstalledIds(ids: string[]) {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem('branchboard:installedPlugins', JSON.stringify(ids));
+  } catch { /* ignore */ }
+}
 
 // ─── State ───────────────────────────────────────────────────────────────────
 
@@ -19,6 +42,7 @@ interface AppState {
   pluginDialogOpen: boolean;
   exportDialogOpen: boolean;
   autoInstallPluginIds: string[] | null;
+  installedPluginIds: string[];
 }
 
 // ─── Actions ─────────────────────────────────────────────────────────────────
@@ -43,6 +67,9 @@ interface AppActions {
   setPluginDialogOpen: (v: boolean) => void;
   setExportDialogOpen: (v: boolean) => void;
   setAutoInstallPluginIds: (ids: string[] | null) => void;
+  togglePluginInstalled: (id: string) => void;
+  isPluginInstalled: (id: string) => boolean;
+  getInstalledPluginIds: () => string[];
   reset: () => void;
 }
 
@@ -64,14 +91,22 @@ const initialState: AppState = {
   pluginDialogOpen: false,
   exportDialogOpen: false,
   autoInstallPluginIds: null,
+  installedPluginIds: [],
 };
 
 // ─── Store ───────────────────────────────────────────────────────────────────
 
 export type AppStore = AppState & AppActions;
 
-export const useAppStore = create<AppStore>((set) => ({
+// Load persisted plugin IDs on client
+let _initialInstalledIds: string[] = [];
+if (typeof window !== 'undefined') {
+  _initialInstalledIds = loadInstalledIds();
+}
+
+export const useAppStore = create<AppStore>((set, get) => ({
   ...initialState,
+  installedPluginIds: _initialInstalledIds,
 
   setViewMode: (mode) => set({ viewMode: mode }),
 
@@ -124,6 +159,22 @@ export const useAppStore = create<AppStore>((set) => ({
   setExportDialogOpen: (v) => set({ exportDialogOpen: v }),
 
   setAutoInstallPluginIds: (ids) => set({ autoInstallPluginIds: ids }),
+
+  togglePluginInstalled: (id) => {
+    const current = get().installedPluginIds;
+    let next: string[];
+    if (current.includes(id)) {
+      next = current.filter((i) => i !== id);
+    } else {
+      next = [...current, id];
+    }
+    set({ installedPluginIds: next });
+    saveInstalledIds(next);
+  },
+
+  isPluginInstalled: (id) => get().installedPluginIds.includes(id),
+
+  getInstalledPluginIds: () => get().installedPluginIds,
 
   reset: () => set(initialState),
 }));
