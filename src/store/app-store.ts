@@ -9,12 +9,19 @@ function loadInstalledIds(): string[] {
   try {
     const raw = localStorage.getItem('branchboard:installedPlugins');
     if (raw) {
-      const parsed = JSON.parse(raw) as string[];
-      if (Array.isArray(parsed)) return parsed;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        // Filter out any non-string entries from corrupted data
+        return parsed.filter((id): id is string => typeof id === 'string' && id.length > 0);
+      }
     }
-  } catch { /* ignore */ }
+  } catch { /* ignore corrupt data */ }
   // Default: plugins that have isInstalled: true in the data
-  return DESIGN_PLUGINS.filter((p) => p.isInstalled).map((p) => p.id);
+  try {
+    return DESIGN_PLUGINS.filter((p) => p && typeof p.id === 'string').map((p) => p.id);
+  } catch {
+    return [];
+  }
 }
 
 function saveInstalledIds(ids: string[]) {

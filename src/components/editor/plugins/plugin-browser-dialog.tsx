@@ -25,6 +25,7 @@ import { t } from '@/lib/i18n'
 import { useAuthStore } from '@/store/auth-store'
 import { useAppStore } from '@/store/app-store'
 import { toast } from 'sonner'
+import { SafeRender } from '@/components/safe-render'
 
 const categoryBadgeColors: Record<string, string> = {
   shapes: 'bg-foreground/10 text-foreground',
@@ -111,21 +112,22 @@ export function PluginBrowserDialog({
   )
 
   const filteredPlugins = useMemo(() => {
-    let result = DESIGN_PLUGINS
+    let result = Array.isArray(DESIGN_PLUGINS) ? DESIGN_PLUGINS : []
 
     if (activeCategory !== 'all') {
-      result = result.filter((p) => p.category === activeCategory)
+      result = result.filter((p) => p && p.category === activeCategory)
     }
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim()
       result = result.filter(
         (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q) ||
-          p.tags.some((tag) => tag.toLowerCase().includes(q)) ||
-          p.author.toLowerCase().includes(q),
+          p &&
+          (p.name || '').toLowerCase().includes(q) ||
+          (p.description || '').toLowerCase().includes(q) ||
+          (p.category || '').toLowerCase().includes(q) ||
+          (p.tags || []).some((tag) => tag.toLowerCase().includes(q)) ||
+          (p.author || '').toLowerCase().includes(q),
       )
     }
 
@@ -232,6 +234,7 @@ export function PluginBrowserDialog({
 
         {/* ── Plugin Grid ─────────────────────────────────────── */}
         <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto neu-scroll">
+          <SafeRender>
           <div className="p-3 sm:p-4 lg:p-6">
             {filteredPlugins.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -332,6 +335,7 @@ export function PluginBrowserDialog({
               </div>
             )}
           </div>
+          </SafeRender>
         </div>
       </DialogContent>
     </Dialog>

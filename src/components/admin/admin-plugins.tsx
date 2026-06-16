@@ -36,17 +36,18 @@ export function AdminPlugins() {
   const [enabledPlugins, setEnabledPlugins] = useState<Record<string, boolean>>(() => {
     const enabled: Record<string, boolean> = {};
     DESIGN_PLUGINS.forEach((p) => {
-      enabled[p.id] = p.isInstalled || false;
+      if (p && p.id) enabled[p.id] = p.isInstalled || false;
     });
     return enabled;
   });
 
   const filteredPlugins = useMemo(() => {
-    return DESIGN_PLUGINS.filter((plugin) => {
+    return (DESIGN_PLUGINS || []).filter((plugin) => {
+      if (!plugin || !plugin.id) return false;
       const matchesSearch = !search ||
         plugin.name.toLowerCase().includes(search.toLowerCase()) ||
-        plugin.description.toLowerCase().includes(search.toLowerCase()) ||
-        plugin.author.toLowerCase().includes(search.toLowerCase());
+        (plugin.description || '').toLowerCase().includes(search.toLowerCase()) ||
+        (plugin.author || '').toLowerCase().includes(search.toLowerCase());
       const matchesCategory = categoryFilter === 'all' || plugin.category === categoryFilter;
       return matchesSearch && matchesCategory;
     });
