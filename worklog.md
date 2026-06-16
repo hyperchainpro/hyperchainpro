@@ -697,3 +697,35 @@ Stage Summary:
 - Minimap hidden by default (no more confusing black square)
 - Invite member feature confirmed working
 - Auto-install plugins: when creating a board with iPhone/Android/Website/Tablet/Presentation/Social device type, relevant plugins are pre-installed automatically
+
+---
+Task ID: 1
+Agent: Main Agent
+Task: Fix plugin marketplace errors (duplicate keys + duplicate close buttons)
+
+Work Log:
+- Opened plugin marketplace in browser via agent-browser and captured console errors
+- Found 8 duplicate plugin IDs causing "Encountered two children with the same key" React errors:
+  1. charts-treemap (lines 208 & 2489)
+  2. diagrams-mind-map (lines 540 & 3083)
+  3. diagrams-org-chart (lines 551 & 3094)
+  4. branding-logo-maker (lines 1527 & 4505)
+  5. branding-style-guide (lines 1585 & 4516)
+  6. animation-scroll-trigger (lines 1667 & 4673)
+  7. prototyping-device-frame (lines 1773 & 4852)
+  8. photo-editing-vignette (lines 2062 & 5222)
+- Renamed all 8 duplicate IDs to unique values (e.g., charts-treemap-pro, diagrams-mind-map-creator, etc.)
+- Fixed duplicate close buttons: Added showCloseButton={false} to DialogContent in plugin-browser-dialog.tsx (was showing both manual X button AND built-in Dialog close button)
+- Removed unused AnimatePresence import from framer-motion
+- Fixed lint error: moved setState call inside queueMicrotask to avoid synchronous setState in useEffect
+- Fixed lint error in editor-topbar.tsx: removed useAuthStore hook call from non-component getAvatarColor function
+- Fixed lint error in right-panel.tsx: same getAvatarColor hook violation fix
+- Fixed lint error in editor-topbar.tsx: added missing 'locale' to handleCreateBranch useCallback deps
+- Verified all fixes: lint passes clean, browser console shows 0 errors when opening marketplace
+
+Stage Summary:
+- All 8 duplicate plugin IDs renamed to unique values in plugins-data.ts
+- Duplicate close button removed from plugin marketplace dialog
+- 4 lint errors resolved across 3 files
+- Plugin marketplace opens without any console errors
+- Install/uninstall, category filtering, and search all work correctly

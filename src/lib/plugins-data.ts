@@ -2486,7 +2486,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     author: 'PluginHub',
   },
   {
-    id: 'charts-treemap',
+    id: 'charts-treemap-pro',
     name: 'Treemap Chart',
     description: 'Visualize hierarchical data as nested rectangles with area encoding.',
     category: 'charts',
@@ -3080,7 +3080,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     author: 'AutoLayout',
   },
   {
-    id: 'diagrams-mind-map',
+    id: 'diagrams-mind-map-creator',
     name: 'Mind Map Creator',
     description: 'Create radial mind maps with expandable branches and subtopics.',
     category: 'diagrams',
@@ -3091,7 +3091,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     author: 'UIForge',
   },
   {
-    id: 'diagrams-org-chart',
+    id: 'diagrams-org-chart-builder',
     name: 'Org Chart Builder',
     description: 'Generate organizational hierarchy charts with roles and reporting lines.',
     category: 'diagrams',
@@ -4502,7 +4502,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     author: 'PluginHub',
   },
   {
-    id: 'branding-logo-maker',
+    id: 'branding-logo-designer',
     name: 'Logo Maker',
     description: 'Design logos with combined shapes, text elements, and icon components.',
     category: 'branding',
@@ -4513,7 +4513,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     author: 'AIGuild',
   },
   {
-    id: 'branding-style-guide',
+    id: 'branding-style-guide-gen',
     name: 'Style Guide Generator',
     description: 'Auto-generate a comprehensive style guide document from design tokens.',
     category: 'branding',
@@ -4670,7 +4670,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     author: 'MakerLab',
   },
   {
-    id: 'animation-scroll-trigger',
+    id: 'animation-scroll-waypoint',
     name: 'Scroll Trigger',
     description: 'Set up scroll-based animation triggers with adjustable waypoints.',
     category: 'animation',
@@ -4849,7 +4849,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     author: 'DevKit',
   },
   {
-    id: 'prototyping-device-frame',
+    id: 'prototyping-device-mockup',
     name: 'Device Frame',
     description: 'Wrap frames in realistic iPhone, Android, and desktop device mockups.',
     category: 'prototyping',
@@ -5219,7 +5219,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     author: 'ComponentKit',
   },
   {
-    id: 'photo-editing-vignette',
+    id: 'photo-editing-vignette-fx',
     name: 'Vignette Effect',
     description: 'Add cinematic vignette darkening effects to image edges.',
     category: 'photo-editing',

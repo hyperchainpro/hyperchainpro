@@ -58,7 +58,6 @@ const AVATAR_COLORS = [
 ];
 
 function getAvatarColor(id: string): string {
-  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   let hash = 0;
   for (let i = 0; i < id.length; i++) hash = id.charCodeAt(i) + ((hash << 5) - hash);
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
@@ -203,7 +202,7 @@ function BranchSelector() {
       .catch(() => {
         // silently fail
       });
-  }, [currentBoardId]);
+  }, [currentBoardId, locale]);
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>

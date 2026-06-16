@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import * as LucideIcons from 'lucide-react'
 import {
   Dialog,
@@ -109,8 +109,14 @@ export function PluginBrowserDialog({
 
   // Apply auto-install plugins when dialog opens
   useEffect(() => {
-    if (open && autoInstallIds && autoInstallIds.length > 0 && !autoAppliedRef.current) {
-      autoAppliedRef.current = true
+    if (!open) {
+      autoAppliedRef.current = false
+      return
+    }
+    if (!autoInstallIds || autoInstallIds.length === 0 || autoAppliedRef.current) return
+    autoAppliedRef.current = true
+    // Use a microtask to avoid synchronous setState in effect
+    queueMicrotask(() => {
       setInstalledMap((prev) => {
         const next = { ...prev }
         let newCount = 0
@@ -121,21 +127,13 @@ export function PluginBrowserDialog({
           }
         }
         if (newCount > 0) {
-          toast.success(
-            typeof locale === 'string'
-              ? `${newCount} plugins auto-installed for this board`
-              : `${newCount} plugins auto-installed for this board`
-          )
+          toast.success(`${newCount} plugins auto-installed for this board`)
         }
         return next
       })
-      // Clear auto-install IDs after applying
       useAppStore.getState().setAutoInstallPluginIds(null)
-    }
-    if (!open) {
-      autoAppliedRef.current = false
-    }
-  }, [open, autoInstallIds, locale])
+    })
+  }, [open, autoInstallIds])
 
   const installedCount = Object.values(installedMap).filter(Boolean).length
   const totalPlugins = DESIGN_PLUGINS.length
@@ -192,7 +190,7 @@ export function PluginBrowserDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex h-[85vh] max-w-5xl flex-col gap-0 overflow-hidden rounded-2xl p-0 sm:h-[80vh] neu-raised bg-background border-0">
+      <DialogContent showCloseButton={false} className="flex h-[85vh] max-w-5xl flex-col gap-0 overflow-hidden rounded-2xl p-0 sm:h-[80vh] neu-raised bg-background border-0">
         {/* ── Header ──────────────────────────────────────────── */}
         <DialogHeader className="shrink-0 px-4 py-3 sm:px-6 sm:py-4">
           <div className="flex items-center justify-between gap-3">
