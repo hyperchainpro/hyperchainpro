@@ -1,0 +1,853 @@
+     1→'use client';
+     2→
+     3→import React, { useState, useEffect, useCallback } from 'react';
+     4→import { motion, AnimatePresence } from 'framer-motion';
+     5→import {
+     6→  ArrowLeft,
+     7→  Sparkles,
+     8→  Wand2,
+     9→  Palette,
+    10→  Loader2,
+    11→  Send,
+    12→  Check,
+    13→  Bot,
+    14→  User as UserIcon,
+    15→  Search,
+    16→  Plus,
+    17→  ChevronRight,
+    18→  Layers,
+    19→  Type,
+    20→  Zap,
+    21→} from 'lucide-react';
+    22→import { Button } from '@/components/ui/button';
+    23→import { Textarea } from '@/components/ui/textarea';
+    24→import { Label } from '@/components/ui/label';
+    25→import { Badge } from '@/components/ui/badge';
+    26→import { ScrollArea } from '@/components/ui/scroll-area';
+    27→import { Separator } from '@/components/ui/separator';
+    28→import {
+    29→  Select,
+    30→  SelectContent,
+    31→  SelectItem,
+    32→  SelectTrigger,
+    33→  SelectValue,
+    34→} from '@/components/ui/select';
+    35→import {
+    36→  Tooltip,
+    37→  TooltipContent,
+    38→  TooltipTrigger,
+    39→} from '@/components/ui/tooltip';
+    40→import { useAppStore } from '@/store/app-store';
+    41→import { useAuthStore } from '@/store/auth-store';
+    42→import { t, type Locale } from '@/lib/i18n';
+    43→import { toast } from 'sonner';
+    44→import type { BoardElement } from '@/lib/types';
+    45→
+    46→// ─── Types ────────────────────────────────────────────────────────────────
+    47→
+    48→interface AIAgent {
+    49→  id: string;
+    50→  name: string;
+    51→  description: string;
+    52→  icon: string;
+    53→  color: string;
+    54→  isBuiltIn: boolean;
+    55→  usageCount: number;
+    56→}
+    57→
+    58→interface AIDesignPageProps {
+    59→  onBack: () => void;
+    60→}
+    61→
+    62→// ─── Constants ────────────────────────────────────────────────────────────
+    63→
+    64→const STYLE_OPTIONS = [
+    65→  { value: 'Modern', label: 'Modern', icon: '✨' },
+    66→  { value: 'Minimalist', label: 'Minimalist', icon: '◻️' },
+    67→  { value: 'Playful', label: 'Playful', icon: '🎉' },
+    68→  { value: 'Corporate', label: 'Corporate', icon: '💼' },
+    69→  { value: 'Dark Mode', label: 'Dark Mode', icon: '🌙' },
+    70→];
+    71→
+    72→const COLOR_OPTIONS = [
+    73→  { value: 'Blue', label: 'Blue', swatch: '#3B82F6' },
+    74→  { value: 'Green', label: 'Green', swatch: '#22C55E' },
+    75→  { value: 'Purple', label: 'Purple', swatch: '#8B5CF6' },
+    76→  { value: 'Orange', label: 'Orange', swatch: '#F97316' },
+    77→  { value: 'Monochrome', label: 'Mono', swatch: '#1E293B' },
+    78→];
+    79→
+    80→const PROMPT_SUGGESTIONS = [
+    81→  { text: 'A SaaS dashboard with sidebar navigation, KPI cards, and a chart area', category: 'Dashboard' },
+    82→  { text: 'A mobile app login screen with email/password fields and social login buttons', category: 'Mobile' },
+    83→  { text: 'A landing page for a productivity app with hero section, features grid, and pricing', category: 'Landing' },
+    84→  { text: 'An e-commerce product page with image gallery, product details, and reviews', category: 'E-commerce' },
+    85→  { text: 'A settings page with profile section, toggle switches, and form fields', category: 'Settings' },
+    86→  { text: 'A social media feed with post cards, avatars, like/comment buttons', category: 'Social' },
+    87→];
+    88→
+    89→// ─── Generating Animation ─────────────────────────────────────────────────
+    90→
+    91→function GeneratingAnimation({ agentName, locale }: { agentName?: string; locale: Locale }) {
+    92→  return (
+    93→    <motion.div
+    94→      initial={{ opacity: 0, y: 20 }}
+    95→      animate={{ opacity: 1, y: 0 }}
+    96→      exit={{ opacity: 0, y: -20 }}
+    97→      className="flex flex-col items-center justify-center py-16 gap-6"
+    98→    >
+    99→      <motion.div
+   100→        className="relative"
+   101→        animate={{ rotate: 360 }}
+   102→        transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+   103→      >
+   104→        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500 flex items-center justify-center shadow-2xl shadow-purple-500/30">
+   105→          <Sparkles className="w-10 h-10 text-white" />
+   106→        </div>
+   107→      </motion.div>
+   108→      <div className="text-center space-y-3">
+   109→        <p className="text-lg font-semibold text-foreground">
+   110→          {t('ai.generatingDesign', locale)}
+   111→        </p>
+   112→        <p className="text-sm text-muted-foreground">
+   113→          {agentName
+   114→            ? `${agentName} ${t('ai.craftingElements', locale)}`
+   115→            : `AI ${t('ai.craftingElements', locale)}`}
+   116→        </p>
+   117→        <motion.div
+   118→          className="flex gap-1.5 justify-center"
+   119→          initial={{ opacity: 0.5 }}
+   120→          animate={{ opacity: 1 }}
+   121→          transition={{ duration: 1, repeat: Infinity, repeatType: 'reverse' }}
+   122→        >
+   123→          <motion.span
+   124→            className="w-2 h-2 rounded-full bg-purple-500"
+   125→            animate={{ y: [0, -8, 0] }}
+   126→            transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
+   127→          />
+   128→          <motion.span
+   129→            className="w-2 h-2 rounded-full bg-purple-400"
+   130→            animate={{ y: [0, -8, 0] }}
+   131→            transition={{ duration: 0.6, repeat: Infinity, delay: 0.15 }}
+   132→          />
+   133→          <motion.span
+   134→            className="w-2 h-2 rounded-full bg-purple-300"
+   135→            animate={{ y: [0, -8, 0] }}
+   136→            transition={{ duration: 0.6, repeat: Infinity, delay: 0.3 }}
+   137→          />
+   138→        </motion.div>
+   139→      </div>
+   140→    </motion.div>
+   141→  );
+   142→}
+   143→
+   144→// ─── Summary View (after generation) ──────────────────────────────────────
+   145→
+   146→function GenerationSummary({
+   147→  elements,
+   148→  boardName,
+   149→  agentName,
+   150→  onOpenInEditor,
+   151→  onStartOver,
+   152→}: {
+   153→  elements: BoardElement[];
+   154→  boardName: string;
+   155→  agentName?: string;
+   156→  onOpenInEditor: () => void;
+   157→  onStartOver: () => void;
+   158→}) {
+   159→  const locale = (useAuthStore(s => s.user)?.language as Locale) ?? 'en';
+   160→
+   161→  const typeCounts: Record<string, number> = {};
+   162→  for (const el of elements) {
+   163→    typeCounts[el.type] = (typeCounts[el.type] || 0) + 1;
+   164→  }
+   165→
+   166→  const totalElements = elements.length;
+   167→
+   168→  return (
+   169→    <motion.div
+   170→      initial={{ opacity: 0, scale: 0.95 }}
+   171→      animate={{ opacity: 1, scale: 1 }}
+   172→      className="flex flex-col items-center justify-center py-12 gap-6"
+   173→    >
+   174→      <motion.div
+   175→        initial={{ scale: 0 }}
+   176→        animate={{ scale: 1 }}
+   177→        transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.2 }}
+   178→        className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center"
+   179→      >
+   180→        <Check className="w-8 h-8 text-emerald-500" />
+   181→      </motion.div>
+   182→
+   183→      <div className="text-center space-y-2 max-w-md">
+   184→        <h3 className="text-xl font-bold text-foreground">
+   185→          {t('ai.designGenerated', locale) || 'Design Generated!'}
+   186→        </h3>
+   187→        <p className="text-sm text-muted-foreground">
+   188→          {boardName} — {totalElements} {t('ai.elementsCreated', locale)}{agentName ? ` ${t('ai.withAgent', locale, { name: agentName })}` : ''}
+   189→        </p>
+   190→      </div>
+   191→
+   192→      {/* Element breakdown */}
+   193→      <div className="flex flex-wrap justify-center gap-2 max-w-sm">
+   194→        {Object.entries(typeCounts).map(([type, count]) => (
+   195→          <Badge key={type} variant="secondary" className="gap-1.5 text-xs">
+   196→            {type}
+   197→            <span className="font-mono text-muted-foreground">{count}</span>
+   198→          </Badge>
+   199→        ))}
+   200→      </div>
+   201→
+   202→      {/* Actions */}
+   203→      <div className="flex gap-3">
+   204→        <Button variant="outline" onClick={onStartOver}>
+   205→          {t('ai.startOver', locale)}
+   206→        </Button>
+   207→        <Button
+   208→          onClick={onOpenInEditor}
+   209→          className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg shadow-purple-500/20"
+   210→        >
+   211→          <Sparkles className="w-4 h-4 mr-2" />
+   212→          {t('ai.openInEditor', locale)}
+   213→        </Button>
+   214→      </div>
+   215→    </motion.div>
+   216→  );
+   217→}
+   218→
+   219→// ─── Agent Card ───────────────────────────────────────────────────────────
+   220→
+   221→function AgentCard({
+   222→  agent,
+   223→  isSelected,
+   224→  onSelect,
+   225→  locale,
+   226→}: {
+   227→  agent: AIAgent;
+   228→  isSelected: boolean;
+   229→  onSelect: () => void;
+   230→  locale: Locale;
+   231→}) {
+   232→  return (
+   233→    <motion.button
+   234→      whileHover={{ scale: 1.01 }}
+   235→      whileTap={{ scale: 0.99 }}
+   236→      onClick={onSelect}
+   237→      className={`w-full text-left p-3 rounded-xl border transition-all duration-200 ${
+   238→        isSelected
+   239→          ? 'border-violet-500/50 bg-violet-500/5 shadow-sm shadow-violet-500/10'
+   240→          : 'border-border/50 bg-card hover:border-border hover:bg-accent/50'
+   241→      }`}
+   242→    >
+   243→      <div className="flex items-start gap-3">
+   244→        <div
+   245→          className="w-10 h-10 rounded-lg flex items-center justify-center text-lg shrink-0"
+   246→          style={{ backgroundColor: `${agent.color}15` }}
+   247→        >
+   248→          {agent.icon}
+   249→        </div>
+   250→        <div className="flex-1 min-w-0">
+   251→          <div className="flex items-center gap-2">
+   252→            <span className="text-sm font-semibold truncate">{agent.name}</span>
+   253→            {agent.isBuiltIn && (
+   254→              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+   255→                {t('ai.builtIn', locale)}
+   256→              </Badge>
+   257→            )}
+   258→          </div>
+   259→          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+   260→            {agent.description}
+   261→          </p>
+   262→          {agent.usageCount > 0 && (
+   263→            <p className="text-[10px] text-muted-foreground/70 mt-1">
+   264→              {agent.usageCount} {t('ai.uses', locale)}
+   265→            </p>
+   266→          )}
+   267→        </div>
+   268→        {isSelected && (
+   269→          <motion.div
+   270→            initial={{ scale: 0 }}
+   271→            animate={{ scale: 1 }}
+   272→            className="w-5 h-5 rounded-full bg-violet-500 flex items-center justify-center shrink-0 mt-1"
+   273→          >
+   274→            <Check className="w-3 h-3 text-white" />
+   275→          </motion.div>
+   276→        )}
+   277→      </div>
+   278→    </motion.button>
+   279→  );
+   280→}
+   281→
+   282→// ─── Main Component ───────────────────────────────────────────────────────
+   283→
+   284→export function AIDesignPage({ onBack }: AIDesignPageProps) {
+   285→  const locale = (useAuthStore(s => s.user)?.language as Locale) ?? 'en';
+   286→  const user = useAuthStore(s => s.user);
+   287→
+   288→  // State
+   289→  const [prompt, setPrompt] = useState('');
+   290→  const [style, setStyle] = useState<string>('');
+   291→  const [colorScheme, setColorScheme] = useState<string>('');
+   292→  const [selectedAgent, setSelectedAgent] = useState<AIAgent | null>(null);
+   293→  const [agents, setAgents] = useState<AIAgent[]>([]);
+   294→  const [agentsLoading, setAgentsLoading] = useState(true);
+   295→  const [isGenerating, setIsGenerating] = useState(false);
+   296→  const [error, setError] = useState<string | null>(null);
+   297→  const [generatedElements, setGeneratedElements] = useState<BoardElement[] | null>(null);
+   298→  const [generatedBoardId, setGeneratedBoardId] = useState<string | null>(null);
+   299→  const [agentSearch, setAgentSearch] = useState('');
+   300→
+   301→  // Fetch agents on mount
+   302→  useEffect(() => {
+   303→    async function fetchAgents() {
+   304→      try {
+   305→        setAgentsLoading(true);
+   306→        const res = await fetch('/api/ai/agents');
+   307→        if (res.ok) {
+   308→          const data = await res.json();
+   309→          setAgents(data.agents || []);
+   310→        }
+   311→      } catch {
+   312→        // Silently fail - agents are optional
+   313→      } finally {
+   314→        setAgentsLoading(false);
+   315→      }
+   316→    }
+   317→    fetchAgents();
+   318→  }, []);
+   319→
+   320→  const filteredAgents = agents.filter(
+   321→    (a) =>
+   322→      a.name.toLowerCase().includes(agentSearch.toLowerCase()) ||
+   323→      a.description.toLowerCase().includes(agentSearch.toLowerCase()),
+   324→  );
+   325→
+   326→  const handleGenerate = useCallback(async () => {
+   327→    if (!prompt.trim() || isGenerating) return;
+   328→
+   329→    setIsGenerating(true);
+   330→    setError(null);
+   331→    setGeneratedElements(null);
+   332→
+   333→    try {
+   334→      // Step 1: Call AI generate endpoint
+   335→      const body: Record<string, unknown> = { prompt: prompt.trim() };
+   336→      if (selectedAgent) body.agentId = selectedAgent.id;
+   337→      if (style) body.style = style;
+   338→      if (colorScheme) body.colorScheme = colorScheme;
+   339→
+   340→      const genRes = await fetch('/api/ai/generate-design', {
+   341→        method: 'POST',
+   342→        headers: { 'Content-Type': 'application/json' },
+   343→        body: JSON.stringify(body),
+   344→      });
+   345→
+   346→      const genData = await genRes.json();
+   347→
+   348→      if (!genRes.ok) {
+   349→        throw new Error(genData.error || 'Generation failed');
+   350→      }
+   351→
+   352→      if (!genData.elements || !Array.isArray(genData.elements) || genData.elements.length === 0) {
+   353→        throw new Error('No elements were generated');
+   354→      }
+   355→
+   356→      // Step 2: Create a new board
+   357→      const boardName = prompt.trim().slice(0, 50) + (prompt.trim().length > 50 ? '...' : '');
+   358→      const boardRes = await fetch('/api/boards', {
+   359→        method: 'POST',
+   360→        headers: { 'Content-Type': 'application/json' },
+   361→        body: JSON.stringify({
+   362→          name: boardName,
+   363→          description: `AI generated: ${prompt.trim()}`,
+   364→        }),
+   365→      });
+   366→
+   367→      if (!boardRes.ok) throw new Error('Failed to create board');
+   368→      const boardData = await boardRes.json();
+   369→
+   370→      // Step 3: Save elements to the board's initial commit
+   371→      // The elements will be loaded when the editor opens
+   372→      setGeneratedElements(genData.elements);
+   373→      setGeneratedBoardId(boardData.board.id);
+   374→    } catch (err) {
+   375→      setError(err instanceof Error ? err.message : 'Something went wrong');
+   376→    } finally {
+   377→      setIsGenerating(false);
+   378→    }
+   379→  }, [prompt, isGenerating, selectedAgent, style, colorScheme]);
+   380→
+   381→  const handleOpenInEditor = useCallback(() => {
+   382→    if (!generatedBoardId || !generatedElements) return;
+   383→
+   384→    const store = useAppStore.getState();
+   385→    store.openBoard(generatedBoardId);
+   386→
+   387→    // Set elements on the canvas store after a short delay to ensure the editor is mounted
+   388→    setTimeout(() => {
+   389→      // We need to import canvas-store dynamically to avoid circular deps
+   390→      import('@/store/canvas-store').then(({ useCanvasStore }) => {
+   391→        useCanvasStore.getState().loadElements(generatedElements);
+   392→      });
+   393→    }, 500);
+   394→  }, [generatedBoardId, generatedElements]);
+   395→
+   396→  const handleStartOver = useCallback(() => {
+   397→    setGeneratedElements(null);
+   398→    setGeneratedBoardId(null);
+   399→    setPrompt('');
+   400→    setStyle('');
+   401→    setColorScheme('');
+   402→  }, []);
+   403→
+   404→  const handleKeyDown = (e: React.KeyboardEvent) => {
+   405→    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+   406→      e.preventDefault();
+   407→      handleGenerate();
+   408→    }
+   409→  };
+   410→
+   411→  const handleSuggestionClick = (suggestion: string) => {
+   412→    setPrompt(suggestion);
+   413→  };
+   414→
+   415→  // ─── Render ──────────────────────────────────────────────────────────────
+   416→
+   417→  return (
+   418→    <div className="flex flex-col h-screen bg-background">
+   419→      {/* Header */}
+   420→      <header className="flex items-center gap-3 px-4 md:px-6 h-14 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shrink-0">
+   421→        <Button
+   422→          variant="ghost"
+   423→          size="sm"
+   424→          onClick={onBack}
+   425→          className="gap-1.5"
+   426→        >
+   427→          <ArrowLeft className="size-4" />
+   428→          <span className="hidden sm:inline">{t('common.back', locale)}</span>
+   429→        </Button>
+   430→
+   431→        <Separator orientation="vertical" className="h-6" />
+   432→
+   433→        <div className="flex items-center gap-2">
+   434→          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+   435→            <Sparkles className="w-4 h-4 text-white" />
+   436→          </div>
+   437→          <div>
+   438→            <h1 className="text-sm font-semibold leading-none">
+   439→              {t('ai.aiDesign', locale)}
+   440→            </h1>
+   441→            <p className="text-[11px] text-muted-foreground mt-0.5 hidden sm:block">
+   442→              {t('ai.describeAndGenerate', locale)}
+   443→            </p>
+   444→          </div>
+   445→        </div>
+   446→
+   447→        <div className="ml-auto">
+   448→          {selectedAgent && (
+   449→            <Badge variant="secondary" className="gap-1.5">
+   450→              <Bot className="w-3 h-3" />
+   451→              {selectedAgent.name}
+   452→            </Badge>
+   453→          )}
+   454→        </div>
+   455→      </header>
+   456→
+   457→      {/* Main Content */}
+   458→      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+   459→        {/* Left Panel - Agent Selection (desktop) */}
+   460→        <aside className="hidden md:flex w-72 lg:w-80 border-r flex-col shrink-0 bg-muted/20">
+   461→          <div className="p-4 pb-3">
+   462→            <h2 className="text-sm font-semibold flex items-center gap-2">
+   463→              <Bot className="w-4 h-4 text-muted-foreground" />
+   464→              {t('ai.agents', locale)}
+   465→            </h2>
+   466→          </div>
+   467→
+   468→          {/* Search agents */}
+   469→          <div className="px-4 pb-2">
+   470→            <div className="relative">
+   471→              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+   472→              <input
+   473→                type="text"
+   474→                placeholder={t('ai.searchAgents', locale)}
+   475→                value={agentSearch}
+   476→                onChange={(e) => setAgentSearch(e.target.value)}
+   477→                className="w-full h-8 pl-8 pr-3 text-sm bg-background border rounded-lg focus:outline-none focus:ring-1 focus:ring-ring"
+   478→              />
+   479→            </div>
+   480→          </div>
+   481→
+   482→          {/* Agent List */}
+   483→          <ScrollArea className="flex-1 px-4 pb-4">
+   484→            {agentsLoading ? (
+   485→              <div className="flex items-center justify-center py-8">
+   486→                <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+   487→              </div>
+   488→            ) : (
+   489→              <div className="flex flex-col gap-2">
+   490→                {/* Default agent option */}
+   491→                <AgentCard
+   492→                  agent={{
+   493→                    id: '',
+   494→                    name: t('ai.defaultAI', locale),
+   495→                    description: t('ai.defaultAIDesc', locale),
+   496→                    icon: '🤖',
+   497→                    color: '#8B5CF6',
+   498→                    isBuiltIn: true,
+   499→                    usageCount: 0,
+   500→                  }}
+   501→                  isSelected={selectedAgent === null}
+   502→                  onSelect={() => setSelectedAgent(null)}
+   503→                  locale={locale}
+   504→                />
+   505→
+   506→                {filteredAgents.map((agent) => (
+   507→                  <AgentCard
+   508→                    key={agent.id}
+   509→                    agent={agent}
+   510→                    isSelected={selectedAgent?.id === agent.id}
+   511→                    onSelect={() => setSelectedAgent(agent)}
+   512→                    locale={locale}
+   513→                  />
+   514→                ))}
+   515→
+   516→                {filteredAgents.length === 0 && agentSearch && (
+   517→                  <div className="flex flex-col items-center py-8 text-muted-foreground">
+   518→                    <Search className="w-6 h-6 mb-2 opacity-40" />
+   519→                    <p className="text-xs">{t('ai.noAgentsFound', locale)}</p>
+   520→                  </div>
+   521→                )}
+   522→              </div>
+   523→            )}
+   524→          </ScrollArea>
+   525→        </aside>
+   526→
+   527→        {/* Center - Prompt & Controls */}
+   528→        <main className="flex-1 flex flex-col overflow-hidden">
+   529→          <div className="flex-1 overflow-y-auto">
+   530→            <div className="max-w-3xl mx-auto w-full px-4 md:px-8 py-8 md:py-12">
+   531→              <AnimatePresence mode="wait">
+   532→                {generatedElements ? (
+   533→                  <GenerationSummary
+   534→                    elements={generatedElements}
+   535→                    boardName={prompt.trim().slice(0, 40)}
+   536→                    agentName={selectedAgent?.name}
+   537→                    onOpenInEditor={handleOpenInEditor}
+   538→                    onStartOver={handleStartOver}
+   539→                    locale={locale}
+   540→                  />
+   541→                ) : isGenerating ? (
+   542→                  <GeneratingAnimation agentName={selectedAgent?.name} locale={locale} />
+   543→                ) : (
+   544→                  <motion.div
+   545→                    key="prompt-form"
+   546→                    initial={{ opacity: 0, y: 10 }}
+   547→                    animate={{ opacity: 1, y: 0 }}
+   548→                    exit={{ opacity: 0, y: -10 }}
+   549→                    className="space-y-6"
+   550→                  >
+   551→                    {/* Mobile Agent Selector */}
+   552→                    <div className="md:hidden">
+   553→                      <Label className="text-sm font-medium mb-2 block flex items-center gap-1.5">
+   554→                        <Bot className="w-3.5 h-3.5 text-muted-foreground" />
+   555→                        {t('ai.agent', locale)}
+   556→                      </Label>
+   557→                      <Select
+   558→                        value={selectedAgent?.id || '__default__'}
+   559→                        onValueChange={(v) => {
+   560→                          if (v === '__default__') {
+   561→                            setSelectedAgent(null);
+   562→                          } else {
+   563→                            const found = agents.find((a) => a.id === v);
+   564→                            if (found) setSelectedAgent(found);
+   565→                          }
+   566→                        }}
+   567→                      >
+   568→                        <SelectTrigger className="w-full">
+   569→                          <SelectValue placeholder={t('ai.defaultAI', locale)} />
+   570→                        </SelectTrigger>
+   571→                        <SelectContent>
+   572→                          <SelectItem value="__default__">🤖 {t('ai.defaultAI', locale)}</SelectItem>
+   573→                          {agents.map((agent) => (
+   574→                            <SelectItem key={agent.id} value={agent.id}>
+   575→                              <span className="flex items-center gap-2">
+   576→                                <span>{agent.icon}</span>
+   577→                                {agent.name}
+   578→                              </span>
+   579→                            </SelectItem>
+   580→                          ))}
+   581→                        </SelectContent>
+   582→                      </Select>
+   583→                    </div>
+   584→
+   585→                    {/* Prompt Input */}
+   586→                    <div className="space-y-2">
+   587→                      <Label htmlFor="ai-prompt-main" className="text-sm font-medium flex items-center gap-1.5">
+   588→                        <Wand2 className="w-3.5 h-3.5 text-muted-foreground" />
+   589→                        {t('ai.describeDesign', locale)}
+   590→                      </Label>
+   591→                      <Textarea
+   592→                        id="ai-prompt-main"
+   593→                        placeholder={t('ai.promptPlaceholder', locale)}
+   594→                        className="min-h-[140px] resize-none text-sm leading-relaxed"
+   595→                        value={prompt}
+   596→                        onChange={(e) => setPrompt(e.target.value)}
+   597→                        onKeyDown={handleKeyDown}
+   598→                        disabled={isGenerating}
+   599→                      />
+   600→                      <p className="text-[11px] text-muted-foreground">
+   601→                        {t('ai.pressKeyToGenerate', locale)}
+   602→                      </p>
+   603→                    </div>
+   604→
+   605→                    {/* Suggestions */}
+   606→                    {prompt.trim().length === 0 && (
+   607→                      <div className="space-y-2">
+   608→                        <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
+   609→                          <Zap className="w-3 h-3" />
+   610→                          {t('ai.quickSuggestions', locale)}
+   611→                        </Label>
+   612→                        <div className="flex flex-col gap-1.5">
+   613→                          {PROMPT_SUGGESTIONS.map((s) => (
+   614→                            <button
+   615→                              key={s.text}
+   616→                              onClick={() => handleSuggestionClick(s.text)}
+   617→                              className="group text-left text-xs px-3 py-2.5 rounded-lg bg-muted/40 hover:bg-muted border border-border/40 hover:border-border transition-all"
+   618→                            >
+   619→                              <div className="flex items-start gap-2">
+   620→                                <Badge variant="outline" className="text-[10px] shrink-0 mt-0.5">
+   621→                                  {s.category}
+   622→                                </Badge>
+   623→                                <span className="text-muted-foreground group-hover:text-foreground transition-colors leading-relaxed">
+   624→                                  {s.text}
+   625→                                </span>
+   626→                              </div>
+   627→                            </button>
+   628→                          ))}
+   629→                        </div>
+   630→                      </div>
+   631→                    )}
+   632→
+   633→                    {/* Style & Color Row */}
+   634→                    <div className="grid grid-cols-2 gap-4">
+   635→                      <div className="space-y-2">
+   636→                        <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
+   637→                          <Wand2 className="w-3 h-3" />
+   638→                          {t('ai.stylePreset', locale)}
+   639→                        </Label>
+   640→                        <div className="flex flex-wrap gap-1.5">
+   641→                          <button
+   642→                            onClick={() => setStyle('')}
+   643→                            className={`text-xs px-2.5 py-1.5 rounded-lg border transition-all ${
+   644→                              !style
+   645→                                ? 'border-primary bg-primary/10 text-primary font-medium'
+   646→                                : 'border-border hover:border-border bg-card text-muted-foreground hover:text-foreground'
+   647→                            }`}
+   648→                          >
+   649→                            {t('ai.auto', locale)}
+   650→                          </button>
+   651→                          {STYLE_OPTIONS.map((opt) => (
+   652→                            <button
+   653→                              key={opt.value}
+   654→                              onClick={() => setStyle(style === opt.value ? '' : opt.value)}
+   655→                              className={`text-xs px-2.5 py-1.5 rounded-lg border transition-all ${
+   656→                                style === opt.value
+   657→                                  ? 'border-primary bg-primary/10 text-primary font-medium'
+   658→                                  : 'border-border hover:border-border bg-card text-muted-foreground hover:text-foreground'
+   659→                              }`}
+   660→                            >
+   661→                              <span className="mr-1">{opt.icon}</span>
+   662→                              {opt.label}
+   663→                            </button>
+   664→                          ))}
+   665→                        </div>
+   666→                      </div>
+   667→                      <div className="space-y-2">
+   668→                        <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
+   669→                          <Palette className="w-3 h-3" />
+   670→                          {t('ai.colorScheme', locale)}
+   671→                        </Label>
+   672→                        <div className="flex flex-wrap gap-1.5">
+   673→                          <button
+   674→                            onClick={() => setColorScheme('')}
+   675→                            className={`text-xs px-2.5 py-1.5 rounded-lg border transition-all ${
+   676→                              !colorScheme
+   677→                                ? 'border-primary bg-primary/10 text-primary font-medium'
+   678→                                : 'border-border hover:border-border bg-card text-muted-foreground hover:text-foreground'
+   679→                            }`}
+   680→                          >
+   681→                            {t('ai.auto', locale)}
+   682→                          </button>
+   683→                          {COLOR_OPTIONS.map((opt) => (
+   684→                            <button
+   685→                              key={opt.value}
+   686→                              onClick={() => setColorScheme(colorScheme === opt.value ? '' : opt.value)}
+   687→                              className={`text-xs px-2.5 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 ${
+   688→                                colorScheme === opt.value
+   689→                                  ? 'border-primary bg-primary/10 text-primary font-medium'
+   690→                                  : 'border-border hover:border-border bg-card text-muted-foreground hover:text-foreground'
+   691→                              }`}
+   692→                            >
+   693→                              <span
+   694→                                className="w-3 h-3 rounded-full inline-block border border-border"
+   695→                                style={{ backgroundColor: opt.swatch }}
+   696→                              />
+   697→                              {opt.label}
+   698→                            </button>
+   699→                          ))}
+   700→                        </div>
+   701→                      </div>
+   702→                    </div>
+   703→
+   704→                    {/* Error */}
+   705→                    <AnimatePresence>
+   706→                      {error && (
+   707→                        <motion.div
+   708→                          initial={{ opacity: 0, height: 0 }}
+   709→                          animate={{ opacity: 1, height: 'auto' }}
+   710→                          exit={{ opacity: 0, height: 0 }}
+   711→                          className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3"
+   712→                        >
+   713→                          <p className="text-sm text-destructive">{error}</p>
+   714→                        </motion.div>
+   715→                      )}
+   716→                    </AnimatePresence>
+   717→                  </motion.div>
+   718→                )}
+   719→              </AnimatePresence>
+   720→            </div>
+   721→          </div>
+   722→
+   723→          {/* Fixed Bottom Bar with Generate Button */}
+   724→          {!generatedElements && (
+   725→            <div className="shrink-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 md:px-8 py-4">
+   726→              <div className="max-w-3xl mx-auto flex items-center gap-3">
+   727→                <div className="flex-1 text-xs text-muted-foreground hidden sm:block truncate">
+   728→                  {prompt.trim()
+   729→                    ? prompt.trim().slice(0, 80) + (prompt.trim().length > 80 ? '...' : '')
+   730→                    : t('ai.enterPromptToStart', locale)}
+   731→                </div>
+   732→                <Button
+   733→                  onClick={handleGenerate}
+   734→                  disabled={!prompt.trim() || isGenerating}
+   735→                  size="lg"
+   736→                  className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg shadow-purple-500/20 disabled:opacity-50 min-w-[160px]"
+   737→                >
+   738→                  {isGenerating ? (
+   739→                    <>
+   740→                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+   741→                      {t('ai.generating', locale)}
+   742→                    </>
+   743→                  ) : (
+   744→                    <>
+   745→                      <Sparkles className="w-4 h-4 mr-2" />
+   746→                      {t('ai.generateDesign', locale)}
+   747→                    </>
+   748→                  )}
+   749→                </Button>
+   750→              </div>
+   751→            </div>
+   752→          )}
+   753→        </main>
+   754→
+   755→        {/* Right Panel - Preview / Info (desktop only) */}
+   756→        <aside className="hidden lg:flex w-72 border-l flex-col shrink-0 bg-muted/20">
+   757→          <div className="p-4 pb-3">
+   758→            <h2 className="text-sm font-semibold flex items-center gap-2">
+   759→              <Layers className="w-4 h-4 text-muted-foreground" />
+   760→              {t('ai.designInfo', locale)}
+   761→            </h2>
+   762→          </div>
+   763→
+   764→          <ScrollArea className="flex-1 px-4 pb-4">
+   765→            <div className="space-y-4">
+   766→              {/* Selected Agent Info */}
+   767→              <div className="rounded-xl border bg-card p-4 space-y-3">
+   768→                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+   769→                  {t('ai.activeAgent', locale)}
+   770→                </h3>
+   771→                <div className="flex items-center gap-3">
+   772→                  <div
+   773→                    className="w-10 h-10 rounded-lg flex items-center justify-center text-lg"
+   774→                    style={{
+   775→                      backgroundColor: `${selectedAgent?.color || '#8B5CF6'}15`,
+   776→                    }}
+   777→                  >
+   778→                    {selectedAgent?.icon || '🤖'}
+   779→                  </div>
+   780→                  <div>
+   781→                    <p className="text-sm font-medium">
+   782→                      {selectedAgent?.name || t('ai.defaultAI', locale)}
+   783→                    </p>
+   784→                    <p className="text-[11px] text-muted-foreground">
+   785→                      {selectedAgent?.description || t('ai.standardAIDesc', locale)}
+   786→                    </p>
+   787→                  </div>
+   788→                </div>
+   789→              </div>
+   790→
+   791→              {/* Style Settings Summary */}
+   792→              {(style || colorScheme) && (
+   793→                <div className="rounded-xl border bg-card p-4 space-y-3">
+   794→                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+   795→                    {t('ai.settings', locale)}
+   796→                  </h3>
+   797→                  {style && (
+   798→                    <div className="flex items-center gap-2 text-sm">
+   799→                      <Wand2 className="w-3.5 h-3.5 text-muted-foreground" />
+   800→                      <span className="text-muted-foreground">{t('ai.style', locale)}</span>
+   801→                      <span className="font-medium">{style}</span>
+   802→                    </div>
+   803→                  )}
+   804→                  {colorScheme && (
+   805→                    <div className="flex items-center gap-2 text-sm">
+   806→                      <Palette className="w-3.5 h-3.5 text-muted-foreground" />
+   807→                      <span className="text-muted-foreground">{t('ai.colors', locale)}</span>
+   808→                      <span className="flex items-center gap-1.5 font-medium">
+   809→                        <span
+   810→                          className="w-3 h-3 rounded-full inline-block"
+   811→                          style={{
+   812→                            backgroundColor:
+   813→                              COLOR_OPTIONS.find((c) => c.value === colorScheme)?.swatch,
+   814→                          }}
+   815→                        />
+   816→                        {colorScheme}
+   817→                      </span>
+   818→                    </div>
+   819→                  )}
+   820→                </div>
+   821→              )}
+   822→
+   823→              {/* Tips */}
+   824→              <div className="rounded-xl border bg-card p-4 space-y-3">
+   825→                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+   826→                  {t('ai.tips', locale)}
+   827→                </h3>
+   828→                <ul className="space-y-2 text-xs text-muted-foreground">
+   829→                  <li className="flex items-start gap-2">
+   830→                    <Type className="w-3.5 h-3.5 mt-0.5 shrink-0 text-violet-500" />
+   831→                    {t('ai.tip1', locale)}
+   832→                  </li>
+   833→                  <li className="flex items-start gap-2">
+   834→                    <Layers className="w-3.5 h-3.5 mt-0.5 shrink-0 text-violet-500" />
+   835→                    {t('ai.tip2', locale)}
+   836→                  </li>
+   837→                  <li className="flex items-start gap-2">
+   838→                    <Palette className="w-3.5 h-3.5 mt-0.5 shrink-0 text-violet-500" />
+   839→                    {t('ai.tip3', locale)}
+   840→                  </li>
+   841→                  <li className="flex items-start gap-2">
+   842→                    <Bot className="w-3.5 h-3.5 mt-0.5 shrink-0 text-violet-500" />
+   843→                    {t('ai.tip4', locale)}
+   844→                  </li>
+   845→                </ul>
+   846→              </div>
+   847→            </div>
+   848→          </ScrollArea>
+   849→        </aside>
+   850→      </div>
+   851→    </div>
+   852→  );
+   853→}
