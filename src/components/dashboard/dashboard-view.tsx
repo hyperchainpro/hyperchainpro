@@ -31,6 +31,7 @@ import {
   Wand2,
   Puzzle,
   Shield,
+  BookOpen,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -61,6 +62,7 @@ import { useAppStore } from '@/store/app-store'
 import { useAuthStore } from '@/store/auth-store'
 import { PluginBrowserDialog } from '@/components/editor/plugins/plugin-browser-dialog'
 import { UploadDesignDialog } from '@/components/community/upload-design-dialog'
+import { UserGuide } from '@/components/guide/user-guide'
 import { t, LOCALES, type Locale } from '@/lib/i18n'
 import { useTheme } from 'next-themes'
 import { toast } from 'sonner'
@@ -453,6 +455,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
   const [activeSidebar, setActiveSidebar] = useState<SidebarSection | null>('my-boards')
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
+  const [guideOpen, setGuideOpen] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [boards, setBoards] = useState<BoardCardData[]>([])
   const [loading, setLoading] = useState(true)
@@ -750,6 +753,16 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                 </Button>
               </TooltipTrigger>
               <TooltipContent>{t('dashboard.shareYourDesign', locale)}</TooltipContent>
+            </Tooltip>
+
+            {/* Guide button */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={() => setGuideOpen(true)} className="neu-icon-btn bg-background border-0">
+                  <BookOpen className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('guide.title', locale)}</TooltipContent>
             </Tooltip>
 
             {/* Theme toggle */}
@@ -1091,6 +1104,12 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
       <PluginBrowserDialog
         open={useAppStore((s) => s.pluginDialogOpen)}
         onOpenChange={(v) => useAppStore.getState().setPluginDialogOpen(v)}
+      />
+
+      {/* User Guide Dialog */}
+      <UserGuide
+        open={guideOpen}
+        onOpenChange={setGuideOpen}
       />
     </div>
   )

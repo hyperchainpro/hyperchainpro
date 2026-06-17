@@ -18,6 +18,8 @@ import {
   Upload,
   Download,
   Users,
+  BookOpen,
+  Code2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -52,6 +54,10 @@ import { PluginBrowserDialog } from '@/components/editor/plugins/plugin-browser-
 import { t, type Locale } from '@/lib/i18n';
 import { useAuthStore } from '@/store/auth-store';
 import type { BoardElement } from '@/lib/types';
+import { AlignmentToolbar } from '@/components/editor/alignment-toolbar';
+import { ContextMenuOverlay } from '@/components/editor/context-menu';
+import { UserGuide } from '@/components/guide/user-guide';
+import { DevModePanel } from '@/components/editor/right-panel/dev-mode-panel';
 
 // ─── Loading skeleton ────────────────────────────────────────────────────────
 
@@ -115,7 +121,7 @@ function EditorError({ message, onRetry }: { message: string; onRetry: () => voi
 
 // ─── Editor Top Bar ──────────────────────────────────────────────────────────
 
-function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; onOpenInviteDialog: () => void }) {
+function EditorTopBar({ boardName, onOpenInviteDialog, onOpenGuideDialog, onToggleDevMode, devMode }: { boardName?: string; onOpenInviteDialog: () => void; onOpenGuideDialog: () => void; onToggleDevMode: () => void; devMode: boolean }) {
   const closeBoard = useAppStore((s) => s.closeBoard);
   const currentBranchId = useVersionStore((s) => s.currentBranchId);
   const branches = useVersionStore((s) => s.branches);
@@ -286,6 +292,9 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
         </div>
       )}
 
+      {/* Alignment toolbar (appears when 2+ selected) */}
+      <AlignmentToolbar />
+
       {/* Connection status */}
       <div className="hidden md:flex ml-1 items-center gap-1">
         <div
@@ -331,6 +340,31 @@ function EditorTopBar({ boardName, onOpenInviteDialog }: { boardName?: string; o
 
       {/* Right actions */}
       <div className="flex items-center gap-1">
+        {/* Guide button */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8 neu-icon-btn" onClick={onOpenGuideDialog}>
+              <BookOpen className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">{t('editor.guide', locale)}</TooltipContent>
+        </Tooltip>
+
+        {/* Dev mode toggle */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant={onDevMode ? 'secondary' : 'ghost'}
+              size="icon"
+              className="h-8 w-8 neu-icon-btn"
+              onClick={onToggleDevMode}
+            >
+              <Code2 className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">{t('editor.devMode', locale)}</TooltipContent>
+        </Tooltip>
+
         {/* Prototype play/stop */}
         {isPlaying && (
           <Tooltip>
@@ -428,6 +462,8 @@ export default function EditorView() {
   const exportOpen = useAppStore((s) => s.exportDialogOpen);
   const setExportOpen = useAppStore((s) => s.setExportDialogOpen);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
+  const [devMode, setDevMode] = useState(false);
 
   const handleImportElements = useCallback((elements: BoardElement[]) => {
     const cur = useCanvasStore.getState().elements;
@@ -517,7 +553,7 @@ export default function EditorView() {
     <TooltipProvider delayDuration={200}>
       <div className="h-screen flex flex-col overflow-hidden bg-background">
         {/* Top bar */}
-        <EditorTopBar boardName={boardName} onOpenInviteDialog={() => setInviteDialogOpen(true)} />
+        <EditorTopBar boardName={boardName} onOpenInviteDialog={() => setInviteDialogOpen(true)} onOpenGuideDialog={() => setGuideOpen(true)} onToggleDevMode={() => setDevMode(!devMode)} devMode={devMode} />
 
         {/* Main body: Left Panel + Toolbar + Canvas + Right Panel */}
         <div className="flex-1 flex overflow-hidden">
@@ -532,8 +568,29 @@ export default function EditorView() {
             <EnhancedCanvasArea onCursorMove={sendCursorMove} />
           </div>
 
-          {/* Right Panel (Design / Prototype / Version Control) */}
-          <RightPanel />
+          {/* Right Panel (Design / Dev Mode) */}
+          {devMode ? (
+            <div className="relative flex h-full w-[280px] shrink-0 flex-col border-l bg-background shadow-xl">
+              <div className="flex items-center justify-between border-b px-3 py-2">
+                <span className="text-xs font-semibold">Dev Mode</span>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 neu-icon-btn"
+                    onClick={() => setDevMode(false)}
+                  >
+                    <Code2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <DevModePanel />
+              </div>
+            </div>
+          ) : (
+            <RightPanel />
+          )}
         </div>
 
         {/* Modal overlays */}
@@ -548,6 +605,12 @@ export default function EditorView() {
           onOpenChange={setPluginDialogOpen}
         />
         <ExportDialog open={exportOpen} onOpenChange={setExportOpen} boardName={boardName} />
+
+        {/* Context menu overlay */}
+        <ContextMenuOverlay />
+
+        {/* User guide dialog */}
+        <UserGuide open={guideOpen} onOpenChange={setGuideOpen} />
       </div>
     </TooltipProvider>
   );

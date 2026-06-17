@@ -11,6 +11,7 @@ import {
   Settings,
   ArrowLeft,
   Menu,
+  Plug,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -25,8 +26,9 @@ import { AdminBoards } from './admin-boards';
 import { AdminPlugins } from './admin-plugins';
 import { AdminAnalytics } from './admin-analytics';
 import { AdminSettings } from './admin-settings';
+import { AdminIntegrations } from './admin-integrations';
 
-type AdminSection = 'dashboard' | 'users' | 'ad-scripts' | 'boards' | 'plugins' | 'analytics' | 'settings';
+type AdminSection = 'dashboard' | 'users' | 'ad-scripts' | 'boards' | 'plugins' | 'analytics' | 'integrations' | 'settings';
 
 const sidebarItems: { id: AdminSection; label: string; icon: React.ElementType }[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -35,6 +37,7 @@ const sidebarItems: { id: AdminSection; label: string; icon: React.ElementType }
   { id: 'boards', label: 'Boards', icon: LayoutGrid },
   { id: 'plugins', label: 'Plugins', icon: Puzzle },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+  { id: 'integrations', label: 'Integrations', icon: Plug },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
@@ -118,6 +121,8 @@ export default function AdminLayout() {
         return <AdminPlugins />;
       case 'analytics':
         return <AdminAnalytics />;
+      case 'integrations':
+        return <AdminIntegrations />;
       case 'settings':
         return <AdminSettings />;
       default:

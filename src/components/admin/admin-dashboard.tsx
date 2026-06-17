@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 
-type AdminSection = 'dashboard' | 'users' | 'ad-scripts' | 'boards' | 'plugins' | 'analytics' | 'settings';
+type AdminSection = 'dashboard' | 'users' | 'ad-scripts' | 'boards' | 'plugins' | 'analytics' | 'integrations' | 'settings';
 
 interface DashboardStats {
   totalUsers: number;

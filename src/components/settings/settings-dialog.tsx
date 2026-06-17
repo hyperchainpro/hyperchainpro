@@ -9,6 +9,7 @@ import {
   Globe,
   Shield,
   LogOut,
+  Plug,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import {
@@ -28,10 +29,11 @@ import { ProfileSettings } from './profile-settings'
 import { AIAgentsSettings } from './ai-agents-settings'
 import { ThemeSettings } from './theme-settings'
 import { LanguageSettings } from './language-settings'
+import { IntegrationsView } from './integrations-view'
 
 // ── Tab definitions ─────────────────────────────────────────────────────────
 
-type SettingsTab = 'profile' | 'ai-agents' | 'appearance' | 'language' | 'account'
+type SettingsTab = 'profile' | 'ai-agents' | 'appearance' | 'language' | 'integrations' | 'account'
 
 interface TabDef {
   id: SettingsTab
@@ -44,6 +46,7 @@ const TABS: TabDef[] = [
   { id: 'ai-agents', icon: Brain, labelKey: 'settings.tabs.aiAgents' },
   { id: 'appearance', icon: Palette, labelKey: 'settings.tabs.appearance' },
   { id: 'language', icon: Globe, labelKey: 'settings.tabs.language' },
+  { id: 'integrations', icon: Plug, labelKey: 'settings.tabs.integrations' },
   { id: 'account', icon: Shield, labelKey: 'settings.tabs.account' },
 ]
 
@@ -86,6 +89,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         return <ThemeSettings />
       case 'language':
         return <LanguageSettings />
+      case 'integrations':
+        return <IntegrationsView />
       case 'account':
         return <AccountTab onLogout={handleLogout} />
       default:
