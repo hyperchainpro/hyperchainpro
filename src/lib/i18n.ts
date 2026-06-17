@@ -2524,6 +2524,57 @@ const translations: TranslationMap = {
 
   // ── Settings: Integrations Tab ──
   'settings.tabs.integrations': { en: 'Integrations', id: 'Integrasi', ja: '統合', ko: '연동', zh: '集成' },
+
+  // ── Boolean Operations ──
+  'boolean.title': { en: 'Boolean Operations', id: 'Operasi Boolean', ja: 'ブール演算', ko: '불리언 연산', zh: '布尔运算' },
+  'boolean.union': { en: 'Union', id: 'Gabungan', ja: '結合', ko: '합집합', zh: '联集' },
+  'boolean.subtract': { en: 'Subtract', id: 'Kurangi', ja: '引き算', ko: '차집합', zh: '减去' },
+  'boolean.intersect': { en: 'Intersect', id: 'Irisan', ja: '交差', ko: '교집합', zh: '交集' },
+  'boolean.exclude': { en: 'Exclude', id: 'Kecualikan', ja: '除外', ko: '배타', zh: '排除' },
+  'boolean.requireTwo': { en: 'Select 2+ elements', id: 'Pilih 2+ elemen', ja: '2つ以上の要素を選択', ko: '요소 2개 이상 선택', zh: '请选择2个以上元素' },
+
+  // ── Mask ──
+  'mask.useAs': { en: 'Use as Mask', id: 'Jadikan Masker', ja: 'マスクにする', ko: '마스크로 사용', zh: '用作遮罩' },
+  'mask.remove': { en: 'Remove Mask', id: 'Hapus Masker', ja: 'マスクを解除', ko: '마스크 해제', zh: '移除遮罩' },
+
+  // ── Component Variants ──
+  'variants.title': { en: 'Variants', id: 'Varian', ja: 'バリアント', ko: '변형', zh: '变体' },
+  'variants.empty': { en: 'Select a component to manage variants', id: 'Pilih komponen untuk mengelola varian', ja: 'コンポーネントを選択してバリアントを管理', ko: '컴포넌트를 선택하여 변형 관리', zh: '选择组件以管理变体' },
+  'variants.editMaster': { en: 'Edit Master', id: 'Edit Master', ja: 'マスターを編集', ko: '마스터 편집', zh: '编辑主组件' },
+  'variants.addVariant': { en: 'Add Variant', id: 'Tambah Varian', ja: 'バリアントを追加', ko: '변형 추가', zh: '添加变体' },
+  'variants.variantName': { en: 'Variant Name', id: 'Nama Varian', ja: 'バリアント名', ko: '변형 이름', zh: '变体名称' },
+  'variants.property': { en: 'Property', id: 'Properti', ja: 'プロパティ', ko: '속성', zh: '属性' },
+  'variants.apply': { en: 'Apply', id: 'Terapkan', ja: '適用', ko: '적용', zh: '应用' },
+  'variants.delete': { en: 'Delete', id: 'Hapus', ja: '削除', ko: '삭제', zh: '删除' },
+  'variants.noVariants': { en: 'No variants yet', id: 'Belum ada varian', ja: 'バリアントなし', ko: '변형 없음', zh: '暂无变体' },
+  'variants.overrides': { en: 'Overrides', id: 'Override', ja: 'オーバーライド', ko: '오버라이드', zh: '覆盖属性' },
+  'variants.masterElement': { en: 'Master Element', id: 'Elemen Master', ja: 'マスターエレメント', ko: '마스터 요소', zh: '主元素' },
+  'variants.appliedVariant': { en: 'Applied: {name}', id: 'Diterapkan: {name}', ja: '適用中: {name}', ko: '적용됨: {name}', zh: '已应用: {name}' },
+  'variants.addProperty': { en: 'Add Property', id: 'Tambah Properti', ja: 'プロパティを追加', ko: '속성 추가', zh: '添加属性' },
+
+  // ── Left Panel ──
+  'leftPanel.layers': { en: 'Layers', id: 'Layer', ja: 'レイヤー', ko: '레이어', zh: '图层' },
+  'leftPanel.assets': { en: 'Assets', id: 'Aset', ja: 'アセット', ko: '에셋', zh: '资源' },
+  'leftPanel.plugins': { en: 'Plugins', id: 'Plugin', ja: 'プラグイン', ko: '플러그인', zh: '插件' },
+
+  // ── Slice Tool ──
+  'toolbar.slice': { en: 'Slice', id: 'Iris', ja: 'スライス', ko: '슬라이스', zh: '切片' },
+  'slice.name': { en: 'Slice Region', id: 'Wilayah Iris', ja: 'スライス領域', ko: '슬라이스 영역', zh: '切片区域' },
+  'slice.delete': { en: 'Remove Slice', id: 'Hapus Iris', ja: 'スライスを削除', ko: '슬라이스 삭제', zh: '删除切片' },
+
+  // ── Grid / Guides ──
+  'toolbar.measure': { en: 'Measure', id: 'Ukur', ja: '計測', ko: '측정', zh: '测量' },
+  'toolbar.guides': { en: 'Guides', id: 'Panduan', ja: 'ガイド', ko: '가이드', zh: '参考线' },
+  'guides.show': { en: 'Show Guides', id: 'Tampilkan Panduan', ja: 'ガイドを表示', ko: '가이드 표시', zh: '显示参考线' },
+  'guides.grid': { en: 'Grid', id: 'Grid', ja: 'グリッド', ko: '그리드', zh: '网格' },
+
+  // ── Tokens (Variables tab renamed) ──
+  'tokens.title': { en: 'Tokens', id: 'Token', ja: 'トークン', ko: '토큰', zh: '令牌' },
+
+  // ── Measure ──
+  'measure.width': { en: 'W', id: 'L', ja: '幅', ko: '너비', zh: '宽' },
+  'measure.height': { en: 'H', id: 'T', ja: '高さ', ko: '높이', zh: '高' },
+  'measure.distance': { en: 'Distance', id: 'Jarak', ja: '距離', ko: '거리', zh: '距离' },
 };
 
 // ─── Translation Function ─────────────────────────────────────────────────────

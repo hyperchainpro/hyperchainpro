@@ -9,6 +9,8 @@ import {
   GitBranch,
   GitMerge,
   Plus,
+  Palette,
+  Layers,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { t, type Locale } from '@/lib/i18n';
@@ -29,6 +31,8 @@ import {
 
 import { DesignPanel } from './design-panel';
 import { PrototypePanel } from './prototype-panel';
+import { VariablesPanel } from './variables-panel';
+import { VariantsPanel } from './variants-panel';
 import { HistoryTimeline } from '@/components/version-control/history-timeline';
 
 // ─── Neumorphism helpers ──────────────────────────────────────────────────────
@@ -44,6 +48,11 @@ const neuTabInactive =
 const DESIGN_TABS: { value: 'design' | 'prototype'; i18nKey: string; icon: React.ReactNode }[] = [
   { value: 'design', i18nKey: 'toolbar.design', icon: <PenTool className="h-3.5 w-3.5" /> },
   { value: 'prototype', i18nKey: 'toolbar.prototype', icon: <Play className="h-3.5 w-3.5" /> },
+];
+
+const ASSET_TABS: { value: 'variables' | 'variants'; i18nKey: string; icon: React.ReactNode }[] = [
+  { value: 'variables', i18nKey: 'tokens.title', icon: <Palette className="h-3.5 w-3.5" /> },
+  { value: 'variants', i18nKey: 'variants.title', icon: <Layers className="h-3.5 w-3.5" /> },
 ];
 
 const VC_TABS: { value: 'history' | 'branches' | 'merges'; i18nKey: string; icon: React.ReactNode }[] = [
@@ -236,6 +245,10 @@ function PanelContent() {
         return <DesignPanel />;
       case 'prototype':
         return <PrototypePanel />;
+      case 'variables':
+        return <VariablesPanel />;
+      case 'variants':
+        return <VariantsPanel />;
       case 'history':
         return <HistoryTimeline />;
       case 'branches':
@@ -272,7 +285,27 @@ function PanelContent() {
           {/* Separator */}
           <Separator orientation="vertical" className="mx-1 h-5" />
 
-          {/* Version control tabs */}
+          {/* Tokens (Assets) tab */}
+          {ASSET_TABS.map((tab) => (
+            <button
+              key={tab.value}
+              className={cn(
+                'flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-all',
+                rightPanelTab === tab.value
+                  ? cn('bg-muted text-foreground', neuTabActive)
+                  : cn('text-muted-foreground hover:text-foreground hover:bg-muted/50', neuTabInactive),
+              )}
+              onClick={() => setRightPanelTab(tab.value)}
+            >
+              {tab.icon}
+              <span className="hidden lg:inline">{t(tab.i18nKey, locale)}</span>
+            </button>
+          ))}
+
+          {/* Separator before Version Control */}
+          <Separator orientation="vertical" className="mx-1 h-5" />
+
+          {/* Version Control tabs */}
           {VC_TABS.map((tab) => (
             <button
               key={tab.value}

@@ -21,6 +21,11 @@ import {
   Frame,
   Grid3X3,
   Ruler,
+  CirclePlus,
+  SquareMinus,
+  Diamond,
+  Split,
+  CircleSlash,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCanvasStore } from '@/store/canvas-store';
@@ -92,6 +97,9 @@ export function ContextMenuOverlay() {
   const setSnapToGrid = useCanvasStore((s) => s.setSnapToGrid);
   const addElement = useCanvasStore((s) => s.addElement);
   const updateElement = useCanvasStore((s) => s.updateElement);
+  const booleanOperation = useCanvasStore((s) => s.booleanOperation);
+  const applyMask = useCanvasStore((s) => s.applyMask);
+  const removeMask = useCanvasStore((s) => s.removeMask);
 
   // Close on click outside or Escape
   const handleClickOutside = useCallback((e: MouseEvent) => {
@@ -171,6 +179,24 @@ export function ContextMenuOverlay() {
       : []),
     ...(hasGroup
       ? [{ key: 'ungroup' as const, icon: Ungroup, label: t('context.ungroup', locale), action: () => ungroupElements(firstSelected!.groupId!) }]
+      : []),
+    // Boolean Operations (only when 2+ elements selected)
+    ...(selectedIds.length >= 2
+      ? [
+          { key: 'sep_bool' as const, separator: true as const },
+          { key: 'bool_title' as const, icon: undefined, label: t('boolean.title', locale), disabled: true },
+          { key: 'bool_union' as const, icon: CirclePlus, label: t('boolean.union', locale), action: () => booleanOperation('union') },
+          { key: 'bool_subtract' as const, icon: SquareMinus, label: t('boolean.subtract', locale), action: () => booleanOperation('subtract') },
+          { key: 'bool_intersect' as const, icon: Diamond, label: t('boolean.intersect', locale), action: () => booleanOperation('intersect') },
+          { key: 'bool_exclude' as const, icon: Split, label: t('boolean.exclude', locale), action: () => booleanOperation('exclude') },
+        ]
+      : []),
+    // Mask operations
+    ...(selectedIds.length === 2
+      ? [{ key: 'sep_mask' as const, separator: true as const }, { key: 'mask_apply' as const, icon: CircleSlash, label: t('mask.useAs', locale), action: () => applyMask() }]
+      : []),
+    ...(firstSelected?.styles?.maskType
+      ? [{ key: 'sep_mask_r' as const, separator: true as const }, { key: 'mask_remove' as const, icon: CircleSlash, label: t('mask.remove', locale), action: () => removeMask(firstSelected.id) }]
       : []),
   ];
 

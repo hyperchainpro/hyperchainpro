@@ -22,7 +22,9 @@ import {
   ZoomIn,
   ZoomOut,
   Grid3X3,
+  Grid2x2,
   Map,
+  Ruler,
   Smartphone,
   Tablet,
   Monitor,
@@ -30,6 +32,11 @@ import {
   Frame,
   Globe,
   Trash2,
+  Scissors,
+  CirclePlus,
+  SquareMinus,
+  Diamond,
+  Split,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { t, type Locale } from '@/lib/i18n';
@@ -331,6 +338,7 @@ function getContentTools(locale: Locale): ToolDef[] {
     { id: 'TEXT', icon: <Type className="h-4 w-4" />, label: t('toolbar.text', locale), shortcut: 'T' },
     { id: 'IMAGE', icon: <ImageIcon className="h-4 w-4" />, label: t('toolbar.image', locale), shortcut: 'I' },
     { id: 'STICKY_NOTE', icon: <StickyNote className="h-4 w-4" />, label: t('toolbar.stickyNote', locale), shortcut: 'S' },
+    { id: 'SLICE', icon: <Scissors className="h-4 w-4" />, label: t('toolbar.slice', locale), shortcut: 'K' },
   ];
 }
 
@@ -399,7 +407,7 @@ function PopoverToolButton({
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function EnhancedToolbar() {
-  const { activeTool, snapToGrid, showMinimap, history, historyIndex, selectedIds, setTool, undo, redo, zoomIn, zoomOut, deleteElements, setSnapToGrid, toggleMinimap } = useCanvasStore();
+  const { activeTool, snapToGrid, showMinimap, showMeasureLines, showGuides, history, historyIndex, selectedIds, setTool, undo, redo, zoomIn, zoomOut, deleteElements, setSnapToGrid, toggleMinimap, toggleMeasureLines, toggleGuides, booleanOperation } = useCanvasStore();
   const { editorMode, setEditorMode } = useAppStore();
   const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const pendingAIDesign = useAppStore((s) => s.pendingAIDesign);
@@ -419,9 +427,30 @@ export default function EnhancedToolbar() {
 
   const handleToolClick = useCallback(
     (tool: ToolDef) => {
+      if (tool.id === 'SLICE') {
+        // One-click: add slice region at viewport center, then switch back to SELECT
+        const { panX, panY, zoom } = useCanvasStore.getState();
+        const viewportW = window.innerWidth;
+        const viewportH = window.innerHeight;
+        const cx = (viewportW / 2 - panX) / zoom;
+        const cy = (viewportH / 2 - panY) / zoom;
+        const sliceW = 200;
+        const sliceH = 200;
+        const sliceId = `slice-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+        const sliceCount = useCanvasStore.getState().sliceRegions.length + 1;
+        useCanvasStore.getState().addSliceRegion({
+          id: sliceId,
+          x: Math.round(cx - sliceW / 2),
+          y: Math.round(cy - sliceH / 2),
+          width: sliceW,
+          height: sliceH,
+          name: `${t('slice.name', locale)} ${sliceCount}`,
+        });
+        return;
+      }
       setTool(tool.id);
     },
-    [setTool],
+    [setTool, locale],
   );
 
   const renderToolSection = (tools: ToolDef[]) =>
@@ -560,6 +589,58 @@ export default function EnhancedToolbar() {
           {renderToolSection(getConnectorTools(locale))}
         </div>
 
+        <Separator orientation="horizontal" className="my-1.5 w-8" />
+
+        {/* ── Measure & Guides ─────────────────────────────────────── */}
+        <div className="flex flex-col items-center gap-0.5">
+          <ActionButton
+            icon={<Ruler className="h-4 w-4" />}
+            label={t('toolbar.measure', locale)}
+            shortcut="M"
+            active={showMeasureLines}
+            onClick={toggleMeasureLines}
+          />
+          <ActionButton
+            icon={<Grid3X3 className="h-4 w-4" />}
+            label={t('toolbar.guides', locale)}
+            active={showGuides}
+            onClick={toggleGuides}
+          />
+        </div>
+
+        <Separator orientation="horizontal" className="my-1.5 w-8" />
+
+        {/* ── Boolean Operations ─────────────────────────────────────────── */}
+        <div className="flex flex-col items-center gap-0.5">
+          <span className="text-[9px] font-medium text-muted-foreground leading-none mb-0.5">
+            {t('boolean.title', locale).charAt(0)}
+          </span>
+          <ActionButton
+            icon={<CirclePlus className="h-4 w-4" />}
+            label={t('boolean.union', locale)}
+            disabled={selectedIds.length < 2}
+            onClick={() => booleanOperation('union')}
+          />
+          <ActionButton
+            icon={<SquareMinus className="h-4 w-4" />}
+            label={t('boolean.subtract', locale)}
+            disabled={selectedIds.length < 2}
+            onClick={() => booleanOperation('subtract')}
+          />
+          <ActionButton
+            icon={<Diamond className="h-4 w-4" />}
+            label={t('boolean.intersect', locale)}
+            disabled={selectedIds.length < 2}
+            onClick={() => booleanOperation('intersect')}
+          />
+          <ActionButton
+            icon={<Split className="h-4 w-4" />}
+            label={t('boolean.exclude', locale)}
+            disabled={selectedIds.length < 2}
+            onClick={() => booleanOperation('exclude')}
+          />
+        </div>
+
         {/* ── Spacer ─────────────────────────────────────────────────────── */}
         <div className="flex-1" />
 
@@ -620,7 +701,7 @@ export default function EnhancedToolbar() {
         {/* Grid / Minimap toggles */}
         <div className="flex flex-col items-center gap-0.5 mb-2">
           <ActionButton
-            icon={<Grid3X3 className="h-4 w-4" />}
+            icon={<Grid2x2 className="h-4 w-4" />}
             label={t('toolbar.snapToGrid', locale)}
             active={snapToGrid}
             onClick={() => setSnapToGrid(!snapToGrid)}

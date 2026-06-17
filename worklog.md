@@ -146,3 +146,253 @@ Stage Summary:
 - Alignment toolbar, context menu, dev mode panel, variables panel all integrated into editor
 - Guide dialog accessible from toolbar
 - Zero lint errors
+
+---
+Task ID: 6-7
+Agent: main
+Task: Reorganize sidebar panels, add Slice tool, add missing i18n keys
+
+Work Log:
+- Reorganized left panel (`src/components/editor/left-panel/index.tsx`):
+  - Added i18n imports (useAuthStore, t, Locale)
+  - Tab button labels now use i18n keys (leftPanel.layers, leftPanel.assets, leftPanel.plugins)
+  - Added section headers within PanelContent — uppercase label with muted styling for visual hierarchy
+  - Mobile SheetTitle also uses i18n
+- Reorganized right panel (`src/components/editor/right-panel/index.tsx`):
+  - Split EXTRA_TABS into ASSET_TABS (variables, renamed to "Tokens" via tokens.title i18nKey) and VC_TABS (history, branches, merges)
+  - Added a second Separator between Tokens and Version Control groups for 3 visual groups: Design/Prototype | Tokens | History/Branches/Merges
+- Added SLICE to CanvasTool union type in `src/lib/types.ts`
+- Added slice region state management to `src/store/canvas-store.ts`:
+  - sliceRegions state: Array of {id, x, y, width, height, name}
+  - addSliceRegion, removeSliceRegion, updateSliceRegion actions
+- Added Slice tool to enhanced-toolbar (`src/components/editor/toolbar/enhanced-toolbar.tsx`):
+  - Scissors icon from lucide, shortcut 'K', i18n label
+  - One-click behavior: creates 200×200 slice region at viewport center, stays on SELECT
+  - Positioned in Content Tools section after Sticky Note
+- Created `src/components/editor/canvas/slice-overlay.tsx`:
+  - SVG overlay rendering slice regions with dashed green borders
+  - Semi-transparent green fill
+  - Label badge at top-left with slice name
+  - Delete X button (pointer-events-auto) at top-right
+  - Dimension text at center (width × height)
+  - pointer-events-none on the overlay container
+- Added SliceOverlay to editor-view canvas area
+- Added 20+ i18n keys across 5 languages (en, id, ja, ko, zh):
+  - leftPanel.layers/assets/plugins
+  - toolbar.slice, slice.name, slice.delete
+  - toolbar.measure, toolbar.guides, guides.show, guides.grid
+  - tokens.title
+  - measure.width, measure.height, measure.distance
+- Lint passes with zero errors
+
+Stage Summary:
+- Left panel has cleaner tab labels via i18n and section headers for visual hierarchy
+- Right panel reorganized into 3 clearly separated tab groups: Design | Tokens | VC
+- Slice tool fully functional: one-click creates export regions on canvas
+- Slice overlay renders dashed green rectangles with delete controls
+- All i18n keys added for 5 languages
+
+---
+Task ID: 5
+Agent: main
+Task: Create Component Variants UI Panel
+
+Work Log:
+- Added 14 i18n keys to `src/lib/i18n.ts` for variants panel across 5 languages (en, id, ja, ko, zh):
+  - variants.title, variants.empty, variants.editMaster, variants.addVariant
+  - variants.variantName, variants.property, variants.apply, variants.delete
+  - variants.noVariants, variants.overrides, variants.masterElement
+  - variants.appliedVariant, variants.addProperty
+- Added 'variants' to `RightPanelTab` union type in `src/lib/types.ts`
+- Created `src/components/editor/right-panel/variants-panel.tsx` with full features:
+  - Empty state with Box icon when no component selected
+  - Component info header showing name, master element ID, Edit Master button
+  - Applied variant badge on component instance
+  - Variants list with colored dots, click to select, apply/delete on hover
+  - Add variant form with name and property inputs, captures current styles as overrides
+  - Override editor with color swatch (hex colors), number inputs (size), text inputs
+  - Key-value pair editor for custom properties with add/remove support
+- Wired variants tab into right panel `src/components/editor/right-panel/index.tsx`:
+  - Added Layers icon import from lucide
+  - Added VariantsPanel import
+  - Added 'variants' to ASSET_TABS array after 'variables'
+  - Added `case 'variants': return <VariantsPanel />;` to renderTab switch
+- Lint passes with zero errors
+
+Stage Summary:
+- Component Variants panel fully functional with create/read/update/delete variants
+- Variant overrides editor supports color, size, text, and custom key-value properties
+- Panel wired as new tab in right panel between Tokens and Version Control groups
+- Complete i18n coverage in 5 languages
+
+---
+Task ID: 2-3
+Agent: main
+Task: Add Boolean Operations and Mask/Clip features
+
+Work Log:
+- Added 8 i18n keys to `src/lib/i18n.ts` across 5 languages (en, id, ja, ko, zh):
+  - boolean.title, boolean.union, boolean.subtract, boolean.intersect, boolean.exclude, boolean.requireTwo
+  - mask.useAs, mask.remove
+- Added 3 new actions to `src/store/canvas-store.ts`:
+  - `booleanOperation(op)` — Creates a FRAME container with clipContent, sets booleanOp style, applies blend modes (difference/exclusion/multiply/normal), moves selected elements inside as children, pushes to history
+  - `applyMask()` — Takes exactly 2 selected elements, converts bottom (by zIndex) to FRAME with clipContent+maskType:'alpha', makes top element a child, repositions relative to parent
+  - `removeMask(frameId)` — Removes maskType/clipContent from frame, reparents children to root with absolute position adjustment
+- Updated `src/components/editor/toolbar/enhanced-toolbar.tsx`:
+  - Imported CirclePlus, SquareMinus, Diamond, Split icons from lucide
+  - Added Boolean Operations section between Connector tools and bottom spacer
+  - 4 ActionButtons (Union, Subtract, Intersect, Exclude) disabled when selectedIds.length < 2
+  - Added single-char section label ("B") above the buttons
+  - Destructured `booleanOperation` from useCanvasStore
+- Updated `src/components/editor/context-menu.tsx`:
+  - Imported CirclePlus, SquareMinus, Diamond, Split, CircleSlash icons from lucide
+  - Destructured `booleanOperation`, `applyMask`, `removeMask` from useCanvasStore
+  - Added Boolean Operations group to element context menu (visible when 2+ elements selected): section title + 4 operation items
+  - Added "Use as Mask" option (visible when exactly 2 elements selected)
+  - Added "Remove Mask" option (visible when selected element has maskType style)
+- All lint checks pass with zero errors
+
+Stage Summary:
+- Boolean operations (Union/Subtract/Intersect/Exclude) implemented as visual compositions using FRAME containers with blend modes
+- Mask/Clip feature creates alpha-masked frame containers from 2 selected elements
+- Both features accessible from toolbar buttons and right-click context menu
+- Full i18n coverage in 5 languages
+
+---
+Task ID: 4
+Agent: main
+Task: Add Measure tool and enhanced Grid/Guides system
+
+Work Log:
+- Added 'MEASURE' to CanvasTool union type in `src/lib/types.ts`
+- Added 4 new state properties and actions to `src/store/canvas-store.ts`:
+  - `showMeasureLines: boolean` (default false) + `toggleMeasureLines` action
+  - `showGuides: boolean` (default true) + `toggleGuides` action
+- Created `src/components/editor/canvas/measure-overlay.tsx`:
+  - SVG-based overlay showing distance measurements between 2+ selected elements
+  - Horizontal distance lines (X gap) with teal dashed lines and end ticks
+  - Vertical distance lines (Y gap) with same styling
+  - Distance labels in teal rounded badges at midpoint of each line
+  - Element dimension labels (W × H) shown above each selected element
+  - Semi-transparent teal background fill for gap regions
+  - Handles aligned pairs (overlap detection) and non-aligned pairs (center distances)
+  - pointer-events-none, z-index 9950
+- Created `src/components/editor/canvas/guides-overlay.tsx`:
+  - Configurable grid overlay using SVG lines
+  - Minor grid lines every 20px (GRID_SIZE) at 0.1 opacity
+  - Major grid lines every 100px (5 × GRID_SIZE) at 0.2 opacity
+  - Grid moves/zooms with canvas (respects panX, panY, zoom)
+  - Clipped to canvas area (after rulers) using SVG clipPath
+  - pointer-events-none, z-index 10
+  - Uses `currentColor` to respect light/dark theme
+- Updated `src/components/editor/toolbar/enhanced-toolbar.tsx`:
+  - Added Ruler and Grid2x2 icons from lucide
+  - Added "Measure & Guides" section between Connector tools and spacer
+  - Measure button: Ruler icon, shortcut 'M', toggles showMeasureLines
+  - Guides button: Grid3X3 icon, toggles showGuides
+  - Changed bottom Snap to Grid icon from Grid3X3 to Grid2x2 to avoid visual duplication
+  - Destructured showMeasureLines, showGuides, toggleMeasureLines, toggleGuides from store
+- Removed duplicate i18n keys (toolbar.measure, toolbar.guides) that already existed from task 6-7
+- Updated `src/components/layout/editor-view.tsx`:
+  - Imported GuidesOverlay and MeasureOverlay
+  - Rendered both overlays inside the canvas area div, after EnhancedCanvasArea and before SliceOverlay
+- Lint passes with zero errors
+
+Stage Summary:
+- Measure overlay shows pixel-accurate distances between selected element pairs with teal-colored lines and labels
+- Element dimensions (W × H) displayed above each selected element when measure is active
+- Grid/Guides overlay renders configurable grid (20px minor / 100px major) that moves/zooms with canvas
+- Both overlays are pointer-events-none and don't interfere with canvas interaction
+- Toolbar has Measure (M) and Guides toggle buttons in a dedicated section
+- Full i18n coverage via pre-existing keys from task 6-7
+- Zero lint errors
+---
+Task ID: 1
+Agent: main
+Task: Wire Variables panel into right panel tabs
+
+Work Log:
+- Added 'variables' to RightPanelTab type in types.ts
+- Imported VariantsPanel and Palette icon in right-panel/index.tsx
+- Created EXTRA_TABS array with variables tab + VC tabs
+- Added 'variables' case to renderTab switch
+
+Stage Summary:
+- Variables panel is now accessible from right panel tab bar
+- Lint passes with zero errors
+
+---
+Task ID: 2-3
+Agent: boolean-mask-agent
+Task: Add Boolean Operations and Mask/Clip features
+
+Work Log:
+- Added booleanOperation action to canvas-store.ts (union/subtract/intersect/exclude)
+- Added applyMask/removeMask actions to canvas-store.ts
+- Added 4 Boolean Operation buttons to enhanced-toolbar.tsx (CirclePlus, SquareMinus, Diamond, Split)
+- Added Boolean Operations submenu to context-menu.tsx (2+ selected elements)
+- Added Use as Mask / Remove Mask to context-menu.tsx
+- Added 8 i18n keys for all 5 languages
+
+Stage Summary:
+- Boolean operations create FRAME containers with blend modes
+- Mask converts bottom element to clipping frame
+- All accessible from toolbar and right-click menu
+- Lint: zero errors
+
+---
+Task ID: 4
+Agent: measure-grid-agent
+Task: Add Measure tool and enhanced Grid/Guides system
+
+Work Log:
+- Added MEASURE to CanvasTool type
+- Added showMeasureLines/showGuides state and toggle actions to canvas-store
+- Created measure-overlay.tsx: SVG overlay with distance lines between selected elements, dimension labels
+- Created guides-overlay.tsx: SVG grid with minor (20px) and major (100px) lines, moves with canvas
+- Added Measure toggle (Ruler, shortcut M) and Guides toggle to toolbar
+- Rendered both overlays in editor-view.tsx
+
+Stage Summary:
+- Measure tool shows teal distance lines and W×H labels between selected elements
+- Grid overlay renders subtle guides that pan/zoom with canvas
+- Both overlays are pointer-events-none
+- Lint: zero errors
+
+---
+Task ID: 5
+Agent: variants-agent
+Task: Create Component Variants UI panel
+
+Work Log:
+- Created variants-panel.tsx with empty state, component info, variant list, add form, override editor
+- Added 'variants' to RightPanelTab type
+- Wired variants tab into right-panel index (ASSET_TABS array + switch case)
+- Added 14 i18n keys for all 5 languages
+
+Stage Summary:
+- Full variants panel with CRUD for component variants
+- Key-value override editor for variant properties
+- Integrated into right panel's Asset group
+- Lint: zero errors
+
+---
+Task ID: 6-7
+Agent: sidebar-slice-i18n-agent
+Task: Reorganize sidebar, add Slice tool, add all missing i18n keys
+
+Work Log:
+- Reorganized right panel into 3 groups: Design/Prototype | Tokens/Variants | History/Branches/Merges
+- Added i18n-aware tab labels to left panel (leftPanel.layers/assets/plugins)
+- Added SLICE to CanvasTool type
+- Added sliceRegions state + CRUD actions to canvas-store
+- Added Slice tool (Scissors, shortcut K) to toolbar with one-click behavior
+- Created slice-overlay.tsx: dashed green SVG rectangles with labels and delete buttons
+- Added 20+ i18n keys for all 5 languages (slice, grid, guides, tokens, measure, etc.)
+- Rendered SliceOverlay in editor-view.tsx
+
+Stage Summary:
+- Sidebar is cleanly organized with 3 visual groups in right panel
+- Slice tool creates export regions at viewport center
+- All new features fully internationalized (en, id, ja, ko, zh)
+- Lint: zero errors

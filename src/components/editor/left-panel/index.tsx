@@ -4,7 +4,9 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Layers, Package, Puzzle } from 'lucide-react';
 import { useAppStore } from '@/store/app-store';
+import { useAuthStore } from '@/store/auth-store';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { t, type Locale } from '@/lib/i18n';
 import {
   Sheet,
   SheetContent,
@@ -65,28 +67,29 @@ function TabButton({
 // ─── Tab bar (shared) ────────────────────────────────────────────────────────
 
 function TabBar({ currentTab, onTabChange }: { currentTab: LeftPanelTab; onTabChange: (tab: LeftPanelTab) => void }) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   return (
-    <div className="flex items-center gap-1.5 px-2 py-2 border-b border-border/40">
+    <div className="flex items-center gap-1 px-2 py-2 border-b border-border/40">
       <TabButton
         tab="layers"
         currentTab={currentTab}
         onClick={onTabChange}
         icon={Layers}
-        label="Layers"
+        label={t('leftPanel.layers', locale)}
       />
       <TabButton
         tab="assets"
         currentTab={currentTab}
         onClick={onTabChange}
         icon={Package}
-        label="Assets"
+        label={t('leftPanel.assets', locale)}
       />
       <TabButton
         tab="plugins"
         currentTab={currentTab}
         onClick={onTabChange}
         icon={Puzzle}
-        label="Plugins"
+        label={t('leftPanel.plugins', locale)}
       />
     </div>
   );
@@ -95,8 +98,18 @@ function TabBar({ currentTab, onTabChange }: { currentTab: LeftPanelTab; onTabCh
 // ─── Panel content (shared between desktop and mobile) ────────────────────────
 
 function PanelContent({ tab }: { tab: LeftPanelTab }) {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+  const sectionLabels: Record<LeftPanelTab, string> = {
+    layers: t('leftPanel.layers', locale),
+    assets: t('leftPanel.assets', locale),
+    plugins: t('leftPanel.plugins', locale),
+  };
   return (
     <div className="flex flex-col h-full overflow-hidden">
+      {/* Section header */}
+      <div className="flex items-center justify-between px-3 py-2 border-b border-border/30">
+        <h3 className="text-xs font-semibold tracking-wide uppercase text-muted-foreground">{sectionLabels[tab]}</h3>
+      </div>
       <div className="flex-1 min-h-0">
         {tab === 'layers' ? <LayersPanel /> : tab === 'plugins' ? <PluginsPanel /> : <AssetsPanel />}
       </div>
@@ -144,7 +157,7 @@ function MobileLeftPanel() {
     <Sheet open={leftPanelOpen} onOpenChange={setLeftPanelOpen}>
       <SheetContent side="left" className="w-[280px] p-0">
         <SheetTitle className="sr-only">
-          {leftPanelTab === 'layers' ? 'Layers' : leftPanelTab === 'plugins' ? 'Plugins' : 'Assets'}
+          {leftPanelTab === 'layers' ? t('leftPanel.layers', (useAuthStore.getState().user?.language as Locale) ?? 'en') : leftPanelTab === 'plugins' ? t('leftPanel.plugins', (useAuthStore.getState().user?.language as Locale) ?? 'en') : t('leftPanel.assets', (useAuthStore.getState().user?.language as Locale) ?? 'en')}
         </SheetTitle>
 
         <TabBar currentTab={leftPanelTab} onTabChange={setLeftPanelTab} />

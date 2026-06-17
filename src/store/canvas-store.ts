@@ -40,8 +40,11 @@ interface CanvasState {
   isDrawingSelection: boolean;
   spacePressed: boolean;
   showMinimap: boolean;
+  showMeasureLines: boolean;
+  showGuides: boolean;
   stickyColor: StickyColor;
   connectorStyle: ConnectorStyle;
+  sliceRegions: Array<{ id: string; x: number; y: number; width: number; height: number; name: string }>;
 
   // Actions - Elements
   addElement: (type: ElementType, x: number, y: number, overrides?: Partial<BoardElement>) => BoardElement;
@@ -78,6 +81,13 @@ interface CanvasState {
   setStickyColor: (color: StickyColor) => void;
   setConnectorStyle: (style: ConnectorStyle) => void;
   toggleMinimap: () => void;
+  toggleMeasureLines: () => void;
+  toggleGuides: () => void;
+
+  // Actions - Slice regions
+  addSliceRegion: (region: { id: string; x: number; y: number; width: number; height: number; name: string }) => void;
+  removeSliceRegion: (id: string) => void;
+  updateSliceRegion: (id: string, updates: Partial<{ x: number; y: number; width: number; height: number; name: string }>) => void;
 
   // Actions - Space
   setSpacePressed: (v: boolean) => void;
@@ -90,6 +100,11 @@ interface CanvasState {
   undo: () => void;
   redo: () => void;
   pushHistory: () => void;
+
+  // Actions - Boolean & Mask
+  booleanOperation: (op: 'union' | 'subtract' | 'intersect' | 'exclude') => void;
+  applyMask: () => void;
+  removeMask: (frameId: string) => void;
 
   // Actions - Bulk
   setElements: (elements: BoardElement[]) => void;
@@ -116,8 +131,11 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
   isDrawingSelection: false,
   spacePressed: false,
   showMinimap: false,
+  showMeasureLines: false,
+  showGuides: true,
   stickyColor: 'yellow',
   connectorStyle: 'curve',
+  sliceRegions: [],
 
   // Elements
   addElement: (type, x, y, overrides) => {
@@ -331,6 +349,15 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
   setStickyColor: (color) => set({ stickyColor: color }),
   setConnectorStyle: (style) => set({ connectorStyle: style }),
   toggleMinimap: () => set((s) => ({ showMinimap: !s.showMinimap })),
+  toggleMeasureLines: () => set((s) => ({ showMeasureLines: !s.showMeasureLines })),
+  toggleGuides: () => set((s) => ({ showGuides: !s.showGuides })),
+
+  // Slice regions
+  addSliceRegion: (region) => set((s) => ({ sliceRegions: [...s.sliceRegions, region] })),
+  removeSliceRegion: (id) => set((s) => ({ sliceRegions: s.sliceRegions.filter((r) => r.id !== id) })),
+  updateSliceRegion: (id, updates) => set((s) => ({
+    sliceRegions: s.sliceRegions.map((r) => (r.id === id ? { ...r, ...updates } : r)),
+  })),
 
   // Space
   setSpacePressed: (v) => set({ spacePressed: v }),
@@ -404,6 +431,165 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
       }
       return { history: newHistory, historyIndex: s.historyIndex + 1 };
     });
+  },
+
+  // Boolean Operations
+  booleanOperation: (op) => {
+    const state = get();
+    const { elements, selectedIds } = state;
+    if (selectedIds.length < 2) return;
+
+    const selected = selectedIds
+      .map((id) => elements.find((e) => e.id === id))
+      .filter((e): e is BoardElement => !!e);
+
+    // Compute bounding box
+    const minX = Math.min(...selected.map((e) => e.x));
+    const minY = Math.min(...selected.map((e) => e.y));
+    const maxX = Math.max(...selected.map((e) => e.x + e.width));
+    const maxY = Math.max(...selected.map((e) => e.y + e.height));
+    const frameW = maxX - minX;
+    const frameH = maxY - minY;
+
+    // Create new FRAME element as the boolean container
+    const frameId = `el-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    const opNames: Record<string, string> = {
+      union: 'Union',
+      subtract: 'Subtract',
+      intersect: 'Intersect',
+      exclude: 'Exclude',
+    };
+
+    const frame: BoardElement = {
+      id: frameId,
+      type: 'FRAME',
+      x: minX,
+      y: minY,
+      width: frameW,
+      height: frameH,
+      rotation: 0,
+      content: '',
+      color: 'transparent',
+      zIndex: Math.max(...selected.map((e) => e.zIndex)) + 1,
+      locked: false,
+      visible: true,
+      name: `Boolean ${opNames[op]}`,
+      groupId: undefined,
+      parentId: undefined,
+      componentId: undefined,
+      componentOverrides: undefined,
+      styles: {
+        clipContent: true,
+        booleanOp: op,
+        ...(op === 'subtract' ? { blendMode: 'difference' } : {}),
+        ...(op === 'exclude' ? { blendMode: 'exclusion' } : {}),
+        ...(op === 'intersect' ? { blendMode: 'multiply' } : {}),
+        ...(op === 'union' ? { blendMode: 'normal' } : {}),
+      },
+    };
+
+    // Move selected elements inside the frame (reposition relative to frame)
+    const childIds = selectedIds;
+    const updatedElements = elements.map((el) => {
+      if (childIds.includes(el.id)) {
+        return {
+          ...el,
+          parentId: frameId,
+          groupId: undefined,
+          x: el.x - minX,
+          y: el.y - minY,
+        };
+      }
+      return el;
+    });
+
+    set({
+      elements: [...updatedElements, frame],
+      selectedIds: [frameId],
+    });
+    get().pushHistory();
+  },
+
+  applyMask: () => {
+    const state = get();
+    const { elements, selectedIds } = state;
+    if (selectedIds.length !== 2) return;
+
+    // Sort by zIndex to find bottom (mask container) and top (masked content)
+    const selected = selectedIds
+      .map((id) => elements.find((e) => e.id === id))
+      .filter((e): e is BoardElement => !!e)
+      .sort((a, b) => a.zIndex - b.zIndex);
+
+    const bottomEl = selected[0]; // mask container (lowest zIndex)
+    const topEl = selected[1]; // content to be masked (highest zIndex)
+
+    // Convert bottom element to a FRAME with clipContent
+    const updatedElements = elements.map((el) => {
+      if (el.id === bottomEl.id) {
+        return {
+          ...el,
+          type: 'FRAME' as const,
+          styles: {
+            ...el.styles,
+            clipContent: true,
+            maskType: 'alpha',
+          },
+        };
+      }
+      if (el.id === topEl.id) {
+        return {
+          ...el,
+          parentId: bottomEl.id,
+          groupId: undefined,
+          x: topEl.x - bottomEl.x,
+          y: topEl.y - bottomEl.y,
+        };
+      }
+      return el;
+    });
+
+    set({
+      elements: updatedElements,
+      selectedIds: [bottomEl.id],
+    });
+    get().pushHistory();
+  },
+
+  removeMask: (frameId) => {
+    const state = get();
+    const frame = state.elements.find((e) => e.id === frameId);
+    if (!frame) return;
+
+    // Find all children of this frame
+    const children = state.elements.filter((e) => e.parentId === frameId);
+
+    const updatedElements = state.elements.map((el) => {
+      if (el.id === frameId) {
+        // Remove mask styles from the frame
+        const { maskType, clipContent, ...restStyles } = el.styles ?? {};
+        return {
+          ...el,
+          styles: { ...restStyles, clipContent: false },
+        };
+      }
+      if (el.parentId === frameId) {
+        // Reparent children to root (adjust position)
+        return {
+          ...el,
+          parentId: undefined,
+          x: el.x + (frame.x ?? 0),
+          y: el.y + (frame.y ?? 0),
+        };
+      }
+      return el;
+    });
+
+    set({
+      elements: updatedElements,
+      selectedIds: [frameId, ...children.map((c) => c.id)],
+    });
+    get().pushHistory();
   },
 
   // Bulk

@@ -10,12 +10,12 @@ export type ViewMode = 'dashboard' | 'editor' | 'community' | 'ai-design' | 'adm
 export type EditorMode = 'design' | 'prototype';
 export type LeftPanelTab = 'layers' | 'assets' | 'plugins';
 
-export type RightPanelTab = 'design' | 'prototype' | 'history' | 'branches' | 'merges' | 'comments' | 'members';
+export type RightPanelTab = 'design' | 'prototype' | 'variables' | 'variants' | 'history' | 'branches' | 'merges' | 'comments' | 'members';
 
 export type CanvasTool =
   | 'SELECT' | 'HAND' | 'STICKY_NOTE' | 'RECTANGLE' | 'CIRCLE' | 'ELLIPSE'
   | 'STAR' | 'POLYGON' | 'LINE' | 'TEXT' | 'CONNECTOR' | 'IMAGE'
-  | 'FRAME' | 'PEN_TOOL';
+  | 'FRAME' | 'PEN_TOOL' | 'SLICE' | 'MEASURE';
 
 export type ConnectorStyle = 'curve' | 'straight';
 export type StickyColor = 'yellow' | 'green' | 'blue' | 'pink' | 'purple' | 'orange';

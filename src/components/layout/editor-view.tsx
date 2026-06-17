@@ -40,6 +40,7 @@ import { usePresenceStore } from '@/store/presence-store';
 import { useCollaboration } from '@/hooks/use-collaboration';
 import { useIsMobile } from '@/hooks/use-mobile';
 import EnhancedCanvasArea from '@/components/editor/canvas/enhanced-canvas-area';
+import { SliceOverlay } from '@/components/editor/canvas/slice-overlay';
 import EnhancedToolbar from '@/components/editor/toolbar/enhanced-toolbar';
 import { LeftPanel } from '@/components/editor/left-panel';
 import { RightPanel } from '@/components/editor/right-panel';
@@ -58,6 +59,8 @@ import { AlignmentToolbar } from '@/components/editor/alignment-toolbar';
 import { ContextMenuOverlay } from '@/components/editor/context-menu';
 import { UserGuide } from '@/components/guide/user-guide';
 import { DevModePanel } from '@/components/editor/right-panel/dev-mode-panel';
+import GuidesOverlay from '@/components/editor/canvas/guides-overlay';
+import MeasureOverlay from '@/components/editor/canvas/measure-overlay';
 
 // ─── Loading skeleton ────────────────────────────────────────────────────────
 
@@ -566,6 +569,9 @@ export default function EditorView() {
           {/* Canvas area */}
           <div className="flex-1 overflow-hidden relative">
             <EnhancedCanvasArea onCursorMove={sendCursorMove} />
+            <GuidesOverlay />
+            <MeasureOverlay />
+            <SliceOverlay />
           </div>
 
           {/* Right Panel (Design / Dev Mode) */}
