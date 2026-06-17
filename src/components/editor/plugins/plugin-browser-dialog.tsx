@@ -347,6 +347,6 @@ export function PluginBrowserDialog({
 function saveInstalledIdsToStorage(ids: string[]) {
   if (typeof window === 'undefined') return
   try {
-    localStorage.setItem('branchboard:installedPlugins', JSON.stringify(ids))
+    localStorage.setItem('layerboard:installedPlugins', JSON.stringify(ids))
   } catch { /* ignore */ }
 }

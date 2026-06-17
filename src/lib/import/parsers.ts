@@ -1,5 +1,5 @@
 /**
- * Import Parsers for BranchBoard
+ * Import Parsers for LayerBoard
  *
  * Parses SVG, Figma JSON, generic JSON, and image files into BoardElement[].
  */

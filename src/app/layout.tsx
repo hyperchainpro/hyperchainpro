@@ -4,7 +4,7 @@ import { AdScriptInjector } from '@/components/admin/ad-script-injector';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'BranchBoard – Visual Version Control',
+  title: 'LayerBoard – Visual Version Control',
   description:
     'Collaborative whiteboard with Git-like branching, merging, and visual diff',
 };

@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     const ext = format.startsWith('.') ? format.toLowerCase() : `.${format.toLowerCase()}`;
     const formatInfo = getFormatByExtension(ext);
 
-    const fileName = (boardName || 'branchboard-design').replace(/[^a-zA-Z0-9_\-. ]/g, '_');
+    const fileName = (boardName || 'layerboard-design').replace(/[^a-zA-Z0-9_\-. ]/g, '_');
 
     // Generate the export content based on format
     const result = generateExport(elements, ext, fileName);
@@ -102,7 +102,7 @@ function generateExport(elements: BoardElement[], ext: string, fileName: string)
 
     // ── JSON formats ──
     case '.json':
-      return { content: generateBranchBoardJSON(elements), contentType: 'application/json' };
+      return { content: generateLayerBoardJSON(elements), contentType: 'application/json' };
     case '.fig':
     case '.figma':
       return { content: generateFigmaJSON(elements, fileName), contentType: 'application/json' };
@@ -505,11 +505,11 @@ function generatePDF(elements: BoardElement[]): string {
   return pdf;
 }
 
-// ─── 3. BranchBoard JSON ────────────────────────────────────────────────────
+// ─── 3. LayerBoard JSON ────────────────────────────────────────────────────
 
-function generateBranchBoardJSON(elements: BoardElement[]): string {
+function generateLayerBoardJSON(elements: BoardElement[]): string {
   const data = {
-    format: 'branchboard',
+    format: 'layerboard',
     version: '1.0',
     exportedAt: new Date().toISOString(),
     elements,
@@ -662,7 +662,7 @@ function hexToSketchColor(hex: string): { r: number; g: number; b: number; a: nu
 // ─── 6. Draw.io XML ──────────────────────────────────────────────────────────
 
 function generateDrawIO(elements: BoardElement[]): string {
-  let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<mxfile host="BranchBoard" modified="${new Date().toISOString()}" agent="BranchBoard Export" version="21.0.0" type="device">\n  <diagram id="export-diagram" name="Page-1">\n    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">\n      <root>\n        <mxCell id="0" />\n        <mxCell id="1" parent="0" />\n`;
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<mxfile host="LayerBoard" modified="${new Date().toISOString()}" agent="LayerBoard Export" version="21.0.0" type="device">\n  <diagram id="export-diagram" name="Page-1">\n    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">\n      <root>\n        <mxCell id="0" />\n        <mxCell id="1" parent="0" />\n`;
 
   for (const el of elements) {
     if (el.visible === false) continue;
@@ -810,7 +810,7 @@ function generateExcalidrawJSON(elements: BoardElement[]): string {
   const data = {
     type: 'excalidraw',
     version: 2,
-    source: 'branchboard-export',
+    source: 'layerboard-export',
     elements: excalidrawElements,
     appState: {
       viewBackgroundColor: '#ffffff',
@@ -921,7 +921,7 @@ ${bodyContent}  </div>
 // ─── 9. CSS ─────────────────────────────────────────────────────────────────
 
 function generateCSS(elements: BoardElement[]): string {
-  let css = `/* BranchBoard Export - CSS Layout */\n/* Generated: ${new Date().toISOString()} */\n\n`;
+  let css = `/* LayerBoard Export - CSS Layout */\n/* Generated: ${new Date().toISOString()} */\n\n`;
   css += `.canvas {\n  position: relative;\n  width: 100%;\n  min-height: 800px;\n  background: #ffffff;\n}\n\n`;
 
   for (const el of elements) {
@@ -973,7 +973,7 @@ function generateCSS(elements: BoardElement[]): string {
 
 function generateMarkdown(elements: BoardElement[], boardName: string): string {
   let md = `# ${boardName}\n\n`;
-  md += `> Exported from BranchBoard on ${new Date().toLocaleDateString()}\n\n`;
+  md += `> Exported from LayerBoard on ${new Date().toLocaleDateString()}\n\n`;
   md += `## Elements (${elements.length})\n\n`;
 
   for (const el of elements) {
@@ -1030,7 +1030,7 @@ function generateCSV(elements: BoardElement[]): string {
 // ─── 12. YAML ────────────────────────────────────────────────────────────────
 
 function generateYAML(elements: BoardElement[]): string {
-  let yaml = `# BranchBoard Export\n# Generated: ${new Date().toISOString()}\n\n`;
+  let yaml = `# LayerBoard Export\n# Generated: ${new Date().toISOString()}\n\n`;
   yaml += `elements:\n`;
 
   for (const el of elements) {
@@ -1057,7 +1057,7 @@ function generateYAML(elements: BoardElement[]): string {
 // ─── 13. XML ─────────────────────────────────────────────────────────────────
 
 function generateXML(elements: BoardElement[], boardName: string): string {
-  let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<branchboard name="${escapeXML(boardName)}" version="1.0" exported="${new Date().toISOString()}">\n  <elements>\n`;
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<layerboard name="${escapeXML(boardName)}" version="1.0" exported="${new Date().toISOString()}">\n  <elements>\n`;
 
   for (const el of elements) {
     if (el.visible === false) continue;
@@ -1073,7 +1073,7 @@ function generateXML(elements: BoardElement[], boardName: string): string {
     xml += `    </element>\n`;
   }
 
-  xml += `  </elements>\n</branchboard>`;
+  xml += `  </elements>\n</layerboard>`;
   return xml;
 }
 
@@ -1378,7 +1378,7 @@ function generateLottieJSON(elements: BoardElement[]): string {
     op: 60,
     w,
     h,
-    nm: 'BranchBoard Export',
+    nm: 'LayerBoard Export',
     ddd: 0,
     assets: [],
     layers: [{
@@ -1428,7 +1428,7 @@ function generatePPTXHTML(elements: BoardElement[], boardName: string): string {
   <div class="slide">
     ${svgContent}
   </div>
-  <p class="note">Generated by BranchBoard — open in browser and use "Print to PDF" or screenshot for best results</p>
+  <p class="note">Generated by LayerBoard — open in browser and use "Print to PDF" or screenshot for best results</p>
 </body>
 </html>`;
 }
@@ -1436,7 +1436,7 @@ function generatePPTXHTML(elements: BoardElement[], boardName: string): string {
 // ─── 21. TOML ────────────────────────────────────────────────────────────────
 
 function generateTOML(elements: BoardElement[]): string {
-  let toml = `# BranchBoard Export\n# Generated: ${new Date().toISOString()}\n\n`;
+  let toml = `# LayerBoard Export\n# Generated: ${new Date().toISOString()}\n\n`;
   toml += `[[elements]]\n`;
 
   for (const el of elements) {
@@ -1460,7 +1460,7 @@ function generateTOML(elements: BoardElement[]): string {
 // ─── 22. Plain Text ─────────────────────────────────────────────────────────
 
 function generatePlainText(elements: BoardElement[]): string {
-  let text = `BranchBoard Export\n${'='.repeat(40)}\n`;
+  let text = `LayerBoard Export\n${'='.repeat(40)}\n`;
   text += `Elements: ${elements.length}\n`;
   text += `Exported: ${new Date().toISOString()}\n\n`;
 
@@ -1479,8 +1479,8 @@ function generatePlainText(elements: BoardElement[]): string {
 // ─── 23. Env File ────────────────────────────────────────────────────────────
 
 function generateEnvFile(elements: BoardElement[]): string {
-  let env = `# BranchBoard Design Export\n# ${new Date().toISOString()}\n\n`;
-  env += `DESIGN_NAME="branchboard-design"\n`;
+  let env = `# LayerBoard Design Export\n# ${new Date().toISOString()}\n\n`;
+  env += `DESIGN_NAME="layerboard-design"\n`;
   env += `ELEMENT_COUNT=${elements.length}\n\n`;
 
   for (let i = 0; i < elements.length; i++) {

@@ -30,7 +30,7 @@ export default function HomePage() {
       <div className="flex min-h-screen w-full items-center justify-center bg-background">
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center gap-4">
           <div className="neu-card flex items-center gap-3 px-5 py-3">
-            <span className="text-lg font-semibold tracking-tight">BranchBoard</span>
+            <span className="text-lg font-semibold tracking-tight">LayerBoard</span>
           </div>
           <div className="neu-pressed flex gap-2 px-4 py-2.5 rounded-full">
             <div className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" />

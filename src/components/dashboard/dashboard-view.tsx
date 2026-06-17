@@ -311,7 +311,7 @@ function SidebarContent({
         <div className="flex size-8 items-center justify-center rounded-lg bg-foreground text-background shadow-sm">
           <GitBranch className="size-4" />
         </div>
-        <span className="text-base font-bold tracking-tight">BranchBoard</span>
+        <span className="text-base font-bold tracking-tight">LayerBoard</span>
       </div>
 
       <div className="neu-divider" />
@@ -665,7 +665,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
             <div className="flex size-7 items-center justify-center rounded-lg bg-foreground text-background">
               <GitBranch className="size-3.5" />
             </div>
-            <span className="text-sm font-bold tracking-tight">BranchBoard</span>
+            <span className="text-sm font-bold tracking-tight">LayerBoard</span>
           </div>
 
           {/* Search bar */}

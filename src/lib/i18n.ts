@@ -129,18 +129,18 @@ const translations: TranslationMap = {
     zh: '重置密码',
   },
   'auth.registerTitle': {
-    en: 'Create your BranchBoard account',
-    id: 'Buat akun BranchBoard Anda',
-    ja: 'BranchBoardアカウントを作成',
-    ko: 'BranchBoard 계정 만들기',
-    zh: '创建您的 BranchBoard 账号',
+    en: 'Create your LayerBoard account',
+    id: 'Buat akun LayerBoard Anda',
+    ja: 'LayerBoardアカウントを作成',
+    ko: 'LayerBoard 계정 만들기',
+    zh: '创建您的 LayerBoard 账号',
   },
   'auth.loginTitle': {
-    en: 'Welcome back to BranchBoard',
-    id: 'Selamat datang kembali di BranchBoard',
-    ja: 'BranchBoardへおかえりなさい',
-    ko: 'BranchBoard에 다시 오신 것을 환영합니다',
-    zh: '欢迎回到 BranchBoard',
+    en: 'Welcome back to LayerBoard',
+    id: 'Selamat datang kembali di LayerBoard',
+    ja: 'LayerBoardへおかえりなさい',
+    ko: 'LayerBoard에 다시 오신 것을 환영합니다',
+    zh: '欢迎回到 LayerBoard',
   },
   'auth.forgotTitle': {
     en: 'Reset your password',
@@ -1552,7 +1552,7 @@ const translations: TranslationMap = {
   'dashboard.createdSort': { en: 'Created', id: 'Dibuat', ja: '作成日', ko: '생성일', zh: '创建时间' },
   'dashboard.gridView': { en: 'Grid view', id: 'Tampilan grid', ja: 'グリッド表示', ko: '그리드 보기', zh: '网格视图' },
   'dashboard.listView': { en: 'List view', id: 'Tampilan daftar', ja: 'リスト表示', ko: '리스트 보기', zh: '列表视图' },
-  'dashboard.footer': { en: '© 2024 BranchBoard. Collaborative whiteboard with version control.', id: '© 2024 BranchBoard. Papan kolaboratif dengan kontrol versi.', ja: '© 2024 BranchBoard. バージョン管理付きコラボレーションボード。', ko: '© 2024 BranchBoard. 버전 관리 기능이 있는 협업 화이트보드.', zh: '© 2024 BranchBoard. 带版本控制的协作白板。' },
+  'dashboard.footer': { en: '© 2024 LayerBoard. Collaborative whiteboard with version control.', id: '© 2024 LayerBoard. Papan kolaboratif dengan kontrol versi.', ja: '© 2024 LayerBoard. バージョン管理付きコラボレーションボード。', ko: '© 2024 LayerBoard. 버전 관리 기능이 있는 협업 화이트보드.', zh: '© 2024 LayerBoard. 带版本控制的协作白板。' },
   'dashboard.navMenu': { en: 'Navigation Menu', id: 'Menu Navigasi', ja: 'ナビゲーションメニュー', ko: '탐색 메뉴', zh: '导航菜单' },
 
   // ── Board (extended) ──
@@ -1696,7 +1696,7 @@ const translations: TranslationMap = {
   'community.featured': { en: 'Featured', id: 'Pilihan', ja: '注目', ko: '추천', zh: '精选' },
   'community.anonymous': { en: 'Anonymous', id: 'Anonim', ja: '匿名', ko: '익명', zh: '匿名' },
   'community.publishTitle': { en: 'Publish to Community', id: 'Terbitkan ke Komunitas', ja: 'コミュニティに公開', ko: '커뮤니티에 게시', zh: '发布到社区' },
-  'community.publishDesc': { en: 'Share your design with the BranchBoard community. Other creators can discover, like, and use your work as a template.', id: 'Bagikan desain Anda dengan komunitas BranchBoard. Kreator lain dapat menemukan, menyukai, dan menggunakan karya Anda sebagai templat.', ja: 'BranchBoardコミュニティにデザインを共有しましょう。他のクリエイターがあなたの作品を発見、いいね、テンプレートとして利用できます。', ko: 'BranchBoard 커뮤니티에 디자인을 공유하세요. 다른 크리에이터가 여러분의 작품을 발견하고 좋아요하며 템플릿으로 사용할 수 있습니다.', zh: '与 BranchBoard 社区分享您的设计。其他创作者可以发现、点赞并使用您的作品作为模板。' },
+  'community.publishDesc': { en: 'Share your design with the LayerBoard community. Other creators can discover, like, and use your work as a template.', id: 'Bagikan desain Anda dengan komunitas LayerBoard. Kreator lain dapat menemukan, menyukai, dan menggunakan karya Anda sebagai templat.', ja: 'LayerBoardコミュニティにデザインを共有しましょう。他のクリエイターがあなたの作品を発見、いいね、テンプレートとして利用できます。', ko: 'LayerBoard 커뮤니티에 디자인을 공유하세요. 다른 크리에이터가 여러분의 작품을 발견하고 좋아요하며 템플릿으로 사용할 수 있습니다.', zh: '与 LayerBoard 社区分享您的设计。其他创作者可以发现、点赞并使用您的作品作为模板。' },
   'community.previewThumbnail': { en: 'Preview Thumbnail', id: 'Pratinjau Thumbnail', ja: 'サムネイルプレビュー', ko: '썸네일 미리보기', zh: '预览缩略图' },
   'community.themeColor': { en: 'Theme color', id: 'Warna tema', ja: 'テーマカラー', ko: '테마 색상', zh: '主题颜色' },
   'community.titleLabel': { en: 'Title', id: 'Judul', ja: 'タイトル', ko: '제목', zh: '标题' },
@@ -1907,7 +1907,7 @@ const translations: TranslationMap = {
   // ── Community (extended) ──
   'community.categoryGeneral': { en: 'General', id: 'Umum', ja: '一般', ko: '일반', zh: '常规' },
   'community.searchCommunityDesigns': { en: 'Search community designs', id: 'Cari desain komunitas', ja: 'コミュニティデザインを検索', ko: '커뮤니티 디자인 검색', zh: '搜索社区设计' },
-  'community.shareText': { en: 'Check out "{title}" on BranchBoard Community!', id: 'Lihat "{title}" di Komunitas BranchBoard!', ja: 'BranchBoardコミュニティで「{title}」をチェック！', ko: 'BranchBoard 커뮤니티에서 "{title}"을(를) 확인하세요!', zh: '在 BranchBoard 社区查看"{title}"！' },
+  'community.shareText': { en: 'Check out "{title}" on LayerBoard Community!', id: 'Lihat "{title}" di Komunitas LayerBoard!', ja: 'LayerBoardコミュニティで「{title}」をチェック！', ko: 'LayerBoard 커뮤니티에서 "{title}"을(를) 확인하세요!', zh: '在 LayerBoard 社区查看"{title}"！' },
 
   // ── AI Design (extended) ──
   'ai.promptPlaceholder': { en: 'e.g. A modern SaaS dashboard with sidebar navigation, KPI metric cards at the top, and a large chart area below...', id: 'mis. Dasbor SaaS modern dengan navigasi sidebar, kartu KPI di atas, dan area grafik besar di bawah...', ja: '例：サイドバーナビゲーション、上部のKPIカード、下部の大きなチャートエリアを備えたモダンなSaaSダッシュボード...', ko: '예: 사이드바 네비게이션, 상단 KPI 카드, 하단 대형 차트 영역이 있는 모던 SaaS 대시보드...', zh: '例如：带有侧边栏导航、顶部 KPI 指标卡和底部大图表区域的现代 SaaS 仪表板...' },

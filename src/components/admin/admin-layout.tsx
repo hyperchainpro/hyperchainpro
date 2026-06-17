@@ -92,7 +92,7 @@ function SidebarNav({
       <Separator className="opacity-50" />
       <div className="p-4">
         <p className="text-xs text-muted-foreground text-center">
-          BranchBoard Admin v1.0
+          LayerBoard Admin v1.0
         </p>
       </div>
     </div>
@@ -167,8 +167,8 @@ export default function AdminLayout() {
         {/* Sticky footer */}
         <footer className="mt-auto border-t border-border/40 bg-background px-4 py-3 lg:px-6">
           <div className="max-w-7xl mx-auto flex items-center justify-between text-xs text-muted-foreground">
-            <span>BranchBoard Admin Dashboard</span>
-            <span className="hidden sm:inline">© {new Date().getFullYear()} BranchBoard</span>
+            <span>LayerBoard Admin Dashboard</span>
+            <span className="hidden sm:inline">© {new Date().getFullYear()} LayerBoard</span>
           </div>
         </footer>
       </main>

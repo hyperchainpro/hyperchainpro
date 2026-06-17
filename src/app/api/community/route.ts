@@ -193,7 +193,7 @@ async function ensureDemoDesigns() {
       await db.user.create({
         data: {
           id: DEMO_USER_ID,
-          email: 'demo@branchboard.app',
+          email: 'demo@layerboard.app',
           name: 'Alex Chen',
           avatar: null,
           language: 'en',

@@ -39,7 +39,7 @@ interface AuthActions {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const STORAGE_KEY = 'branchboard_user';
+const STORAGE_KEY = 'layerboard_user';
 
 // ─── Store ────────────────────────────────────────────────────────────────────
 

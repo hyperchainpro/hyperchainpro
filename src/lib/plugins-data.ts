@@ -68,7 +68,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isPopular: true,
     tags: ['rectangle', 'circle', 'triangle', 'geometry', 'fundamentals'],
     version: '2.1.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'shapes-polygons',
@@ -102,7 +102,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: true,
     tags: ['arrow', 'connector', 'direction', 'chevron', 'flow'],
     version: '2.0.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'shapes-speech-bubbles',
@@ -124,7 +124,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: true,
     tags: ['hexagon', 'honeycomb', 'infographic', 'tessellation'],
     version: '1.1.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'shapes-badges',
@@ -161,7 +161,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isPopular: true,
     tags: ['bar', 'chart', 'comparison', 'data', 'visualization'],
     version: '3.2.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'charts-line',
@@ -173,7 +173,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isPopular: true,
     tags: ['line', 'trend', 'time-series', 'area', 'graph'],
     version: '3.1.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'charts-pie',
@@ -184,7 +184,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: true,
     tags: ['pie', 'donut', 'proportion', 'percentage', 'slice'],
     version: '2.4.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'charts-area',
@@ -345,7 +345,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: true,
     tags: ['grid', 'columns', 'alignment', 'overlay', 'structure'],
     version: '2.0.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'layout-flexbox',
@@ -389,7 +389,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: false,
     tags: ['responsive', 'breakpoint', 'viewport', 'mobile', 'desktop'],
     version: '1.2.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'layout-spacing',
@@ -423,7 +423,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isPopular: true,
     tags: ['snap', 'guides', 'align', 'edges', 'magnetic'],
     version: '2.0.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
 
   // ── Wireframe (8) ───────────────────────────────────────────
@@ -436,7 +436,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: false,
     tags: ['input', 'text-field', 'form', 'wireframe', 'skeleton'],
     version: '2.1.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'wireframe-buttons',
@@ -447,7 +447,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: false,
     tags: ['button', 'cta', 'action', 'wireframe', 'interactive'],
     version: '2.0.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'wireframe-cards',
@@ -527,7 +527,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isPopular: true,
     tags: ['flowchart', 'process', 'decision', 'flow', 'logic'],
     version: '3.0.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'diagrams-uml-class',
@@ -618,7 +618,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isPopular: true,
     tags: ['typography', 'scale', 'modular', 'ratio', 'sizes'],
     version: '2.0.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'text-headings',
@@ -629,7 +629,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: false,
     tags: ['heading', 'h1', 'h2', 'h3', 'title'],
     version: '1.5.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'text-body',
@@ -640,7 +640,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: false,
     tags: ['body', 'paragraph', 'readability', 'line-height', 'prose'],
     version: '1.3.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'text-caption',
@@ -709,7 +709,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isPopular: true,
     tags: ['placeholder', 'dummy', 'dimensions', 'lorem-pixel', 'skeleton'],
     version: '2.2.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'images-photo-grid',
@@ -801,7 +801,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isPopular: true,
     tags: ['palette', 'harmony', 'generate', 'seed', 'colors'],
     version: '2.5.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'colors-gradient',
@@ -893,7 +893,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isPopular: true,
     tags: ['png', 'image', 'raster', 'export', 'high-dpi'],
     version: '3.0.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'export-svg',
@@ -904,7 +904,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: false,
     tags: ['svg', 'vector', 'export', 'scalable', 'clean'],
     version: '2.5.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'export-pdf',
@@ -916,7 +916,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isPopular: true,
     tags: ['pdf', 'document', 'print', 'multi-page', 'export'],
     version: '2.3.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'export-json',
@@ -927,7 +927,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: false,
     tags: ['json', 'data', 'state', 'serialize', 'backup'],
     version: '1.2.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'export-clipboard',
@@ -938,7 +938,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: false,
     tags: ['clipboard', 'copy', 'paste', 'system', 'quick'],
     version: '1.1.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'export-code-gen',
@@ -983,7 +983,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isPopular: true,
     tags: ['figma', 'import', 'convert', 'layers', 'migration'],
     version: '1.3.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
 
   // ── Templates (8) ───────────────────────────────────────────
@@ -997,7 +997,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isPopular: true,
     tags: ['landing', 'hero', 'cta', 'conversion', 'page'],
     version: '2.0.0',
-    author: 'BranchBoard Templates',
+    author: 'LayerBoard Templates',
   },
   {
     id: 'templates-dashboard',
@@ -1008,7 +1008,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: false,
     tags: ['dashboard', 'analytics', 'kpi', 'charts', 'admin'],
     version: '2.1.0',
-    author: 'BranchBoard Templates',
+    author: 'LayerBoard Templates',
   },
   {
     id: 'templates-blog',
@@ -1019,7 +1019,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: false,
     tags: ['blog', 'article', 'content', 'reading', 'sidebar'],
     version: '1.2.0',
-    author: 'BranchBoard Templates',
+    author: 'LayerBoard Templates',
   },
   {
     id: 'templates-ecommerce',
@@ -1030,7 +1030,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: false,
     tags: ['ecommerce', 'product', 'cart', 'listing', 'shop'],
     version: '1.3.0',
-    author: 'BranchBoard Templates',
+    author: 'LayerBoard Templates',
   },
   {
     id: 'templates-portfolio',
@@ -1041,7 +1041,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: false,
     tags: ['portfolio', 'creative', 'gallery', 'projects', 'personal'],
     version: '1.1.0',
-    author: 'BranchBoard Templates',
+    author: 'LayerBoard Templates',
   },
   {
     id: 'templates-saas',
@@ -1052,7 +1052,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: false,
     tags: ['saas', 'app-shell', 'sidebar', 'header', 'modern'],
     version: '1.4.0',
-    author: 'BranchBoard Templates',
+    author: 'LayerBoard Templates',
   },
   {
     id: 'templates-onboarding',
@@ -1063,7 +1063,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: false,
     tags: ['onboarding', 'wizard', 'steps', 'welcome', 'flow'],
     version: '1.0.0',
-    author: 'BranchBoard Templates',
+    author: 'LayerBoard Templates',
   },
   {
     id: 'templates-auth-screens',
@@ -1074,7 +1074,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: false,
     tags: ['auth', 'login', 'signup', 'password', 'social'],
     version: '1.1.0',
-    author: 'BranchBoard Templates',
+    author: 'LayerBoard Templates',
   },
 
   // ── AI Tools (8) ────────────────────────────────────────────
@@ -1088,7 +1088,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isPopular: true,
     tags: ['auto-layout', 'arrange', 'spacing', 'ai', 'smart'],
     version: '2.0.0',
-    author: 'BranchBoard AI',
+    author: 'LayerBoard AI',
   },
   {
     id: 'ai-smart-arrange',
@@ -1099,7 +1099,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: false,
     tags: ['arrange', 'align', 'distribute', 'tidy', 'auto'],
     version: '1.5.0',
-    author: 'BranchBoard AI',
+    author: 'LayerBoard AI',
   },
   {
     id: 'ai-content-generator',
@@ -1110,7 +1110,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: false,
     tags: ['content', 'lorem', 'mockup', 'text', 'generate'],
     version: '1.3.0',
-    author: 'BranchBoard AI',
+    author: 'LayerBoard AI',
   },
   {
     id: 'ai-style-transfer',
@@ -1121,7 +1121,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: false,
     tags: ['style', 'transfer', 'apply', 'consistency', 'ai'],
     version: '1.0.0',
-    author: 'BranchBoard AI',
+    author: 'LayerBoard AI',
   },
   {
     id: 'ai-color-suggest',
@@ -1132,7 +1132,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: false,
     tags: ['color', 'suggest', 'mood', 'ai', 'recommendation'],
     version: '1.1.0',
-    author: 'BranchBoard AI',
+    author: 'LayerBoard AI',
   },
   {
     id: 'ai-wireframe-gen',
@@ -1143,7 +1143,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: false,
     tags: ['wireframe', 'generate', 'nlp', 'ai', 'layout'],
     version: '0.9.0',
-    author: 'BranchBoard AI',
+    author: 'LayerBoard AI',
   },
   {
     id: 'ai-image-upscale',
@@ -1155,7 +1155,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isPopular: true,
     tags: ['upscale', 'resolution', 'super-resolution', 'enhance', 'ai'],
     version: '1.2.0',
-    author: 'BranchBoard AI',
+    author: 'LayerBoard AI',
   },
   {
     id: 'ai-background-remove',
@@ -1167,7 +1167,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isPopular: true,
     tags: ['background', 'remove', 'cutout', 'transparent', 'ai'],
     version: '1.1.0',
-    author: 'BranchBoard AI',
+    author: 'LayerBoard AI',
   },
 
   // ── Collaboration (8) ───────────────────────────────────────
@@ -1181,7 +1181,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isPopular: true,
     tags: ['comments', 'feedback', 'pin', 'contextual', 'review'],
     version: '2.3.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'collab-annotations',
@@ -1192,7 +1192,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: false,
     tags: ['annotation', 'markup', 'draw', 'ink', 'review'],
     version: '1.5.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'collab-version-compare',
@@ -1225,7 +1225,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isInstalled: false,
     tags: ['cursor', 'real-time', 'presence', 'multiplayer', 'live'],
     version: '2.0.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'collab-presence',
@@ -1248,7 +1248,7 @@ export const DESIGN_PLUGINS: DesignPlugin[] = [
     isPopular: true,
     tags: ['share', 'link', 'permissions', 'view', 'edit'],
     version: '2.1.0',
-    author: 'BranchBoard Core',
+    author: 'LayerBoard Core',
   },
   {
     id: 'collab-activity-log',

@@ -1,4 +1,4 @@
-// Design format registry for BranchBoard
+// Design format registry for LayerBoard
 // Covers all UI/UX design applications and their file formats as of 2026
 
 export interface DesignFormat {

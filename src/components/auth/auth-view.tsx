@@ -428,7 +428,7 @@ export default function AuthView() {
                   <GitBranch className="h-6 w-6 text-background" />
                 </div>
                 <CardTitle className="text-2xl font-bold tracking-tight">
-                  BranchBoard
+                  LayerBoard
                 </CardTitle>
                 <CardDescription className="mt-1">
                   {viewTitle}

@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const DEMO_USER_ID = 'user-demo-1';
 const DEMO_USER_NAME = 'Demo User';
-const DEMO_USER_EMAIL = 'demo@branchboard.io';
+const DEMO_USER_EMAIL = 'demo@layerboard.io';
 
 async function ensureDemoUser() {
   const existing = await db.user.findUnique({ where: { id: DEMO_USER_ID } });

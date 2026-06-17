@@ -26,7 +26,7 @@ interface SettingRecord {
 }
 
 const DEFAULT_SETTINGS: Record<string, { value: string; type: string; group: string }> = {
-  'app.name': { value: 'BranchBoard', type: 'string', group: 'general' },
+  'app.name': { value: 'LayerBoard', type: 'string', group: 'general' },
   'app.description': { value: 'A Figma-like design tool for teams', type: 'string', group: 'general' },
   'app.logo_url': { value: '', type: 'string', group: 'general' },
   'feature.community': { value: 'true', type: 'boolean', group: 'features' },

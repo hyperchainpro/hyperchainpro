@@ -7,7 +7,7 @@ import { DESIGN_PLUGINS } from '@/lib/plugins-data';
 function loadInstalledIds(): string[] {
   if (typeof window === 'undefined') return [];
   try {
-    const raw = localStorage.getItem('branchboard:installedPlugins');
+    const raw = localStorage.getItem('layerboard:installedPlugins');
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
@@ -27,7 +27,7 @@ function loadInstalledIds(): string[] {
 function saveInstalledIds(ids: string[]) {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem('branchboard:installedPlugins', JSON.stringify(ids));
+    localStorage.setItem('layerboard:installedPlugins', JSON.stringify(ids));
   } catch { /* ignore */ }
 }
 

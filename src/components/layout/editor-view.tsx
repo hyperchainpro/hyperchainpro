@@ -185,7 +185,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog, onOpenGuideDialog, onTogg
     const blob = new Blob([svgParts.join('\n')], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = 'branchboard-export.svg'; a.click();
+    a.href = url; a.download = 'layerboard-export.svg'; a.click();
     URL.revokeObjectURL(url);
   }, []);
 

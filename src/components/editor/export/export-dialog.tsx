@@ -59,7 +59,7 @@ export function ExportDialog({ open, onOpenChange, boardName }: ExportDialogProp
   const elements = useCanvasStore((s) => s.elements);
   const currentBoardId = useAppStore((s) => s.currentBoardId);
 
-  const [fileName, setFileName] = useState(boardName || 'branchboard-design');
+  const [fileName, setFileName] = useState(boardName || 'layerboard-design');
   const [selectedFormat, setSelectedFormat] = useState<DesignFormat | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [status, setStatus] = useState<ExportStatus>('idle');
@@ -139,7 +139,7 @@ export function ExportDialog({ open, onOpenChange, boardName }: ExportDialogProp
         body: JSON.stringify({
           elements,
           format: selectedFormat.extension,
-          boardName: fileName.trim() || 'branchboard-design',
+          boardName: fileName.trim() || 'layerboard-design',
         }),
       });
 
@@ -153,7 +153,7 @@ export function ExportDialog({ open, onOpenChange, boardName }: ExportDialogProp
       const url = URL.createObjectURL(blob);
       if (linkRef.current) {
         linkRef.current.href = url;
-        linkRef.current.download = `${fileName.trim() || 'branchboard-design'}${selectedFormat.extension}`;
+        linkRef.current.download = `${fileName.trim() || 'layerboard-design'}${selectedFormat.extension}`;
         linkRef.current.click();
         // Revoke after a short delay
         setTimeout(() => URL.revokeObjectURL(url), 5000);
@@ -209,7 +209,7 @@ export function ExportDialog({ open, onOpenChange, boardName }: ExportDialogProp
               <Input
                 value={fileName}
                 onChange={(e) => setFileName(e.target.value)}
-                placeholder="branchboard-design"
+                placeholder="layerboard-design"
                 className="neu-input flex-1 h-9 text-sm"
                 disabled={status === 'exporting'}
               />

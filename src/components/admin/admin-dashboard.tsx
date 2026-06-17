@@ -129,7 +129,7 @@ export function AdminDashboard({ onNavigate }: { onNavigate: (section: AdminSect
       {/* Page header */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">Dashboard</h1>
-        <p className="text-sm text-muted-foreground mt-1">Overview of your BranchBoard instance</p>
+        <p className="text-sm text-muted-foreground mt-1">Overview of your LayerBoard instance</p>
       </div>
 
       {error && (
