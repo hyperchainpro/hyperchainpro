@@ -8,7 +8,7 @@ import {
   MessageSquare,
   FileText,
   ArrowRightLeft,
-  FigTreeFigma,
+  Layers,
   Code2,
   Copy,
   Check,

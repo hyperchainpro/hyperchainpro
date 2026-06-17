@@ -1,6 +1,6 @@
 'use client'
 
-import { Cpu, Webhook, Github, MessageSquare, FileText, ArrowRightLeft, FigTreeFigma, Code2 } from 'lucide-react'
+import { Cpu, Webhook, Github, MessageSquare, FileText, ArrowRightLeft, Layers, Code2 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useAuthStore } from '@/store/auth-store'
@@ -16,7 +16,7 @@ const providerIcons: Record<string, React.ElementType> = {
   Slack: MessageSquare,
   Notion: FileText,
   Linear: ArrowRightLeft,
-  'Figma Import': FigTreeFigma,
+  'Figma Import': Layers,
   'REST API': Code2,
 }
 
