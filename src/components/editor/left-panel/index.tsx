@@ -50,7 +50,8 @@ function TabButton({
     <button
       onClick={() => onClick(tab)}
       className={cn(
-        'flex-1 flex items-center justify-center gap-1.5 h-8 rounded-xl text-[11px] font-medium transition-all border-0 outline-none cursor-pointer',
+        'flex-1 flex items-center justify-center gap-1.5 min-h-8 px-1 rounded-xl text-[11px] font-medium border-0 outline-none cursor-pointer',
+        'transition-all duration-200 ease-out',
         isActive
           ? cn('bg-accent text-foreground', NEU_TAB_ACTIVE)
           : cn(
@@ -60,7 +61,7 @@ function TabButton({
       )}
     >
       <Icon className="size-3.5" />
-      <span className="hidden sm:inline">{label}</span>
+      <span className="hidden sm:inline truncate max-w-[48px]">{label}</span>
     </button>
   );
 }
@@ -70,7 +71,7 @@ function TabButton({
 function TabBar({ currentTab, onTabChange }: { currentTab: LeftPanelTab; onTabChange: (tab: LeftPanelTab) => void }) {
   const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   return (
-    <div className="flex items-center gap-1 px-2 py-2 border-b border-border/40">
+    <div className="flex items-center gap-1 px-2.5 py-2 border-b border-border/40">
       <TabButton
         tab="layers"
         currentTab={currentTab}
@@ -191,8 +192,8 @@ function MobileLeftPanel() {
           {getSheetTitle()}
         </SheetTitle>
 
-        {/* Header — Sheet's own built-in close button (top-right) is used, no custom one needed */}
-        <div className="flex items-center px-3 pt-3 pb-3">
+        {/* Header with title */}
+        <div className="flex items-center px-4 pt-4 pb-2">
           <h3 className="text-xs font-semibold text-muted-foreground">{getSheetTitle()}</h3>
         </div>
 

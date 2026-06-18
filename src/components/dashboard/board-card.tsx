@@ -185,13 +185,13 @@ export function BoardCard({
 
   return (
     <motion.div
-      whileHover={{ y: -4, scale: 1.02 }}
+      whileHover={{ y: -6, scale: 1.015 }}
       whileTap={{ scale: 0.98 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+      transition={{ type: 'spring', stiffness: 280, damping: 22 }}
       className="group relative"
     >
       <Card
-        className="neu-raised cursor-pointer overflow-hidden border-0 bg-background py-0 gap-0"
+        className="neu-raised cursor-pointer overflow-hidden border-0 bg-background py-0 gap-0 ring-0 group-hover:ring-2 group-hover:ring-foreground/10 group-hover:shadow-[6px_6px_16px_rgba(0,0,0,0.09),-6px_-6px_16px_rgba(255,255,255,0.9)] dark:group-hover:ring-foreground/5 dark:group-hover:shadow-[6px_6px_16px_rgba(0,0,0,0.45),-6px_-6px_16px_rgba(50,50,60,0.12)] transition-all duration-300"
         onClick={() => onOpen?.(board.id)}
       >
         {/* Thumbnail area */}

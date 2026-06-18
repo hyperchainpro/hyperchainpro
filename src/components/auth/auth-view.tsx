@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GitBranch, Eye, EyeOff, ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react';
+import { GitBranch, Eye, EyeOff, ArrowLeft, Loader2, CheckCircle2, PartyPopper } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -52,9 +52,35 @@ const slideVariants = {
 
 const slideTransition = {
   type: 'spring' as const,
-  stiffness: 300,
-  damping: 30,
+  stiffness: 350,
+  damping: 28,
 };
+
+// ─── Floating shape component ─────────────────────────────────────────────────
+
+function FloatingShape({ className, delay = 0 }: { className: string; delay?: number }) {
+  return (
+    <motion.div
+      className={cn('pointer-events-none absolute', className)}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay, duration: 1.5, ease: 'easeOut' }}
+    >
+      <motion.div
+        animate={{
+          y: [0, -18, 0, 12, 0],
+          rotate: [0, 8, -5, 3, 0],
+        }}
+        transition={{
+          duration: 20 + delay * 2,
+          repeat: Infinity,
+          ease: 'easeInOut',
+        }}
+        className="h-full w-full"
+      />
+    </motion.div>
+  );
+}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -286,14 +312,41 @@ export default function AuthView() {
         <div className="space-y-4">
           {forgotSent ? (
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
+              initial={{ scale: 0.85, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="flex flex-col items-center gap-3 py-4"
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              className="flex flex-col items-center gap-3 py-6"
             >
-              <CheckCircle2 className="h-12 w-12 text-emerald-500" />
-              <p className="text-center text-sm text-muted-foreground">
+              <motion.div
+                initial={{ scale: 0, rotate: -20 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 12, delay: 0.15 }}
+                className="relative"
+              >
+                <CheckCircle2 className="h-14 w-14 text-emerald-500" />
+                <motion.div
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 15, delay: 0.4 }}
+                  className="absolute -top-2 -right-2"
+                >
+                  <PartyPopper className="h-6 w-6 text-amber-400" />
+                </motion.div>
+              </motion.div>
+              <motion.p
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.4 }}
+                className="text-center text-sm font-medium text-foreground"
+              >
                 {t('auth.resetSent', locale)}
-              </p>
+              </motion.p>
+              <motion.div
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ delay: 0.5, duration: 0.5, ease: 'easeOut' }}
+                className="h-[2px] w-16 rounded-full bg-gradient-to-r from-transparent via-emerald-400 to-transparent origin-center"
+              />
             </motion.div>
           ) : (
             <div className="space-y-2">
@@ -305,7 +358,7 @@ export default function AuthView() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
-                className="h-11 neu-input !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 transition-all duration-200"
+                className="h-11 neu-input !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 transition-all duration-300"
               />
             </div>
           )}
@@ -318,7 +371,7 @@ export default function AuthView() {
         {/* Name — only for register */}
         {authView === 'register' && (
           <div className="space-y-2">
-            <Label htmlFor="auth-name">{t('auth.name', locale)}</Label>
+            <Label htmlFor="auth-name" className="text-xs font-medium">{t('auth.name', locale)}</Label>
             <Input
               id="auth-name"
               type="text"
@@ -326,14 +379,14 @@ export default function AuthView() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               autoComplete="name"
-              className="h-11 neu-input !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 transition-all duration-200"
+              className="h-11 neu-input !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 transition-all duration-300"
             />
           </div>
         )}
 
         {/* Email */}
         <div className="space-y-2">
-          <Label htmlFor="auth-email">{t('auth.email', locale)}</Label>
+          <Label htmlFor="auth-email" className="text-xs font-medium">{t('auth.email', locale)}</Label>
           <Input
             id="auth-email"
             type="email"
@@ -341,13 +394,13 @@ export default function AuthView() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             autoComplete="email"
-            className="h-11 neu-input !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 transition-all duration-200"
+            className="h-11 neu-input !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 transition-all duration-300"
           />
         </div>
 
         {/* Password */}
         <div className="space-y-2">
-          <Label htmlFor="auth-password">{t('auth.password', locale)}</Label>
+          <Label htmlFor="auth-password" className="text-xs font-medium">{t('auth.password', locale)}</Label>
           <div className="relative">
             <Input
               id="auth-password"
@@ -356,12 +409,12 @@ export default function AuthView() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete={authView === 'register' ? 'new-password' : 'current-password'}
-              className="h-11 pr-10 neu-input !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 transition-all duration-200"
+              className="h-11 pr-10 neu-input !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 transition-all duration-300"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-all duration-200"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground hover:text-foreground hover:bg-foreground/[0.06] active:bg-foreground/[0.1] transition-all duration-300"
               tabIndex={-1}
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
@@ -373,7 +426,7 @@ export default function AuthView() {
         {/* Confirm Password — only for register */}
         {authView === 'register' && (
           <div className="space-y-2">
-            <Label htmlFor="auth-confirm-password">{t('auth.confirmPassword', locale)}</Label>
+            <Label htmlFor="auth-confirm-password" className="text-xs font-medium">{t('auth.confirmPassword', locale)}</Label>
             <Input
               id="auth-confirm-password"
               type="password"
@@ -381,7 +434,7 @@ export default function AuthView() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               autoComplete="new-password"
-              className="h-11 neu-input !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 transition-all duration-200"
+              className="h-11 neu-input !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 transition-all duration-300"
             />
           </div>
         )}
@@ -397,10 +450,59 @@ export default function AuthView() {
   }[authView];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#e0e5ec] dark:bg-[#2d2d3a] p-4">
-      {/* Subtle decorative blurs */}
-      <div className="pointer-events-none absolute top-[-20%] left-[-10%] h-[500px] w-[500px] rounded-full bg-foreground/5 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-[-20%] right-[-10%] h-[500px] w-[500px] rounded-full bg-foreground/5 blur-3xl" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-hidden">
+      {/* Animated gradient background */}
+      <div className="absolute inset-0 bg-[#e0e5ec] dark:bg-[#2d2d3a]">
+        <motion.div
+          className="absolute inset-0"
+          style={{
+            background: 'radial-gradient(ellipse at 20% 50%, rgba(0,0,0,0.02) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(0,0,0,0.015) 0%, transparent 50%), radial-gradient(ellipse at 50% 80%, rgba(0,0,0,0.02) 0%, transparent 50%)',
+          }}
+          animate={{
+            background: [
+              'radial-gradient(ellipse at 20% 50%, rgba(0,0,0,0.02) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(0,0,0,0.015) 0%, transparent 50%), radial-gradient(ellipse at 50% 80%, rgba(0,0,0,0.02) 0%, transparent 50%)',
+              'radial-gradient(ellipse at 30% 30%, rgba(0,0,0,0.025) 0%, transparent 50%), radial-gradient(ellipse at 70% 70%, rgba(0,0,0,0.02) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0.015) 0%, transparent 50%)',
+              'radial-gradient(ellipse at 20% 50%, rgba(0,0,0,0.02) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(0,0,0,0.015) 0%, transparent 50%), radial-gradient(ellipse at 50% 80%, rgba(0,0,0,0.02) 0%, transparent 50%)',
+            ],
+          }}
+          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <div className="dark:hidden absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }}
+        />
+      </div>
+
+      {/* Floating decorative shapes */}
+      <FloatingShape
+        className="top-[8%] left-[12%] h-16 w-16 rounded-2xl border border-foreground/[0.03] rotate-12"
+        delay={0}
+      />
+      <FloatingShape
+        className="top-[15%] right-[15%] h-10 w-10 rounded-full border border-foreground/[0.03] -rotate-6"
+        delay={2}
+      />
+      <FloatingShape
+        className="bottom-[20%] left-[8%] h-12 w-12 rounded-xl border border-foreground/[0.03] rotate-45"
+        delay={4}
+      />
+      <FloatingShape
+        className="bottom-[12%] right-[10%] h-8 w-20 rounded-lg border border-foreground/[0.03] -rotate-12"
+        delay={6}
+      />
+      <FloatingShape
+        className="top-[55%] left-[5%] h-6 w-6 rounded-full border border-foreground/[0.03] rotate-0"
+        delay={1}
+      />
+      <FloatingShape
+        className="top-[35%] right-[6%] h-14 w-14 rounded-2xl border border-foreground/[0.03] rotate-[30deg]"
+        delay={3}
+      />
+
+      {/* Decorative blurs */}
+      <div className="pointer-events-none absolute top-[-20%] left-[-10%] h-[500px] w-[500px] rounded-full bg-foreground/[0.04] blur-3xl" />
+      <div className="pointer-events-none absolute bottom-[-20%] right-[-10%] h-[500px] w-[500px] rounded-full bg-foreground/[0.04] blur-3xl" />
 
       <div className="relative w-full max-w-md">
         <AnimatePresence mode="wait" custom={direction}>
@@ -413,24 +515,38 @@ export default function AuthView() {
             exit="exit"
             transition={slideTransition}
           >
-            <Card className={cn('neu-raised !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-2xl relative')}>
+            <Card className={cn(
+              'neu-raised !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-2xl relative',
+              'shadow-[8px_8px_16px_rgba(0,0,0,0.07),-8px_-8px_16px_rgba(255,255,255,0.9)]',
+              'dark:shadow-[8px_8px_16px_rgba(0,0,0,0.35),-8px_-8px_16px_rgba(50,50,60,0.08)]'
+            )}>
               <CardHeader className="text-center pb-2">
                 {/* Back button */}
                 {authView !== 'login' && (
                   <button
                     type="button"
                     onClick={() => setAuthView('login')}
-                    className="absolute left-4 top-6 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-all duration-200 neu-flat !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-xl px-3 py-1.5"
+                    className="absolute left-4 top-6 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-all duration-300 neu-flat !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-xl px-3 py-1.5 hover:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.06),inset_-3px_-3px_6px_rgba(255,255,255,0.7)] dark:hover:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3),inset_-3px_-3px_6px_rgba(50,50,60,0.05)]"
                   >
                     <ArrowLeft className="h-4 w-4" />
                     {t('auth.backToLogin', locale)}
                   </button>
                 )}
 
-                {/* Logo */}
-                <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-foreground shadow-[5px_5px_10px_rgba(0,0,0,0.08),-5px_-5px_10px_rgba(255,255,255,0.85)] dark:shadow-[5px_5px_10px_rgba(0,0,0,0.4),-5px_-5px_10px_rgba(50,50,60,0.08)]">
+                {/* Logo with pulse animation */}
+                <motion.div
+                  className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-foreground shadow-[5px_5px_10px_rgba(0,0,0,0.08),-5px_-5px_10px_rgba(255,255,255,0.85)] dark:shadow-[5px_5px_10px_rgba(0,0,0,0.4),-5px_-5px_10px_rgba(50,50,60,0.08)]"
+                  animate={{
+                    boxShadow: [
+                      '5px 5px 10px rgba(0,0,0,0.08), -5px -5px 10px rgba(255,255,255,0.85)',
+                      '7px 7px 14px rgba(0,0,0,0.1), -7px -7px 14px rgba(255,255,255,0.9)',
+                      '5px 5px 10px rgba(0,0,0,0.08), -5px -5px 10px rgba(255,255,255,0.85)',
+                    ],
+                  }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                >
                   <GitBranch className="h-6 w-6 text-background" />
-                </div>
+                </motion.div>
                 <CardTitle className="text-2xl font-bold tracking-tight">
                   LayerBoard
                 </CardTitle>
@@ -461,27 +577,43 @@ export default function AuthView() {
                     </div>
                   )}
 
-                  {/* Error */}
+                  {/* Error with red left border */}
                   {formError && (
-                    <motion.p
-                      initial={{ opacity: 0, y: -4 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="text-sm text-destructive text-center"
+                    <motion.div
+                      initial={{ opacity: 0, x: -8, height: 0, marginTop: 0 }}
+                      animate={{ opacity: 1, x: 0, height: 'auto', marginTop: 0 }}
+                      exit={{ opacity: 0, x: -8, height: 0 }}
+                      className="overflow-hidden"
                     >
-                      {formError}
-                    </motion.p>
+                      <div className="border-l-[3px] border-l-destructive/70 rounded-r-lg bg-destructive/[0.06] px-4 py-2.5">
+                        <p className="text-sm text-destructive text-center">
+                          {formError}
+                        </p>
+                      </div>
+                    </motion.div>
                   )}
 
-                  {/* Submit */}
+                  {/* Submit with shimmer loading */}
                   {!forgotSent && (
                     <Button
                       type="submit"
                       variant="neu"
-                      className="w-full h-11 !bg-foreground hover:!bg-foreground/90 !text-background rounded-2xl transition-all duration-200"
+                      className={cn(
+                        'w-full h-11 !bg-foreground hover:!bg-foreground/90 !text-background rounded-2xl transition-all duration-300 relative overflow-hidden',
+                        isLoading && '!bg-foreground/80'
+                      )}
                       disabled={isLoading}
                     >
-                      {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-                      {submitLabel}
+                      {isLoading && (
+                        <motion.div
+                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                          initial={{ x: '-100%' }}
+                          animate={{ x: '200%' }}
+                          transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
+                        />
+                      )}
+                      {isLoading && <Loader2 className="h-4 w-4 animate-spin relative z-10" />}
+                      <span className="relative z-10">{submitLabel}</span>
                     </Button>
                   )}
                 </form>
@@ -493,7 +625,7 @@ export default function AuthView() {
                     <button
                       type="button"
                       onClick={() => setAuthView('forgot-password')}
-                      className="text-xs text-muted-foreground hover:text-foreground transition-all duration-200 neu-flat !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-xl px-3 py-1.5"
+                      className="text-xs text-muted-foreground hover:text-foreground transition-all duration-300 neu-flat !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-xl px-3 py-1.5 hover:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.06),inset_-3px_-3px_6px_rgba(255,255,255,0.7)] dark:hover:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3),inset_-3px_-3px_6px_rgba(50,50,60,0.05)]"
                     >
                       {t('auth.forgotPassword', locale)}
                     </button>
@@ -502,7 +634,7 @@ export default function AuthView() {
                       <button
                         type="button"
                         onClick={() => setAuthView('register')}
-                        className="font-medium text-foreground transition-all duration-200 neu-flat !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-xl px-3 py-1.5"
+                        className="font-medium text-foreground transition-all duration-300 neu-flat !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-xl px-3 py-1.5 hover:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.06),inset_-3px_-3px_6px_rgba(255,255,255,0.7)] dark:hover:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3),inset_-3px_-3px_6px_rgba(50,50,60,0.05)]"
                       >
                         {t('auth.signUp', locale)}
                       </button>
@@ -515,7 +647,7 @@ export default function AuthView() {
                     <button
                       type="button"
                       onClick={() => setAuthView('login')}
-                      className="font-medium text-foreground transition-all duration-200 neu-flat !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-xl px-3 py-1.5"
+                      className="font-medium text-foreground transition-all duration-300 neu-flat !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-xl px-3 py-1.5 hover:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.06),inset_-3px_-3px_6px_rgba(255,255,255,0.7)] dark:hover:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3),inset_-3px_-3px_6px_rgba(50,50,60,0.05)]"
                     >
                       {t('auth.login', locale)}
                     </button>
@@ -525,7 +657,7 @@ export default function AuthView() {
                   <button
                     type="button"
                     onClick={() => setAuthView('login')}
-                    className="text-sm font-medium text-violet-600 hover:text-violet-500 dark:text-violet-400 dark:hover:text-violet-300 transition-all duration-200 btn-neu !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-2xl px-5 py-2"
+                    className="text-sm font-medium text-violet-600 hover:text-violet-500 dark:text-violet-400 dark:hover:text-violet-300 transition-all duration-300 btn-neu !bg-[#e0e5ec] dark:!bg-[#2d2d3a] !border-0 rounded-2xl px-5 py-2"
                   >
                     {t('auth.backToLogin', locale)}
                   </button>
@@ -535,7 +667,7 @@ export default function AuthView() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Language selector */}
+        {/* Language selector with accent ring for active */}
         <div className="mt-4 flex justify-center gap-2">
           {LOCALES.map((l) => (
             <button
@@ -547,11 +679,12 @@ export default function AuthView() {
                   useAuthStore.getState().setUser({ ...user, language: l.code });
                 }
               }}
-              className={`text-xs transition-all duration-200 ${
+              className={cn(
+                'text-xs transition-all duration-300 rounded-xl px-3 py-1.5',
                 locale === l.code
-                  ? 'neu-pressed !bg-[#e0e5ec] dark:!bg-[#2d2d3a] text-foreground font-medium px-3 py-1.5'
-                  : 'neu-flat !bg-[#e0e5ec] dark:!bg-[#2d2d3a] text-muted-foreground hover:text-foreground px-3 py-1.5'
-              }`}
+                  ? 'neu-pressed !bg-[#e0e5ec] dark:!bg-[#2d2d3a] text-foreground font-medium ring-2 ring-foreground/15 ring-offset-1 ring-offset-[#e0e5ec] dark:ring-offset-[#2d2d3a]'
+                  : 'neu-flat !bg-[#e0e5ec] dark:!bg-[#2d2d3a] text-muted-foreground hover:text-foreground hover:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,0.7)] dark:hover:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.25),inset_-2px_-2px_4px_rgba(50,50,60,0.05)]'
+              )}
               title={l.name}
             >
               {l.flag}

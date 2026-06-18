@@ -3,7 +3,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import {
   ChevronDown,
-  ChevronRight,
   MousePointerClick,
   Plus,
   Link2,
@@ -11,7 +10,6 @@ import {
   Trash2,
   Eye,
   EyeOff,
-  Type,
   AlignLeft,
   AlignCenter,
   AlignRight,
@@ -59,6 +57,15 @@ const neuRaised =
 const neuInset =
   'shadow-[inset_1px_1px_3px_rgba(0,0,0,0.06),inset_-1px_-1px_3px_rgba(255,255,255,0.7)] dark:shadow-[inset_1px_1px_3px_rgba(0,0,0,0.3),inset_-1px_-1px_3px_rgba(30,30,30,0.05)]';
 
+const neuSubtle =
+  'shadow-[1px_1px_3px_rgba(0,0,0,0.04),-1px_-1px_3px_rgba(255,255,255,0.6)] dark:shadow-[1px_1px_3px_rgba(0,0,0,0.2),-1px_-1px_3px_rgba(30,30,30,0.04)]';
+
+const checkerStyle: React.CSSProperties = {
+  backgroundImage: 'linear-gradient(45deg, #e0e0e0 25%, transparent 25%), linear-gradient(-45deg, #e0e0e0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e0e0e0 75%), linear-gradient(-45deg, transparent 75%, #e0e0e0 75%)',
+  backgroundSize: '6px 6px',
+  backgroundPosition: '0 0, 0 3px, 3px -3px, -3px 0px',
+};
+
 // ─── Tiny number input ────────────────────────────────────────────────────────
 
 function TinyNumInput({
@@ -94,12 +101,16 @@ function TinyNumInput({
 
   if (!editing) {
     return (
-      <div className="flex flex-col gap-0.5">
-        <span className="text-[10px] text-muted-foreground leading-none">{label}</span>
+      <div className="flex flex-col gap-1 min-h-[40px] justify-center">
+        {label && (
+          <span className="text-[10px] text-muted-foreground leading-none font-medium">{label}</span>
+        )}
         <button
           className={cn(
-            'h-7 w-full rounded-md border border-border/50 bg-background/50 text-xs text-center px-1',
-            'transition-colors hover:border-primary/30 focus:outline-none focus:ring-1 focus:ring-primary/30',
+            'h-8 w-full rounded-lg border border-border/40 bg-background/80 text-xs font-medium text-center px-1.5',
+            'transition-all duration-150 hover:border-primary/30 hover:bg-background',
+            'focus:outline-none focus:ring-1 focus:ring-primary/30 focus:ring-offset-0',
+            neuSubtle,
           )}
           onClick={() => {
             setText(value !== null ? String(value) : '');
@@ -113,8 +124,10 @@ function TinyNumInput({
   }
 
   return (
-    <div className="flex flex-col gap-0.5">
-      <span className="text-[10px] text-muted-foreground leading-none">{label}</span>
+    <div className="flex flex-col gap-1 min-h-[40px] justify-center">
+      {label && (
+        <span className="text-[10px] text-muted-foreground leading-none font-medium">{label}</span>
+      )}
       <input
         autoFocus
         type="number"
@@ -128,7 +141,12 @@ function TinyNumInput({
           if (e.key === 'Enter') commit();
           if (e.key === 'Escape') setEditing(false);
         }}
-        className="h-7 w-full rounded-md border border-primary/50 bg-background text-xs text-center px-1 outline-none focus:ring-1 focus:ring-primary/30"
+        className={cn(
+          'h-8 w-full rounded-lg border border-primary/40 bg-background text-xs font-medium text-center px-1.5',
+          'outline-none focus:ring-1 focus:ring-primary/30 focus:ring-offset-0',
+          'transition-all duration-150',
+          neuSubtle,
+        )}
       />
     </div>
   );
@@ -173,20 +191,23 @@ function Section({
     <Collapsible open={open} onOpenChange={setOpen}>
       <CollapsibleTrigger
         className={cn(
-          'flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold',
-          'transition-all hover:bg-muted/50 cursor-pointer select-none',
-          neuRaised,
+          'flex w-full items-center justify-between rounded-lg px-3 py-2.5',
+          'text-[11px] font-semibold uppercase tracking-wider text-foreground/80',
+          'transition-all duration-200 cursor-pointer select-none',
+          'hover:bg-foreground/[0.04] active:bg-foreground/[0.06]',
+          'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/30',
         )}
       >
         <span>{title}</span>
-        {open ? (
-          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-        ) : (
-          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
-        )}
+        <ChevronDown
+          className={cn(
+            'h-3.5 w-3.5 text-muted-foreground/70 transition-transform duration-200 ease-out',
+            open ? 'rotate-0' : '-rotate-90',
+          )}
+        />
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="px-3 pb-3 pt-2 space-y-2.5">{children}</div>
+        <div className="px-3 pb-3 pt-1.5 space-y-3">{children}</div>
       </CollapsibleContent>
     </Collapsible>
   );
@@ -232,13 +253,30 @@ export function DesignPanel() {
   // ── Empty state ──
   if (selectedElements.length === 0) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted/50">
-          <MousePointerClick className="h-6 w-6 text-muted-foreground/60" />
+      <div className="flex h-full items-center justify-center p-4">
+        <div
+          className={cn(
+            'flex flex-col items-center gap-4 rounded-2xl p-6 text-center max-w-[200px]',
+            neuRaised,
+          )}
+        >
+          <div
+            className={cn(
+              'flex h-14 w-14 items-center justify-center rounded-xl bg-foreground/[0.03]',
+              neuInset,
+            )}
+          >
+            <MousePointerClick className="h-6 w-6 text-muted-foreground/50" />
+          </div>
+          <div className="space-y-1.5">
+            <p className="text-xs font-medium text-foreground/70">
+              No Selection
+            </p>
+            <p className="text-[11px] leading-relaxed text-muted-foreground/70">
+              Select an element to edit its properties
+            </p>
+          </div>
         </div>
-        <p className="text-sm text-muted-foreground">
-          Select an element to edit its properties
-        </p>
       </div>
     );
   }
@@ -250,10 +288,10 @@ export function DesignPanel() {
 
   return (
     <ScrollArea className="h-full">
-      <div className="space-y-1 p-2">
+      <div className="space-y-1 p-2.5">
         {/* ── Section 1: Position & Size ────────────────────────────────── */}
         <Section title={t('design.positionSize', locale)}>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2.5">
             <TinyNumInput
               label="X"
               value={getUniformNumberValue(selectedElements, (el) => el.x)}
@@ -290,27 +328,28 @@ export function DesignPanel() {
           {/* Frame-specific: Clip Content & Device */}
           {isFrame && (
             <>
-              <div className="flex items-center justify-between">
-                <Label className="text-xs">{t("design.clipContent", locale)}</Label>
+              <div className="flex items-center justify-between min-h-[32px]">
+                <Label className="text-xs font-medium text-foreground/70">{t("design.clipContent", locale)}</Label>
                 <button
                   className={cn(
-                    'relative h-5 w-9 rounded-full transition-colors',
-                    styles?.frameClip ? 'bg-primary' : 'bg-muted',
+                    'relative h-5 w-9 rounded-full transition-all duration-200',
+                    styles?.frameClip ? 'bg-primary shadow-sm' : 'bg-muted',
+                    styles?.frameClip ? '' : neuSubtle,
                   )}
                   onClick={() => updateAllStyles({ frameClip: !styles?.frameClip })}
                 >
                   <span
                     className={cn(
-                      'absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform',
+                      'absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ease-out',
                       styles?.frameClip && 'translate-x-4',
                     )}
                   />
                 </button>
               </div>
               {styles?.frameDevice && (
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] text-muted-foreground">{t("design.device", locale)}</span>
-                  <span className="text-xs font-medium">{styles.frameDevice}</span>
+                <div className="flex items-center gap-2 min-h-[28px]">
+                  <span className="text-[10px] text-muted-foreground font-medium">{t("design.device", locale)}</span>
+                  <span className="text-xs font-medium text-foreground/80">{styles.frameDevice}</span>
                 </div>
               )}
             </>
@@ -453,14 +492,23 @@ function ShapeFillSection({
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        <div className="relative">
+    <div className="space-y-3">
+      <div className="flex items-center gap-2.5">
+        {/* Color swatch with checkerboard background for opacity preview */}
+        <div className="relative shrink-0">
+          <div
+            className="h-8 w-8 rounded-lg border border-border/40"
+            style={checkerStyle}
+          />
+          <div
+            className="absolute inset-0 rounded-lg border border-border/30"
+            style={{ backgroundColor: fillColor, opacity: fillOpacity }}
+          />
           <input
             type="color"
             value={fillColor}
             onChange={(e) => setFillColor(e.target.value)}
-            className="h-7 w-7 cursor-pointer rounded-md border border-border/50 bg-transparent p-0.5"
+            className="absolute inset-0 h-full w-full cursor-pointer rounded-lg opacity-0"
           />
         </div>
         <input
@@ -472,17 +520,18 @@ function ShapeFillSection({
             }
           }}
           className={cn(
-            'h-7 flex-1 rounded-md border border-border/50 bg-background/50 px-2 text-xs font-mono',
-            'focus:outline-none focus:ring-1 focus:ring-primary/30',
+            'h-8 flex-1 rounded-lg border border-border/40 bg-background/80 px-2.5 text-xs font-mono font-medium',
+            'focus:outline-none focus:ring-1 focus:ring-primary/30 transition-all duration-150',
+            neuSubtle,
           )}
           placeholder="#FFFFFF"
         />
       </div>
 
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] text-muted-foreground">{t("design.opacity", locale)}</span>
-          <span className="text-[10px] text-muted-foreground">
+          <span className="text-[10px] text-muted-foreground font-medium">{t("design.opacity", locale)}</span>
+          <span className="text-[10px] text-muted-foreground font-medium tabular-nums">
             {Math.round(fillOpacity * 100)}%
           </span>
         </div>
@@ -499,7 +548,7 @@ function ShapeFillSection({
       <Button
         variant="ghost"
         size="sm"
-        className="h-7 w-full text-xs gap-1"
+        className="h-8 w-full text-xs gap-1.5 font-medium"
         onClick={() =>
           toast({ title: t('design.comingSoon', locale), description: t('design.gradientFillsComingSoon', locale) })
         }
@@ -534,14 +583,21 @@ function TextFillSection({
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        <input
-          type="color"
-          value={color}
-          onChange={(e) => setTypographyColor(e.target.value)}
-          className="h-7 w-7 cursor-pointer rounded-md border border-border/50 bg-transparent p-0.5"
-        />
+    <div className="space-y-3">
+      <div className="flex items-center gap-2.5">
+        {/* Color swatch */}
+        <div className="relative shrink-0">
+          <div
+            className="h-8 w-8 rounded-lg border border-border/40"
+            style={{ backgroundColor: color }}
+          />
+          <input
+            type="color"
+            value={color}
+            onChange={(e) => setTypographyColor(e.target.value)}
+            className="absolute inset-0 h-full w-full cursor-pointer rounded-lg opacity-0"
+          />
+        </div>
         <input
           type="text"
           value={color}
@@ -551,8 +607,9 @@ function TextFillSection({
             }
           }}
           className={cn(
-            'h-7 flex-1 rounded-md border border-border/50 bg-background/50 px-2 text-xs font-mono',
-            'focus:outline-none focus:ring-1 focus:ring-primary/30',
+            'h-8 flex-1 rounded-lg border border-border/40 bg-background/80 px-2.5 text-xs font-mono font-medium',
+            'focus:outline-none focus:ring-1 focus:ring-primary/30 transition-all duration-150',
+            neuSubtle,
           )}
           placeholder="#1F2937"
         />
@@ -608,14 +665,21 @@ function StrokeSection({
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        <input
-          type="color"
-          value={strokeColor}
-          onChange={(e) => updateStroke({ color: e.target.value })}
-          className="h-7 w-7 cursor-pointer rounded-md border border-border/50 bg-transparent p-0.5"
-        />
+    <div className="space-y-3">
+      <div className="flex items-center gap-2.5">
+        {/* Color swatch */}
+        <div className="relative shrink-0">
+          <div
+            className="h-8 w-8 rounded-lg border border-border/40"
+            style={{ backgroundColor: strokeColor }}
+          />
+          <input
+            type="color"
+            value={strokeColor}
+            onChange={(e) => updateStroke({ color: e.target.value })}
+            className="absolute inset-0 h-full w-full cursor-pointer rounded-lg opacity-0"
+          />
+        </div>
         <input
           type="text"
           value={strokeColor}
@@ -625,15 +689,16 @@ function StrokeSection({
             }
           }}
           className={cn(
-            'h-7 flex-1 rounded-md border border-border/50 bg-background/50 px-2 text-xs font-mono',
-            'focus:outline-none focus:ring-1 focus:ring-primary/30',
+            'h-8 flex-1 rounded-lg border border-border/40 bg-background/80 px-2.5 text-xs font-mono font-medium',
+            'focus:outline-none focus:ring-1 focus:ring-primary/30 transition-all duration-150',
+            neuSubtle,
           )}
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] text-muted-foreground">{t("design.width", locale)}</span>
+      <div className="grid grid-cols-2 gap-2.5">
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] text-muted-foreground font-medium">{t("design.width", locale)}</span>
           <TinyNumInput
             label=""
             value={strokeWidth}
@@ -642,15 +707,15 @@ function StrokeSection({
             max={20}
           />
         </div>
-        <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] text-muted-foreground">{t("design.style", locale)}</span>
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] text-muted-foreground font-medium">{t("design.style", locale)}</span>
           <Select
             value={strokeStyle}
             onValueChange={(v) =>
               updateStroke({ style: v as Stroke['style'] })
             }
           >
-            <SelectTrigger size="sm" className="h-7 w-full text-xs">
+            <SelectTrigger size="sm" className="h-8 w-full text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -665,13 +730,13 @@ function StrokeSection({
       <Button
         variant="ghost"
         size="sm"
-        className="h-7 w-full text-xs gap-1"
+        className="h-8 w-full text-xs gap-1.5 font-medium"
         onClick={() =>
           toast({ title: t('design.comingSoon', locale), description: t('design.multipleStrokesComingSoon', locale) })
         }
       >
         <Plus className="h-3 w-3" />
-        t('design.addStroke', locale)
+        {t('design.addStroke', locale)}
       </Button>
     </div>
   );
@@ -726,12 +791,12 @@ function EffectsSection({
     <div className="space-y-3">
       {/* Shadows */}
       {shadows.map((shadow) => (
-        <div key={shadow.id} className="space-y-2 rounded-md border border-border/30 p-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
+        <div key={shadow.id} className={cn("space-y-2.5 rounded-lg border border-border/30 p-3", neuSubtle)}>
+          <div className="flex items-center justify-between min-h-[24px]">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => updateShadow(shadow.id, { visible: !shadow.visible })}
-                className="text-muted-foreground hover:text-foreground transition-colors"
+                className="text-muted-foreground/60 hover:text-foreground transition-colors duration-150"
               >
                 {shadow.visible ? (
                   <Eye className="h-3.5 w-3.5" />
@@ -739,36 +804,44 @@ function EffectsSection({
                   <EyeOff className="h-3.5 w-3.5" />
                 )}
               </button>
-              <span className="text-[10px] font-medium">
+              <span className="text-[11px] font-medium text-foreground/70">
                 {shadow.type === 'drop-shadow' ? t('design.dropShadow', locale) : t('design.innerShadow', locale)}
               </span>
             </div>
             <button
               onClick={() => removeShadow(shadow.id)}
-              className="text-muted-foreground hover:text-destructive transition-colors"
+              className="text-muted-foreground/50 hover:text-destructive transition-colors duration-150"
             >
               <Trash2 className="h-3 w-3" />
             </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-1.5">
-            <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2.5">
+            {/* Shadow color swatch */}
+            <div className="relative shrink-0">
+              <div
+                className="h-7 w-7 rounded-md border border-border/40"
+                style={{ backgroundColor: shadow.color.slice(0, 7) }}
+              />
               <input
                 type="color"
                 value={shadow.color.slice(0, 7)}
                 onChange={(e) => updateShadow(shadow.id, { color: e.target.value + '33' })}
-                className="h-5 w-5 cursor-pointer rounded border border-border/50 bg-transparent p-0"
-              />
-              <input
-                type="text"
-                value={shadow.color.slice(0, 7)}
-                onChange={(e) => updateShadow(shadow.id, { color: e.target.value + '33' })}
-                className="h-5 flex-1 rounded border border-border/50 bg-transparent px-1 text-[10px] font-mono focus:outline-none focus:ring-1 focus:ring-primary/30"
+                className="absolute inset-0 h-full w-full cursor-pointer rounded-md opacity-0"
               />
             </div>
+            <input
+              type="text"
+              value={shadow.color.slice(0, 7)}
+              onChange={(e) => updateShadow(shadow.id, { color: e.target.value + '33' })}
+              className={cn(
+                'h-7 flex-1 rounded-md border border-border/40 bg-background/80 px-2 text-[11px] font-mono font-medium',
+                'focus:outline-none focus:ring-1 focus:ring-primary/30 transition-all duration-150',
+              )}
+            />
           </div>
 
-          <div className="grid grid-cols-4 gap-1">
+          <div className="grid grid-cols-4 gap-2">
             <TinyNumInput
               label="X"
               value={shadow.offsetX}
@@ -796,7 +869,7 @@ function EffectsSection({
             value={shadow.type}
             onValueChange={(v) => updateShadow(shadow.id, { type: v as ShadowEffect['type'] })}
           >
-            <SelectTrigger size="sm" className="h-6 w-full text-[10px]">
+            <SelectTrigger size="sm" className="h-8 w-full text-[11px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -810,7 +883,7 @@ function EffectsSection({
       <Button
         variant="ghost"
         size="sm"
-        className="h-7 w-full text-xs gap-1"
+        className="h-8 w-full text-xs gap-1.5 font-medium"
         onClick={addShadow}
       >
         <Plus className="h-3 w-3" />
@@ -820,10 +893,10 @@ function EffectsSection({
       <Separator />
 
       {/* Layer Blur */}
-      <div className="space-y-1">
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-medium">{t("design.layerBlur", locale)}</span>
-          <span className="text-[10px] text-muted-foreground">
+          <span className="text-[11px] font-medium text-foreground/70">{t("design.layerBlur", locale)}</span>
+          <span className="text-[11px] text-muted-foreground font-medium tabular-nums">
             {layerBlur?.value ?? 0}
           </span>
         </div>
@@ -917,13 +990,13 @@ function TypographySection({
   ] as const;
 
   return (
-    <div className="space-y-2.5">
+    <div className="space-y-3">
       {/* Font Family */}
       <Select
         value={typo.fontFamily}
         onValueChange={(v) => updateTypography({ fontFamily: v })}
       >
-        <SelectTrigger size="sm" className="h-7 w-full text-xs">
+        <SelectTrigger size="sm" className="h-8 w-full text-xs">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -936,9 +1009,9 @@ function TypographySection({
       </Select>
 
       {/* Font Size + Weight row */}
-      <div className="grid grid-cols-2 gap-2">
-        <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] text-muted-foreground">{t("design.size", locale)}</span>
+      <div className="grid grid-cols-2 gap-2.5">
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] text-muted-foreground font-medium">{t("design.size", locale)}</span>
           <TinyNumInput
             label=""
             value={typo.fontSize}
@@ -947,13 +1020,13 @@ function TypographySection({
             max={200}
           />
         </div>
-        <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] text-muted-foreground">{t("design.weight", locale)}</span>
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] text-muted-foreground font-medium">{t("design.weight", locale)}</span>
           <Select
             value={String(typo.fontWeight)}
             onValueChange={(v) => updateTypography({ fontWeight: parseInt(v, 10) })}
           >
-            <SelectTrigger size="sm" className="h-7 w-full text-xs">
+            <SelectTrigger size="sm" className="h-8 w-full text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -968,9 +1041,9 @@ function TypographySection({
       </div>
 
       {/* Line Height + Letter Spacing row */}
-      <div className="grid grid-cols-2 gap-2">
-        <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] text-muted-foreground">{t("design.lineHeight", locale)}</span>
+      <div className="grid grid-cols-2 gap-2.5">
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] text-muted-foreground font-medium">{t("design.lineHeight", locale)}</span>
           <TinyNumInput
             label=""
             value={typo.lineHeight}
@@ -980,8 +1053,8 @@ function TypographySection({
             step={0.1}
           />
         </div>
-        <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] text-muted-foreground">{t("design.letterSpacing", locale)}</span>
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] text-muted-foreground font-medium">{t("design.letterSpacing", locale)}</span>
           <TinyNumInput
             label=""
             value={typo.letterSpacing}
@@ -994,17 +1067,17 @@ function TypographySection({
       </div>
 
       {/* Text Align */}
-      <div className="space-y-1">
-        <span className="text-[10px] text-muted-foreground">{t("design.align", locale)}</span>
-        <div className="flex gap-0.5">
+      <div className="space-y-1.5">
+        <span className="text-[10px] text-muted-foreground font-medium">{t("design.align", locale)}</span>
+        <div className="flex gap-1">
           {textAlignOptions.map((opt) => (
             <button
               key={opt.value}
               className={cn(
-                'h-7 flex-1 flex items-center justify-center rounded-md border transition-colors',
+                'h-8 flex-1 flex items-center justify-center rounded-lg transition-all duration-150',
                 typo.textAlign === opt.value
-                  ? 'border-primary/50 bg-primary/10 text-primary'
-                  : 'border-border/50 hover:bg-muted/50 text-muted-foreground',
+                  ? cn('text-primary', neuInset, 'bg-primary/10')
+                  : cn('text-muted-foreground hover:text-foreground/70', neuSubtle, 'hover:bg-foreground/[0.02]'),
               )}
               onClick={() => updateTypography({ textAlign: opt.value })}
             >
@@ -1015,14 +1088,14 @@ function TypographySection({
       </div>
 
       {/* Text Case + Text Decoration row */}
-      <div className="grid grid-cols-2 gap-2">
-        <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] text-muted-foreground">{t("design.case", locale)}</span>
+      <div className="grid grid-cols-2 gap-2.5">
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] text-muted-foreground font-medium">{t("design.case", locale)}</span>
           <Select
             value={typo.textCase}
             onValueChange={(v) => updateTypography({ textCase: v as TypographyStyles['textCase'] })}
           >
-            <SelectTrigger size="sm" className="h-7 w-full text-xs">
+            <SelectTrigger size="sm" className="h-8 w-full text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -1033,13 +1106,13 @@ function TypographySection({
             </SelectContent>
           </Select>
         </div>
-        <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] text-muted-foreground">{t('design.decoration', locale)}</span>
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] text-muted-foreground font-medium">{t('design.decoration', locale)}</span>
           <Select
             value={typo.textDecoration}
             onValueChange={(v) => updateTypography({ textDecoration: v as TypographyStyles['textDecoration'] })}
           >
-            <SelectTrigger size="sm" className="h-7 w-full text-xs">
+            <SelectTrigger size="sm" className="h-8 w-full text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -1052,15 +1125,15 @@ function TypographySection({
       </div>
 
       {/* Font Style toggle */}
-      <div className="flex items-center justify-between">
-        <span className="text-xs">{t("design.style", locale)}</span>
-        <div className="flex gap-0.5">
+      <div className="flex items-center justify-between min-h-[32px]">
+        <span className="text-xs font-medium text-foreground/70">{t("design.style", locale)}</span>
+        <div className="flex gap-1">
           <button
             className={cn(
-              'h-7 px-3 rounded-md border text-xs font-medium transition-colors',
+              'h-8 px-3.5 rounded-lg text-xs font-medium transition-all duration-150',
               typo.fontStyle === 'normal'
-                ? 'border-primary/50 bg-primary/10 text-primary'
-                : 'border-border/50 hover:bg-muted/50 text-muted-foreground',
+                ? cn('text-primary', neuInset, 'bg-primary/10')
+                : cn('text-muted-foreground hover:text-foreground/70', neuSubtle, 'hover:bg-foreground/[0.02]'),
             )}
             onClick={() => updateTypography({ fontStyle: 'normal' })}
           >
@@ -1068,10 +1141,10 @@ function TypographySection({
           </button>
           <button
             className={cn(
-              'h-7 px-3 rounded-md border text-xs italic transition-colors',
+              'h-8 px-3.5 rounded-lg text-xs italic transition-all duration-150',
               typo.fontStyle === 'italic'
-                ? 'border-primary/50 bg-primary/10 text-primary'
-                : 'border-border/50 hover:bg-muted/50 text-muted-foreground',
+                ? cn('text-primary font-medium', neuInset, 'bg-primary/10')
+                : cn('text-muted-foreground hover:text-foreground/70', neuSubtle, 'hover:bg-foreground/[0.02]'),
             )}
             onClick={() => updateTypography({ fontStyle: 'italic' })}
           >
@@ -1117,20 +1190,21 @@ function AutoLayoutSection({
   };
 
   return (
-    <div className="space-y-2.5">
+    <div className="space-y-3">
       {/* Toggle */}
-      <div className="flex items-center justify-between">
-        <Label className="text-xs">{t('design.autoLayout', locale)}</Label>
+      <div className="flex items-center justify-between min-h-[32px]">
+        <Label className="text-xs font-medium text-foreground/70">{t('design.autoLayout', locale)}</Label>
         <button
           className={cn(
-            'relative h-5 w-9 rounded-full transition-colors',
-            enabled ? 'bg-primary' : 'bg-muted',
+            'relative h-5 w-9 rounded-full transition-all duration-200',
+            enabled ? 'bg-primary shadow-sm' : 'bg-muted',
+            !enabled ? neuSubtle : '',
           )}
           onClick={() => updateLayout({ enabled: !enabled })}
         >
           <span
             className={cn(
-              'absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform',
+              'absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ease-out',
               enabled && 'translate-x-4',
             )}
           />
@@ -1140,15 +1214,15 @@ function AutoLayoutSection({
       {enabled && (
         <>
           {/* Direction */}
-          <div className="space-y-1">
-            <span className="text-[10px] text-muted-foreground">{t('design.direction', locale)}</span>
-            <div className="flex gap-0.5">
+          <div className="space-y-1.5">
+            <span className="text-[10px] text-muted-foreground font-medium">{t('design.direction', locale)}</span>
+            <div className="flex gap-1">
               <button
                 className={cn(
-                  'h-7 flex-1 rounded-md border text-xs font-medium transition-colors',
+                  'h-8 flex-1 rounded-lg text-xs font-medium transition-all duration-150',
                   layout?.direction === 'horizontal'
-                    ? 'border-primary/50 bg-primary/10 text-primary'
-                    : 'border-border/50 hover:bg-muted/50 text-muted-foreground',
+                    ? cn('text-primary', neuInset, 'bg-primary/10')
+                    : cn('text-muted-foreground hover:text-foreground/70', neuSubtle, 'hover:bg-foreground/[0.02]'),
                 )}
                 onClick={() => updateLayout({ direction: 'horizontal' })}
               >
@@ -1156,10 +1230,10 @@ function AutoLayoutSection({
               </button>
               <button
                 className={cn(
-                  'h-7 flex-1 rounded-md border text-xs font-medium transition-colors',
+                  'h-8 flex-1 rounded-lg text-xs font-medium transition-all duration-150',
                   layout?.direction === 'vertical'
-                    ? 'border-primary/50 bg-primary/10 text-primary'
-                    : 'border-border/50 hover:bg-muted/50 text-muted-foreground',
+                    ? cn('text-primary', neuInset, 'bg-primary/10')
+                    : cn('text-muted-foreground hover:text-foreground/70', neuSubtle, 'hover:bg-foreground/[0.02]'),
                 )}
                 onClick={() => updateLayout({ direction: 'vertical' })}
               >
@@ -1178,7 +1252,7 @@ function AutoLayoutSection({
           />
 
           {/* Padding (T, R, B, L) */}
-          <div className="grid grid-cols-2 gap-1.5">
+          <div className="grid grid-cols-2 gap-2">
             <TinyNumInput
               label={t('design.top', locale)}
               value={layout?.paddingTop ?? 0}
@@ -1210,13 +1284,13 @@ function AutoLayoutSection({
           </div>
 
           {/* Align Items */}
-          <div className="space-y-1">
-            <span className="text-[10px] text-muted-foreground">{t('design.alignItems', locale)}</span>
+          <div className="space-y-1.5">
+            <span className="text-[10px] text-muted-foreground font-medium">{t('design.alignItems', locale)}</span>
             <Select
               value={layout?.alignItems ?? 'start'}
               onValueChange={(v) => updateLayout({ alignItems: v as FlexAlign })}
             >
-              <SelectTrigger size="sm" className="h-7 w-full text-xs">
+              <SelectTrigger size="sm" className="h-8 w-full text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -1229,13 +1303,13 @@ function AutoLayoutSection({
           </div>
 
           {/* Justify Content */}
-          <div className="space-y-1">
-            <span className="text-[10px] text-muted-foreground">{t('design.justifyContent', locale)}</span>
+          <div className="space-y-1.5">
+            <span className="text-[10px] text-muted-foreground font-medium">{t('design.justifyContent', locale)}</span>
             <Select
               value={layout?.justifyContent ?? 'start'}
               onValueChange={(v) => updateLayout({ justifyContent: v as FlexJustify })}
             >
-              <SelectTrigger size="sm" className="h-7 w-full text-xs">
+              <SelectTrigger size="sm" className="h-8 w-full text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -1288,10 +1362,10 @@ function CornerRadiusSection({
   if (linked) {
     const val = cr?.topLeft ?? 0;
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2.5">
         <button
           onClick={() => setLinked(false)}
-          className="text-muted-foreground hover:text-foreground transition-colors"
+          className="text-muted-foreground/60 hover:text-foreground transition-colors duration-150"
           title={t("design.unlinkCorners", locale)}
         >
           <Link2 className="h-3.5 w-3.5" />
@@ -1310,9 +1384,9 @@ function CornerRadiusSection({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] text-muted-foreground">{t('design.individualCorners', locale)}</span>
+        <span className="text-[10px] text-muted-foreground font-medium">{t('design.individualCorners', locale)}</span>
         <button
           onClick={() => {
             setLinked(true);
@@ -1321,13 +1395,13 @@ function CornerRadiusSection({
             );
             setAllCorners(avg);
           }}
-          className="text-muted-foreground hover:text-foreground transition-colors"
+          className="text-muted-foreground/60 hover:text-foreground transition-colors duration-150"
           title={t("design.linkCorners", locale)}
         >
           <Unlink2 className="h-3.5 w-3.5" />
         </button>
       </div>
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid grid-cols-2 gap-2">
         <TinyNumInput
           label="TL"
           value={cr?.topLeft ?? 0}

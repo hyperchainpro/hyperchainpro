@@ -13,7 +13,6 @@ import {
   ChevronDown,
   Grid,
   List,
-  SlidersHorizontal,
   GitBranch,
   ChevronRight,
   Sparkles,
@@ -23,15 +22,14 @@ import {
   Sun,
   Monitor,
   LogOut,
-  Share2,
   Menu,
-  Home,
-  User,
   Upload,
   Wand2,
   Puzzle,
   Shield,
   BookOpen,
+  FileSearch,
+  Layers,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -66,6 +64,7 @@ import { UserGuide } from '@/components/guide/user-guide'
 import { t, LOCALES, type Locale } from '@/lib/i18n'
 import { useTheme } from 'next-themes'
 import { toast } from 'sonner'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { getAutoInstallPlugins } from '@/lib/auto-install-plugins'
 
@@ -213,13 +212,13 @@ const boardContainerVariants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: { staggerChildren: 0.06 },
+    transition: { staggerChildren: 0.05, delayChildren: 0.1 },
   },
 }
 
 const boardItemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } },
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 26 } },
 }
 
 // ── Small helper components ──────────────────────────────────────────────
@@ -352,12 +351,20 @@ function SidebarContent({
                 <CollapsibleTrigger asChild>
                   <button
                     className={cn(
-                      'flex w-full items-center gap-2.5 px-3 py-2 text-sm font-medium transition-all duration-200 border-0',
+                      'relative flex w-full items-center gap-2.5 px-3 py-2 text-sm font-medium transition-all duration-200 border-0 rounded-lg',
                       isActive
-                        ? 'neu-pressed !rounded-lg text-foreground'
-                        : 'bg-transparent text-muted-foreground hover:shadow-[4px_4px_8px_rgba(0,0,0,0.07),-4px_-4px_8px_rgba(255,255,255,0.85)] dark:hover:shadow-[4px_4px_8px_rgba(0,0,0,0.4),-4px_-4px_8px_rgba(50,50,60,0.1)] hover:text-foreground'
+                        ? 'neu-pressed text-foreground'
+                        : 'bg-transparent text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04] dark:hover:bg-foreground/[0.06]'
                     )}
                   >
+                    {/* Active indicator bar */}
+                    {isActive && (
+                      <motion.div
+                        layoutId="sidebar-active-indicator"
+                        className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-foreground/70"
+                        transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                      />
+                    )}
                     <Icon className="size-4 shrink-0" />
                     <span className="flex-1 text-left">{t(section.labelKey, locale)}</span>
                     <Badge
@@ -648,7 +655,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
       {/* ─── Main content ──────────────────────────────────────────────── */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Header */}
-        <header className="flex items-center justify-between gap-4 border-0 bg-background neu-flat !rounded-none px-4 py-3 lg:px-6">
+        <header className="flex items-center justify-between gap-3 border-0 bg-background neu-flat !rounded-none px-4 py-3 lg:px-6">
           {/* Hamburger menu (mobile) */}
           <Button
             variant="ghost"
@@ -669,39 +676,51 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
           </div>
 
           {/* Search bar */}
-          <div className="relative flex-1 max-w-md hidden md:block">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <div className="relative flex-1 max-w-sm hidden md:block">
+            <Search className="absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground/70" />
             <Input
               placeholder={t('dashboard.search', locale)}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="neu-input !pl-9 h-9 border-0"
+              className="neu-input !pl-9 h-9 border-0 text-sm"
             />
           </div>
 
           <div className="flex items-center gap-2">
             {/* Mobile new board button */}
             <Button
-              variant="default"
               size="sm"
-              className="md:hidden gap-1.5 btn-neu"
+              className="md:hidden gap-1.5 bg-primary text-primary-foreground shadow-md hover:bg-primary/90"
               onClick={() => setCreateDialogOpen(true)}
             >
               <Plus className="size-4" />
-              {t('dashboard.newBoard', locale).split(' ').pop()}
+              <span className="text-xs">{t('dashboard.newBoard', locale).split(' ').pop()}</span>
             </Button>
+
+            {/* Desktop: Prominent "New Board" primary button */}
+            <Button
+              size="sm"
+              onClick={() => setCreateDialogOpen(true)}
+              className="hidden md:inline-flex gap-1.5 bg-primary text-primary-foreground shadow-md hover:bg-primary/90 font-medium"
+            >
+              <Plus className="size-3.5" />
+              {t('dashboard.newBoard', locale)}
+            </Button>
+
+            {/* Action button group separator */}
+            <div className="hidden lg:block neu-divider--vertical h-5 mx-0.5" />
 
             {/* AI Design button */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={() => useAppStore.getState().setViewMode('ai-design')}
-                  className="hidden md:flex gap-1.5 rounded-lg btn-neu bg-background border-0"
+                  className="hidden md:inline-flex gap-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04] dark:hover:bg-foreground/[0.06] border-0"
                 >
                   <Wand2 className="size-3.5" />
-                  {t('dashboard.aiDesign', locale)}
+                  <span className="hidden xl:inline">{t('dashboard.aiDesign', locale)}</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>{t('dashboard.aiDesign', locale)}</TooltipContent>
@@ -711,10 +730,10 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="icon"
                   onClick={() => useAppStore.getState().setPluginDialogOpen(true)}
-                  className="rounded-lg neu-icon-btn bg-background border-0"
+                  className="hidden md:inline-flex rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04] dark:hover:bg-foreground/[0.06] border-0"
                   aria-label={t('toolbar.plugins', locale)}
                 >
                   <Puzzle className="size-4" />
@@ -727,13 +746,13 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={() => useAppStore.getState().setViewMode('community')}
-                  className="hidden md:flex gap-1.5 rounded-lg btn-neu bg-background border-0"
+                  className="hidden md:inline-flex gap-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04] dark:hover:bg-foreground/[0.06] border-0"
                 >
                   <Users className="size-3.5" />
-                  {t('dashboard.community', locale)}
+                  <span className="hidden xl:inline">{t('dashboard.community', locale)}</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>{t('dashboard.exploreCommunity', locale)}</TooltipContent>
@@ -743,13 +762,13 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={() => setUploadDialogOpen(true)}
-                  className="hidden md:flex gap-1.5 rounded-lg btn-neu bg-background border-0"
+                  className="hidden md:inline-flex gap-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04] dark:hover:bg-foreground/[0.06] border-0"
                 >
                   <Upload className="size-3.5" />
-                  {t('dashboard.upload', locale)}
+                  <span className="hidden xl:inline">{t('dashboard.upload', locale)}</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>{t('dashboard.shareYourDesign', locale)}</TooltipContent>
@@ -829,14 +848,14 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
         </header>
 
         {/* Mobile search bar (below header, above filter bar) */}
-        <div className="md:hidden border-0 bg-background px-4 py-2">
+        <div className="md:hidden border-0 bg-background px-4 py-2 pt-3">
           <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground/70" />
             <Input
               placeholder={t('dashboard.search', locale)}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="neu-input !pl-9 h-9 border-0"
+              className="neu-input !pl-9 h-9 border-0 text-sm"
             />
           </div>
         </div>
@@ -934,12 +953,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
         <ScrollArea className="flex-1">
           <main className="p-3 sm:p-4 lg:p-6 pb-16 md:pb-0">
             {loading ? (
-              <div className="flex items-center justify-center py-24">
-                <div className="flex flex-col items-center gap-3 text-muted-foreground">
-                  <div className="size-8 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  <p className="text-sm">{t('dashboard.loadingBoards', locale)}</p>
-                </div>
-              </div>
+              <BoardGridSkeleton />
             ) : filteredBoards.length > 0 ? (
               <motion.div
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5"
@@ -972,7 +986,7 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
       {isMobile && (
         <nav
           className="fixed bottom-0 left-0 right-0 z-40 bg-background border-0 neu-raised !rounded-none"
-          style={{ height: 'calc(60px + env(safe-area-inset-bottom, 0px))', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+          style={{ height: 'calc(60px + env(safe-area-inset-bottom, 0px))', paddingBottom: 'env(safe-area-inset-bottom, 0px)', paddingTop: '4px' }}
           aria-label={t('dashboard.mobileNav', locale)}
         >
           <div className="flex items-center justify-around h-[60px]">
@@ -1122,15 +1136,15 @@ function SidebarItem({ name, boardId, onClick, active }: { name: string; boardId
     <button
       onClick={onClick}
       className={cn(
-        'flex items-center gap-2 px-2 py-1.5 text-xs transition-all duration-200 truncate w-full text-left border-0 cursor-pointer',
+        'flex items-center gap-2 px-2 py-1.5 text-xs transition-all duration-200 truncate w-full text-left border-0 cursor-pointer rounded-md',
         active
-          ? 'neu-pressed !rounded-md text-primary font-medium'
-          : 'bg-transparent text-muted-foreground hover:text-foreground'
+          ? 'neu-pressed text-primary font-medium'
+          : 'bg-transparent text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04] dark:hover:bg-foreground/[0.06]'
       )}
     >
       <ChevronRight
         className={cn(
-          'size-3 shrink-0 transition-transform',
+          'size-3 shrink-0 transition-transform duration-200',
           active && 'rotate-90'
         )}
       />
@@ -1139,40 +1153,90 @@ function SidebarItem({ name, boardId, onClick, active }: { name: string; boardId
   )
 }
 
+// ─── Board Grid Skeleton ──────────────────────────────────────────────────
+
+function BoardGridSkeleton() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="neu-raised overflow-hidden border-0 bg-background">
+          {/* Thumbnail skeleton */}
+          <Skeleton className="h-36 w-full rounded-none" />
+          {/* Content skeleton */}
+          <div className="p-3 sm:p-4 space-y-3">
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-3/4 rounded-md" />
+              <Skeleton className="h-3 w-full rounded-md" />
+              <Skeleton className="h-3 w-2/3 rounded-md" />
+            </div>
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-5 w-12 rounded-md" />
+              <Skeleton className="h-5 w-12 rounded-md" />
+            </div>
+            <div className="flex items-center justify-between pt-1">
+              <div className="flex -space-x-2">
+                <Skeleton className="size-6 rounded-full" />
+                <Skeleton className="size-6 rounded-full" />
+                <Skeleton className="size-6 rounded-full" />
+              </div>
+              <Skeleton className="h-3 w-16 rounded-md" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // ─── Empty state ─────────────────────────────────────────────────────────────
 
 function EmptyState({ onCreateBoard, searchQuery = '', locale }: { onCreateBoard: () => void; searchQuery?: string; locale: Locale }) {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-      className="neu-card flex flex-col items-center justify-center py-24 text-center"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: 'spring', stiffness: 200, damping: 22 }}
+      className="flex flex-col items-center justify-center py-20 text-center"
     >
       {/* Illustration */}
       <div className="relative mb-6">
-        <div className="flex size-24 items-center justify-center rounded-3xl bg-neutral-200 dark:bg-neutral-800">
-          <div className="flex size-14 items-center justify-center rounded-2xl bg-foreground text-background shadow-lg">
-            <GitBranch className="size-7" />
-          </div>
+        <div className="flex size-28 items-center justify-center rounded-[1.75rem] bg-neutral-200/80 dark:bg-neutral-800/80 shadow-inner">
+          {searchQuery ? (
+            <FileSearch className="size-10 text-muted-foreground/50" />
+          ) : (
+            <Layers className="size-10 text-muted-foreground/50" />
+          )}
         </div>
         <motion.div
-          className="absolute -top-1 -right-1 flex size-7 items-center justify-center rounded-full bg-foreground text-background shadow-md"
+          className="absolute -top-1 -right-1 flex size-8 items-center justify-center rounded-full bg-foreground text-background shadow-md"
           animate={{ rotate: [0, 15, -15, 0] }}
           transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
         >
-          <Sparkles className="size-3.5" />
+          <Sparkles className="size-4" />
         </motion.div>
+        {/* Decorative dots */}
+        <div className="absolute -bottom-2 -left-2 flex gap-1">
+          <div className="size-2 rounded-full bg-foreground/15" />
+          <div className="size-2 rounded-full bg-foreground/10" />
+          <div className="size-2 rounded-full bg-foreground/5" />
+        </div>
       </div>
 
-      <h2 className="text-lg font-semibold mb-2">{t('dashboard.noBoardsFound', locale)}</h2>
-      <p className="text-sm text-muted-foreground max-w-sm mb-6 leading-relaxed">
+      <h2 className="text-lg font-semibold mb-2 text-foreground">
+        {searchQuery
+          ? t('dashboard.noBoardsFound', locale)
+          : t('dashboard.noBoardsFound', locale)}
+      </h2>
+      <p className="text-sm text-muted-foreground max-w-xs mb-6 leading-relaxed">
         {searchQuery
           ? t('dashboard.noBoardsFoundSearch', locale, { query: searchQuery })
           : t('dashboard.noBoardsYet', locale)}
       </p>
-      <Button onClick={onCreateBoard} className="btn-neu gap-2 text-foreground font-medium">
-        <FilePlus className="size-4" />
+      <Button
+        onClick={onCreateBoard}
+        className="bg-primary text-primary-foreground shadow-md hover:bg-primary/90 gap-2 font-medium"
+      >
+        <Plus className="size-4" />
         {t('dashboard.createFirstBoard', locale)}
       </Button>
     </motion.div>

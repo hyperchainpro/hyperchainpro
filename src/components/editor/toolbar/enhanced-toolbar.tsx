@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   MousePointer2,
   Puzzle,
@@ -37,6 +37,7 @@ import {
   SquareMinus,
   Diamond,
   Split,
+  Maximize2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { t, type Locale } from '@/lib/i18n';
@@ -54,6 +55,29 @@ import {
   createFrameFromDevice,
 } from '@/lib/device-templates';
 import type { CanvasTool, ElementType, DeviceTemplate } from '@/lib/types';
+
+// ─── Neumorphic styles for toolbar buttons ─────────────────────────────────────
+
+const neuToolBase =
+  'shadow-[1px_1px_3px_rgba(0,0,0,0.05),-1px_-1px_3px_rgba(255,255,255,0.5)] ' +
+  'dark:shadow-[1px_1px_3px_rgba(0,0,0,0.22),-1px_-1px_3px_rgba(30,30,30,0.04)]';
+
+const neuToolActive =
+  'shadow-[inset_2px_2px_5px_rgba(0,0,0,0.08),inset_-2px_-2px_5px_rgba(255,255,255,0.7)] ' +
+  'dark:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.3),inset_-2px_-2px_5px_rgba(30,30,30,0.06)] ' +
+  'bg-accent text-accent-foreground';
+
+const neuToolHover =
+  'hover:shadow-[0_0_10px_rgba(0,0,0,0.04),1px_1px_3px_rgba(0,0,0,0.05),-1px_-1px_3px_rgba(255,255,255,0.5)] ' +
+  'hover:bg-accent/40 ' +
+  'dark:hover:shadow-[0_0_10px_rgba(0,0,0,0.2),1px_1px_3px_rgba(0,0,0,0.22),-1px_-1px_3px_rgba(30,30,30,0.04)]';
+
+const toolButtonBase = cn(
+  'flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-200',
+  neuToolBase,
+  neuToolHover,
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+);
 
 // ─── Helper: compute viewport center in canvas coordinates ─────────────────────
 
@@ -152,10 +176,8 @@ function ToolButton({
       <TooltipTrigger asChild>
         <button
           className={cn(
-            'flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-lg transition-colors',
-            'hover:bg-accent/50',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-            isActive && 'bg-accent text-accent-foreground',
+            toolButtonBase,
+            isActive && neuToolActive,
           )}
           onClick={() => onClick(tool)}
         >
@@ -283,11 +305,9 @@ function ActionButton({
       <TooltipTrigger asChild>
         <button
           className={cn(
-            'flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-lg transition-colors',
-            'hover:bg-accent/50',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+            toolButtonBase,
             disabled && 'opacity-30 pointer-events-none',
-            active && 'bg-accent text-accent-foreground',
+            active && neuToolActive,
           )}
           onClick={onClick}
           disabled={disabled}
@@ -307,6 +327,98 @@ function ActionButton({
   );
 }
 
+// ─── Zoom Controls ────────────────────────────────────────────────────────────
+
+function ZoomControls({ locale }: { locale: Locale }) {
+  const zoom = useCanvasStore((s) => s.zoom);
+  const zoomIn = useCanvasStore((s) => s.zoomIn);
+  const zoomOut = useCanvasStore((s) => s.zoomOut);
+  const zoomToFit = useCanvasStore((s) => s.zoomToFit);
+  const setZoom = useCanvasStore((s) => s.setZoom);
+  const [editing, setEditing] = useState(false);
+  const [editValue, setEditValue] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editing && inputRef.current) {
+      inputRef.current.select();
+    }
+  }, [editing]);
+
+  const handleZoomClick = () => {
+    setEditValue(Math.round(zoom * 100).toString());
+    setEditing(true);
+  };
+
+  const handleZoomSubmit = () => {
+    const val = parseInt(editValue, 10);
+    if (!isNaN(val) && val >= 10 && val <= 500) {
+      setZoom(val / 100);
+    }
+    setEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleZoomSubmit();
+    if (e.key === 'Escape') setEditing(false);
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-0.5">
+      <ActionButton
+        icon={<ZoomIn className="h-4 w-4" />}
+        label={t('toolbar.zoomIn', locale)}
+        shortcut="Ctrl++"
+        onClick={zoomIn}
+      />
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            onClick={handleZoomClick}
+            className={cn(
+              'flex h-7 w-full items-center justify-center rounded-md text-[10px] font-mono font-medium',
+              'text-muted-foreground transition-all duration-200',
+              neuToolBase,
+              'hover:bg-accent/40 hover:shadow-[0_0_10px_rgba(0,0,0,0.04)]',
+              'dark:hover:shadow-[0_0_10px_rgba(0,0,0,0.2)]',
+            )}
+          >
+            {editing ? (
+              <input
+                ref={inputRef}
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                onBlur={handleZoomSubmit}
+                onKeyDown={handleKeyDown}
+                className="w-full h-full text-center text-[10px] font-mono bg-transparent outline-none"
+                autoFocus
+              />
+            ) : (
+              `${Math.round(zoom * 100)}%`
+            )}
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="right" sideOffset={8}>
+          <span className="font-medium">{Math.round(zoom * 100)}%</span>
+          <span className="ml-1.5 text-[10px] text-muted-foreground">{t('toolbar.clickToEdit', locale)}</span>
+        </TooltipContent>
+      </Tooltip>
+      <ActionButton
+        icon={<ZoomOut className="h-4 w-4" />}
+        label={t('toolbar.zoomOut', locale)}
+        shortcut="Ctrl+−"
+        onClick={zoomOut}
+      />
+      <ActionButton
+        icon={<Maximize2 className="h-4 w-4" />}
+        label={t('toolbar.zoomToFit', locale)}
+        shortcut="Ctrl+0"
+        onClick={zoomToFit}
+      />
+    </div>
+  );
+}
+
 // ─── Tool Definitions ─────────────────────────────────────────────────────────
 
 function getSelectionTools(locale: Locale): ToolDef[] {
@@ -316,35 +428,35 @@ function getSelectionTools(locale: Locale): ToolDef[] {
   ];
 }
 
-function getFrameShapeTools(locale: Locale): ToolDef[] {
+function getShapeTools(locale: Locale): ToolDef[] {
   return [
-    { id: 'FRAME', icon: <Layout className="h-4 w-4" />, label: t('toolbar.frame', locale), shortcut: 'F', popover: 'frame' },
     { id: 'RECTANGLE', icon: <Square className="h-4 w-4" />, label: t('toolbar.rectangle', locale), shortcut: 'R' },
     { id: 'ELLIPSE', icon: <Circle className="h-4 w-4" />, label: t('toolbar.ellipse', locale), shortcut: 'O' },
-    { id: 'LINE', icon: <Minus className="h-4 w-4" />, label: t('toolbar.line', locale), shortcut: 'L' },
     { id: 'STAR', icon: <Star className="h-4 w-4" />, label: t('toolbar.star', locale), shortcut: '', popover: 'star' },
     { id: 'POLYGON', icon: <Pentagon className="h-4 w-4" />, label: t('toolbar.polygon', locale), shortcut: '', popover: 'polygon' },
   ];
 }
 
-function getPenTools(locale: Locale): ToolDef[] {
+function getDrawingTools(locale: Locale): ToolDef[] {
   return [
+    { id: 'LINE', icon: <Minus className="h-4 w-4" />, label: t('toolbar.line', locale), shortcut: 'L' },
     { id: 'PEN_TOOL', icon: <PenTool className="h-4 w-4" />, label: t('toolbar.penTool', locale), shortcut: 'P' },
   ];
 }
 
 function getContentTools(locale: Locale): ToolDef[] {
   return [
+    { id: 'FRAME', icon: <Layout className="h-4 w-4" />, label: t('toolbar.frame', locale), shortcut: 'F', popover: 'frame' },
     { id: 'TEXT', icon: <Type className="h-4 w-4" />, label: t('toolbar.text', locale), shortcut: 'T' },
-    { id: 'IMAGE', icon: <ImageIcon className="h-4 w-4" />, label: t('toolbar.image', locale), shortcut: 'I' },
     { id: 'STICKY_NOTE', icon: <StickyNote className="h-4 w-4" />, label: t('toolbar.stickyNote', locale), shortcut: 'S' },
-    { id: 'SLICE', icon: <Scissors className="h-4 w-4" />, label: t('toolbar.slice', locale), shortcut: 'K' },
+    { id: 'IMAGE', icon: <ImageIcon className="h-4 w-4" />, label: t('toolbar.image', locale), shortcut: 'I' },
+    { id: 'CONNECTOR', icon: <ArrowRight className="h-4 w-4" />, label: t('toolbar.connector', locale), shortcut: '' },
   ];
 }
 
-function getConnectorTools(locale: Locale): ToolDef[] {
+function getUtilityTools(locale: Locale): ToolDef[] {
   return [
-    { id: 'CONNECTOR', icon: <ArrowRight className="h-4 w-4" />, label: t('toolbar.connector', locale), shortcut: '' },
+    { id: 'SLICE', icon: <Scissors className="h-4 w-4" />, label: t('toolbar.slice', locale), shortcut: 'K' },
   ];
 }
 
@@ -370,10 +482,8 @@ function PopoverToolButton({
           <PopoverTrigger asChild>
             <button
               className={cn(
-                'flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-lg transition-colors',
-                'hover:bg-accent/50',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                isActive && 'bg-accent text-accent-foreground',
+                toolButtonBase,
+                isActive && neuToolActive,
               )}
               onClick={() => {
                 if (isActive) {
@@ -418,8 +528,6 @@ export default function EnhancedToolbar() {
   const setTool = useCanvasStore((s) => s.setTool);
   const undo = useCanvasStore((s) => s.undo);
   const redo = useCanvasStore((s) => s.redo);
-  const zoomIn = useCanvasStore((s) => s.zoomIn);
-  const zoomOut = useCanvasStore((s) => s.zoomOut);
   const deleteElements = useCanvasStore((s) => s.deleteElements);
   const setSnapToGrid = useCanvasStore((s) => s.setSnapToGrid);
   const toggleMinimap = useCanvasStore((s) => s.toggleMinimap);
@@ -524,7 +632,7 @@ export default function EnhancedToolbar() {
     <TooltipProvider delayDuration={200}>
       <div
         className={cn(
-          'relative z-50 flex h-full w-11 md:w-12 flex-col items-center overflow-y-auto',
+          'relative z-50 flex h-full w-11 flex-col items-center overflow-y-auto',
           'bg-background/80 backdrop-blur-sm',
           'border-r',
           'shadow-[3px_0px_12px_rgba(0,0,0,0.06),_-1px_0px_0px_rgba(255,255,255,0.04)_inset,1px_0px_0px_rgba(255,255,255,0.08)_inset]',
@@ -538,10 +646,8 @@ export default function EnhancedToolbar() {
             <TooltipTrigger asChild>
               <button
                 className={cn(
-                  'flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-lg transition-colors',
-                  'hover:bg-accent/50',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                  editorMode === 'design' && 'bg-accent text-accent-foreground',
+                  toolButtonBase,
+                  editorMode === 'design' && neuToolActive,
                 )}
                 onClick={() => setEditorMode('design')}
               >
@@ -557,10 +663,8 @@ export default function EnhancedToolbar() {
             <TooltipTrigger asChild>
               <button
                 className={cn(
-                  'flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-lg transition-colors',
-                  'hover:bg-accent/50',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                  editorMode === 'prototype' && 'bg-accent text-accent-foreground',
+                  toolButtonBase,
+                  editorMode === 'prototype' && neuToolActive,
                 )}
                 onClick={() => setEditorMode('prototype')}
               >
@@ -573,45 +677,39 @@ export default function EnhancedToolbar() {
           </Tooltip>
         </div>
 
-        <Separator orientation="horizontal" className="my-1.5 w-8" />
+        <Separator orientation="horizontal" className="my-1.5 w-7" />
 
-        {/* ── Selection & Navigation ─────────────────────────────────────── */}
+        {/* ── Selection ───────────────────────────────────────────────────── */}
         <div className="flex flex-col items-center gap-0.5">
           {renderToolSection(getSelectionTools(locale))}
         </div>
 
-        <Separator orientation="horizontal" className="my-1.5 w-8" />
+        <Separator orientation="horizontal" className="my-1.5 w-7" />
 
-        {/* ── Frame & Shape Tools ────────────────────────────────────────── */}
+        {/* ── Shapes ──────────────────────────────────────────────────────── */}
         <div className="flex flex-col items-center gap-0.5">
-          {renderToolSection(getFrameShapeTools(locale))}
+          {renderToolSection(getShapeTools(locale))}
         </div>
 
-        <Separator orientation="horizontal" className="my-1.5 w-8" />
+        <Separator orientation="horizontal" className="my-1.5 w-7" />
 
-        {/* ── Drawing & Pen ──────────────────────────────────────────────── */}
+        {/* ── Drawing ─────────────────────────────────────────────────────── */}
         <div className="flex flex-col items-center gap-0.5">
-          {renderToolSection(getPenTools(locale))}
+          {renderToolSection(getDrawingTools(locale))}
         </div>
 
-        <Separator orientation="horizontal" className="my-1.5 w-8" />
+        <Separator orientation="horizontal" className="my-1.5 w-7" />
 
-        {/* ── Content Tools ──────────────────────────────────────────────── */}
+        {/* ── Content ─────────────────────────────────────────────────────── */}
         <div className="flex flex-col items-center gap-0.5">
           {renderToolSection(getContentTools(locale))}
         </div>
 
-        <Separator orientation="horizontal" className="my-1.5 w-8" />
+        <Separator orientation="horizontal" className="my-1.5 w-7" />
 
-        {/* ── Connector ──────────────────────────────────────────────────── */}
+        {/* ── Utility ─────────────────────────────────────────────────────── */}
         <div className="flex flex-col items-center gap-0.5">
-          {renderToolSection(getConnectorTools(locale))}
-        </div>
-
-        <Separator orientation="horizontal" className="my-1.5 w-8" />
-
-        {/* ── Measure & Guides ─────────────────────────────────────── */}
-        <div className="flex flex-col items-center gap-0.5">
+          {renderToolSection(getUtilityTools(locale))}
           <ActionButton
             icon={<Ruler className="h-4 w-4" />}
             label={t('toolbar.measure', locale)}
@@ -627,7 +725,7 @@ export default function EnhancedToolbar() {
           />
         </div>
 
-        <Separator orientation="horizontal" className="my-1.5 w-8" />
+        <Separator orientation="horizontal" className="my-1.5 w-7" />
 
         {/* ── Boolean Operations ─────────────────────────────────────────── */}
         <div className="flex flex-col items-center gap-0.5">
@@ -664,10 +762,10 @@ export default function EnhancedToolbar() {
         <div className="flex-1" />
 
         {/* ── Bottom: Actions ────────────────────────────────────────────── */}
-        <Separator orientation="horizontal" className="mb-1.5 w-8" />
+        <Separator orientation="horizontal" className="mb-1.5 w-7" />
 
         {/* Delete */}
-        <div className="flex flex-col items-center mb-2">
+        <div className="flex flex-col items-center mb-1.5">
           <ActionButton
             icon={<Trash2 className="h-4 w-4" />}
             label={t('toolbar.delete', locale)}
@@ -677,7 +775,7 @@ export default function EnhancedToolbar() {
           />
         </div>
 
-        <Separator orientation="horizontal" className="mb-1.5 w-8" />
+        <Separator orientation="horizontal" className="mb-1.5 w-7" />
 
         {/* Undo / Redo */}
         <div className="flex flex-col items-center gap-0.5">
@@ -697,25 +795,12 @@ export default function EnhancedToolbar() {
           />
         </div>
 
-        <Separator orientation="horizontal" className="my-1.5 w-8" />
+        <Separator orientation="horizontal" className="my-1.5 w-7" />
 
-        {/* Zoom */}
-        <div className="flex flex-col items-center gap-0.5">
-          <ActionButton
-            icon={<ZoomIn className="h-4 w-4" />}
-            label={t('toolbar.zoomIn', locale)}
-            shortcut="Ctrl++"
-            onClick={zoomIn}
-          />
-          <ActionButton
-            icon={<ZoomOut className="h-4 w-4" />}
-            label={t('toolbar.zoomOut', locale)}
-            shortcut="Ctrl+−"
-            onClick={zoomOut}
-          />
-        </div>
+        {/* Zoom Controls */}
+        <ZoomControls locale={locale} />
 
-        <Separator orientation="horizontal" className="my-1.5 w-8" />
+        <Separator orientation="horizontal" className="my-1.5 w-7" />
 
         {/* Grid / Minimap toggles */}
         <div className="flex flex-col items-center gap-0.5 mb-2">
@@ -733,7 +818,7 @@ export default function EnhancedToolbar() {
           />
         </div>
 
-        <Separator orientation="horizontal" className="my-1.5 w-8" />
+        <Separator orientation="horizontal" className="my-1.5 w-7" />
 
         {/* Plugins */}
         <div className="flex flex-col items-center mb-2">

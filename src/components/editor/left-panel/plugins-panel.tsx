@@ -5,9 +5,11 @@ import * as LucideIcons from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { useAppStore } from '@/store/app-store';
+import { useAuthStore } from '@/store/auth-store';
 import { DESIGN_PLUGINS, PLUGIN_CATEGORIES, type DesignPlugin } from '@/lib/plugins-data';
 import { Puzzle } from 'lucide-react';
 import { executePluginAction } from '@/lib/plugin-actions';
+import { t, type Locale } from '@/lib/i18n';
 
 function PluginIcon({ name }: { name: string }) {
   let IconComponent: React.ElementType | null = null;
@@ -22,6 +24,7 @@ function PluginIcon({ name }: { name: string }) {
 }
 
 export function PluginsPanel() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const installedIds = useAppStore((s) => s.installedPluginIds);
   const setPluginDialogOpen = useAppStore((s) => s.setPluginDialogOpen);
   const installedSet = useMemo(() => new Set(installedIds), [installedIds]);
@@ -42,14 +45,21 @@ export function PluginsPanel() {
 
   if (totalInstalled === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full px-4 text-center">
-        <Puzzle className="size-8 text-muted-foreground/40 mb-2" />
-        <p className="text-xs text-muted-foreground">No plugins installed</p>
+      <div className="flex flex-col items-center justify-center flex-1 px-6 py-12">
+        <div className="size-14 flex items-center justify-center rounded-2xl bg-background mb-4 shadow-[3px_3px_6px_rgba(0,0,0,0.06),-3px_-3px_6px_rgba(255,255,255,0.7)] dark:shadow-[3px_3px_6px_rgba(0,0,0,0.3),-3px_-3px_6px_rgba(30,30,30,0.05)]">
+          <Puzzle className="size-7 text-muted-foreground/40" />
+        </div>
+        <p className="text-xs font-medium text-muted-foreground mb-1">
+          {t('plugins.noPlugins', locale)}
+        </p>
+        <p className="text-[11px] text-muted-foreground/60 text-center leading-relaxed mb-4">
+          {t('plugins.noPluginsHint', locale)}
+        </p>
         <button
           onClick={() => setPluginDialogOpen(true)}
-          className="mt-3 text-xs font-medium text-foreground underline underline-offset-2 hover:text-foreground/80 border-0 bg-transparent cursor-pointer"
+          className="text-xs font-medium text-primary hover:text-primary/80 transition-colors border-0 bg-transparent cursor-pointer"
         >
-          Browse Marketplace
+          {t('plugins.browseAll', locale)}
         </button>
       </div>
     );
@@ -73,7 +83,7 @@ export function PluginsPanel() {
                 </div>
                 <div className="space-y-0.5">
                   {plugins.map((plugin) => (
-                    <PluginItem key={plugin.id} plugin={plugin} />
+                    <PluginItem key={plugin.id} plugin={plugin} locale={locale} />
                   ))}
                 </div>
               </div>
@@ -86,17 +96,17 @@ export function PluginsPanel() {
       <div className="shrink-0 border-t border-border/40 p-2">
         <button
           onClick={() => setPluginDialogOpen(true)}
-          className="w-full flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground transition-colors border-0 bg-transparent cursor-pointer neu-flat"
+          className="w-full flex items-center justify-center gap-1.5 h-9 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground transition-all duration-200 border-0 bg-transparent cursor-pointer neu-flat"
         >
           <Puzzle className="size-3.5" />
-          Browse Marketplace
+          {t('plugins.browseAll', locale)}
         </button>
       </div>
     </div>
   );
 }
 
-function PluginItem({ plugin }: { plugin: DesignPlugin }) {
+function PluginItem({ plugin, locale }: { plugin: DesignPlugin; locale: Locale }) {
   const handleUsePlugin = () => {
     executePluginAction(plugin);
   };
@@ -104,7 +114,7 @@ function PluginItem({ plugin }: { plugin: DesignPlugin }) {
   return (
     <button
       onClick={handleUsePlugin}
-      className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left text-xs hover:bg-accent/50 transition-colors border-0 bg-transparent cursor-pointer group min-h-[36px]"
+      className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left text-xs hover:bg-accent/50 transition-all duration-200 border-0 bg-transparent cursor-pointer group min-h-[36px]"
     >
       <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-foreground/5 text-foreground group-hover:bg-foreground/10 transition-colors">
         <PluginIcon name={plugin.icon} />

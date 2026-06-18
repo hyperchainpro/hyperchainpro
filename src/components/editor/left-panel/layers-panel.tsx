@@ -18,8 +18,12 @@ import {
   Lock,
   Unlock,
   ChevronRight,
-  ChevronDown,
   GripVertical,
+  Trash2,
+  Copy,
+  X,
+  Search,
+  Layers,
 } from 'lucide-react';
 import { useCanvasStore } from '@/store/canvas-store';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -33,6 +37,17 @@ import { cn } from '@/lib/utils';
 import { t, type Locale } from '@/lib/i18n';
 import { useAuthStore } from '@/store/auth-store';
 import type { BoardElement, ElementType } from '@/lib/types';
+
+// ─── Neumorphism helpers ───────────────────────────────────────────────────
+
+const neuLayerSelected =
+  'shadow-[inset_3px_3px_6px_rgba(0,0,0,0.07),inset_-3px_-3px_6px_rgba(255,255,255,0.7)] dark:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3),inset_-3px_-3px_6px_rgba(30,30,30,0.05)] bg-background/80';
+
+const neuLayerParent =
+  'bg-foreground/[0.015]';
+
+const neuSearch =
+  'shadow-[inset_2px_2px_4px_rgba(0,0,0,0.05),inset_-2px_-2px_4px_rgba(255,255,255,0.6)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.25),inset_-2px_-2px_4px_rgba(30,30,30,0.04)] border-transparent';
 
 // ─── Type → Icon mapping ─────────────────────────────────────────────────────
 
@@ -190,9 +205,46 @@ function RenameInput({
       onChange={(e) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
-      className="h-5 w-full px-1 py-0 text-xs leading-tight rounded border-primary/40"
+      className="h-6 w-full px-1.5 py-0 text-xs leading-tight rounded-md border-primary/40 bg-background"
       onClick={(e) => e.stopPropagation()}
     />
+  );
+}
+
+// ─── Action button (hover-revealed) ──────────────────────────────────────────
+
+function LayerActionBtn({
+  icon: Icon,
+  tooltip,
+  onClick,
+  danger,
+}: {
+  icon: React.ElementType;
+  tooltip: string;
+  onClick: (e: React.MouseEvent) => void;
+  danger?: boolean;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          className={cn(
+            'shrink-0 size-6 flex items-center justify-center rounded-md',
+            'transition-all duration-200 ease-out',
+            'hover:bg-accent',
+            danger
+              ? 'text-muted-foreground hover:text-destructive'
+              : 'text-muted-foreground hover:text-foreground',
+          )}
+          onClick={onClick}
+        >
+          <Icon className="size-3" />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="right" sideOffset={8}>
+        {tooltip}
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -268,6 +320,35 @@ function LayerRow({
     [element.id, toggleLock],
   );
 
+  // ── Delete ─────────────────────────────────────────────────────
+  const handleDelete = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
+      useCanvasStore.getState().deleteElements([element.id]);
+    },
+    [element.id],
+  );
+
+  // ── Duplicate ──────────────────────────────────────────────────
+  const handleDuplicate = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const state = useCanvasStore.getState();
+      const el = state.elements.find((x) => x.id === element.id);
+      if (!el) return;
+      // Destructure to remove id so createDefaultElement generates a new one
+      const { id: _oldId, zIndex: _oldZ, ...rest } = el;
+      // Add a new element with the same properties offset by 20px
+      state.addElement(el.type, el.x + 20, el.y + 20, {
+        ...rest,
+        name: `${el.name || getDefaultName(el.type, 0)} copy`,
+      });
+    },
+    [element.id],
+  );
+
   // ── Drag reorder (simple pointer events) ───────────────────────
   const dragRef = useRef<{ startY: number; itemId: string } | null>(null);
 
@@ -285,14 +366,12 @@ function LayerRow({
 
         // Find the layer row elements and compute drop target
         const rows = document.querySelectorAll('[data-layer-id]');
-        let targetId: string | null = null;
         rows.forEach((row) => {
           const rect = row.getBoundingClientRect();
           if (me.clientY >= rect.top && me.clientY <= rect.bottom) {
-            targetId = row.getAttribute('data-layer-id');
+            // Visual indicator could be added here
           }
         });
-        // Visual indicator could be added here
       };
 
       const handlePointerUp = (me: PointerEvent) => {
@@ -346,38 +425,50 @@ function LayerRow({
     <div
       data-layer-id={element.id}
       className={cn(
-        'group/layer flex items-center h-8 gap-1.5 px-2 cursor-pointer text-xs transition-colors select-none',
-        'hover:bg-accent/50',
-        isSelected && 'bg-accent',
+        // Base layout
+        'group/layer flex items-center min-h-9 gap-1.5 px-2 cursor-pointer text-xs select-none',
+        // Transitions
+        'transition-all duration-200 ease-out',
+        // Hover state
+        'hover:bg-foreground/[0.04]',
+        // Selected state — neumorphic pressed
+        isSelected && cn(neuLayerSelected, 'text-foreground'),
+        // Hidden layer opacity
         isHidden && 'opacity-40',
+        // Parent frame background shade
+        isFrame && depth === 0 && !isSelected && neuLayerParent,
+        // Rounded corners
+        'rounded-md mx-1',
       )}
       style={{ paddingLeft: `${depth * 16 + 8}px` }}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
       onPointerDown={handlePointerDown}
     >
-      {/* Expand/collapse chevron for frames */}
-      {isFrame && childCount > 0 && (
+      {/* Expand/collapse chevron for frames — smooth rotation */}
+      {isFrame && childCount > 0 ? (
         <button
-          className="shrink-0 p-0.5 rounded hover:bg-accent/80 transition-colors"
+          className="shrink-0 size-5 flex items-center justify-center rounded-md hover:bg-accent transition-colors"
           onClick={(e) => {
             e.stopPropagation();
             onToggleExpand();
           }}
         >
-          {isExpanded ? (
-            <ChevronDown className="size-3 text-muted-foreground" />
-          ) : (
-            <ChevronRight className="size-3 text-muted-foreground" />
-          )}
+          <ChevronRight
+            className={cn(
+              'size-3 text-muted-foreground transition-transform duration-200 ease-out',
+              isExpanded && 'rotate-90',
+            )}
+          />
         </button>
+      ) : (
+        <span className="w-5 shrink-0" />
       )}
-      {!isFrame && <span className="w-4 shrink-0" />}
 
       {/* Drag grip */}
       <span
         data-grip
-        className="shrink-0 p-0.5 rounded cursor-grab opacity-0 group-hover/layer:opacity-60 hover:!opacity-100 transition-opacity"
+        className="shrink-0 size-5 flex items-center justify-center rounded-md cursor-grab opacity-0 group-hover/layer:opacity-50 hover:!opacity-100 transition-opacity duration-200"
       >
         <GripVertical className="size-3 text-muted-foreground" />
       </span>
@@ -385,9 +476,8 @@ function LayerRow({
       {/* Type icon */}
       <Icon
         className={cn(
-          'size-3.5 shrink-0',
+          'size-3.5 shrink-0 text-muted-foreground',
           element.type === 'ELLIPSE' && 'scale-x-125',
-          'text-muted-foreground',
         )}
       />
 
@@ -400,18 +490,43 @@ function LayerRow({
             onCancel={onRenameCancel}
           />
         ) : (
-          <span className="truncate block">{displayName}</span>
+          <span
+            className={cn(
+              'truncate block transition-colors duration-150',
+              isSelected ? 'text-foreground font-medium' : 'text-foreground/80',
+            )}
+          >
+            {displayName}
+          </span>
         )}
       </span>
 
-      {/* Visibility toggle */}
+      {/* Hover-revealed action buttons (delete, duplicate) */}
+      <div className="flex items-center gap-0.5 opacity-0 group-hover/layer:opacity-100 transition-opacity duration-200">
+        <LayerActionBtn
+          icon={Copy}
+          tooltip={t('layers.duplicate', locale)}
+          onClick={handleDuplicate}
+        />
+        <LayerActionBtn
+          icon={Trash2}
+          tooltip={t('layers.delete', locale)}
+          onClick={handleDelete}
+          danger
+        />
+      </div>
+
+      {/* Visibility toggle — smooth opacity transition */}
       <Tooltip>
         <TooltipTrigger asChild>
           <button
             className={cn(
-              'shrink-0 p-0.5 rounded hover:bg-accent/80 transition-colors',
-              isHidden && 'text-muted-foreground/60',
-              !isHidden && 'opacity-0 group-hover/layer:opacity-100',
+              'shrink-0 size-5 flex items-center justify-center rounded-md',
+              'transition-all duration-200 ease-out',
+              'hover:bg-accent',
+              isHidden
+                ? 'text-muted-foreground/60 opacity-100'
+                : 'text-muted-foreground opacity-0 group-hover/layer:opacity-100',
             )}
             onClick={handleToggleVisibility}
           >
@@ -423,18 +538,21 @@ function LayerRow({
           </button>
         </TooltipTrigger>
         <TooltipContent side="right" sideOffset={8}>
-          {isHidden ? t('layers.hide', locale) : t('layers.show', locale)}
+          {isHidden ? t('layers.show', locale) : t('layers.hide', locale)}
         </TooltipContent>
       </Tooltip>
 
-      {/* Lock toggle */}
+      {/* Lock toggle — clear visual state */}
       <Tooltip>
         <TooltipTrigger asChild>
           <button
             className={cn(
-              'shrink-0 p-0.5 rounded hover:bg-accent/80 transition-colors',
-              isLocked && 'text-amber-500',
-              !isLocked && 'opacity-0 group-hover/layer:opacity-100',
+              'shrink-0 size-5 flex items-center justify-center rounded-md',
+              'transition-all duration-200 ease-out',
+              'hover:bg-accent',
+              isLocked
+                ? 'text-amber-500 opacity-100'
+                : 'text-muted-foreground opacity-0 group-hover/layer:opacity-100',
             )}
             onClick={handleToggleLock}
           >
@@ -453,6 +571,65 @@ function LayerRow({
   );
 }
 
+// ─── Search input ────────────────────────────────────────────────────────────
+
+function LayerSearchInput({
+  value,
+  onChange,
+  locale,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  locale: Locale;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <div className="relative px-2 pt-1.5 pb-1">
+      <Search className="absolute left-[18px] top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground/60 pointer-events-none" />
+      <Input
+        ref={inputRef}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={t('layers.searchLayers', locale)}
+        className={cn(
+          'h-8 w-full pl-8 pr-7 text-xs rounded-lg bg-background',
+          neuSearch,
+        )}
+      />
+      {value.length > 0 && (
+        <button
+          className="absolute right-[18px] top-1/2 -translate-y-1/2 size-4 flex items-center justify-center rounded-sm text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+          onClick={() => {
+            onChange('');
+            inputRef.current?.focus();
+          }}
+        >
+          <X className="size-3" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ─── Empty state ─────────────────────────────────────────────────────────────
+
+function LayersEmptyState({ locale }: { locale: Locale }) {
+  return (
+    <div className="flex flex-col items-center justify-center flex-1 px-6 py-12">
+      <div className="size-14 flex items-center justify-center rounded-2xl bg-background mb-4 shadow-[3px_3px_6px_rgba(0,0,0,0.06),-3px_-3px_6px_rgba(255,255,255,0.7)] dark:shadow-[3px_3px_6px_rgba(0,0,0,0.3),-3px_-3px_6px_rgba(30,30,30,0.05)]">
+        <Layers className="size-7 text-muted-foreground/40" />
+      </div>
+      <p className="text-xs font-medium text-muted-foreground mb-1">
+        {t('layers.noLayers', locale)}
+      </p>
+      <p className="text-[11px] text-muted-foreground/60 text-center leading-relaxed">
+        {t('layers.addElementsHint', locale)}
+      </p>
+    </div>
+  );
+}
+
 // ─── Main Layers Panel ───────────────────────────────────────────────────────
 
 export function LayersPanel() {
@@ -460,6 +637,7 @@ export function LayersPanel() {
   const elements = useCanvasStore((s) => s.elements);
   const [expandedFrames, setExpandedFrames] = useState<Set<string>>(new Set());
   const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const flatLayers = useMemo(() => buildFlatLayerList(elements), [elements]);
 
@@ -516,56 +694,52 @@ export function LayersPanel() {
     });
   }, [flatLayers, expandedFrames, elements]);
 
+  // Apply search filter
+  const filteredLayers = useMemo(() => {
+    if (!searchQuery.trim()) return visibleLayers;
+    const q = searchQuery.toLowerCase().trim();
+    return visibleLayers.filter((item) => {
+      const name = item.element.name || getDefaultName(item.element.type, item.typeIndex);
+      return name.toLowerCase().includes(q);
+    });
+  }, [visibleLayers, searchQuery]);
+
   if (elements.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-32 text-xs text-muted-foreground gap-2">
-        <Layers className="size-6 opacity-40" />
-        <span>{t('layers.noLayers', locale)}</span>
-        <span className="text-[10px] opacity-60">
-          {t("layers.addElementsHint", locale)}
-        </span>
-      </div>
-    );
+    return <LayersEmptyState locale={locale} />;
   }
 
   return (
-    <ScrollArea className="h-full">
-      <div className="py-1">
-        {visibleLayers.map((item) => (
-          <LayerRow
-            key={item.element.id}
-            item={item}
-            isExpanded={
-              item.isFrame ? expandedFrames.has(item.element.id) : false
-            }
-            onToggleExpand={() => handleToggleExpand(item.element.id)}
-            isRenaming={renamingId === item.element.id}
-            onStartRename={() => setRenamingId(item.element.id)}
-            onRenameCommit={(name) => handleRenameCommit(item.element.id, name)}
-            onRenameCancel={() => setRenamingId(null)}
-          />
-        ))}
-      </div>
-    </ScrollArea>
-  );
-}
+    <div className="flex flex-col h-full">
+      <LayerSearchInput
+        value={searchQuery}
+        onChange={setSearchQuery}
+        locale={locale}
+      />
 
-// Need Layers icon for empty state
-function Layers({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" />
-      <path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" />
-      <path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" />
-    </svg>
+      <ScrollArea className="flex-1">
+        <div className="py-0.5 pb-2">
+          {filteredLayers.length === 0 && searchQuery.trim() ? (
+            <div className="flex items-center justify-center py-8 text-xs text-muted-foreground/60">
+              {t('layers.noResults', locale)}
+            </div>
+          ) : (
+            filteredLayers.map((item) => (
+              <LayerRow
+                key={item.element.id}
+                item={item}
+                isExpanded={
+                  item.isFrame ? expandedFrames.has(item.element.id) : false
+                }
+                onToggleExpand={() => handleToggleExpand(item.element.id)}
+                isRenaming={renamingId === item.element.id}
+                onStartRename={() => setRenamingId(item.element.id)}
+                onRenameCommit={(name) => handleRenameCommit(item.element.id, name)}
+                onRenameCancel={() => setRenamingId(null)}
+              />
+            ))
+          )}
+        </div>
+      </ScrollArea>
+    </div>
   );
 }

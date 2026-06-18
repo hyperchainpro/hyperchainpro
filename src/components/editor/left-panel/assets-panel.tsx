@@ -81,12 +81,16 @@ function ComponentsTab() {
 
   if (components.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-32 text-xs text-muted-foreground gap-2 px-4">
-        <Package className="size-6 opacity-40" />
-        <span className="text-center">{t('assets.noComponents', locale)}</span>
-        <span className="text-[10px] opacity-60 text-center">
+      <div className="flex flex-col items-center justify-center flex-1 px-6 py-12">
+        <div className="size-14 flex items-center justify-center rounded-2xl bg-background mb-4 shadow-[3px_3px_6px_rgba(0,0,0,0.06),-3px_-3px_6px_rgba(255,255,255,0.7)] dark:shadow-[3px_3px_6px_rgba(0,0,0,0.3),-3px_-3px_6px_rgba(30,30,30,0.05)]">
+          <Package className="size-7 text-muted-foreground/40" />
+        </div>
+        <p className="text-xs font-medium text-muted-foreground mb-1 text-center">
+          {t('assets.noComponents', locale)}
+        </p>
+        <p className="text-[11px] text-muted-foreground/60 text-center leading-relaxed">
           {t('assets.createComponentHint', locale)}
-        </span>
+        </p>
       </div>
     );
   }
@@ -98,7 +102,7 @@ function ComponentsTab() {
           key={comp.id}
           className={cn(
             'flex flex-col items-center gap-1.5 p-2.5 rounded-xl border border-border/50',
-            'hover:bg-accent/50 transition-colors text-center group',
+            'hover:bg-accent/50 transition-all duration-200 text-center group min-h-[72px]',
           )}
           onClick={() => {
             // Add component instance to canvas center
@@ -158,7 +162,7 @@ function FramesTab() {
                     key={device.id}
                     className={cn(
                       'flex flex-col items-center gap-1 p-2.5 rounded-xl border border-border/50',
-                      'hover:bg-accent/50 transition-colors text-center group cursor-pointer',
+                      'hover:bg-accent/50 transition-all duration-200 text-center group cursor-pointer min-h-[72px]',
                     )}
                     onClick={() => addFrameAtCenter(device)}
                   >
@@ -297,7 +301,7 @@ function StylesTab() {
                 key={preset.name}
                 className={cn(
                   'flex flex-col gap-0.5 px-3 py-2 rounded-xl border border-border/50',
-                  'hover:bg-accent/50 transition-colors text-left group cursor-pointer',
+                  'hover:bg-accent/50 transition-all duration-200 text-left group cursor-pointer min-h-[44px]',
                 )}
                 onClick={() => addTextElement(preset)}
               >

@@ -1770,6 +1770,8 @@ const translations: TranslationMap = {
   'plugins.uninstall': { en: 'Uninstall', id: 'Hapus', ja: 'アンインストール', ko: '제거', zh: '卸载' },
   'plugins.popular': { en: 'Popular', id: 'Populer', ja: '人気', ko: '인기', zh: '热门' },
   'plugins.browseAll': { en: 'Browse All Plugins', id: 'Jelajahi Semua Plugin', ja: 'すべてのプラグインを閲覧', ko: '모든 플러그인 찾아보기', zh: '浏览所有插件' },
+  'plugins.noPlugins': { en: 'No plugins installed', id: 'Tidak ada plugin yang terinstal', ja: 'インストール済みのプラグインがありません', ko: '설치된 플러그인이 없습니다', zh: '没有已安装的插件' },
+  'plugins.noPluginsHint': { en: 'Install plugins from the marketplace to extend your workflow', id: 'Instal plugin dari marketplace untuk memperluas alur kerja Anda', ja: 'マーケットプレイスからプラグインをインストールしてワークフローを拡張', ko: '마켓플레이스에서 플러그인을 설치하여 워크플로우를 확장하세요', zh: '从市场安装插件来扩展您的工作流程' },
   'plugins.version': { en: 'v{v}', id: 'v{v}', ja: 'v{v}', ko: 'v{v}', zh: 'v{v}' },
   'plugins.by': { en: 'by {author}', id: 'oleh {author}', ja: '{author} 作', ko: '{author} 제작', zh: '{author} 出品' },
   'toolbar.undo': { en: 'Undo', id: 'Batalkan', ja: '元に戻す', ko: '실행 취소', zh: '撤销' },
@@ -1777,6 +1779,7 @@ const translations: TranslationMap = {
   'toolbar.zoomIn': { en: 'Zoom In', id: 'Perbesar', ja: 'ズームイン', ko: '확대', zh: '放大' },
   'toolbar.zoomOut': { en: 'Zoom Out', id: 'Perkecil', ja: 'ズームアウト', ko: '축소', zh: '缩小' },
   'toolbar.clickToZoom': { en: 'Click to zoom to fit', id: 'Klik untuk memperbesar agar muat', ja: 'クリックでフィットズーム', ko: '클릭하여 맞춤 확대', zh: '点击缩放至适合' },
+  'toolbar.clickToEdit': { en: 'Click to edit', id: 'Klik untuk mengedit', ja: 'クリックで編集', ko: '클릭하여 편집', zh: '点击编辑' },
   'toolbar.design': { en: 'Design', id: 'Desain', ja: 'デザイン', ko: '디자인', zh: '设计' },
   'toolbar.prototype': { en: 'Prototype', id: 'Prototipe', ja: 'プロトタイプ', ko: '프로토타입', zh: '原型' },
   'toolbar.apply': { en: 'Apply', id: 'Terapkan', ja: '適用', ko: '적용', zh: '应用' },
@@ -1800,6 +1803,7 @@ const translations: TranslationMap = {
   'assets.searchComponents': { en: 'Search components...', id: 'Cari komponen...', ja: 'コンポーネントを検索...', ko: '컴포넌트 검색...', zh: '搜索组件...' },
 
   // ── Design Panel ──
+  'design.noSelection': { en: 'No Selection', id: 'Tidak Ada Pilihan', ja: '選択なし', ko: '선택 없음', zh: '未选择' },
   'design.clipContent': { en: 'Clip Content', id: 'Potong Konten', ja: 'コンテンツをクリップ', ko: '콘텐츠 클립', zh: '裁剪内容' },
   'design.device': { en: 'Device:', id: 'Perangkat:', ja: 'デバイス：', ko: '디바이스:', zh: '设备：' },
   'design.opacity': { en: 'Opacity', id: 'Opasitas', ja: '不透明度', ko: '불투명도', zh: '不透明度' },
@@ -1849,6 +1853,7 @@ const translations: TranslationMap = {
   'vc.mergeRequests': { en: 'Merge Requests', id: 'Permintaan Merge', ja: 'マージリクエスト', ko: '병합 요청', zh: '合并请求' },
   'vc.noMergeRequests': { en: 'No merge requests', id: 'Tidak ada permintaan merge', ja: 'マージリクエストがありません', ko: '병합 요청 없음', zh: '暂无合并请求' },
   'vc.propertiesPanel': { en: 'Properties Panel', id: 'Panel Properti', ja: 'プロパティパネル', ko: '속성 패널', zh: '属性面板' },
+  'toolbar.closePanel': { en: 'Close panel', id: 'Tutup panel', ja: 'パネルを閉じる', ko: '패널 닫기', zh: '关闭面板' },
   'vc.createCommit': { en: 'Create Commit', id: 'Buat Komit', ja: 'コミットを作成', ko: '커밋 만들기', zh: '创建提交' },
   'vc.branchLabel': { en: 'Branch:', id: 'Cabang:', ja: 'ブランチ：', ko: '브랜치:', zh: '分支：' },
   'vc.changes': { en: 'Changes:', id: 'Perubahan:', ja: '変更：', ko: '변경 사항:', zh: '变更：' },
@@ -2053,6 +2058,9 @@ const translations: TranslationMap = {
   'layers.lock': { en: 'Lock', id: 'Kunci', ja: 'ロック', ko: '잠그기', zh: '锁定' },
   'layers.unlock': { en: 'Unlock', id: 'Buka Kunci', ja: 'ロック解除', ko: '잠금 해제', zh: '解锁' },
   'layers.addElementsHint': { en: 'Add elements to the canvas', id: 'Tambahkan elemen ke kanvas', ja: 'キャンバスに要素を追加', ko: '캔버스에 요소를 추가하세요', zh: '向画布添加元素' },
+  'layers.duplicate': { en: 'Duplicate', id: 'Duplikat', ja: '複製', ko: '복제', zh: '复制' },
+  'layers.delete': { en: 'Delete', id: 'Hapus', ja: '削除', ko: '삭제', zh: '删除' },
+  'layers.noResults': { en: 'No matching layers', id: 'Tidak ada layer yang cocok', ja: '一致するレイヤーがありません', ko: '일치하는 레이어 없음', zh: '没有匹配的图层' },
 
   // ── Assets (extended) ──
   'assets.components': { en: 'Components', id: 'Komponen', ja: 'コンポーネント', ko: '컴포넌트', zh: '组件' },
@@ -2442,6 +2450,18 @@ const translations: TranslationMap = {
   'variables.searchPlaceholder': { en: 'Search variables...', id: 'Cari variabel...', ja: '変数を検索...', ko: '변수 검색...', zh: '搜索变量...' },
   'variables.namePlaceholder': { en: 'e.g. primary-color', id: 'mis. warna-utama', ja: '例: primary-color', ko: '예: primary-color', zh: '例如: primary-color' },
   'variables.descPlaceholder': { en: 'Optional description', id: 'Deskripsi opsional', ja: '説明（任意）', ko: '선택적 설명', zh: '可选描述' },
+  'variables.typeColor': { en: 'Color', id: 'Warna', ja: 'カラー', ko: '색상', zh: '颜色' },
+  'variables.typeNumber': { en: 'Number', id: 'Angka', ja: '数値', ko: '숫자', zh: '数字' },
+  'variables.typeText': { en: 'Text', id: 'Teks', ja: 'テキスト', ko: '텍스트', zh: '文本' },
+  'variables.typeBoolean': { en: 'Boolean', id: 'Boolean', ja: 'ブール', ko: '불리언', zh: '布尔值' },
+  'variables.scopeGlobal': { en: 'Global', id: 'Global', ja: 'グローバル', ko: '전역', zh: '全局' },
+  'variables.scopeBoard': { en: 'Board', id: 'Papan', ja: 'ボード', ko: '보드', zh: '画板' },
+  'variables.scopeComponent': { en: 'Component', id: 'Komponen', ja: 'コンポーネント', ko: '컴포넌트', zh: '组件' },
+  'variables.enterValue': { en: 'Enter value...', id: 'Masukkan nilai...', ja: '値を入力...', ko: '값 입력...', zh: '输入值...' },
+  'variables.search': { en: 'Search variables...', id: 'Cari variabel...', ja: '変数を検索...', ko: '변수 검색...', zh: '搜索变量...' },
+  'variables.variableName': { en: 'Variable name', id: 'Nama variabel', ja: '変数名', ko: '변수 이름', zh: '变量名称' },
+  'variables.cancel': { en: 'Cancel', id: 'Batal', ja: 'キャンセル', ko: '취소', zh: '取消' },
+  'variables.noVariables': { en: 'No variables yet', id: 'Belum ada variabel', ja: '変数がありません', ko: '변수 없음', zh: '暂无变量' },
 
   // ── DevMode ──
   'devMode.title': { en: 'Dev Mode', id: 'Mode Dev', ja: 'Devモード', ko: 'Dev 모드', zh: '开发模式' },
@@ -2596,6 +2616,10 @@ const translations: TranslationMap = {
   'aiPrompt.noMessages': { en: 'Start a conversation with AI to generate designs', id: 'Mulai percakapan dengan AI untuk menghasilkan desain', ja: 'AIと会話を始めてデザインを生成しましょう', ko: 'AI와 대화를 시작하여 디자인을 생성하세요', zh: '开始与 AI 对话以生成设计' },
   'aiPrompt.applied': { en: 'Applied to canvas', id: 'Diterapkan ke kanvas', ja: 'キャンバスに適用しました', ko: '캔버스에 적용됨', zh: '已应用到画布' },
   'aiPrompt.savedComponent': { en: 'Saved as component', id: 'Disimpan sebagai komponen', ja: 'コンポーネントとして保存しました', ko: '컴포넌트로 저장됨', zh: '已保存为组件' },
+  'aiPrompt.stopGenerating': { en: 'Stop generating', id: 'Berhenti menghasilkan', ja: '生成を停止', ko: '생성 중지', zh: '停止生成' },
+  'aiPrompt.welcome': { en: 'Hi there! I\'m your AI design assistant. Tell me what you\'d like to create.', id: 'Hai! Saya asisten desain AI Anda. Katakan apa yang ingin Anda buat.', ja: 'こんにちは！AIデザインアシスタントです。作成したいものを教えてください。', ko: '안녕하세요! AI 디자인 어시스턴트입니다. 만들고 싶은 것을 알려주세요.', zh: '你好！我是你的 AI 设计助手。告诉我你想创建什么。' },
+  'aiPrompt.copied': { en: 'Copied!', id: 'Tersalin!', ja: 'コピーしました！', ko: '복사됨!', zh: '已复制！' },
+  'aiPrompt.scrollToBottom': { en: 'Scroll to bottom', id: 'Gulir ke bawah', ja: '下にスクロール', ko: '맨 아래로 스크롤', zh: '滚动到底部' },
 };
 
 // ─── Translation Function ─────────────────────────────────────────────────────

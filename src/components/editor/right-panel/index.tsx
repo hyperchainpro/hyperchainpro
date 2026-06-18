@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import {
   Sheet,
   SheetContent,
@@ -40,25 +41,22 @@ import { HistoryTimeline } from '@/components/version-control/history-timeline';
 const neuTabActive =
   'shadow-[inset_2px_2px_4px_rgba(0,0,0,0.06),inset_-2px_-2px_4px_rgba(255,255,255,0.7)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.3),inset_-2px_-2px_4px_rgba(30,30,30,0.05)]';
 
-const neuTabInactive =
-  'shadow-[2px_2px_4px_rgba(0,0,0,0.04),-2px_-2px_4px_rgba(255,255,255,0.6)] dark:shadow-[2px_2px_4px_rgba(0,0,0,0.25),-2px_-2px_4px_rgba(30,30,30,0.04)]';
-
 // ─── Tab config ───────────────────────────────────────────────────────────────
 
 const DESIGN_TABS: { value: 'design' | 'prototype'; i18nKey: string; icon: React.ReactNode }[] = [
-  { value: 'design', i18nKey: 'toolbar.design', icon: <PenTool className="h-3.5 w-3.5" /> },
-  { value: 'prototype', i18nKey: 'toolbar.prototype', icon: <Play className="h-3.5 w-3.5" /> },
+  { value: 'design', i18nKey: 'toolbar.design', icon: <PenTool className="h-3.5 w-3.5 shrink-0" /> },
+  { value: 'prototype', i18nKey: 'toolbar.prototype', icon: <Play className="h-3.5 w-3.5 shrink-0" /> },
 ];
 
 const ASSET_TABS: { value: 'variables' | 'variants'; i18nKey: string; icon: React.ReactNode }[] = [
-  { value: 'variables', i18nKey: 'tokens.title', icon: <Palette className="h-3.5 w-3.5" /> },
-  { value: 'variants', i18nKey: 'variants.title', icon: <Layers className="h-3.5 w-3.5" /> },
+  { value: 'variables', i18nKey: 'tokens.title', icon: <Palette className="h-3.5 w-3.5 shrink-0" /> },
+  { value: 'variants', i18nKey: 'variants.title', icon: <Layers className="h-3.5 w-3.5 shrink-0" /> },
 ];
 
 const VC_TABS: { value: 'history' | 'branches' | 'merges'; i18nKey: string; icon: React.ReactNode }[] = [
-  { value: 'history', i18nKey: 'editor.history', icon: <History className="h-3.5 w-3.5" /> },
-  { value: 'branches', i18nKey: 'vc.branches', icon: <GitBranch className="h-3.5 w-3.5" /> },
-  { value: 'merges', i18nKey: 'vc.mergeRequests', icon: <GitMerge className="h-3.5 w-3.5" /> },
+  { value: 'history', i18nKey: 'editor.history', icon: <History className="h-3.5 w-3.5 shrink-0" /> },
+  { value: 'branches', i18nKey: 'vc.branches', icon: <GitBranch className="h-3.5 w-3.5 shrink-0" /> },
+  { value: 'merges', i18nKey: 'vc.mergeRequests', icon: <GitMerge className="h-3.5 w-3.5 shrink-0" /> },
 ];
 
 const STATUS_BADGE: Record<MergeStatus, { i18nKey: string; className: string }> = {
@@ -232,6 +230,57 @@ function MergesTab() {
   );
 }
 
+// ─── Animated Tab Button ──────────────────────────────────────────────────────
+
+function TabButton({
+  value,
+  icon,
+  label,
+  isActive,
+  onClick,
+}: {
+  value: string;
+  icon: React.ReactNode;
+  label: string;
+  isActive: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      className={cn(
+        'relative flex items-center gap-1.5 min-h-8 px-3 rounded-lg text-xs font-medium transition-colors duration-200',
+        isActive
+          ? 'text-foreground'
+          : 'text-muted-foreground hover:text-foreground',
+      )}
+      onClick={onClick}
+    >
+      {/* Animated background indicator */}
+      {isActive && (
+        <motion.div
+          layoutId="right-panel-tab-bg"
+          className="absolute inset-0 rounded-lg bg-muted"
+          style={{ zIndex: 0 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+        />
+      )}
+      {/* Neumorphic inset shadow for active tab */}
+      {isActive && (
+        <motion.div
+          layoutId="right-panel-tab-shadow"
+          className="absolute inset-0 rounded-lg pointer-events-none"
+          style={{ zIndex: 0, boxShadow: 'inset 2px 2px 4px rgba(0,0,0,0.06), inset -2px -2px 4px rgba(255,255,255,0.7)' }}
+          transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+        />
+      )}
+      <span className="relative z-10 flex items-center gap-1.5">
+        {icon}
+        <span className="truncate">{label}</span>
+      </span>
+    </button>
+  );
+}
+
 // ─── Panel Content ────────────────────────────────────────────────────────────
 
 function PanelContent() {
@@ -263,63 +312,48 @@ function PanelContent() {
   return (
     <div className="flex h-full flex-col">
       {/* Tab bar */}
-      <div className="shrink-0 border-b px-2 pt-2 pb-1.5">
-        <div className="flex items-center gap-1">
+      <div className="shrink-0 border-b px-2.5 py-2">
+        <div className="flex items-center gap-0.5 overflow-x-auto scrollbar-none">
           {/* Design & Prototype tabs */}
           {DESIGN_TABS.map((tab) => (
-            <button
+            <TabButton
               key={tab.value}
-              className={cn(
-                'flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-all',
-                rightPanelTab === tab.value
-                  ? cn('bg-muted text-foreground', neuTabActive)
-                  : cn('text-muted-foreground hover:text-foreground hover:bg-muted/50', neuTabInactive),
-              )}
+              value={tab.value}
+              icon={tab.icon}
+              label={t(tab.i18nKey, locale)}
+              isActive={rightPanelTab === tab.value}
               onClick={() => setRightPanelTab(tab.value)}
-            >
-              {tab.icon}
-              <span className="hidden lg:inline">{t(tab.i18nKey, locale)}</span>
-            </button>
+            />
           ))}
 
           {/* Separator */}
-          <Separator orientation="vertical" className="mx-1 h-5" />
+          <Separator orientation="vertical" className="mx-1 h-5 shrink-0" />
 
-          {/* Tokens (Assets) tab */}
+          {/* Tokens (Assets) tabs */}
           {ASSET_TABS.map((tab) => (
-            <button
+            <TabButton
               key={tab.value}
-              className={cn(
-                'flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-all',
-                rightPanelTab === tab.value
-                  ? cn('bg-muted text-foreground', neuTabActive)
-                  : cn('text-muted-foreground hover:text-foreground hover:bg-muted/50', neuTabInactive),
-              )}
+              value={tab.value}
+              icon={tab.icon}
+              label={t(tab.i18nKey, locale)}
+              isActive={rightPanelTab === tab.value}
               onClick={() => setRightPanelTab(tab.value)}
-            >
-              {tab.icon}
-              <span className="hidden lg:inline">{t(tab.i18nKey, locale)}</span>
-            </button>
+            />
           ))}
 
           {/* Separator before Version Control */}
-          <Separator orientation="vertical" className="mx-1 h-5" />
+          <Separator orientation="vertical" className="mx-1 h-5 shrink-0" />
 
           {/* Version Control tabs */}
           {VC_TABS.map((tab) => (
-            <button
+            <TabButton
               key={tab.value}
-              className={cn(
-                'flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-all',
-                rightPanelTab === tab.value
-                  ? cn('bg-muted text-foreground', neuTabActive)
-                  : cn('text-muted-foreground hover:text-foreground hover:bg-muted/50', neuTabInactive),
-              )}
+              value={tab.value}
+              icon={tab.icon}
+              label={t(tab.i18nKey, locale)}
+              isActive={rightPanelTab === tab.value}
               onClick={() => setRightPanelTab(tab.value)}
-            >
-              {tab.icon}
-              <span className="hidden lg:inline">{t(tab.i18nKey, locale)}</span>
-            </button>
+            />
           ))}
         </div>
       </div>
@@ -333,6 +367,7 @@ function PanelContent() {
 // ─── Desktop Right Panel ──────────────────────────────────────────────────────
 
 function DesktopRightPanel() {
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const rightPanelOpen = useAppStore((s) => s.rightPanelOpen);
   const setRightPanelOpen = useAppStore((s) => s.setRightPanelOpen);
 
@@ -347,16 +382,23 @@ function DesktopRightPanel() {
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           className="relative flex h-full w-[280px] shrink-0 flex-col border-l bg-background shadow-xl"
         >
-          {/* Close button — hidden on mobile via CSS as safety net against hydration mismatch */}
+          {/* Close button */}
           <div className="hidden md:flex justify-end px-3 pt-2.5 pb-1 shrink-0">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 rounded-full bg-background/80 backdrop-blur-sm"
-              onClick={() => setRightPanelOpen(false)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 rounded-full bg-background/80 backdrop-blur-sm hover:bg-accent hover:shadow-[0_0_8px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_0_8px_rgba(0,0,0,0.3)] transition-all duration-200"
+                  onClick={() => setRightPanelOpen(false)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="left" sideOffset={8}>
+                <span className="font-medium">{t('toolbar.closePanel', locale)}</span>
+              </TooltipContent>
+            </Tooltip>
           </div>
 
           <PanelContent />
@@ -378,10 +420,10 @@ function MobileRightPanel() {
       <SheetContent side="right" className="w-[85vw] max-w-[300px] p-0">
         <SheetTitle className="sr-only">{t("vc.propertiesPanel", locale)}</SheetTitle>
         {/* Header — Sheet's own built-in close button (top-right) is used, no custom one needed */}
-        <div className="flex items-center px-3 pt-3 pb-3">
-          <h3 className="text-xs font-semibold text-muted-foreground">{t("vc.propertiesPanel", locale)}</h3>
+        <div className="flex items-center px-4 pt-4 pb-2">
+          <h3 className="text-sm font-semibold text-muted-foreground">{t("vc.propertiesPanel", locale)}</h3>
         </div>
-        <div className="h-[calc(100vh-120px)]">
+        <div className="h-[calc(100vh-100px)]">
           <PanelContent />
         </div>
       </SheetContent>
