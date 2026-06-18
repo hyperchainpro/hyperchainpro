@@ -426,7 +426,8 @@ export default function EnhancedToolbar() {
   const toggleMeasureLines = useCanvasStore((s) => s.toggleMeasureLines);
   const toggleGuides = useCanvasStore((s) => s.toggleGuides);
   const booleanOperation = useCanvasStore((s) => s.booleanOperation);
-  const { editorMode, setEditorMode } = useAppStore();
+  const editorMode = useAppStore((s) => s.editorMode);
+  const setEditorMode = useAppStore((s) => s.setEditorMode);
   const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const pendingAIDesign = useAppStore((s) => s.pendingAIDesign);
   const prevPendingRef = useRef(pendingAIDesign);

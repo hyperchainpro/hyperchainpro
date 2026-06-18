@@ -59,7 +59,11 @@ const slideTransition = {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function AuthView() {
-  const { authView, setAuthView, setUser, setLoading, isLoading } = useAuthStore();
+  const authView = useAuthStore((s) => s.authView);
+  const setAuthView = useAuthStore((s) => s.setAuthView);
+  const setUser = useAuthStore((s) => s.setUser);
+  const setLoading = useAuthStore((s) => s.setLoading);
+  const isLoading = useAuthStore((s) => s.isLoading);
   const locale = useAuthStore((s) => s.getLocale());
 
   // Direction for animation

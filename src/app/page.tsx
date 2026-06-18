@@ -14,8 +14,10 @@ import { AIDesignPage } from '@/components/ai-design/ai-design-page';
 import AdminLayout from '@/components/admin/admin-layout';
 
 export default function HomePage() {
-  const { viewMode } = useAppStore();
-  const { isAuthenticated, isLoading, initialize } = useAuthStore();
+  const viewMode = useAppStore((s) => s.viewMode);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isLoading = useAuthStore((s) => s.isLoading);
+  const initialize = useAuthStore((s) => s.initialize);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
