@@ -357,7 +357,7 @@ function EditorTopBar({ boardName, onOpenInviteDialog, onOpenGuideDialog, onTogg
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant={onDevMode ? 'secondary' : 'ghost'}
+              variant={devMode ? 'secondary' : 'ghost'}
               size="icon"
               className="h-8 w-8 neu-icon-btn"
               onClick={onToggleDevMode}

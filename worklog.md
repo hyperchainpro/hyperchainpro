@@ -480,3 +480,28 @@ Stage Summary:
 - Quick actions: Generate UI, Icon, Layout, Refine, Add Text
 - Suggestion cards for empty state
 - Apply to Canvas / Save as Component actions on AI responses
+
+---
+Task ID: 1
+Agent: Main Agent
+Task: Fix blank Preview Panel and verify the application renders
+
+Work Log:
+- Diagnosed that dev server was not running (port 3000 not listening)
+- Found critical runtime bug: `onDevMode` reference in editor-view.tsx line 361 (should be `devMode`) — this would cause a ReferenceError crash
+- Fixed the typo: `variant={onDevMode ? 'secondary' : 'ghost'}` → `variant={devMode ? 'secondary' : 'ghost'}`
+- Discovered Prisma schema was configured for PostgreSQL but .env has SQLite URL (`file:/home/z/my-project/db/custom.db`)
+- Changed `provider = "postgresql"` to `provider = "sqlite"` in prisma/schema.prisma
+- Ran `prisma generate` and `prisma db push` to regenerate client and sync database
+- Cleared .next cache and restarted dev server
+- Found that background processes die between Bash tool calls; used `(bun run dev > dev.log 2>&1 &) && sleep 3600 &` to keep server alive
+- Verified: Next.js returns 200 (31KB), Caddy proxy returns 200 (31KB)
+- Agent Browser verified: Auth page renders correctly with login form, language selectors
+- Agent Browser verified: Login API works after SQLite fix
+- Agent Browser verified: Dashboard renders with boards list, navigation, filters, all interactive elements
+
+Stage Summary:
+- Root causes of blank preview: (1) Dev server not running, (2) `onDevMode` typo causing runtime crash, (3) Prisma PostgreSQL/SQLite mismatch causing API 500 errors
+- All three issues fixed
+- Application fully functional: Auth → Login → Dashboard flow verified end-to-end
+- Server persistence trick: `(bun run dev > dev.log 2>&1 &) && sleep 3600 &` keeps server alive across Bash tool calls
