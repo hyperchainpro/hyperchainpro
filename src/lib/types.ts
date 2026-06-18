@@ -8,7 +8,7 @@ export type BoardRole = 'OWNER' | 'ADMIN' | 'EDITOR' | 'REVIEWER' | 'VIEWER';
 export type MergeStatus = 'OPEN' | 'APPROVED' | 'REJECTED' | 'MERGED' | 'CONFLICT';
 export type ViewMode = 'dashboard' | 'editor' | 'community' | 'ai-design' | 'admin';
 export type EditorMode = 'design' | 'prototype';
-export type LeftPanelTab = 'layers' | 'assets' | 'plugins';
+export type LeftPanelTab = 'layers' | 'assets' | 'plugins' | 'ai';
 
 export type RightPanelTab = 'design' | 'prototype' | 'variables' | 'variants' | 'history' | 'branches' | 'merges' | 'comments' | 'members';
 

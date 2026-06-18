@@ -2575,6 +2575,27 @@ const translations: TranslationMap = {
   'measure.width': { en: 'W', id: 'L', ja: '幅', ko: '너비', zh: '宽' },
   'measure.height': { en: 'H', id: 'T', ja: '高さ', ko: '높이', zh: '高' },
   'measure.distance': { en: 'Distance', id: 'Jarak', ja: '距離', ko: '거리', zh: '距离' },
+
+  // ── AI Prompt Panel ──
+  'aiPrompt.title': { en: 'AI Assist', id: 'Asisten AI', ja: 'AIアシスト', ko: 'AI 어시스턴트', zh: 'AI 助手' },
+  'aiPrompt.placeholder': { en: 'Describe what you want to create...', id: 'Jelaskan apa yang ingin Anda buat...', ja: '作成したいものを説明...', ko: '만들고 싶은 것을 설명...', zh: '描述你想创建的内容...' },
+  'aiPrompt.send': { en: 'Send', id: 'Kirim', ja: '送信', ko: '전송', zh: '发送' },
+  'aiPrompt.generating': { en: 'Generating...', id: 'Menghasilkan...', ja: '生成中...', ko: '생성 중...', zh: '生成中...' },
+  'aiPrompt.applyToCanvas': { en: 'Apply to Canvas', id: 'Terapkan ke Kanvas', ja: 'キャンバスに適用', ko: '캔버스에 적용', zh: '应用到画布' },
+  'aiPrompt.applyAsComponent': { en: 'Save as Component', id: 'Simpan sebagai Komponen', ja: 'コンポーネントとして保存', ko: '컴포넌트로 저장', zh: '保存为组件' },
+  'aiPrompt.regenerate': { en: 'Regenerate', id: 'Hasilkan Ulang', ja: '再生成', ko: '재생성', zh: '重新生成' },
+  'aiPrompt.clearChat': { en: 'Clear Chat', id: 'Hapus Obrolan', ja: 'チャットをクリア', ko: '채팅 지우기', zh: '清除对话' },
+  'aiPrompt.model': { en: 'Model', id: 'Model', ja: 'モデル', ko: '모델', zh: '模型' },
+  'aiPrompt.quickActions': { en: 'Quick Actions', id: 'Aksi Cepat', ja: 'クイックアクション', ko: '빠른 작업', zh: '快捷操作' },
+  'aiPrompt.generateUI': { en: 'Generate UI', id: 'Hasilkan UI', ja: 'UIを生成', ko: 'UI 생성', zh: '生成 UI' },
+  'aiPrompt.generateIcon': { en: 'Generate Icon', id: 'Hasilkan Ikon', ja: 'アイコンを生成', ko: '아이콘 생성', zh: '生成图标' },
+  'aiPrompt.suggestLayout': { en: 'Suggest Layout', id: 'Sarankan Layout', ja: 'レイアウトを提案', ko: '레이아웃 제안', zh: '建议布局' },
+  'aiPrompt.refineSelection': { en: 'Refine Selection', id: 'Perbaiki Seleksi', ja: '選択を洗練', ko: '선택 영역 개선', zh: '优化选区' },
+  'aiPrompt.addText': { en: 'Add Text', id: 'Tambah Teks', ja: 'テキストを追加', ko: '텍스트 추가', zh: '添加文本' },
+  'aiPrompt.suggestions': { en: 'Try asking AI to...', id: 'Coba tanyakan AI untuk...', ja: 'AIに聞いてみましょう...', ko: 'AI에게 물어보세요...', zh: '试试让 AI...' },
+  'aiPrompt.noMessages': { en: 'Start a conversation with AI to generate designs', id: 'Mulai percakapan dengan AI untuk menghasilkan desain', ja: 'AIと会話を始めてデザインを生成しましょう', ko: 'AI와 대화를 시작하여 디자인을 생성하세요', zh: '开始与 AI 对话以生成设计' },
+  'aiPrompt.applied': { en: 'Applied to canvas', id: 'Diterapkan ke kanvas', ja: 'キャンバスに適用しました', ko: '캔버스에 적용됨', zh: '已应用到画布' },
+  'aiPrompt.savedComponent': { en: 'Saved as component', id: 'Disimpan sebagai komponen', ja: 'コンポーネントとして保存しました', ko: '컴포넌트로 저장됨', zh: '已保存为组件' },
 };
 
 // ─── Translation Function ─────────────────────────────────────────────────────

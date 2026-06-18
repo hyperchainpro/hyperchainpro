@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Layers, Package, Puzzle } from 'lucide-react';
+import { Layers, Package, Puzzle, Wand2 } from 'lucide-react';
 import { useAppStore } from '@/store/app-store';
 import { useAuthStore } from '@/store/auth-store';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -15,6 +15,7 @@ import {
 import { LayersPanel } from './layers-panel';
 import { AssetsPanel } from './assets-panel';
 import { PluginsPanel } from './plugins-panel';
+import { AiPromptPanel } from '@/components/editor/ai-prompt/ai-prompt-panel';
 import { cn } from '@/lib/utils';
 import type { LeftPanelTab } from '@/lib/types';
 
@@ -91,6 +92,13 @@ function TabBar({ currentTab, onTabChange }: { currentTab: LeftPanelTab; onTabCh
         icon={Puzzle}
         label={t('leftPanel.plugins', locale)}
       />
+      <TabButton
+        tab="ai"
+        currentTab={currentTab}
+        onClick={onTabChange}
+        icon={Wand2}
+        label={t('aiPrompt.title', locale)}
+      />
     </div>
   );
 }
@@ -103,15 +111,26 @@ function PanelContent({ tab }: { tab: LeftPanelTab }) {
     layers: t('leftPanel.layers', locale),
     assets: t('leftPanel.assets', locale),
     plugins: t('leftPanel.plugins', locale),
+    ai: t('aiPrompt.title', locale),
   };
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* Section header */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-border/30">
-        <h3 className="text-xs font-semibold tracking-wide uppercase text-muted-foreground">{sectionLabels[tab]}</h3>
-      </div>
+      {/* Section header - hidden for AI panel since it has its own header */}
+      {tab !== 'ai' && (
+        <div className="flex items-center justify-between px-3 py-2 border-b border-border/30">
+          <h3 className="text-xs font-semibold tracking-wide uppercase text-muted-foreground">{sectionLabels[tab]}</h3>
+        </div>
+      )}
       <div className="flex-1 min-h-0">
-        {tab === 'layers' ? <LayersPanel /> : tab === 'plugins' ? <PluginsPanel /> : <AssetsPanel />}
+        {tab === 'layers' ? (
+          <LayersPanel />
+        ) : tab === 'plugins' ? (
+          <PluginsPanel />
+        ) : tab === 'ai' ? (
+          <AiPromptPanel />
+        ) : (
+          <AssetsPanel />
+        )}
       </div>
     </div>
   );
@@ -153,11 +172,23 @@ function MobileLeftPanel() {
   const setLeftPanelTab = useAppStore((s) => s.setLeftPanelTab);
   const setLeftPanelOpen = useAppStore((s) => s.setLeftPanelOpen);
 
+  const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
+
+  const getSheetTitle = () => {
+    switch (leftPanelTab) {
+      case 'layers': return t('leftPanel.layers', locale);
+      case 'assets': return t('leftPanel.assets', locale);
+      case 'plugins': return t('leftPanel.plugins', locale);
+      case 'ai': return t('aiPrompt.title', locale);
+      default: return '';
+    }
+  };
+
   return (
     <Sheet open={leftPanelOpen} onOpenChange={setLeftPanelOpen}>
       <SheetContent side="left" className="w-[280px] p-0">
         <SheetTitle className="sr-only">
-          {leftPanelTab === 'layers' ? t('leftPanel.layers', (useAuthStore.getState().user?.language as Locale) ?? 'en') : leftPanelTab === 'plugins' ? t('leftPanel.plugins', (useAuthStore.getState().user?.language as Locale) ?? 'en') : t('leftPanel.assets', (useAuthStore.getState().user?.language as Locale) ?? 'en')}
+          {getSheetTitle()}
         </SheetTitle>
 
         <TabBar currentTab={leftPanelTab} onTabChange={setLeftPanelTab} />

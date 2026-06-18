@@ -13,7 +13,7 @@ import { PrismaClient } from '@prisma/client'
 function createNoOpModel(): Record<string, unknown> {
   const emptyPromise = Promise.resolve([]);
   const emptyCountPromise = Promise.resolve({ count: 0 });
-  const emptyCreatePromise = Promise.resolve({});
+  const emptyCreatePromise = Promise.resolve({ id: 'noop', branches: [], members: [] });
   const emptyUpdatePromise = Promise.resolve({});
   const emptyDeletePromise = Promise.resolve({});
   const emptyFindFirstPromise = Promise.resolve(null);
@@ -49,8 +49,10 @@ function tryCreateClient(): PrismaClient | null {
   try {
     const url = process.env.DATABASE_URL || '';
 
-    // Only allow postgresql:// or postgres:// URLs
-    if (!url.startsWith('postgresql://') && !url.startsWith('postgres://')) {
+    // Allow postgresql://, postgres://, and file: (SQLite) URLs
+    const isPostgres = url.startsWith('postgresql://') || url.startsWith('postgres://');
+    const isSqlite = url.startsWith('file:');
+    if (!isPostgres && !isSqlite) {
       return null;
     }
 

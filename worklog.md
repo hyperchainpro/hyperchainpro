@@ -410,3 +410,73 @@ Work Log:
 Stage Summary:
 - Root cause: Next.js Turbopack defaults to IPv6; proxy connects via IPv4
 - Fix: Added -H 0.0.0.0 to package.json dev script
+
+---
+Task ID: 2-3
+Agent: ai-prompt-agent
+Task: Create AI Prompt sidebar panel and integrate into editor
+
+Work Log:
+- Added 'ai' to LeftPanelTab union type in `src/lib/types.ts`
+- Added 20 i18n keys to `src/lib/i18n.ts` for AI prompt panel across 5 languages (en, id, ja, ko, zh):
+  - aiPrompt.title/placeholder/send/generating/applyToCanvas/applyAsComponent/regenerate/clearChat
+  - aiPrompt.model/quickActions/generateUI/generateIcon/suggestLayout/refineSelection/addText
+  - aiPrompt.suggestions/noMessages/applied/savedComponent
+- Created `src/store/ai-prompt-store.ts` — Zustand store with messages, isGenerating, selectedModel, availableModels (5 models), addMessage, updateLastAssistantMessage, removeLastMessage, setGenerating, setModel, clearMessages
+- Created `src/app/api/ai/prompt/route.ts` — POST endpoint using z-ai-web-dev-sdk for AI completions, includes design-focused system prompt that returns JSON element arrays, extracts elements from code blocks in responses
+- Created `src/components/editor/ai-prompt/ai-prompt-panel.tsx` — Full-featured AI chat panel with:
+  - Header: title with Wand2 icon, model selector dropdown (5 models), collapse/expand toggle, clear chat button
+  - Empty state: 6 suggestion cards (login form, pricing cards, navbar, dashboard, onboarding, contact form)
+  - Chat interface: user/assistant message bubbles, auto-scroll, generating indicator with spinner
+  - AI response actions: "Apply to Canvas" (adds elements to canvas store), "Save as Component", "Regenerate"
+  - Quick action chips: Generate UI, Generate Icon, Suggest Layout, Refine Selection, Add Text
+  - Input area: textarea with Shift+Enter for newline, Enter to send, send button with tooltip
+  - Neumorphic styling: neu-flat, neu-card CSS classes
+  - Custom scrollbar: scrollbar-thin scrollbar-thumb-muted
+- Updated `src/components/editor/left-panel/index.tsx`:
+  - Added Wand2 icon import and AiPromptPanel import
+  - Added 4th TabButton for "AI" tab using Wand2 icon and aiPrompt.title i18n key
+  - Added 'ai' to sectionLabels record
+  - Updated PanelContent to render AiPromptPanel for 'ai' tab (without section header since panel has its own)
+  - Simplified mobile SheetTitle using getSheetTitle helper function
+- Lint passes with zero errors
+
+Stage Summary:
+- AI Assist panel fully integrated as 4th tab in left sidebar (Layers | Assets | Plugins | AI)
+- Backend API endpoint uses z-ai-web-dev-sdk for LLM completions with design-focused system prompt
+- Chat interface supports element generation, canvas application, and regeneration
+- Complete i18n coverage in 5 languages
+- Zero lint errors
+---
+Task ID: fix-board
+Agent: main
+Task: Fix "Failed to create board" error
+
+Work Log:
+- Root cause: db.ts only allowed postgresql:// URLs but .env uses SQLite (file:)
+- Added isSqlite check to allow file: URLs in tryCreateClient()
+- Also hardened no-op create to return {id, branches:[], members:[]} instead of {}
+
+Stage Summary:
+- Board creation now works with SQLite database
+- No-op fallback is also safer for when DB is truly unavailable
+
+---
+Task ID: 2-3
+Agent: ai-prompt-agent
+Task: Create AI Prompt sidebar panel with model integration
+
+Work Log:
+- Created ai-prompt-store.ts with message history, model selection, 5 AI models
+- Created ai-prompt-panel.tsx with chat UI, suggestions, quick actions, apply buttons
+- Created /api/ai/prompt route using z-ai-web-dev-sdk backend
+- Added 'ai' to LeftPanelTab type
+- Wired AI tab as 4th tab in left panel (Layers|Assets|Plugins|AI)
+- Added 19 i18n keys for all 5 languages
+
+Stage Summary:
+- Full AI chat interface in left sidebar
+- Model selector: GPT-4o, Claude Sonnet, Gemini Pro, Local, Custom
+- Quick actions: Generate UI, Icon, Layout, Refine, Add Text
+- Suggestion cards for empty state
+- Apply to Canvas / Save as Component actions on AI responses
