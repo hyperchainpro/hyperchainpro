@@ -577,7 +577,7 @@ export default function EditorView() {
           {/* Right Panel (Design / Dev Mode) */}
           {devMode ? (
             <div className="relative flex h-full w-[280px] shrink-0 flex-col border-l bg-background shadow-xl">
-              <div className="flex items-center justify-between border-b px-3 py-2">
+              <div className="flex items-center justify-between border-b px-3 pt-2.5 pb-3">
                 <span className="text-xs font-semibold">Dev Mode</span>
                 <div className="flex items-center gap-1">
                   <Button

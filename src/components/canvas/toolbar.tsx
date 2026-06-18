@@ -63,24 +63,21 @@ const STICKY_COLOR_OPTIONS: { color: StickyColor; bg: string; label: string }[] 
 
 export default function Toolbar() {
   const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
-  const store = useCanvasStore();
+  const activeTool = useCanvasStore((s) => s.activeTool);
+  const zoom = useCanvasStore((s) => s.zoom);
+  const stickyColor = useCanvasStore((s) => s.stickyColor);
+  const connectorStyle = useCanvasStore((s) => s.connectorStyle);
+  const history = useCanvasStore((s) => s.history);
+  const historyIndex = useCanvasStore((s) => s.historyIndex);
+  const selectedIds = useCanvasStore((s) => s.selectedIds);
+  const elements = useCanvasStore((s) => s.elements);
+  const showMinimap = useCanvasStore((s) => s.showMinimap);
   const { toast } = useToast();
   const [stickyOpen, setStickyOpen] = useState(false);
   const [connectorOpen, setConnectorOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
   const [aiLoading, setAiLoading] = useState<string | null>(null);
   const popoverRefs = useRef<Map<string, HTMLButtonElement | null>>(new Map());
-
-  const {
-    activeTool,
-    zoom,
-    stickyColor,
-    connectorStyle,
-    history,
-    historyIndex,
-    selectedIds,
-    elements,
-  } = store;
 
   const canUndo = historyIndex > 0;
   const canRedo = historyIndex < history.length - 1;
@@ -94,26 +91,26 @@ export default function Toolbar() {
     (tool: CanvasTool) => {
       setStickyOpen(false);
       setConnectorOpen(false);
-      store.setTool(tool);
+      useCanvasStore.getState().setTool(tool);
     },
-    [store],
+    [],
   );
 
   const handleStickyColorSelect = useCallback(
     (color: StickyColor) => {
-      store.setStickyColor(color);
-      store.setTool('STICKY_NOTE');
+      useCanvasStore.getState().setStickyColor(color);
+      useCanvasStore.getState().setTool('STICKY_NOTE');
       setStickyOpen(false);
     },
-    [store],
+    [],
   );
 
   const handleConnectorStyleSelect = useCallback(
     (style: 'straight' | 'curve') => {
-      store.setConnectorStyle(style);
+      useCanvasStore.getState().setConnectorStyle(style);
       setConnectorOpen(false);
     },
-    [store],
+    [],
   );
 
   const handleGenerateLayout = useCallback(async () => {
@@ -143,7 +140,7 @@ export default function Toolbar() {
       for (const el of generatedElements) {
         const validTypes: ElementType[] = ['STICKY_NOTE', 'RECTANGLE', 'CIRCLE', 'LINE', 'TEXT', 'CONNECTOR'];
         const elType = validTypes.includes(el.type as ElementType) ? (el.type as ElementType) : 'TEXT';
-        store.addElement(elType, el.x, el.y, {
+        useCanvasStore.getState().addElement(elType, el.x, el.y, {
           content: el.content,
           color: el.color,
           width: el.width,
@@ -156,16 +153,17 @@ export default function Toolbar() {
     } finally {
       setAiLoading(null);
     }
-  }, [store, toast]);
+  }, [toast]);
 
   const handleAutoArrange = useCallback(() => {
     setAiOpen(false);
-    if (elements.length === 0) {
+    const currentElements = useCanvasStore.getState().elements;
+    if (currentElements.length === 0) {
       toast({ title: t('toolbar.nothingToArrange', locale), description: t('toolbar.addSomeElements', locale) });
       return;
     }
     // Grid-based auto-arrange
-    const sorted = [...elements].sort((a, b) => a.zIndex - b.zIndex);
+    const sorted = [...currentElements].sort((a, b) => a.zIndex - b.zIndex);
     const cols = Math.ceil(Math.sqrt(sorted.length));
     const cellW = 260;
     const cellH = 220;
@@ -177,11 +175,11 @@ export default function Toolbar() {
       y: startY + Math.floor(i / cols) * cellH,
     }));
     for (const u of updates) {
-      store.moveElement(u.id, u.x, u.y);
+      useCanvasStore.getState().moveElement(u.id, u.x, u.y);
     }
-    store.pushHistory();
+    useCanvasStore.getState().pushHistory();
     toast({ title: t('toolbar.autoArranged', locale), description: t('toolbar.arrangedElements', locale, { n: sorted.length }) });
-  }, [elements, store, toast]);
+  }, [toast]);
 
   const handleSummarizeBoard = useCallback(async () => {
     setAiLoading('summarize');
@@ -203,7 +201,7 @@ export default function Toolbar() {
     } finally {
       setAiLoading(null);
     }
-  }, [elements, toast]);
+  }, [toast]);
 
   return (
     <div className="relative z-50 flex h-full w-12 sm:w-14 flex-col items-center border-r bg-card/95 py-2 sm:py-3 shadow-sm backdrop-blur-sm">
@@ -261,7 +259,7 @@ export default function Toolbar() {
                           if (activeTool === 'STICKY_NOTE') {
                             setStickyOpen(!stickyOpen);
                           } else {
-                            store.setTool('STICKY_NOTE');
+                            useCanvasStore.getState().setTool('STICKY_NOTE');
                           }
                         }}
                       >
@@ -320,7 +318,7 @@ export default function Toolbar() {
                           if (activeTool === 'CONNECTOR') {
                             setConnectorOpen(!connectorOpen);
                           } else {
-                            store.setTool('CONNECTOR');
+                            useCanvasStore.getState().setTool('CONNECTOR');
                           }
                         }}
                       >
@@ -415,7 +413,7 @@ export default function Toolbar() {
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                 !canUndo && 'opacity-30 pointer-events-none',
               )}
-              onClick={() => store.undo()}
+              onClick={() => useCanvasStore.getState().undo()}
               disabled={!canUndo}
             >
               <Undo2 className="h-4 w-4" />
@@ -438,7 +436,7 @@ export default function Toolbar() {
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                 !canRedo && 'opacity-30 pointer-events-none',
               )}
-              onClick={() => store.redo()}
+              onClick={() => useCanvasStore.getState().redo()}
               disabled={!canRedo}
             >
               <Redo2 className="h-4 w-4" />
@@ -519,7 +517,7 @@ export default function Toolbar() {
           <TooltipTrigger asChild>
             <button
               className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-accent hover:text-accent-foreground"
-              onClick={() => store.zoomIn()}
+              onClick={() => useCanvasStore.getState().zoomIn()}
             >
               <ZoomIn className="h-4 w-4" />
             </button>
@@ -535,7 +533,7 @@ export default function Toolbar() {
         {/* Zoom level display */}
         <button
           className="flex h-8 w-12 items-center justify-center rounded-md border bg-background text-[11px] font-mono text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-          onClick={() => store.zoomToFit()}
+          onClick={() => useCanvasStore.getState().zoomToFit()}
           title={t('toolbar.clickToZoom', locale)}
         >
           {Math.round(zoom * 100)}%
@@ -545,7 +543,7 @@ export default function Toolbar() {
           <TooltipTrigger asChild>
             <button
               className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-accent hover:text-accent-foreground"
-              onClick={() => store.zoomOut()}
+              onClick={() => useCanvasStore.getState().zoomOut()}
             >
               <ZoomOut className="h-4 w-4" />
             </button>
@@ -562,7 +560,7 @@ export default function Toolbar() {
           <TooltipTrigger asChild>
             <button
               className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-accent hover:text-accent-foreground"
-              onClick={() => store.zoomToFit()}
+              onClick={() => useCanvasStore.getState().zoomToFit()}
             >
               <Maximize className="h-4 w-4" />
             </button>
@@ -579,9 +577,9 @@ export default function Toolbar() {
               className={cn(
                 'flex h-9 w-9 items-center justify-center rounded-lg transition-colors',
                 'hover:bg-accent hover:text-accent-foreground',
-                store.showMinimap && 'bg-accent text-accent-foreground',
+                showMinimap && 'bg-accent text-accent-foreground',
               )}
-              onClick={() => store.toggleMinimap()}
+              onClick={() => useCanvasStore.getState().toggleMinimap()}
             >
               <svg
                 className="h-4 w-4"

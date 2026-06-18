@@ -43,7 +43,6 @@ const ROTATION_HANDLE_OFFSET = 30;
 
 export default function BoardElement({ element, isSelected, zoom, onPointerDown }: BoardElementProps) {
   const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
-  const store = useCanvasStore();
   const textRef = useRef<HTMLTextAreaElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -65,15 +64,15 @@ export default function BoardElement({ element, isSelected, zoom, onPointerDown 
 
   const handleTextChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      store.updateElement(element.id, { content: e.target.value });
+      useCanvasStore.getState().updateElement(element.id, { content: e.target.value });
     },
-    [store, element.id],
+    [element.id],
   );
 
   const handleTextBlur = useCallback(() => {
     setIsEditing(false);
-    store.pushHistory();
-  }, [store]);
+    useCanvasStore.getState().pushHistory();
+  }, []);
 
   const handleTextKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -135,21 +134,21 @@ export default function BoardElement({ element, isSelected, zoom, onPointerDown 
           newH = 20;
         }
 
-        store.resizeElement(element.id, newX, newY, newW, newH);
+        useCanvasStore.getState().resizeElement(element.id, newX, newY, newW, newH);
       };
 
       const onUp = () => {
         document.removeEventListener('pointermove', onMove);
         document.removeEventListener('pointerup', onUp);
         document.body.style.cursor = '';
-        store.pushHistory();
+        useCanvasStore.getState().pushHistory();
       };
 
       document.body.style.cursor = HANDLE_POSITIONS[handle].cursor;
       document.addEventListener('pointermove', onMove);
       document.addEventListener('pointerup', onUp);
     },
-    [canEdit, element.id, element.x, element.y, element.width, element.height, zoom, store],
+    [canEdit, element.id, element.x, element.y, element.width, element.height, zoom],
   );
 
   const handleRotationPointerDown = useCallback(
@@ -164,30 +163,30 @@ export default function BoardElement({ element, isSelected, zoom, onPointerDown 
 
       const onMove = (ev: PointerEvent) => {
         const angle = Math.atan2(ev.clientY - centerY, ev.clientX - centerX) * (180 / Math.PI) + 90;
-        store.rotateElement(element.id, Math.round(angle));
+        useCanvasStore.getState().rotateElement(element.id, Math.round(angle));
       };
 
       const onUp = () => {
         document.removeEventListener('pointermove', onMove);
         document.removeEventListener('pointerup', onUp);
         document.body.style.cursor = '';
-        store.pushHistory();
+        useCanvasStore.getState().pushHistory();
       };
 
       document.body.style.cursor = 'crosshair';
       document.addEventListener('pointermove', onMove);
       document.addEventListener('pointerup', onUp);
     },
-    [canEdit, element.id, store],
+    [canEdit, element.id],
   );
 
   const handleDelete = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
       e.preventDefault();
-      store.deleteElements([element.id]);
+      useCanvasStore.getState().deleteElements([element.id]);
     },
-    [store, element.id],
+    [element.id],
   );
 
   const showResizeHandles =

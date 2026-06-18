@@ -440,14 +440,19 @@ export function AiPromptPanel() {
 
       // Create a component definition from the first element as master
       const masterEl = adjusted[0];
+      const now = new Date().toISOString();
       const componentDef = {
+        id: `comp-${Date.now()}`,
         name: msg.content.slice(0, 40) || 'AI Component',
+        description: 'AI-generated component',
         masterElementId: masterEl.id,
-        children: adjusted.map((el) => el.id),
+        childElementIds: adjusted.map((el) => el.id),
+        createdAt: now,
+        updatedAt: now,
       };
 
-      // Add to component store
-      useComponentStore.getState().addComponent(componentDef);
+      // Register in component store
+      useComponentStore.getState().registerComponent(componentDef);
       setElements([...canvasElements, ...adjusted]);
       pushHistory();
     },
@@ -468,13 +473,15 @@ export function AiPromptPanel() {
 
   const handleEditAndResend = useCallback(
     (msgId: string, newContent: string) => {
+      // editMessage truncates everything after msgId and replaces the message content.
+      // After this, the last message is the edited user message.
+      // We don't need removeLastMessage because editMessage already removed the old assistant response.
+      // sendPrompt will add a new user message and call the API.
       editMessage(msgId, newContent);
       setEditingMessageId(null);
-      // Re-send with edited content
-      removeLastMessage(); // Remove old assistant response
       sendPrompt(newContent);
     },
-    [editMessage, removeLastMessage, sendPrompt],
+    [editMessage, sendPrompt],
   );
 
   // ── Handle key down ────────────────────────────────────────────────────

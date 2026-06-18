@@ -18,7 +18,16 @@ interface CanvasAreaProps {
 
 export default function CanvasArea({ onCursorMove }: CanvasAreaProps) {
   const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
-  const store = useCanvasStore();
+  const elements = useCanvasStore((s) => s.elements);
+  const selectedIds = useCanvasStore((s) => s.selectedIds);
+  const activeTool = useCanvasStore((s) => s.activeTool);
+  const panX = useCanvasStore((s) => s.panX);
+  const panY = useCanvasStore((s) => s.panY);
+  const zoom = useCanvasStore((s) => s.zoom);
+  const selectionBox = useCanvasStore((s) => s.selectionBox);
+  const isDrawingSelection = useCanvasStore((s) => s.isDrawingSelection);
+  const spacePressed = useCanvasStore((s) => s.spacePressed);
+  const snapToGrid = useCanvasStore((s) => s.snapToGrid);
   const containerRef = useRef<HTMLDivElement>(null);
   const isPanningRef = useRef(false);
   const panStartRef = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
@@ -27,19 +36,6 @@ export default function CanvasArea({ onCursorMove }: CanvasAreaProps) {
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [isDragOver, setIsDragOver] = useState(false);
   const cursorThrottleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const {
-    elements,
-    selectedIds,
-    activeTool,
-    panX,
-    panY,
-    zoom,
-    selectionBox,
-    isDrawingSelection,
-    spacePressed,
-    snapToGrid,
-  } = store;
 
   // Sort elements by z-index
   const sortedElements = [...elements].sort((a, b) => a.zIndex - b.zIndex);
@@ -84,7 +80,7 @@ export default function CanvasArea({ onCursorMove }: CanvasAreaProps) {
               if (file) {
                 const reader = new FileReader();
                 reader.onload = (re) => {
-                  store.addElement('IMAGE', canvasPos.x, canvasPos.y, {
+                  useCanvasStore.getState().addElement('IMAGE', canvasPos.x, canvasPos.y, {
                     styles: { src: re.target?.result as string },
                   });
                 };
@@ -93,16 +89,16 @@ export default function CanvasArea({ onCursorMove }: CanvasAreaProps) {
             };
             input.click();
           } else {
-            store.addElement(activeTool, canvasPos.x, canvasPos.y);
+            useCanvasStore.getState().addElement(activeTool, canvasPos.x, canvasPos.y);
           }
           return;
         }
 
         // Rubber band selection
-        store.deselectAll();
+        useCanvasStore.getState().deselectAll();
         selectionStartRef.current = { startX: e.clientX, startY: e.clientY };
-        store.setIsDrawingSelection(true);
-        store.setSelectionBox({
+        useCanvasStore.getState().setIsDrawingSelection(true);
+        useCanvasStore.getState().setSelectionBox({
           startX: e.clientX,
           startY: e.clientY,
           endX: e.clientX,
@@ -111,7 +107,7 @@ export default function CanvasArea({ onCursorMove }: CanvasAreaProps) {
         (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
       }
     },
-    [activeTool, spacePressed, panX, panY, screenToCanvas, store],
+    [activeTool, spacePressed, panX, panY, screenToCanvas],
   );
 
   // ── Pointer move ──
@@ -132,13 +128,13 @@ export default function CanvasArea({ onCursorMove }: CanvasAreaProps) {
       if (isPanningRef.current) {
         const dx = e.clientX - panStartRef.current.x;
         const dy = e.clientY - panStartRef.current.y;
-        store.setPan(panStartRef.current.panX + dx, panStartRef.current.panY + dy);
+        useCanvasStore.getState().setPan(panStartRef.current.panX + dx, panStartRef.current.panY + dy);
         return;
       }
 
       // Rubber band selection
       if (isDrawingSelection && selectionStartRef.current) {
-        store.setSelectionBox({
+        useCanvasStore.getState().setSelectionBox({
           startX: selectionStartRef.current.startX,
           startY: selectionStartRef.current.startY,
           endX: e.clientX,
@@ -158,14 +154,14 @@ export default function CanvasArea({ onCursorMove }: CanvasAreaProps) {
       if (dragStartRef.current && dragStartRef.current.moved) {
         const dx = (e.clientX - dragStartRef.current.startX) / zoom;
         const dy = (e.clientY - dragStartRef.current.startY) / zoom;
-        store.moveElement(
+        useCanvasStore.getState().moveElement(
           dragStartRef.current.id,
           dragStartRef.current.elX + dx,
           dragStartRef.current.elY + dy,
         );
       }
     },
-    [isDrawingSelection, screenToCanvas, zoom, store, onCursorMove],
+    [isDrawingSelection, screenToCanvas, zoom, onCursorMove],
   );
 
   // ── Pointer up ──
@@ -202,12 +198,12 @@ export default function CanvasArea({ onCursorMove }: CanvasAreaProps) {
           });
 
           if (intersecting.length > 0) {
-            store.deselectAll();
-            intersecting.forEach((el) => store.selectElement(el.id, true));
+            useCanvasStore.getState().deselectAll();
+            intersecting.forEach((el) => useCanvasStore.getState().selectElement(el.id, true));
           }
         }
-        store.setSelectionBox(null);
-        store.setIsDrawingSelection(false);
+        useCanvasStore.getState().setSelectionBox(null);
+        useCanvasStore.getState().setIsDrawingSelection(false);
         selectionStartRef.current = null;
         return;
       }
@@ -215,12 +211,12 @@ export default function CanvasArea({ onCursorMove }: CanvasAreaProps) {
       // End element drag
       if (dragStartRef.current) {
         if (dragStartRef.current.moved) {
-          store.pushHistory();
+          useCanvasStore.getState().pushHistory();
         }
         dragStartRef.current = null;
       }
     },
-    [isDrawingSelection, selectionBox, panX, panY, zoom, sortedElements, store],
+    [isDrawingSelection, selectionBox, panX, panY, zoom, sortedElements],
   );
 
   // ── Element pointer down (start drag or select) ──
@@ -231,12 +227,12 @@ export default function CanvasArea({ onCursorMove }: CanvasAreaProps) {
 
       const el = elements.find((el) => el.id === id);
       if (!el || el.locked) {
-        if (el?.locked) store.selectElement(id, e.shiftKey);
+        if (el?.locked) useCanvasStore.getState().selectElement(id, e.shiftKey);
         return;
       }
 
       // Select
-      store.selectElement(id, e.shiftKey);
+      useCanvasStore.getState().selectElement(id, e.shiftKey);
 
       // Start drag
       dragStartRef.current = {
@@ -251,7 +247,7 @@ export default function CanvasArea({ onCursorMove }: CanvasAreaProps) {
       // Capture pointer on container
       containerRef.current?.setPointerCapture(e.pointerId);
     },
-    [activeTool, elements, store],
+    [activeTool, elements],
   );
 
   // ── Double click on empty space to create text ──
@@ -259,7 +255,7 @@ export default function CanvasArea({ onCursorMove }: CanvasAreaProps) {
     (e: React.MouseEvent) => {
       if (activeTool !== 'SELECT') return;
       const canvasPos = screenToCanvas(e.clientX, e.clientY);
-      const el = store.addElement('TEXT', canvasPos.x, canvasPos.y, {
+      const el = useCanvasStore.getState().addElement('TEXT', canvasPos.x, canvasPos.y, {
         width: 200,
         height: 40,
       });
@@ -269,7 +265,7 @@ export default function CanvasArea({ onCursorMove }: CanvasAreaProps) {
         if (textarea) (textarea as HTMLTextAreaElement).focus();
       }, 100);
     },
-    [activeTool, screenToCanvas, store],
+    [activeTool, screenToCanvas],
   );
 
   // ── Mouse wheel for zoom ──
@@ -291,15 +287,15 @@ export default function CanvasArea({ onCursorMove }: CanvasAreaProps) {
         const newPanX = mouseX - (mouseX - panX) * (newZoom / zoom);
         const newPanY = mouseY - (mouseY - panY) * (newZoom / zoom);
 
-        store.setZoom(newZoom);
-        store.setPan(newPanX, newPanY);
+        useCanvasStore.getState().setZoom(newZoom);
+        useCanvasStore.getState().setPan(newPanX, newPanY);
       } else {
         // Scroll to pan
         e.preventDefault();
-        store.setPan(panX - e.deltaX, panY - e.deltaY);
+        useCanvasStore.getState().setPan(panX - e.deltaX, panY - e.deltaY);
       }
     },
-    [zoom, panX, panY, store],
+    [zoom, panX, panY],
   );
 
   // ── Keyboard shortcuts ──
@@ -314,7 +310,7 @@ export default function CanvasArea({ onCursorMove }: CanvasAreaProps) {
 
       if (e.key === ' ') {
         e.preventDefault();
-        store.setSpacePressed(true);
+        useCanvasStore.getState().setSpacePressed(true);
         return;
       }
 
@@ -324,39 +320,41 @@ export default function CanvasArea({ onCursorMove }: CanvasAreaProps) {
           case 'z':
             if (e.shiftKey) {
               e.preventDefault();
-              store.redo();
+              useCanvasStore.getState().redo();
             } else {
               e.preventDefault();
-              store.undo();
+              useCanvasStore.getState().undo();
             }
             return;
           case 'y':
             e.preventDefault();
-            store.redo();
+            useCanvasStore.getState().redo();
             return;
           case 'c':
             e.preventDefault();
-            store.copySelected();
+            useCanvasStore.getState().copySelected();
             return;
           case 'v':
             e.preventDefault();
-            store.pasteClipboard();
+            useCanvasStore.getState().pasteClipboard();
             return;
           case 'a':
             e.preventDefault();
-            store.selectAll();
+            useCanvasStore.getState().selectAll();
             return;
           case 'g':
             e.preventDefault();
             if (e.shiftKey) {
               // Ungroup
-              const selectedEls = store.elements.filter((el) => store.selectedIds.includes(el.id));
+              const { elements: els, selectedIds: sIds } = useCanvasStore.getState();
+              const selectedEls = els.filter((el) => sIds.includes(el.id));
               const groups = new Set(selectedEls.map((el) => el.groupId).filter(Boolean));
-              groups.forEach((g) => store.ungroupElements(g as string));
+              groups.forEach((g) => useCanvasStore.getState().ungroupElements(g as string));
             } else {
               // Group
-              if (store.selectedIds.length >= 2) {
-                store.groupElements(store.selectedIds);
+              const { selectedIds: sIds } = useCanvasStore.getState();
+              if (sIds.length >= 2) {
+                useCanvasStore.getState().groupElements(sIds);
               }
             }
             return;
@@ -368,50 +366,50 @@ export default function CanvasArea({ onCursorMove }: CanvasAreaProps) {
         case 'Delete':
         case 'Backspace':
           e.preventDefault();
-          store.deleteElements();
+          useCanvasStore.getState().deleteElements();
           return;
         case 'v':
         case 'V':
-          if (!e.ctrlKey && !e.metaKey) store.setTool('SELECT');
+          if (!e.ctrlKey && !e.metaKey) useCanvasStore.getState().setTool('SELECT');
           return;
         case 'h':
         case 'H':
-          store.setTool('HAND');
+          useCanvasStore.getState().setTool('HAND');
           return;
         case 's':
         case 'S':
-          if (!e.ctrlKey && !e.metaKey) store.setTool('STICKY_NOTE');
+          if (!e.ctrlKey && !e.metaKey) useCanvasStore.getState().setTool('STICKY_NOTE');
           return;
         case 'r':
         case 'R':
-          if (!e.ctrlKey && !e.metaKey) store.setTool('RECTANGLE');
+          if (!e.ctrlKey && !e.metaKey) useCanvasStore.getState().setTool('RECTANGLE');
           return;
         case 'c':
         case 'C':
-          if (!e.ctrlKey && !e.metaKey) store.setTool('CIRCLE');
+          if (!e.ctrlKey && !e.metaKey) useCanvasStore.getState().setTool('CIRCLE');
           return;
         case 'l':
         case 'L':
-          store.setTool('LINE');
+          useCanvasStore.getState().setTool('LINE');
           return;
         case 't':
         case 'T':
-          store.setTool('TEXT');
+          useCanvasStore.getState().setTool('TEXT');
           return;
         case 'i':
         case 'I':
-          if (!e.ctrlKey && !e.metaKey) store.setTool('IMAGE');
+          if (!e.ctrlKey && !e.metaKey) useCanvasStore.getState().setTool('IMAGE');
           return;
         case 'Escape':
-          store.deselectAll();
-          store.setTool('SELECT');
+          useCanvasStore.getState().deselectAll();
+          useCanvasStore.getState().setTool('SELECT');
           return;
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
       if (e.key === ' ') {
-        store.setSpacePressed(false);
+        useCanvasStore.getState().setSpacePressed(false);
       }
     };
 
@@ -421,7 +419,7 @@ export default function CanvasArea({ onCursorMove }: CanvasAreaProps) {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [store]);
+  }, []);
 
   // ── File drop ──
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -446,7 +444,7 @@ export default function CanvasArea({ onCursorMove }: CanvasAreaProps) {
         if (!file.type.startsWith('image/')) return;
         const reader = new FileReader();
         reader.onload = (ev) => {
-          store.addElement('IMAGE', canvasPos.x, canvasPos.y, {
+          useCanvasStore.getState().addElement('IMAGE', canvasPos.x, canvasPos.y, {
             styles: { src: ev.target?.result as string },
             content: file.name,
           });
@@ -454,7 +452,7 @@ export default function CanvasArea({ onCursorMove }: CanvasAreaProps) {
         reader.readAsDataURL(file);
       });
     },
-    [screenToCanvas, store],
+    [screenToCanvas],
   );
 
   // ── Compute grid background ──

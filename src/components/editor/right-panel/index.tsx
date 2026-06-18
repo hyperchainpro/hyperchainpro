@@ -347,8 +347,8 @@ function DesktopRightPanel() {
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           className="relative flex h-full w-[280px] shrink-0 flex-col border-l bg-background shadow-xl"
         >
-          {/* Close button */}
-          <div className="absolute right-2 top-2 z-10">
+          {/* Close button — hidden on mobile via CSS as safety net against hydration mismatch */}
+          <div className="hidden md:flex justify-end px-3 pt-2.5 pb-1 shrink-0">
             <Button
               variant="ghost"
               size="icon"
@@ -375,19 +375,13 @@ function MobileRightPanel() {
 
   return (
     <Sheet open={rightPanelOpen} onOpenChange={setRightPanelOpen}>
-      <SheetContent side="right" className="w-[85vw] max-w-[300px] p-0" showCloseButton={false}>
+      <SheetContent side="right" className="w-[85vw] max-w-[300px] p-0">
         <SheetTitle className="sr-only">{t("vc.propertiesPanel", locale)}</SheetTitle>
-        {/* Custom header with close button — proper spacing from tabs */}
-        <div className="flex items-center justify-between px-3 pt-3 pb-1">
+        {/* Header — Sheet's own built-in close button (top-right) is used, no custom one needed */}
+        <div className="flex items-center px-3 pt-3 pb-3">
           <h3 className="text-xs font-semibold text-muted-foreground">{t("vc.propertiesPanel", locale)}</h3>
-          <button
-            onClick={() => setRightPanelOpen(false)}
-            className="flex items-center justify-center h-7 w-7 rounded-full hover:bg-muted transition-colors text-muted-foreground"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-          </button>
         </div>
-        <div className="h-[calc(100vh-100px)]">
+        <div className="h-[calc(100vh-120px)]">
           <PanelContent />
         </div>
       </SheetContent>

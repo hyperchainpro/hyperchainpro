@@ -53,7 +53,16 @@ const TOOL_TO_ELEMENT: Record<string, ElementType> = {
 
 export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaProps) {
   const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
-  const store = useCanvasStore();
+  const elements = useCanvasStore((s) => s.elements);
+  const selectedIds = useCanvasStore((s) => s.selectedIds);
+  const activeTool = useCanvasStore((s) => s.activeTool);
+  const panX = useCanvasStore((s) => s.panX);
+  const panY = useCanvasStore((s) => s.panY);
+  const zoom = useCanvasStore((s) => s.zoom);
+  const selectionBox = useCanvasStore((s) => s.selectionBox);
+  const isDrawingSelection = useCanvasStore((s) => s.isDrawingSelection);
+  const spacePressed = useCanvasStore((s) => s.spacePressed);
+  const snapToGrid = useCanvasStore((s) => s.snapToGrid);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Panning refs
@@ -97,23 +106,11 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
   // Alignment guides state
   const [activeGuides, setActiveGuides] = useState<AlignmentGuide[]>([]);
 
+  const cursorThrottleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Cursor and UI state
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [isDragOver, setIsDragOver] = useState(false);
-  const cursorThrottleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const {
-    elements,
-    selectedIds,
-    activeTool,
-    panX,
-    panY,
-    zoom,
-    selectionBox,
-    isDrawingSelection,
-    spacePressed,
-    snapToGrid,
-  } = store;
 
   const editorMode = useAppStore((s) => s.editorMode);
   const isPlaying = usePrototypeStore((s) => s.isPlaying);
@@ -172,13 +169,13 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
           e.preventDefault();
           const elementType = TOOL_TO_ELEMENT[activeTool];
           if (elementType) {
-            const el = store.addElement(elementType, canvasPos.x, canvasPos.y, {
+            const el = useCanvasStore.getState().addElement(elementType, canvasPos.x, canvasPos.y, {
               width: 0,
               height: 0,
             });
             // Keep the drawing tool active during drag-to-draw
             // (addElement switches to SELECT, so we restore it)
-            store.setTool(activeTool);
+            useCanvasStore.getState().setTool(activeTool);
             isDrawingRef.current = true;
             drawStartRef.current = { x: canvasPos.x, y: canvasPos.y };
             drawingElementIdRef.current = el.id;
@@ -197,7 +194,7 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
             if (file) {
               const reader = new FileReader();
               reader.onload = (re) => {
-                store.addElement('IMAGE', canvasPos.x, canvasPos.y, {
+                useCanvasStore.getState().addElement('IMAGE', canvasPos.x, canvasPos.y, {
                   styles: { src: re.target?.result as string },
                 });
               };
@@ -210,16 +207,16 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
 
         // CONNECTOR: start from this point
         if (activeTool === 'CONNECTOR') {
-          store.addElement('CONNECTOR', canvasPos.x, canvasPos.y);
+          useCanvasStore.getState().addElement('CONNECTOR', canvasPos.x, canvasPos.y);
           return;
         }
 
         // SELECT tool: rubber band selection on empty space
         if (activeTool === 'SELECT') {
-          store.deselectAll();
+          useCanvasStore.getState().deselectAll();
           selectionStartRef.current = { startX: e.clientX, startY: e.clientY };
-          store.setIsDrawingSelection(true);
-          store.setSelectionBox({
+          useCanvasStore.getState().setIsDrawingSelection(true);
+          useCanvasStore.getState().setSelectionBox({
             startX: e.clientX,
             startY: e.clientY,
             endX: e.clientX,
@@ -229,7 +226,7 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
         }
       }
     },
-    [activeTool, spacePressed, panX, panY, screenToCanvas, store, isDrawTool],
+    [activeTool, spacePressed, panX, panY, screenToCanvas, isDrawTool],
   );
 
   // ── Pointer move ──
@@ -250,7 +247,7 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
       if (isPanningRef.current) {
         const dx = e.clientX - panStartRef.current.x;
         const dy = e.clientY - panStartRef.current.y;
-        store.setPan(panStartRef.current.panX + dx, panStartRef.current.panY + dy);
+        useCanvasStore.getState().setPan(panStartRef.current.panX + dx, panStartRef.current.panY + dy);
         return;
       }
 
@@ -275,13 +272,13 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
 
         // For LINE, store x2/y2 instead
         if (activeTool === 'LINE') {
-          store.updateElement(drawingElementIdRef.current, {
+          useCanvasStore.getState().updateElement(drawingElementIdRef.current, {
             width: canvasPos.x - startX,
             height: 0,
             styles: { x2: canvasPos.x - startX, y2: canvasPos.y - startY },
           });
         } else {
-          store.updateElement(drawingElementIdRef.current, {
+          useCanvasStore.getState().updateElement(drawingElementIdRef.current, {
             x: finalX,
             y: finalY,
             width: Math.max(1, finalW),
@@ -362,7 +359,7 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
 
         const elId = selectedIds[0];
         if (elId) {
-          store.resizeElement(elId, newX, newY, newW, newH);
+          useCanvasStore.getState().resizeElement(elId, newX, newY, newW, newH);
         }
         return;
       }
@@ -377,14 +374,14 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
           const screenCenterX = centerX * zoom + panX + RULER_SIZE;
           const screenCenterY = centerY * zoom + panY + RULER_SIZE;
           const angle = Math.atan2(e.clientY - screenCenterY, e.clientX - screenCenterX) * (180 / Math.PI) + 90;
-          store.rotateElement(rotatingElementIdRef.current, Math.round(angle));
+          useCanvasStore.getState().rotateElement(rotatingElementIdRef.current, Math.round(angle));
         }
         return;
       }
 
       // ── Rubber band selection ──
       if (isDrawingSelection && selectionStartRef.current) {
-        store.setSelectionBox({
+        useCanvasStore.getState().setSelectionBox({
           startX: selectionStartRef.current.startX,
           startY: selectionStartRef.current.startY,
           endX: e.clientX,
@@ -417,7 +414,7 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
 
           const finalX = snapToGrid ? Math.round(snapped.x / SNAP_THRESHOLD) * SNAP_THRESHOLD : snapped.x;
           const finalY = snapToGrid ? Math.round(snapped.y / SNAP_THRESHOLD) * SNAP_THRESHOLD : snapped.y;
-          store.moveElement(dragStartRef.current.id, finalX, finalY);
+          useCanvasStore.getState().moveElement(dragStartRef.current.id, finalX, finalY);
         }
       }
     },
@@ -427,7 +424,6 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
       zoom,
       panX,
       panY,
-      store,
       onCursorMove,
       elements,
       selectedIds,
@@ -450,11 +446,11 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
         isDrawingRef.current = false;
         // If element is too small, delete it
         if (drawingElementIdRef.current) {
-          const el = store.elements.find((e) => e.id === drawingElementIdRef.current);
+          const el = useCanvasStore.getState().elements.find((e) => e.id === drawingElementIdRef.current);
           if (el && el.width < 5 && el.height < 5 && el.type !== 'LINE') {
-            store.deleteElements([drawingElementIdRef.current]);
+            useCanvasStore.getState().deleteElements([drawingElementIdRef.current]);
           }
-          store.pushHistory();
+          useCanvasStore.getState().pushHistory();
         }
         drawStartRef.current = null;
         drawingElementIdRef.current = null;
@@ -465,7 +461,7 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
       if (resizeHandleRef.current) {
         resizeHandleRef.current = null;
         resizeStartRef.current = null;
-        store.pushHistory();
+        useCanvasStore.getState().pushHistory();
         return;
       }
 
@@ -473,7 +469,7 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
       if (isRotatingRef.current) {
         isRotatingRef.current = false;
         rotatingElementIdRef.current = null;
-        store.pushHistory();
+        useCanvasStore.getState().pushHistory();
         return;
       }
 
@@ -502,12 +498,12 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
           });
 
           if (intersecting.length > 0) {
-            store.deselectAll();
-            intersecting.forEach((el) => store.selectElement(el.id, true));
+            useCanvasStore.getState().deselectAll();
+            intersecting.forEach((el) => useCanvasStore.getState().selectElement(el.id, true));
           }
         }
-        store.setSelectionBox(null);
-        store.setIsDrawingSelection(false);
+        useCanvasStore.getState().setSelectionBox(null);
+        useCanvasStore.getState().setIsDrawingSelection(false);
         selectionStartRef.current = null;
         return;
       }
@@ -515,13 +511,13 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
       // End element drag
       if (dragStartRef.current) {
         if (dragStartRef.current.moved) {
-          store.pushHistory();
+          useCanvasStore.getState().pushHistory();
         }
         dragStartRef.current = null;
         setActiveGuides([]);
       }
     },
-    [isDrawingSelection, selectionBox, panX, panY, zoom, visibleElements, store, activeTool],
+    [isDrawingSelection, selectionBox, panX, panY, zoom, visibleElements, activeTool],
   );
 
   // ── Element pointer down (start drag or select) ──
@@ -532,12 +528,12 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
 
       const el = elements.find((el) => el.id === id);
       if (!el || el.locked) {
-        if (el?.locked) store.selectElement(id, e.shiftKey);
+        if (el?.locked) useCanvasStore.getState().selectElement(id, e.shiftKey);
         return;
       }
 
       // Select
-      store.selectElement(id, e.shiftKey);
+      useCanvasStore.getState().selectElement(id, e.shiftKey);
 
       // Start drag
       dragStartRef.current = {
@@ -551,7 +547,7 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
 
       containerRef.current?.setPointerCapture(e.pointerId);
     },
-    [activeTool, elements, store],
+    [activeTool, elements],
   );
 
   // ── Resize start (called from EnhancedBoardElement) ──
@@ -596,7 +592,7 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
     (e: React.MouseEvent) => {
       if (activeTool !== 'SELECT') return;
       const canvasPos = screenToCanvas(e.clientX, e.clientY);
-      const el = store.addElement('TEXT', canvasPos.x, canvasPos.y, {
+      const el = useCanvasStore.getState().addElement('TEXT', canvasPos.x, canvasPos.y, {
         width: 200,
         height: 40,
       });
@@ -605,7 +601,7 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
         if (textarea) (textarea as HTMLTextAreaElement).focus();
       }, 100);
     },
-    [activeTool, screenToCanvas, store],
+    [activeTool, screenToCanvas],
   );
 
   // ── Mouse wheel for zoom ──
@@ -626,14 +622,14 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
         const newPanX = mouseX - (mouseX - panX) * (newZoom / zoom);
         const newPanY = mouseY - (mouseY - panY) * (newZoom / zoom);
 
-        store.setZoom(newZoom);
-        store.setPan(newPanX, newPanY);
+        useCanvasStore.getState().setZoom(newZoom);
+        useCanvasStore.getState().setPan(newPanX, newPanY);
       } else {
         e.preventDefault();
-        store.setPan(panX - e.deltaX, panY - e.deltaY);
+        useCanvasStore.getState().setPan(panX - e.deltaX, panY - e.deltaY);
       }
     },
-    [zoom, panX, panY, store],
+    [zoom, panX, panY],
   );
 
   // ── Keyboard shortcuts ──
@@ -652,7 +648,7 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
 
       if (e.key === ' ') {
         e.preventDefault();
-        store.setSpacePressed(true);
+        useCanvasStore.getState().setSpacePressed(true);
         return;
       }
 
@@ -662,51 +658,51 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
           case '=':
           case '+':
             e.preventDefault();
-            store.zoomIn();
+            useCanvasStore.getState().zoomIn();
             return;
           case '-':
           case '_':
             e.preventDefault();
-            store.zoomOut();
+            useCanvasStore.getState().zoomOut();
             return;
           case '0':
             e.preventDefault();
-            store.zoomToFit();
+            useCanvasStore.getState().zoomToFit();
             return;
           case 'z':
             if (e.shiftKey) {
               e.preventDefault();
-              store.redo();
+              useCanvasStore.getState().redo();
             } else {
               e.preventDefault();
-              store.undo();
+              useCanvasStore.getState().undo();
             }
             return;
           case 'y':
             e.preventDefault();
-            store.redo();
+            useCanvasStore.getState().redo();
             return;
           case 'c':
             e.preventDefault();
-            store.copySelected();
+            useCanvasStore.getState().copySelected();
             return;
           case 'v':
             e.preventDefault();
-            store.pasteClipboard();
+            useCanvasStore.getState().pasteClipboard();
             return;
           case 'a':
             e.preventDefault();
-            store.selectAll();
+            useCanvasStore.getState().selectAll();
             return;
           case 'g':
             e.preventDefault();
             if (e.shiftKey) {
-              const selectedEls = store.elements.filter((el) => store.selectedIds.includes(el.id));
+              const selectedEls = useCanvasStore.getState().elements.filter((el) => useCanvasStore.getState().selectedIds.includes(el.id));
               const groups = new Set(selectedEls.map((el) => el.groupId).filter(Boolean));
-              groups.forEach((g) => store.ungroupElements(g as string));
+              groups.forEach((g) => useCanvasStore.getState().ungroupElements(g as string));
             } else {
-              if (store.selectedIds.length >= 2) {
-                store.groupElements(store.selectedIds);
+              if (useCanvasStore.getState().selectedIds.length >= 2) {
+                useCanvasStore.getState().groupElements(useCanvasStore.getState().selectedIds);
               }
             }
             return;
@@ -718,55 +714,55 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
         case 'Delete':
         case 'Backspace':
           e.preventDefault();
-          store.deleteElements();
+          useCanvasStore.getState().deleteElements();
           return;
         case 'v':
         case 'V':
-          if (!e.ctrlKey && !e.metaKey) store.setTool('SELECT');
+          if (!e.ctrlKey && !e.metaKey) useCanvasStore.getState().setTool('SELECT');
           return;
         case 'h':
         case 'H':
-          store.setTool('HAND');
+          useCanvasStore.getState().setTool('HAND');
           return;
         case 's':
         case 'S':
-          if (!e.ctrlKey && !e.metaKey) store.setTool('STICKY_NOTE');
+          if (!e.ctrlKey && !e.metaKey) useCanvasStore.getState().setTool('STICKY_NOTE');
           return;
         case 'r':
         case 'R':
-          if (!e.ctrlKey && !e.metaKey) store.setTool('RECTANGLE');
+          if (!e.ctrlKey && !e.metaKey) useCanvasStore.getState().setTool('RECTANGLE');
           return;
         case 'c':
         case 'C':
-          if (!e.ctrlKey && !e.metaKey) store.setTool('CIRCLE');
+          if (!e.ctrlKey && !e.metaKey) useCanvasStore.getState().setTool('CIRCLE');
           return;
         case 'l':
         case 'L':
-          store.setTool('LINE');
+          useCanvasStore.getState().setTool('LINE');
           return;
         case 't':
         case 'T':
-          store.setTool('TEXT');
+          useCanvasStore.getState().setTool('TEXT');
           return;
         case 'i':
         case 'I':
-          if (!e.ctrlKey && !e.metaKey) store.setTool('IMAGE');
+          if (!e.ctrlKey && !e.metaKey) useCanvasStore.getState().setTool('IMAGE');
           return;
         case 'o':
         case 'O':
-          if (!e.ctrlKey && !e.metaKey) store.setTool('ELLIPSE');
+          if (!e.ctrlKey && !e.metaKey) useCanvasStore.getState().setTool('ELLIPSE');
           return;
         case 'f':
         case 'F':
-          if (!e.ctrlKey && !e.metaKey) store.setTool('FRAME');
+          if (!e.ctrlKey && !e.metaKey) useCanvasStore.getState().setTool('FRAME');
           return;
         case 'p':
         case 'P':
-          if (!e.ctrlKey && !e.metaKey) store.setTool('PEN_TOOL');
+          if (!e.ctrlKey && !e.metaKey) useCanvasStore.getState().setTool('PEN_TOOL');
           return;
         case 'Escape':
-          store.deselectAll();
-          store.setTool('SELECT');
+          useCanvasStore.getState().deselectAll();
+          useCanvasStore.getState().setTool('SELECT');
           return;
         case '/':
           useAppStore.getState().setPluginDialogOpen(true);
@@ -776,7 +772,7 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
 
     const handleKeyUp = (e: KeyboardEvent) => {
       if (e.key === ' ') {
-        store.setSpacePressed(false);
+        useCanvasStore.getState().setSpacePressed(false);
       }
       if (e.key === 'Shift') {
         shiftHeldRef.current = false;
@@ -789,7 +785,7 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [store]);
+  }, []);
 
   // ── File drop ──
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -814,7 +810,7 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
         if (!file.type.startsWith('image/')) return;
         const reader = new FileReader();
         reader.onload = (ev) => {
-          store.addElement('IMAGE', canvasPos.x, canvasPos.y, {
+          useCanvasStore.getState().addElement('IMAGE', canvasPos.x, canvasPos.y, {
             styles: { src: ev.target?.result as string },
             content: file.name,
           });
@@ -822,7 +818,7 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
         reader.readAsDataURL(file);
       });
     },
-    [screenToCanvas, store],
+    [screenToCanvas],
   );
 
   // ── Compute grid background ──
@@ -1076,7 +1072,7 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
         <div className="absolute left-3 bottom-3 z-50 flex items-center gap-1 rounded-xl border bg-card/90 px-1.5 py-1 shadow-sm backdrop-blur-sm">
           <button
             className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-accent/50 text-foreground"
-            onClick={() => store.zoomOut()}
+            onClick={() => useCanvasStore.getState().zoomOut()}
             title="Zoom Out (Ctrl+-)"
           >
             <ZoomOut className="h-4 w-4" />
@@ -1087,7 +1083,7 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
               // Prompt-free: cycle through common zoom levels
               const zoomLevels = [0.1, 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 5];
               const nextZoom = zoomLevels.find((z) => z > zoom + 0.01) ?? 1;
-              store.setZoom(nextZoom);
+              useCanvasStore.getState().setZoom(nextZoom);
             }}
             title="Click to set zoom level"
           >
@@ -1095,7 +1091,7 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
           </button>
           <button
             className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-accent/50 text-foreground"
-            onClick={() => store.zoomIn()}
+            onClick={() => useCanvasStore.getState().zoomIn()}
             title="Zoom In (Ctrl++)"
           >
             <ZoomIn className="h-4 w-4" />
@@ -1103,7 +1099,7 @@ export default function EnhancedCanvasArea({ onCursorMove }: EnhancedCanvasAreaP
           <div className="mx-0.5 h-5 w-px bg-border" />
           <button
             className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-accent/50 text-foreground"
-            onClick={() => store.zoomToFit()}
+            onClick={() => useCanvasStore.getState().zoomToFit()}
             title="Zoom to Fit (Ctrl+0)"
           >
             <Maximize2 className="h-4 w-4" />
