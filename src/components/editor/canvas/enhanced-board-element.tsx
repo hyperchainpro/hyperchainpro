@@ -46,7 +46,6 @@ export default function EnhancedBoardElement({
   onResizeStart,
   onRotateStart,
 }: BoardElementProps) {
-  const store = useCanvasStore();
   const textRef = useRef<HTMLTextAreaElement>(null);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -68,15 +67,15 @@ export default function EnhancedBoardElement({
 
   const handleTextChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      store.updateElement(element.id, { content: e.target.value });
+      useCanvasStore.getState().updateElement(element.id, { content: e.target.value });
     },
-    [store, element.id],
+    [element.id],
   );
 
   const handleTextBlur = useCallback(() => {
     setIsEditing(false);
-    store.pushHistory();
-  }, [store]);
+    useCanvasStore.getState().pushHistory();
+  }, []);
 
   const handleTextKeyDown = useCallback(
     (e: React.KeyboardEvent) => {

@@ -12,10 +12,12 @@ const MINIMAP_PADDING = 16;
 
 export default function Minimap() {
   const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
-  const store = useCanvasStore();
+  const elements = useCanvasStore((s) => s.elements);
+  const panX = useCanvasStore((s) => s.panX);
+  const panY = useCanvasStore((s) => s.panY);
+  const zoom = useCanvasStore((s) => s.zoom);
+  const showMinimap = useCanvasStore((s) => s.showMinimap);
   const svgRef = useRef<SVGSVGElement>(null);
-
-  const { elements, panX, panY, zoom, showMinimap } = store;
 
   // Calculate bounds of all elements
   const bounds = useMemo(() => {
@@ -99,12 +101,12 @@ export default function Minimap() {
       const containerW = (typeof window !== 'undefined' ? window.innerWidth - 56 : 1200);
       const containerH = typeof window !== 'undefined' ? window.innerHeight : 800;
 
-      store.setPan(
+      useCanvasStore.getState().setPan(
         -canvasX * zoom + containerW / 2,
         -canvasY * zoom + containerH / 2,
       );
     },
-    [offsetX, offsetY, scale, bounds, zoom, store],
+    [offsetX, offsetY, scale, bounds, zoom],
   );
 
   // Minimap viewport rect in minimap coords

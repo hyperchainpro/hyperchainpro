@@ -10,11 +10,9 @@ export function SliceOverlay() {
   const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const sliceRegions = useCanvasStore((s) => s.sliceRegions);
   const removeSliceRegion = useCanvasStore((s) => s.removeSliceRegion);
-  const { panX, panY, zoom } = useCanvasStore((s) => ({
-    panX: s.panX,
-    panY: s.panY,
-    zoom: s.zoom,
-  }));
+  const panX = useCanvasStore((s) => s.panX);
+  const panY = useCanvasStore((s) => s.panY);
+  const zoom = useCanvasStore((s) => s.zoom);
 
   if (sliceRegions.length === 0) return null;
 

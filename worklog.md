@@ -505,3 +505,29 @@ Stage Summary:
 - All three issues fixed
 - Application fully functional: Auth → Login → Dashboard flow verified end-to-end
 - Server persistence trick: `(bun run dev > dev.log 2>&1 &) && sleep 3600 &` keeps server alive across Bash tool calls
+
+---
+Task ID: 2
+Agent: Main Agent
+Task: Fix getSnapshot infinite loop, Zustand selector issues, and board-opening errors
+
+Work Log:
+- Fixed SliceOverlay object selector `useCanvasStore((s) => ({...}))` → individual selectors (root cause of getSnapshot infinite loop)
+- Fixed enhanced-board-element.tsx: replaced `useCanvasStore()` with `useCanvasStore.getState()` for actions (was re-rendering entire element tree on any store change)
+- Fixed layers-panel.tsx: split `useCanvasStore()` into 4 individual selectors
+- Fixed minimap.tsx: split `useCanvasStore()` into 5 individual selectors + `getState()` for action
+- Fixed enhanced-toolbar.tsx: split `useCanvasStore()` into 18 individual selectors
+- Fixed use-collaboration.ts: split `usePresenceStore()` into 6 individual selectors
+- Added `reconnectionAttempts: 3` and `reconnectionDelay: 5000` to socket.io config
+- Changed connect_error handler to log only once instead of spamming on every retry
+- Added `allowedDevOrigins` regex to next.config.ts for cross-origin preview panel
+- Verified: 0 errors in browser console after opening existing board
+- Verified: only 1 collab warning (down from 4+ repeated)
+- Verified: lint passes clean
+- Verified: all API calls return 200, editor fully interactive
+
+Stage Summary:
+- Root cause of getSnapshot: object selector in SliceOverlay creating new ref each render
+- 7 files fixed with proper Zustand selectors (no more whole-store subscriptions)
+- WebSocket collab now gracefully degrades to offline mode without console spam
+- Board opening works cleanly with no runtime errors

@@ -29,14 +29,12 @@ export function useCollaboration(boardId: string | null) {
   const socketRef = useRef<Socket | null>(null);
   const myIdRef = useRef<string | null>(null);
 
-  const {
-    setUsers,
-    addUser,
-    removeUser,
-    updateUserCursor,
-    setConnected,
-    reset: resetPresence,
-  } = usePresenceStore();
+  const setUsers = usePresenceStore((s) => s.setUsers);
+  const addUser = usePresenceStore((s) => s.addUser);
+  const removeUser = usePresenceStore((s) => s.removeUser);
+  const updateUserCursor = usePresenceStore((s) => s.updateUserCursor);
+  const setConnected = usePresenceStore((s) => s.setConnected);
+  const resetPresence = usePresenceStore((s) => s.reset);
 
   const addElementRemote = useCanvasStore((s) => s.addElement);
   const updateElement = useCanvasStore((s) => s.updateElement);
@@ -62,8 +60,11 @@ export function useCollaboration(boardId: string | null) {
     }
 
     // Connect to the collab service via gateway
+    const errorLoggedRef = { current: false };
     const socket = io('/?XTransformPort=3004', {
       transports: ['websocket', 'polling'],
+      reconnectionAttempts: 3,
+      reconnectionDelay: 5000,
     });
 
     socketRef.current = socket;
@@ -136,8 +137,11 @@ export function useCollaboration(boardId: string | null) {
       resetPresence();
     });
 
-    socket.on('connect_error', (err) => {
-      console.warn('[collab] Connection error:', err.message);
+    socket.on('connect_error', () => {
+      if (!errorLoggedRef.current) {
+        console.warn('[collab] Collaboration service unavailable — running in offline mode');
+        errorLoggedRef.current = true;
+      }
       setConnected(false);
     });
 

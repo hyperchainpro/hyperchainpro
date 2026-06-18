@@ -217,8 +217,10 @@ function LayerRow({
 }) {
   const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const { element, depth, isFrame, childCount, typeIndex } = item;
-  const { selectedIds, selectElement, updateElement, toggleLock } =
-    useCanvasStore();
+  const selectedIds = useCanvasStore((s) => s.selectedIds);
+  const selectElement = useCanvasStore((s) => s.selectElement);
+  const updateElement = useCanvasStore((s) => s.updateElement);
+  const toggleLock = useCanvasStore((s) => s.toggleLock);
 
   const isSelected = selectedIds.includes(element.id);
   const Icon = TYPE_ICON_MAP[element.type] || Square;

@@ -407,7 +407,25 @@ function PopoverToolButton({
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function EnhancedToolbar() {
-  const { activeTool, snapToGrid, showMinimap, showMeasureLines, showGuides, history, historyIndex, selectedIds, setTool, undo, redo, zoomIn, zoomOut, deleteElements, setSnapToGrid, toggleMinimap, toggleMeasureLines, toggleGuides, booleanOperation } = useCanvasStore();
+  const activeTool = useCanvasStore((s) => s.activeTool);
+  const snapToGrid = useCanvasStore((s) => s.snapToGrid);
+  const showMinimap = useCanvasStore((s) => s.showMinimap);
+  const showMeasureLines = useCanvasStore((s) => s.showMeasureLines);
+  const showGuides = useCanvasStore((s) => s.showGuides);
+  const history = useCanvasStore((s) => s.history);
+  const historyIndex = useCanvasStore((s) => s.historyIndex);
+  const selectedIds = useCanvasStore((s) => s.selectedIds);
+  const setTool = useCanvasStore((s) => s.setTool);
+  const undo = useCanvasStore((s) => s.undo);
+  const redo = useCanvasStore((s) => s.redo);
+  const zoomIn = useCanvasStore((s) => s.zoomIn);
+  const zoomOut = useCanvasStore((s) => s.zoomOut);
+  const deleteElements = useCanvasStore((s) => s.deleteElements);
+  const setSnapToGrid = useCanvasStore((s) => s.setSnapToGrid);
+  const toggleMinimap = useCanvasStore((s) => s.toggleMinimap);
+  const toggleMeasureLines = useCanvasStore((s) => s.toggleMeasureLines);
+  const toggleGuides = useCanvasStore((s) => s.toggleGuides);
+  const booleanOperation = useCanvasStore((s) => s.booleanOperation);
   const { editorMode, setEditorMode } = useAppStore();
   const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
   const pendingAIDesign = useAppStore((s) => s.pendingAIDesign);
