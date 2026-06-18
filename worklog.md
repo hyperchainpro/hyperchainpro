@@ -396,3 +396,17 @@ Stage Summary:
 - Slice tool creates export regions at viewport center
 - All new features fully internationalized (en, id, ja, ko, zh)
 - Lint: zero errors
+---
+Task ID: debug
+Agent: main
+Task: Fix blank page - server not accessible from Preview Panel
+
+Work Log:
+- Server was listening on IPv6 only while gateway proxies via IPv4
+- Added -H 0.0.0.0 to dev script to force IPv4 binding
+- Used script wrapper for pseudo-TTY to keep server alive
+- Server now returns HTTP 200 with 31KB content on 0.0.0.0:3000
+
+Stage Summary:
+- Root cause: Next.js Turbopack defaults to IPv6; proxy connects via IPv4
+- Fix: Added -H 0.0.0.0 to package.json dev script
