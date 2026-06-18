@@ -12,21 +12,24 @@ import {
   Sparkles,
   Type,
   MousePointerClick,
-  ArrowDownToLine,
   Cpu,
   Globe,
   Settings,
   Bot,
   Loader2,
   CircleDot,
+  Pencil,
+  Check,
+  X,
+  ArrowDownToLine,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/auth-store';
 import { useAiPromptStore, type AiMessage } from '@/store/ai-prompt-store';
 import { useCanvasStore } from '@/store/canvas-store';
+import { useComponentStore } from '@/store/component-store';
 import { t, type Locale } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
@@ -41,22 +44,18 @@ import type { BoardElement } from '@/lib/types';
 
 // ─── Neumorphism constants ────────────────────────────────────────────────────
 
-const NEU_CARD =
-  'shadow-[4px_4px_8px_rgba(0,0,0,0.06),-4px_-4px_8px_rgba(255,255,255,0.8)] dark:shadow-[4px_4px_8px_rgba(0,0,0,0.35),-4px_-4px_8px_rgba(30,30,30,0.08)]';
 const NEU_FLAT =
   'shadow-[2px_2px_4px_rgba(0,0,0,0.04),-2px_-2px_4px_rgba(255,255,255,0.6)] dark:shadow-[2px_2px_4px_rgba(0,0,0,0.2),-2px_-2px_4px_rgba(30,30,30,0.05)]';
-const NEU_PRESSED =
-  'shadow-[inset_2px_2px_4px_rgba(0,0,0,0.06),inset_-2px_-2px_4px_rgba(255,255,255,0.7)] dark:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.3),inset_-2px_-2px_4px_rgba(30,30,30,0.05)]';
 
 // ─── Suggestion cards ────────────────────────────────────────────────────────
 
 const SUGGESTION_CARDS = [
-  { icon: '🔐', label: 'Create a login form with email and password', prompt: 'Create a login form with email and password fields, a login button, and a "Forgot password" link. Use a clean, modern style.' },
-  { icon: '💳', label: 'Design a pricing card with 3 tiers', prompt: 'Design 3 pricing tier cards (Basic, Pro, Enterprise) side by side with feature lists, prices, and CTA buttons. Highlight the Pro tier.' },
-  { icon: '🧭', label: 'Generate a navigation bar with logo', prompt: 'Generate a horizontal navigation bar with a logo on the left, navigation links in the center, and a CTA button on the right. Use a clean modern style.' },
-  { icon: '📊', label: 'Create a dashboard chart layout', prompt: 'Create a dashboard layout with a sidebar, header, and 4 chart placeholder cards arranged in a 2x2 grid. Use professional colors.' },
-  { icon: '📱', label: 'Design a mobile onboarding screen', prompt: 'Design a mobile onboarding screen (375×812) with a welcome illustration area, title, subtitle, and a "Get Started" button at the bottom.' },
-  { icon: '📝', label: 'Design a contact form section', prompt: 'Design a contact form section with name, email, subject, and message fields, plus a submit button. Use proper spacing and labels.' },
+  { icon: '🔐', label: 'Create a login form', prompt: 'Create a login form with email and password fields, a login button, and a "Forgot password" link. Use a clean, modern style.' },
+  { icon: '💳', label: 'Design pricing cards', prompt: 'Design 3 pricing tier cards (Basic, Pro, Enterprise) side by side with feature lists, prices, and CTA buttons. Highlight the Pro tier.' },
+  { icon: '🧭', label: 'Generate a navbar', prompt: 'Generate a horizontal navigation bar with a logo on the left, navigation links in the center, and a CTA button on the right.' },
+  { icon: '📊', label: 'Dashboard layout', prompt: 'Create a dashboard layout with a sidebar, header, and 4 chart placeholder cards arranged in a 2x2 grid. Use professional colors.' },
+  { icon: '📱', label: 'Mobile onboarding', prompt: 'Design a mobile onboarding screen (375×812) with a welcome illustration area, title, subtitle, and a "Get Started" button at the bottom.' },
+  { icon: '📝', label: 'Contact form', prompt: 'Design a contact form section with name, email, subject, and message fields, plus a submit button. Use proper spacing and labels.' },
 ];
 
 // ─── Quick action chips ──────────────────────────────────────────────────────
@@ -96,20 +95,29 @@ function MessageBubble({
   onApply,
   onSaveComponent,
   onRegenerate,
+  onEdit,
+  onDelete,
 }: {
   message: AiMessage;
   locale: Locale;
   onApply: () => void;
   onSaveComponent: () => void;
   onRegenerate: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
 }) {
   const isUser = message.role === 'user';
   const hasElements = (message.elements?.length ?? 0) > 0;
+  const [showActions, setShowActions] = useState(false);
 
   return (
-    <div className={cn('flex flex-col gap-1.5', isUser ? 'items-end' : 'items-start')}>
-      {/* Role indicator */}
-      <div className="flex items-center gap-1.5 px-1">
+    <div
+      className={cn('flex flex-col gap-1.5 group/msg', isUser ? 'items-end' : 'items-start')}
+      onMouseEnter={() => setShowActions(true)}
+      onMouseLeave={() => setShowActions(false)}
+    >
+      {/* Role indicator + action buttons */}
+      <div className="flex items-center gap-1.5 px-1 w-full">
         {isUser ? (
           <>
             <span className="text-[10px] text-muted-foreground font-medium">You</span>
@@ -120,6 +128,28 @@ function MessageBubble({
             <Wand2 className="size-3 text-primary" />
             <span className="text-[10px] text-muted-foreground font-medium">AI Assist</span>
           </>
+        )}
+        <div className="flex-1" />
+        {/* Inline actions */}
+        {showActions && (
+          <div className="flex items-center gap-0.5">
+            {isUser && (
+              <button
+                onClick={onEdit}
+                className="h-5 w-5 flex items-center justify-center rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                title={t('common.edit', locale)}
+              >
+                <Pencil className="size-2.5" />
+              </button>
+            )}
+            <button
+              onClick={onDelete}
+              className="h-5 w-5 flex items-center justify-center rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+              title={t('common.delete', locale)}
+            >
+              <Trash2 className="size-2.5" />
+            </button>
+          </div>
         )}
       </div>
 
@@ -200,36 +230,105 @@ function MessageBubble({
   );
 }
 
+// ─── Edit message inline ────────────────────────────────────────────────────
+
+function EditMessageInline({
+  initialContent,
+  onSave,
+  onCancel,
+  locale,
+}: {
+  initialContent: string;
+  onSave: (newContent: string) => void;
+  onCancel: () => void;
+  locale: Locale;
+}) {
+  const [value, setValue] = useState(initialContent);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    textareaRef.current?.focus();
+    textareaRef.current?.select();
+  }, []);
+
+  return (
+    <div className="flex flex-col gap-2 p-2 rounded-lg border border-primary/40 bg-primary/5">
+      <textarea
+        ref={textareaRef}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        rows={3}
+        className="w-full resize-none bg-transparent text-xs outline-none placeholder:text-muted-foreground min-h-[60px]"
+      />
+      <div className="flex items-center justify-end gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-6 px-2 text-[10px] gap-1"
+          onClick={onCancel}
+        >
+          <X className="size-3" />
+          {t('common.cancel', locale)}
+        </Button>
+        <Button
+          size="sm"
+          className="h-6 px-2 text-[10px] gap-1"
+          onClick={() => {
+            if (value.trim()) onSave(value.trim());
+          }}
+          disabled={!value.trim()}
+        >
+          <Check className="size-3" />
+          {t('common.save', locale)}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main component ──────────────────────────────────────────────────────────
 
 export function AiPromptPanel() {
   const locale = (useAuthStore((s) => s.user)?.language as Locale) ?? 'en';
-  const {
-    messages,
-    isGenerating,
-    selectedModel,
-    availableModels,
-    addMessage,
-    updateLastAssistantMessage,
-    removeLastMessage,
-    setGenerating,
-    setModel,
-    clearMessages,
-  } = useAiPromptStore();
 
-  const { elements: canvasElements, selectedIds, addElement, setElements, pushHistory } = useCanvasStore();
+  // Proper individual selectors
+  const messages = useAiPromptStore((s) => s.messages);
+  const isGenerating = useAiPromptStore((s) => s.isGenerating);
+  const selectedModel = useAiPromptStore((s) => s.selectedModel);
+  const availableModels = useAiPromptStore((s) => s.availableModels);
+  const addMessage = useAiPromptStore((s) => s.addMessage);
+  const updateLastAssistantMessage = useAiPromptStore((s) => s.updateLastAssistantMessage);
+  const editMessage = useAiPromptStore((s) => s.editMessage);
+  const deleteMessage = useAiPromptStore((s) => s.deleteMessage);
+  const removeLastMessage = useAiPromptStore((s) => s.removeLastMessage);
+  const setGenerating = useAiPromptStore((s) => s.setGenerating);
+  const setModel = useAiPromptStore((s) => s.setModel);
+  const clearMessages = useAiPromptStore((s) => s.clearMessages);
+  const loadPersistedMessages = useAiPromptStore((s) => s.loadPersistedMessages);
+
+  const canvasElements = useCanvasStore((s) => s.elements);
+  const selectedIds = useCanvasStore((s) => s.selectedIds);
+  const addElement = useCanvasStore((s) => s.addElement);
+  const setElements = useCanvasStore((s) => s.setElements);
+  const pushHistory = useCanvasStore((s) => s.pushHistory);
 
   const [inputValue, setInputValue] = useState('');
   const [collapsed, setCollapsed] = useState(false);
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Load persisted messages on mount
+  useEffect(() => {
+    loadPersistedMessages();
+  }, [loadPersistedMessages]);
 
   // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isGenerating]);
 
-  // ── Send prompt ─────────────────────────────────────────────────────────
+  // ── Send prompt with conversation history ────────────────────────────────
 
   const sendPrompt = useCallback(
     async (prompt: string) => {
@@ -253,10 +352,15 @@ export function AiPromptPanel() {
           canvasHeight: 1080,
         };
 
+        // Send conversation history for multi-turn support
+        const history = useAiPromptStore.getState().messages
+          .filter((m) => m.content !== '...' && m.role === 'user')
+          .map((m) => ({ role: m.role, content: m.content }));
+
         const res = await fetch('/api/ai/prompt', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: trimmed, model: selectedModel, context }),
+          body: JSON.stringify({ prompt: trimmed, model: selectedModel, context, history }),
         });
 
         const data = await res.json();
@@ -318,28 +422,60 @@ export function AiPromptPanel() {
     [canvasElements, setElements, pushHistory],
   );
 
-  // ── Save as component ───────────────────────────────────────────────────
+  // ── Save as component (properly creates a reusable component) ────────────
 
   const saveAsComponent = useCallback(
     (msg: AiMessage) => {
       if (!msg.elements || msg.elements.length === 0) return;
-      // Apply to canvas first, then the user can create a component manually
-      applyToCanvas(msg);
+
+      // First apply to canvas
+      const offset = canvasElements.length > 0 ? Math.max(...canvasElements.map((e) => e.x + e.width)) + 40 : 100;
+      const adjusted = msg.elements.map((el, i) => ({
+        ...el,
+        id: `ai-${Date.now()}-${i}`,
+        x: offset,
+        y: 100 + i * 10,
+        zIndex: canvasElements.length + i,
+      }));
+
+      // Create a component definition from the first element as master
+      const masterEl = adjusted[0];
+      const componentDef = {
+        name: msg.content.slice(0, 40) || 'AI Component',
+        masterElementId: masterEl.id,
+        children: adjusted.map((el) => el.id),
+      };
+
+      // Add to component store
+      useComponentStore.getState().addComponent(componentDef);
+      setElements([...canvasElements, ...adjusted]);
+      pushHistory();
     },
-    [applyToCanvas],
+    [canvasElements, setElements, pushHistory],
   );
 
   // ── Regenerate last response ────────────────────────────────────────────
 
   const regenerate = useCallback(() => {
-    // Find the last user message
     const lastUserIdx = [...messages].reverse().findIndex((m) => m.role === 'user');
     if (lastUserIdx === -1) return;
     const lastUserMsg = messages[messages.length - 1 - lastUserIdx];
-    // Remove the placeholder assistant message and re-send
     removeLastMessage();
     sendPrompt(lastUserMsg.content);
   }, [messages, removeLastMessage, sendPrompt]);
+
+  // ── Edit message and resend ─────────────────────────────────────────────
+
+  const handleEditAndResend = useCallback(
+    (msgId: string, newContent: string) => {
+      editMessage(msgId, newContent);
+      setEditingMessageId(null);
+      // Re-send with edited content
+      removeLastMessage(); // Remove old assistant response
+      sendPrompt(newContent);
+    },
+    [editMessage, removeLastMessage, sendPrompt],
+  );
 
   // ── Handle key down ────────────────────────────────────────────────────
 
@@ -350,30 +486,15 @@ export function AiPromptPanel() {
     }
   };
 
-  // ── Handle quick action ─────────────────────────────────────────────────
-
   const handleQuickAction = (prompt: string) => {
     sendPrompt(prompt);
   };
-
-  // ── Handle suggestion click ────────────────────────────────────────────
 
   const handleSuggestionClick = (prompt: string) => {
     sendPrompt(prompt);
   };
 
-  // ── Get last assistant message ──────────────────────────────────────────
-
-  const getLastAssistantMessage = () => {
-    for (let i = messages.length - 1; i >= 0; i--) {
-      if (messages[i].role === 'assistant') return messages[i];
-    }
-    return null;
-  };
-
   // ── Render ──────────────────────────────────────────────────────────────
-
-  const lastAiMsg = getLastAssistantMessage();
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -470,16 +591,28 @@ export function AiPromptPanel() {
             ) : (
               /* ── Chat messages ── */
               <div className="flex flex-col gap-3 p-3">
-                {messages.map((msg) => (
-                  <MessageBubble
-                    key={msg.id}
-                    message={msg}
-                    locale={locale}
-                    onApply={() => applyToCanvas(msg)}
-                    onSaveComponent={() => saveAsComponent(msg)}
-                    onRegenerate={regenerate}
-                  />
-                ))}
+                {messages.map((msg) =>
+                  editingMessageId === msg.id ? (
+                    <EditMessageInline
+                      key={msg.id}
+                      initialContent={msg.content}
+                      locale={locale}
+                      onSave={(newContent) => handleEditAndResend(msg.id, newContent)}
+                      onCancel={() => setEditingMessageId(null)}
+                    />
+                  ) : (
+                    <MessageBubble
+                      key={msg.id}
+                      message={msg}
+                      locale={locale}
+                      onApply={() => applyToCanvas(msg)}
+                      onSaveComponent={() => saveAsComponent(msg)}
+                      onRegenerate={regenerate}
+                      onEdit={() => setEditingMessageId(msg.id)}
+                      onDelete={() => deleteMessage(msg.id)}
+                    />
+                  ),
+                )}
 
                 {/* Generating indicator */}
                 {isGenerating && (

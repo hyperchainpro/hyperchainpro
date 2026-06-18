@@ -26,12 +26,48 @@ interface AiPromptState {
   selectedModel: string;
   availableModels: AiModel[];
 
+  // CRUD operations
   addMessage: (message: Omit<AiMessage, 'id' | 'timestamp'>) => void;
+  updateMessage: (id: string, updates: Partial<Pick<AiMessage, 'content' | 'elements'>>) => void;
   updateLastAssistantMessage: (content: string, elements?: BoardElement[]) => void;
+  deleteMessage: (id: string) => void;
   removeLastMessage: () => void;
+  editMessage: (id: string, newContent: string) => void;
+
+  // State management
   setGenerating: (v: boolean) => void;
   setModel: (id: string) => void;
   clearMessages: () => void;
+  loadPersistedMessages: () => void;
+}
+
+// ─── Persistence ──────────────────────────────────────────────────────────────
+
+const STORAGE_KEY = 'layerboard-ai-chat';
+
+function persistMessages(messages: AiMessage[]) {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+    }
+  } catch {
+    // Storage full or unavailable
+  }
+}
+
+function loadPersistedMessages(): AiMessage[] {
+  try {
+    if (typeof window !== 'undefined') {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    }
+  } catch {
+    // Corrupted data
+  }
+  return [];
 }
 
 // ─── Models ───────────────────────────────────────────────────────────────────
@@ -46,23 +82,43 @@ const AVAILABLE_MODELS: AiModel[] = [
 
 // ─── Store ────────────────────────────────────────────────────────────────────
 
-export const useAiPromptStore = create<AiPromptState>((set) => ({
+export const useAiPromptStore = create<AiPromptState>((set, get) => ({
   messages: [],
   isGenerating: false,
   selectedModel: 'gpt-4',
   availableModels: AVAILABLE_MODELS,
 
+  // Load persisted messages from localStorage
+  loadPersistedMessages: () => {
+    const persisted = loadPersistedMessages();
+    if (persisted.length > 0) {
+      set({ messages: persisted });
+    }
+  },
+
   addMessage: (message) =>
-    set((s) => ({
-      messages: [
+    set((s) => {
+      const newMessages = [
         ...s.messages,
         {
           ...message,
           id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
           timestamp: Date.now(),
         },
-      ],
-    })),
+      ];
+      persistMessages(newMessages);
+      return { messages: newMessages };
+    }),
+
+  // Update any specific message by ID (CRUD Update)
+  updateMessage: (id, updates) =>
+    set((s) => {
+      const newMessages = s.messages.map((m) =>
+        m.id === id ? { ...m, ...updates } : m,
+      );
+      persistMessages(newMessages);
+      return { messages: newMessages };
+    }),
 
   updateLastAssistantMessage: (content, elements) =>
     set((s) => {
@@ -73,17 +129,49 @@ export const useAiPromptStore = create<AiPromptState>((set) => ({
           break;
         }
       }
+      persistMessages(msgs);
       return { messages: msgs };
     }),
 
+  // Delete any specific message by ID (CRUD Delete)
+  deleteMessage: (id) =>
+    set((s) => {
+      const newMessages = s.messages.filter((m) => m.id !== id);
+      persistMessages(newMessages);
+      return { messages: newMessages };
+    }),
+
   removeLastMessage: () =>
-    set((s) => ({
-      messages: s.messages.length > 0 ? s.messages.slice(0, -1) : [],
-    })),
+    set((s) => {
+      const newMessages = s.messages.length > 0 ? s.messages.slice(0, -1) : [];
+      persistMessages(newMessages);
+      return { messages: newMessages };
+    }),
+
+  // Edit a user message and remove all subsequent messages (CRUD Update + cascade)
+  editMessage: (id, newContent) =>
+    set((s) => {
+      const idx = s.messages.findIndex((m) => m.id === id);
+      if (idx === -1) return s;
+      // Truncate conversation from this message onward, then replace content
+      const newMessages = [
+        ...s.messages.slice(0, idx),
+        {
+          ...s.messages[idx],
+          content: newContent,
+          timestamp: Date.now(),
+        },
+      ];
+      persistMessages(newMessages);
+      return { messages: newMessages };
+    }),
 
   setGenerating: (v) => set({ isGenerating: v }),
 
   setModel: (id) => set({ selectedModel: id }),
 
-  clearMessages: () => set({ messages: [] }),
+  clearMessages: () => {
+    persistMessages([]);
+    set({ messages: [] });
+  },
 }));

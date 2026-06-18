@@ -375,9 +375,19 @@ function MobileRightPanel() {
 
   return (
     <Sheet open={rightPanelOpen} onOpenChange={setRightPanelOpen}>
-      <SheetContent side="right" className="w-[85vw] max-w-[300px] p-0">
+      <SheetContent side="right" className="w-[85vw] max-w-[300px] p-0" showCloseButton={false}>
         <SheetTitle className="sr-only">{t("vc.propertiesPanel", locale)}</SheetTitle>
-        <div className="h-[calc(100vh-56px)]">
+        {/* Custom header with close button — proper spacing from tabs */}
+        <div className="flex items-center justify-between px-3 pt-3 pb-1">
+          <h3 className="text-xs font-semibold text-muted-foreground">{t("vc.propertiesPanel", locale)}</h3>
+          <button
+            onClick={() => setRightPanelOpen(false)}
+            className="flex items-center justify-center h-7 w-7 rounded-full hover:bg-muted transition-colors text-muted-foreground"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+        <div className="h-[calc(100vh-100px)]">
           <PanelContent />
         </div>
       </SheetContent>

@@ -3,6 +3,13 @@ import { db } from '@/lib/db';
 
 const DEMO_USER_ID = 'user-demo-1';
 
+function getUserId(request: NextRequest): string {
+  // Try from header first (set by client)
+  const headerId = request.headers.get('x-user-id');
+  if (headerId) return headerId;
+  return DEMO_USER_ID;
+}
+
 // Built-in agents to seed if they don't exist
 const BUILT_IN_AGENTS = [
   {
@@ -159,14 +166,15 @@ async function ensureBuiltInAgents() {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const userId = getUserId(request);
     await ensureBuiltInAgents();
 
     const agents = await db.aIAgent.findMany({
       where: {
         OR: [
-          { userId: DEMO_USER_ID },
+          { userId },
           { isBuiltIn: true },
           { isPublic: true },
         ],
@@ -200,12 +208,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'System prompt is required' }, { status: 400 });
     }
 
+    const userId = getUserId(request);
+
     const agent = await db.aIAgent.create({
       data: {
         name: name.trim(),
         description: description?.trim() || null,
         systemPrompt: systemPrompt.trim(),
-        userId: DEMO_USER_ID,
+        userId,
         icon: icon || '🤖',
         color: color || '#8B5CF6',
         isPublic: isPublic ?? false,

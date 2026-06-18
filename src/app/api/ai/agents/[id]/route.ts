@@ -1,14 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 
-const DEMO_USER_ID = 'user-demo-1';
+function getUserId(request: NextRequest): string {
+  const headerId = request.headers.get('x-user-id');
+  if (headerId) return headerId;
+  return 'user-demo-1';
+}
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
+    const userId = getUserId(request);
 
     const agent = await db.aIAgent.findUnique({
       where: { id },
@@ -19,7 +24,7 @@ export async function GET(
     }
 
     // User can access: their own agents, built-in agents, or public agents
-    if (agent.userId !== DEMO_USER_ID && !agent.isBuiltIn && !agent.isPublic) {
+    if (agent.userId !== userId && !agent.isBuiltIn && !agent.isPublic) {
       return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
     }
 
@@ -36,6 +41,7 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
+    const userId = getUserId(request);
     const body = await request.json();
     const { name, description, systemPrompt, icon, color, isPublic } = body as {
       name?: string;
@@ -58,7 +64,7 @@ export async function PUT(
     }
 
     // Only the owner can edit
-    if (existing.userId !== DEMO_USER_ID) {
+    if (existing.userId !== userId) {
       return NextResponse.json({ error: 'You can only edit your own agents' }, { status: 403 });
     }
 
@@ -82,11 +88,12 @@ export async function PUT(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
+    const userId = getUserId(request);
 
     const existing = await db.aIAgent.findUnique({ where: { id } });
 
@@ -100,7 +107,7 @@ export async function DELETE(
     }
 
     // Only the owner can delete
-    if (existing.userId !== DEMO_USER_ID) {
+    if (existing.userId !== userId) {
       return NextResponse.json({ error: 'You can only delete your own agents' }, { status: 403 });
     }
 

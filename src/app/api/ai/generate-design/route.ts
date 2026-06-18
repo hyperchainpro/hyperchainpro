@@ -3,7 +3,11 @@ import ZAI from 'z-ai-web-dev-sdk';
 import { db } from '@/lib/db';
 import type { BoardElement, ElementStyles } from '@/lib/types';
 
-const DEMO_USER_ID = 'user-demo-1';
+function getUserId(request: NextRequest): string {
+  const headerId = request.headers.get('x-user-id');
+  if (headerId) return headerId;
+  return 'user-demo-1';
+}
 
 const DEFAULT_SYSTEM_PROMPT = `You are a professional UI/UX design assistant that generates board element layouts from text descriptions. You create realistic, well-structured UI designs with proper spacing, typography hierarchy, and visual composition.
 

@@ -51,7 +51,7 @@ interface AIAgentEditorProps {
 const ICON_OPTIONS = [
   '🤖', '🎨', '📐', '📱', '🚀', '📊', '✏️', '🎯',
   '💡', '🔧', '🏗️', '🖥️', '📦', '🧩', '🌐', '⚡',
-  '🎨', '🎭', '🎪', '🌟', '🔮', '🧠', '💎', '🏆',
+  '🎭', '🎪', '🌟', '🔮', '🧠', '💎', '🏆', '🎮',
 ];
 
 const COLOR_OPTIONS = [
@@ -242,7 +242,7 @@ export function AIAgentEditor({ open, onOpenChange, agent, onSaved }: AIAgentEdi
                   onChange={(e) => updateField('systemPrompt', e.target.value)}
                 />
                 <p className="text-[11px] text-muted-foreground">
-                  t('ai.systemPromptHint', locale)
+                  {t('ai.systemPromptHint', locale)}
                 </p>
               </div>
 

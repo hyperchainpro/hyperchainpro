@@ -531,3 +531,37 @@ Stage Summary:
 - 7 files fixed with proper Zustand selectors (no more whole-store subscriptions)
 - WebSocket collab now gracefully degrades to offline mode without console spam
 - Board opening works cleanly with no runtime errors
+
+---
+Task ID: 3
+Agent: Main Agent
+Task: Fix mobile/desktop UI/UX issues and make AI Prompt fully CRUD-based
+
+Work Log:
+- **Sheet UI fix**: Added `showCloseButton` prop to `SheetContent` in `sheet.tsx` (like Dialog already has)
+- **Left panel mobile**: Set `showCloseButton={false}`, added custom header with title + close button separated from TabBar with proper spacing (pt-3 pb-1 gap)
+- **Right panel mobile**: Same fix — `showCloseButton={false}`, custom header with title + close button
+- **AI Prompt API** (`/api/ai/prompt/route.ts`): 
+  - Now sends full conversation history (last 10 messages) for multi-turn support
+  - Passes `model` parameter to `zai.chat.completions.create()`
+  - System prompt uses `role: 'system'` instead of `role: 'assistant'`
+- **AI Prompt Store** (`ai-prompt-store.ts`):
+  - Added full CRUD: `updateMessage(id, updates)`, `deleteMessage(id)`, `editMessage(id, newContent)`
+  - Added localStorage persistence: `loadPersistedMessages()`, auto-persist on every mutation
+  - `editMessage` truncates conversation from edited message onward (proper cascade)
+- **AI Prompt Panel** (`ai-prompt-panel.tsx`):
+  - Fixed `useAiPromptStore()` no-selector → individual selectors
+  - Fixed `useCanvasStore()` no-selector → individual selectors  
+  - Added inline message editing (hover to show edit/delete buttons)
+  - Added `EditMessageInline` component with save/cancel
+  - Fixed `saveAsComponent` to actually create a component via `component-store`
+  - Sends conversation history in API request
+  - Proper model selection now flows through to API
+- **Agent API routes**: Replaced hardcoded `DEMO_USER_ID` with `getUserId(request)` helper that reads `x-user-id` header in all 3 files
+- **AI Agent Editor**: Fixed i18n string literal bug (backtick → JSX expression), removed duplicate 🎨 icon, added 🎮
+
+Stage Summary:
+- Mobile: No more double close buttons, close button properly spaced from tab bar
+- Sidebar: Close button has its own header row, clearly separated from feature tabs
+- AI Chat: Full CRUD (Create messages, Read history, Update/edit messages, Delete individual messages), persisted to localStorage, multi-turn conversation support, model selection works, saveAsComponent creates real components
+- 0 browser errors verified
