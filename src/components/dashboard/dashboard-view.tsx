@@ -227,10 +227,24 @@ function ThemeToggle() {
   const { theme, setTheme } = useTheme()
   const user = useAuthStore((s) => s.user)
   const locale = (user?.language as Locale) ?? 'en'
+  const [mounted, setMounted] = useState(false)
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { setMounted(true) }, [])
 
   const cycleTheme = () => {
-    const next = theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light'
+    const current = mounted ? theme : 'system'
+    const next = current === 'light' ? 'dark' : current === 'dark' ? 'system' : 'light'
     setTheme(next)
+  }
+
+  // Prevent hydration mismatch — show nothing until mounted
+  if (!mounted) {
+    return (
+      <Button variant="ghost" size="icon" className="neu-icon-btn opacity-50" aria-label="Theme toggle">
+        <Monitor className="size-4" />
+      </Button>
+    )
   }
 
   return (

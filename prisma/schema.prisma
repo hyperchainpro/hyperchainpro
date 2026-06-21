@@ -3,8 +3,10 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
+  directUrl    = env("DIRECT_DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model User {
@@ -107,7 +109,7 @@ model Commit {
   board     Board     @relation(fields: [boardId], references: [id], onDelete: Cascade)
   branch    Branch    @relation(fields: [branchId], references: [id], onDelete: Cascade)
   author    User      @relation(fields: [authorId], references: [id])
-  parent    Commit?   @relation("CommitParent", fields: [parentId], references: [id])
+  parent    Commit?   @relation("CommitParent", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   children  Commit[]  @relation("CommitParent")
 
   @@index([boardId, createdAt])
