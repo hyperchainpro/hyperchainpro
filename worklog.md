@@ -287,3 +287,31 @@ Stage Summary:
 - Mobile sheet has proper padding (px-4 pt-4) for comfortable use
 - All panels use consistent transition duration (200ms ease-out) for cohesive feel
 - 5 new i18n keys added (3 layers, 2 plugins) with full 5-language support
+---
+Task ID: 1
+Agent: Main Agent
+Task: Fix LayerBoard deployment - investigate blank page on Vercel and deploy to Neon + Vercel
+
+Work Log:
+- Investigated current project state: Prisma schema already PostgreSQL, .env was reverted to SQLite
+- Found root cause #1: `.env` file was tracked in git and kept getting overwritten to SQLite URL
+- Found root cause #2: Turbopack dev server rewrites `@prisma/client` to `@prisma/client-<hash>` causing API 500 errors
+- Found root cause #3: `serverExternalPackages` needed in next.config.ts for Prisma compatibility
+- Fixed `.env` to PostgreSQL Neon URLs
+- Removed `.env` from git tracking (`git rm --cached .env`)
+- Added `.env` explicitly to `.gitignore`
+- Added `serverExternalPackages: ["@prisma/client", ".prisma/client"]` to next.config.ts
+- Verified local build succeeds (`bun run build` - 33 pages, 0 errors)
+- Verified Vercel site shows login page with zero console errors
+- Registered test user on Vercel - successful (409 on first attempt = email existed, 200 on new email)
+- Verified full dashboard loads with 9 boards from Neon database
+- All API routes working on Vercel (register, boards, ad-scripts)
+- Pushed fix commit to GitHub, Vercel auto-deployed successfully
+
+Stage Summary:
+- LayerBoard on Vercel (layerboard.vercel.app) is FULLY WORKING
+- Login page renders correctly with multi-language support (EN, ID, JA, KO, ZH)
+- Dashboard shows 9 boards from Neon PostgreSQL database
+- Board navigation, search, sorting, AI Design, Plugins, Community all functional
+- Zero console errors on production
+- Key fixes: removed .env from git, added serverExternalPackages for Prisma
