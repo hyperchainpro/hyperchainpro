@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: false,
   allowedDevOrigins: [
     ".space-z.ai",
+    "21.0.2.156",
   ],
   // Prevent bundling Prisma client — Turbopack rewrites @prisma/client to a
   // content-hashed module name which does not exist, breaking all API routes.
