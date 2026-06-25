@@ -653,3 +653,268 @@
 .dark .neu-scroll::-webkit-scrollbar-thumb:hover {
   background: oklch(1 0 0 / 28%);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Plugin Marketplace — Colorful Card System
+   ═══════════════════════════════════════════════════════════════════════════
+   Each plugin card has a colored gradient header strip and icon area.
+   Cards use a subtle white background with the gradient as an accent.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.plugin-card {
+  background: var(--background);
+  border-radius: 16px;
+  border: 1px solid oklch(0 0 0 / 6%);
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.plugin-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 12px 24px oklch(0 0 0 / 10%),
+    0 4px 8px oklch(0 0 0 / 6%);
+  border-color: oklch(0 0 0 / 10%);
+}
+
+.dark .plugin-card {
+  background: oklch(0.18 0 0);
+  border-color: oklch(1 0 0 / 6%);
+}
+
+.dark .plugin-card:hover {
+  box-shadow:
+    0 12px 24px oklch(0 0 0 / 40%),
+    0 4px 8px oklch(0 0 0 / 25%);
+  border-color: oklch(1 0 0 / 10%);
+}
+
+.plugin-card-header {
+  height: 80px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.plugin-card-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.08;
+  background-image: radial-gradient(circle at 25% 25%, white 1px, transparent 1px),
+                    radial-gradient(circle at 75% 75%, white 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.plugin-card-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 1;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.plugin-card:hover .plugin-card-icon-wrap {
+  transform: scale(1.08);
+}
+
+.plugin-card-body {
+  padding: 14px 16px 16px;
+}
+
+.plugin-install-btn {
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 8px 16px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+}
+
+.plugin-install-btn.install {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.plugin-install-btn.install:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.plugin-install-btn.uninstall {
+  background: oklch(0 0 0 / 5%);
+  color: var(--muted-foreground);
+  border: 1px solid oklch(0 0 0 / 8%);
+}
+
+.plugin-install-btn.uninstall:hover {
+  background: oklch(0.55 0.2 25 / 10%);
+  color: oklch(0.55 0.2 25);
+  border-color: oklch(0.55 0.2 25 / 20%);
+}
+
+.dark .plugin-install-btn.uninstall {
+  background: oklch(1 0 0 / 5%);
+  color: oklch(0.55 0 0);
+  border-color: oklch(1 0 0 / 8%);
+}
+
+/* ── Category Tab Pills ──────────────────────────────────────────────── */
+.cat-tab {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted-foreground);
+}
+
+.cat-tab:hover {
+  background: oklch(0 0 0 / 5%);
+  color: var(--foreground);
+}
+
+.dark .cat-tab:hover {
+  background: oklch(1 0 0 / 5%);
+}
+
+.cat-tab.active {
+  color: white;
+  border-color: transparent;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ── Featured Plugin Banner ──────────────────────────────────────────── */
+.featured-banner {
+  border-radius: 16px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.featured-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  filter: brightness(1);
+}
+
+.featured-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 0% 50%, rgba(255,255,255,0.15), transparent 50%),
+    radial-gradient(circle at 100% 0%, rgba(255,255,255,0.1), transparent 40%);
+}
+
+/* ── Plugin panel sidebar item ───────────────────────────────────────── */
+.plugin-sidebar-item {
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  font-size: 12px;
+  min-height: 40px;
+}
+
+.plugin-sidebar-item:hover {
+  background: oklch(0 0 0 / 4%);
+  border-color: oklch(0 0 0 / 4%);
+}
+
+.dark .plugin-sidebar-item:hover {
+  background: oklch(1 0 0 / 4%);
+  border-color: oklch(1 0 0 / 4%);
+}
+
+.plugin-sidebar-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.plugin-sidebar-item:hover .plugin-sidebar-icon {
+  transform: scale(1.1);
+}
+
+/* ── Plugin count badge in sidebar ───────────────────────────────────── */
+.cat-count-badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ── Search bar enhancement ──────────────────────────────────────────── */
+.plugin-search-wrap {
+  position: relative;
+}
+
+.plugin-search-wrap input {
+  border-radius: 12px;
+  background: oklch(0 0 0 / 3%);
+  border: 1.5px solid oklch(0 0 0 / 6%);
+  transition: all 0.2s ease;
+}
+
+.dark .plugin-search-wrap input {
+  background: oklch(1 0 0 / 4%);
+  border-color: oklch(1 0 0 / 6%);
+}
+
+.plugin-search-wrap input:focus {
+  border-color: oklch(0 0 0 / 15%);
+  box-shadow: 0 0 0 3px oklch(0 0 0 / 5%);
+  outline: none;
+}
+
+.dark .plugin-search-wrap input:focus {
+  border-color: oklch(1 0 0 / 15%);
+  box-shadow: 0 0 0 3px oklch(1 0 0 / 5%);
+}

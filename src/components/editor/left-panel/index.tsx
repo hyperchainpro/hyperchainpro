@@ -37,12 +37,14 @@ function TabButton({
   onClick,
   icon: Icon,
   label,
+  activeGradient,
 }: {
   tab: LeftPanelTab;
   currentTab: LeftPanelTab;
   onClick: (tab: LeftPanelTab) => void;
   icon: React.ElementType;
   label: string;
+  activeGradient?: string;
 }) {
   const isActive = currentTab === tab;
 
@@ -53,12 +55,15 @@ function TabButton({
         'flex-1 flex items-center justify-center gap-1.5 min-h-8 px-1 rounded-xl text-[11px] font-medium border-0 outline-none cursor-pointer',
         'transition-all duration-200 ease-out',
         isActive
-          ? cn('bg-accent text-foreground', NEU_TAB_ACTIVE)
+          ? activeGradient
+            ? 'text-white shadow-lg'
+            : cn('bg-accent text-foreground', NEU_TAB_ACTIVE)
           : cn(
               'bg-background text-muted-foreground hover:text-foreground',
               NEU_TAB_INACTIVE,
             ),
       )}
+      style={isActive && activeGradient ? { background: activeGradient, boxShadow: `0 4px 12px ${tab === 'plugins' ? 'rgba(124, 58, 237, 0.35)' : 'rgba(0,0,0,0.15)'}` } : undefined}
     >
       <Icon className="size-3.5" />
       <span className="hidden sm:inline truncate max-w-[48px]">{label}</span>
@@ -92,6 +97,7 @@ function TabBar({ currentTab, onTabChange }: { currentTab: LeftPanelTab; onTabCh
         onClick={onTabChange}
         icon={Puzzle}
         label={t('leftPanel.plugins', locale)}
+        activeGradient="linear-gradient(135deg, #7c3aed, #ec4899)"
       />
       <TabButton
         tab="ai"
@@ -99,6 +105,7 @@ function TabBar({ currentTab, onTabChange }: { currentTab: LeftPanelTab; onTabCh
         onClick={onTabChange}
         icon={Wand2}
         label={t('aiPrompt.title', locale)}
+        activeGradient="linear-gradient(135deg, #f59e0b, #f97316)"
       />
     </div>
   );

@@ -747,7 +747,8 @@ export function DashboardView({ onOpenSettings, onOpenShare }: DashboardViewProp
                   variant="ghost"
                   size="icon"
                   onClick={() => useAppStore.getState().setPluginDialogOpen(true)}
-                  className="hidden md:inline-flex rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04] dark:hover:bg-foreground/[0.06] border-0"
+                  className="hidden md:inline-flex rounded-lg text-white hover:opacity-90 border-0"
+                  style={{ background: 'linear-gradient(135deg, #7c3aed, #ec4899)', boxShadow: '0 2px 8px rgba(124, 58, 237, 0.3)' }}
                   aria-label={t('toolbar.plugins', locale)}
                 >
                   <Puzzle className="size-4" />

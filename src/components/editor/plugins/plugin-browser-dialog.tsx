@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import * as LucideIcons from 'lucide-react'
 import {
   Dialog,
@@ -19,41 +19,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { Search, X, Download, Trash2, Sparkles, Puzzle } from 'lucide-react'
+import { Search, X, Download, Trash2, Sparkles, Puzzle, Star, TrendingUp, Zap, Crown } from 'lucide-react'
 import { DESIGN_PLUGINS, type DesignPlugin, PLUGIN_CATEGORIES } from '@/lib/plugins-data'
+import { getCategoryTheme, allTabTheme } from '@/lib/category-theme'
 import { t } from '@/lib/i18n'
 import { useAuthStore } from '@/store/auth-store'
 import { useAppStore } from '@/store/app-store'
 import { toast } from 'sonner'
 import { SafeRender } from '@/components/safe-render'
-
-const categoryBadgeColors: Record<string, string> = {
-  shapes: 'bg-foreground/10 text-foreground',
-  charts: 'bg-foreground/10 text-foreground',
-  icons: 'bg-foreground/10 text-foreground',
-  layout: 'bg-foreground/10 text-foreground',
-  wireframe: 'bg-foreground/10 text-foreground',
-  diagrams: 'bg-foreground/10 text-foreground',
-  text: 'bg-foreground/10 text-foreground',
-  images: 'bg-foreground/10 text-foreground',
-  colors: 'bg-foreground/10 text-foreground',
-  export: 'bg-foreground/10 text-foreground',
-  templates: 'bg-foreground/10 text-foreground',
-  'ai-tools': 'bg-foreground/10 text-foreground',
-  collaboration: 'bg-foreground/10 text-foreground',
-  accessibility: 'bg-foreground/10 text-foreground',
-  math: 'bg-foreground/10 text-foreground',
-  typography: 'bg-foreground/10 text-foreground',
-  branding: 'bg-foreground/10 text-foreground',
-  animation: 'bg-foreground/10 text-foreground',
-  prototyping: 'bg-foreground/10 text-foreground',
-  '3d': 'bg-foreground/10 text-foreground',
-  illustration: 'bg-foreground/10 text-foreground',
-  'photo-editing': 'bg-foreground/10 text-foreground',
-  responsive: 'bg-foreground/10 text-foreground',
-  'code-gen': 'bg-foreground/10 text-foreground',
-  handoff: 'bg-foreground/10 text-foreground',
-}
 
 interface PluginBrowserDialogProps {
   open: boolean
@@ -75,7 +48,6 @@ export function PluginBrowserDialog({
   const scrollRef = useRef<HTMLDivElement>(null)
   const autoAppliedRef = useRef(false)
 
-  // Build a lookup set from the store for O(1) checks
   const installedSet = useMemo(
     () => new Set(installedPluginIds),
     [installedPluginIds],
@@ -141,37 +113,52 @@ export function PluginBrowserDialog({
     }
   }, [])
 
-  const renderPluginIcon = (iconName: string) => {
+  const popularPlugins = useMemo(
+    () => (Array.isArray(DESIGN_PLUGINS) ? DESIGN_PLUGINS.filter((p) => p?.isPopular) : []).slice(0, 4),
+    [],
+  )
+
+  const renderPluginIcon = (iconName: string, size = 'size-5') => {
     try {
-      const IconComponent = LucideIcons[iconName as keyof typeof LucideIcons]
+      const IconComponent = (LucideIcons as unknown as Record<string, React.ElementType>)[iconName]
       if (IconComponent && typeof IconComponent === 'function') {
-        return <IconComponent className="size-4" />
+        const Comp = IconComponent as React.ElementType
+        return <Comp className={size} />
       }
     } catch {
       // fallback
     }
-    return <Puzzle className="size-4" />
+    return <Puzzle className={size} />
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent showCloseButton={false} className="flex h-[85vh] max-w-5xl flex-col gap-0 overflow-hidden rounded-2xl p-0 sm:h-[80vh] neu-raised bg-background border-0">
+      <DialogContent
+        showCloseButton={false}
+        className="flex h-[85vh] max-w-6xl flex-col gap-0 overflow-hidden rounded-2xl p-0 sm:h-[85vh] bg-background border border-border/40 shadow-2xl"
+      >
         {/* ── Header ──────────────────────────────────────────── */}
-        <DialogHeader className="shrink-0 px-4 py-3 sm:px-6 sm:py-4">
+        <DialogHeader className="shrink-0 border-b border-border/30 px-5 py-4 sm:px-6">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <DialogTitle className="flex items-center gap-2 text-lg font-semibold">
-                <Sparkles className="size-5 text-foreground" />
-                {t('plugin_marketplace', locale) || 'Plugin Marketplace'}
-              </DialogTitle>
-              <DialogDescription className="mt-0.5 text-sm text-muted-foreground">
-                {installedCount} of {totalPlugins} plugins installed
-              </DialogDescription>
+              <div className="flex items-center gap-3">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-pink-500 shadow-lg shadow-violet-500/25">
+                  <Sparkles className="size-5 text-white" />
+                </div>
+                <div>
+                  <DialogTitle className="text-lg font-bold tracking-tight">
+                    {t('plugin_marketplace', locale as 'en' | 'id' | 'ja' | 'ko' | 'zh' | null) || 'Plugin Marketplace'}
+                  </DialogTitle>
+                  <DialogDescription className="text-xs text-muted-foreground mt-0.5">
+                    {installedCount} of {totalPlugins} plugins installed
+                  </DialogDescription>
+                </div>
+              </div>
             </div>
             <Button
               variant="ghost"
               size="icon"
-              className="shrink-0 neu-icon-btn"
+              className="shrink-0 size-9 rounded-xl hover:bg-foreground/5"
               onClick={() => onOpenChange(false)}
             >
               <X className="size-4" />
@@ -180,19 +167,19 @@ export function PluginBrowserDialog({
           </div>
 
           {/* Search */}
-          <div className="relative mt-3">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <div className="plugin-search-wrap mt-3">
+            <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder={t('search_plugins', locale) || 'Search plugins...'}
+              placeholder={t('search_plugins', locale as 'en' | 'id' | 'ja' | 'ko' | 'zh' | null) || 'Search plugins...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-10 pl-9 pr-9 neu-input border-0"
+              className="h-10 pl-10 pr-9 text-sm"
             />
             {searchQuery && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-1 top-1/2 size-7 -translate-y-1/2"
+                className="absolute right-1.5 top-1/2 size-7 -translate-y-1/2 rounded-lg"
                 onClick={() => setSearchQuery('')}
               >
                 <X className="size-3.5" />
@@ -202,137 +189,287 @@ export function PluginBrowserDialog({
         </DialogHeader>
 
         {/* ── Category Tabs ── */}
-        <div className="shrink-0 border-b border-border/30 px-2 sm:px-4">
-          <ScrollArea orientation="horizontal" className="w-full">
-            <div className="flex gap-1 py-2">
+        <div className="shrink-0 border-b border-border/20 px-3 sm:px-5">
+          <ScrollArea orientation={"horizontal" as const} className="w-full">
+            <div className="flex gap-1.5 py-2.5">
               <button
                 onClick={() => handleCategoryChange('all')}
-                className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-200 sm:px-4 sm:text-sm border-0 ${
-                  activeCategory === 'all'
-                    ? 'neu-pressed text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
+                className={`cat-tab ${activeCategory === 'all' ? 'active ' + allTabTheme : ''}`}
               >
                 All
               </button>
-              {PLUGIN_CATEGORIES.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => handleCategoryChange(cat.id)}
-                  className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium capitalize transition-all duration-200 sm:px-4 sm:text-sm border-0 ${
-                    activeCategory === cat.id
-                      ? 'neu-pressed text-foreground'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {cat.label}
-                </button>
-              ))}
+              {PLUGIN_CATEGORIES.map((cat) => {
+                const theme = getCategoryTheme(cat.id)
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => handleCategoryChange(cat.id)}
+                    className={`cat-tab ${activeCategory === cat.id ? 'active ' + theme.tabActive : ''}`}
+                  >
+                    <span className="mr-1 text-xs">{theme.emoji}</span>
+                    {cat.label}
+                  </button>
+                )
+              })}
             </div>
           </ScrollArea>
         </div>
 
-        {/* ── Plugin Grid ─────────────────────────────────────── */}
+        {/* ── Content Area ─────────────────────────────────────── */}
         <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto neu-scroll">
           <SafeRender>
-          <div className="p-3 sm:p-4 lg:p-6">
+          <div className="p-4 sm:p-5 lg:p-6">
+            {/* ── Featured Banner (only when showing "All" + no search) ── */}
+            {activeCategory === 'all' && !searchQuery.trim() && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="featured-banner text-white mb-6"
+                style={{
+                  background: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 50%, #f97316 100%)',
+                }}
+              >
+                <div className="relative z-10 flex items-center gap-5 flex-wrap">
+                  <div className="flex size-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30">
+                    <Crown className="size-7" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-base font-bold sm:text-lg">Explore 200+ Design Plugins</h3>
+                    <p className="mt-0.5 text-sm text-white/80 max-w-md">
+                      From shapes to AI tools — supercharge your design workflow with community-built plugins
+                    </p>
+                  </div>
+                  <div className="hidden sm:flex items-center gap-4 text-sm">
+                    <div className="flex flex-col items-center">
+                      <span className="text-2xl font-bold">{totalPlugins}</span>
+                      <span className="text-white/60 text-xs">Plugins</span>
+                    </div>
+                    <div className="w-px h-10 bg-white/20" />
+                    <div className="flex flex-col items-center">
+                      <span className="text-2xl font-bold">41</span>
+                      <span className="text-white/60 text-xs">Categories</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ── Popular Section (only when showing "All" + no search) ── */}
+            {activeCategory === 'all' && !searchQuery.trim() && popularPlugins.length > 0 && (
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <TrendingUp className="size-4 text-amber-500" />
+                  <h2 className="text-sm font-bold tracking-tight">Popular Plugins</h2>
+                </div>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4">
+                  {popularPlugins.map((plugin) => {
+                    const theme = getCategoryTheme(plugin.category)
+                    const isInstalled = installedSet.has(plugin.id)
+                    return (
+                      <motion.div
+                        key={`popular-${plugin.id}`}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.25 }}
+                        className="group cursor-pointer"
+                        onClick={() => !isInstalled && handleToggleInstall(plugin)}
+                      >
+                        <div className="plugin-card">
+                          <div
+                            className="plugin-card-header"
+                            style={{ background: theme.gradient }}
+                          >
+                            <div className="plugin-card-icon-wrap">
+                              <div className="text-white">
+                                {renderPluginIcon(plugin.icon, 'size-6')}
+                              </div>
+                            </div>
+                            {/* Popular badge */}
+                            <div className="absolute top-2.5 right-2.5 z-10">
+                              <div className="flex items-center gap-1 rounded-full bg-white/20 backdrop-blur-sm px-2 py-0.5 text-[10px] font-semibold text-white border border-white/20">
+                                <Star className="size-2.5 fill-current" />
+                                Popular
+                              </div>
+                            </div>
+                          </div>
+                          <div className="plugin-card-body">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <h3 className="text-sm font-semibold leading-tight tracking-tight">
+                                {plugin.name}
+                              </h3>
+                            </div>
+                            <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground mb-3">
+                              {plugin.description}
+                            </p>
+                            <div className="flex items-center justify-between">
+                              <Badge
+                                variant="secondary"
+                                className={`${theme.badgeBg} ${theme.badgeText} border-0 text-[10px] font-semibold rounded-md px-1.5 py-0 h-5`}
+                              >
+                                {plugin.category.replace(/-/g, ' ')}
+                              </Badge>
+                              <span className="text-[10px] text-muted-foreground/60">
+                                v{plugin.version}
+                              </span>
+                            </div>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  className={`plugin-install-btn mt-3 ${isInstalled ? 'uninstall' : 'install'}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleToggleInstall(plugin)
+                                  }}
+                                >
+                                  {isInstalled ? (
+                                    <>
+                                      <Trash2 className="size-3.5" />
+                                      Uninstall
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Download className="size-3.5" />
+                                      Install
+                                    </>
+                                  )}
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="bottom">
+                                {isInstalled
+                                  ? `Remove ${plugin.name}`
+                                  : `Add ${plugin.name} to your workspace`}
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* ── All Plugins Grid ── */}
             {filteredPlugins.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <Search className="mb-3 size-10 text-muted-foreground/50" />
-                <p className="text-sm font-medium text-muted-foreground">
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="size-16 rounded-2xl bg-foreground/5 flex items-center justify-center mb-4">
+                  <Search className="size-7 text-muted-foreground/40" />
+                </div>
+                <p className="text-sm font-semibold text-muted-foreground">
                   No plugins found
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground/70">
+                <p className="mt-1 text-xs text-muted-foreground/60">
                   Try adjusting your search or category filter
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4">
-                {filteredPlugins.map((plugin) => {
-                  const isInstalled = installedSet.has(plugin.id)
-                  return (
-                    <motion.div
-                      key={plugin.id}
-                      initial={{ opacity: 0, y: 12 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="group"
-                    >
-                      <div className="flex h-full flex-col rounded-xl neu-card bg-background p-3 transition-all duration-200 sm:p-4">
-                        {/* Top row: icon + badges */}
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex size-9 shrink-0 items-center justify-center rounded-full sm:size-10 bg-foreground/5 text-foreground">
-                            {renderPluginIcon(plugin.icon)}
-                          </div>
-                          <div className="flex shrink-0 flex-col items-end gap-1">
-                            {plugin.isPopular && (
-                              <Badge
-                                variant="secondary"
-                                className="gap-1 rounded-full px-1.5 py-0 text-[10px] font-semibold leading-4 text-foreground neu-badge border-0"
-                              >
-                                <Sparkles className="size-2.5" />
-                                Popular
-                              </Badge>
-                            )}
-                            <Badge
-                              variant="secondary"
-                              className={`rounded-full px-1.5 py-0 text-[10px] font-medium capitalize leading-4 border-0 neu-badge ${categoryBadgeColors[plugin.category] ?? 'bg-muted text-muted-foreground'}`}
+              <>
+                {(activeCategory !== 'all' || searchQuery.trim()) && (
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-sm font-bold tracking-tight">
+                      {activeCategory !== 'all'
+                        ? `${PLUGIN_CATEGORIES.find((c) => c.id === activeCategory)?.label} Plugins`
+                        : 'Search Results'}
+                    </h2>
+                    <span className="text-xs text-muted-foreground">
+                      {filteredPlugins.length} plugin{filteredPlugins.length !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4">
+                  <AnimatePresence mode="popLayout">
+                    {filteredPlugins.map((plugin, index) => {
+                      const theme = getCategoryTheme(plugin.category)
+                      const isInstalled = installedSet.has(plugin.id)
+                      return (
+                        <motion.div
+                          key={plugin.id}
+                          layout
+                          initial={{ opacity: 0, y: 16 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          transition={{
+                            duration: 0.2,
+                            delay: Math.min(index * 0.03, 0.3),
+                          }}
+                          className="group"
+                        >
+                          <div className="plugin-card">
+                            {/* Colored gradient header with icon */}
+                            <div
+                              className="plugin-card-header"
+                              style={{ background: theme.gradient }}
                             >
-                              {plugin.category.replace(/-/g, ' ')}
-                            </Badge>
-                          </div>
-                        </div>
-
-                        {/* Name */}
-                        <h3 className="mt-2.5 text-sm font-semibold leading-tight tracking-tight">
-                          {plugin.name}
-                        </h3>
-
-                        {/* Description */}
-                        <p className="mt-1 line-clamp-2 flex-1 text-xs leading-relaxed text-muted-foreground sm:text-[13px]">
-                          {plugin.description}
-                        </p>
-
-                        {/* Meta */}
-                        <p className="mt-2 text-[10px] leading-none text-muted-foreground/60 sm:text-xs">
-                          v{plugin.version} &middot; {plugin.author}
-                        </p>
-
-                        {/* Install button */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant={isInstalled ? 'secondary' : 'default'}
-                              size="sm"
-                              className={`mt-2.5 h-9 min-h-[44px] w-full gap-1.5 text-xs font-medium sm:text-sm border-0 ${
-                                isInstalled ? 'btn-neu' : 'btn-neu-primary'
-                              }`}
-                              onClick={() => handleToggleInstall(plugin)}
-                            >
-                              {isInstalled ? (
-                                <>
-                                  <Trash2 className="size-3.5" />
-                                  Uninstall
-                                </>
-                              ) : (
-                                <>
-                                  <Download className="size-3.5" />
-                                  Install
-                                </>
+                              <div className="plugin-card-icon-wrap">
+                                <div className="text-white">
+                                  {renderPluginIcon(plugin.icon, 'size-5')}
+                                </div>
+                              </div>
+                              {plugin.isPopular && (
+                                <div className="absolute top-2 right-2 z-10">
+                                  <div className="flex items-center gap-0.5 rounded-full bg-white/20 backdrop-blur-sm px-1.5 py-0.5 text-[9px] font-bold text-white border border-white/20">
+                                    <Zap className="size-2.5 fill-current" />
+                                  </div>
+                                </div>
                               )}
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom">
-                            {isInstalled
-                              ? `Remove ${plugin.name}`
-                              : `Add ${plugin.name} to your workspace`}
-                          </TooltipContent>
-                        </Tooltip>
-                      </div>
-                    </motion.div>
-                  )
-                })}
-              </div>
+                            </div>
+
+                            {/* Card body */}
+                            <div className="plugin-card-body">
+                              <h3 className="text-[13px] font-semibold leading-tight tracking-tight mb-0.5">
+                                {plugin.name}
+                              </h3>
+                              <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground mb-2.5">
+                                {plugin.description}
+                              </p>
+
+                              {/* Meta row */}
+                              <div className="flex items-center justify-between mb-2.5">
+                                <Badge
+                                  variant="secondary"
+                                  className={`${theme.badgeBg} ${theme.badgeText} border-0 text-[10px] font-semibold rounded-md px-1.5 py-0 h-5`}
+                                >
+                                  {theme.emoji} {plugin.category.replace(/-/g, ' ')}
+                                </Badge>
+                                <span className="text-[10px] text-muted-foreground/50">
+                                  v{plugin.version} · {plugin.author}
+                                </span>
+                              </div>
+
+                              {/* Install button */}
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    className={`plugin-install-btn ${isInstalled ? 'uninstall' : 'install'}`}
+                                    onClick={() => handleToggleInstall(plugin)}
+                                  >
+                                    {isInstalled ? (
+                                      <>
+                                        <Trash2 className="size-3.5" />
+                                        Uninstall
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Download className="size-3.5" />
+                                        Install
+                                      </>
+                                    )}
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent side="bottom">
+                                  {isInstalled
+                                    ? `Remove ${plugin.name}`
+                                    : `Add ${plugin.name} to your workspace`}
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )
+                    })}
+                  </AnimatePresence>
+                </div>
+              </>
             )}
           </div>
           </SafeRender>
@@ -340,13 +477,4 @@ export function PluginBrowserDialog({
       </DialogContent>
     </Dialog>
   )
-}
-
-// ─── Storage helper (must be outside component) ──────────────────────────────
-
-function saveInstalledIdsToStorage(ids: string[]) {
-  if (typeof window === 'undefined') return
-  try {
-    localStorage.setItem('layerboard:installedPlugins', JSON.stringify(ids))
-  } catch { /* ignore */ }
 }
